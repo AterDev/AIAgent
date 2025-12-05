@@ -1,0 +1,53 @@
+<mat-toolbar>
+</mat-toolbar>
+@if (!isLoading()) {
+  <div class="d-flex p-2">
+    <mat-card class="w-100">
+      <!-- <mat-card-header>
+      <div mat-card-avatar class=""></div>
+      <mat-card-title></mat-card-title>
+      <mat-card-subtitle></mat-card-subtitle>
+    </mat-card-header> -->
+    <!-- <img mat-card-image src="" alt=""> -->
+    <mat-card-content>
+      <table class="default w-100">
+        <tbody>
+          <tr>
+            <th>{{ i18nKeys.systemRole.name | translate }}</th>
+            <td class='text-primary'>{{ data.name }}</td>
+          </tr>
+          <tr>
+            <th>{{ i18nKeys.systemRole.nameValue | translate }}</th>
+            <td class='text-primary'>{{ data.nameValue }}</td>
+          </tr>
+          <tr>
+            <th>{{ i18nKeys.systemRole.isSystemDesc | translate }}</th>
+            <td class='text-primary'>{{ data.isSystem }}</td>
+          </tr>
+          <tr>
+            <th>{{ i18nKeys.common.icon | translate }}</th>
+            <td class='text-primary'>{{ data.icon }}</td>
+          </tr>
+          <tr>
+            <th>{{ i18nKeys.common.id | translate }}</th>
+            <td class='text-primary'>{{ data.id }}</td>
+          </tr>
+          <tr>
+            <th>{{ i18nKeys.common.createdTime | translate }}</th>
+            <td class='text-primary'>{{ data.createdTime }}</td>
+          </tr>
+          <tr>
+            <th>{{ i18nKeys.common.updatedTime | translate }}</th>
+            <td class='text-primary'>{{ data.updatedTime }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </mat-card-content>
+    <mat-card-actions>
+      <!-- <button mat-button></button>
+      <button mat-button></button> -->
+    </mat-card-actions>
+  </mat-card>
+</div>
+}
+

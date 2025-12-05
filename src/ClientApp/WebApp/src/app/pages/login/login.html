@@ -1,0 +1,34 @@
+<div class="login-container">
+  <canvas id="starfield"
+    style="position:absolute;inset:0;width:100vw;height:100vh;z-index:0;pointer-events:none;"></canvas>
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        {{i18nKeys.login.login | translate}}
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form (ngSubmit)="doLogin()" class="login-form">
+        <mat-form-field appearance="outline">
+          <mat-label>{{i18nKeys.login.email|translate}}</mat-label>
+          <input matInput type="email" [field]="email" [placeholder]="i18nKeys.login.emailPlaceholder | translate">
+          @if (email().invalid() && email().touched()) {
+          <mat-error>{{getValidatorMessage(email())}}</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>{{i18nKeys.login.password|translate}}</mat-label>
+          <input type="password" matInput [placeholder]="i18nKeys.login.passwordPlaceholder | translate"
+            [field]="password">
+          @if (password().invalid() && password().touched()) {
+          <mat-error>{{getValidatorMessage(password())}}</mat-error>
+          }
+        </mat-form-field>
+        <div class="login-btn-row">
+          <button mat-flat-button color="primary" type="submit"
+            [disabled]="loginForm().invalid()">{{i18nKeys.login.login|translate}}</button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

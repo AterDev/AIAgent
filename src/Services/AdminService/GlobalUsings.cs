@@ -1,0 +1,13 @@
+//global using AdminService.Extension;
+global using AdminService.Extension;
+global using Perigon.AspNetCore.Abstraction;
+global using Perigon.AspNetCore.Constants;
+global using Perigon.AspNetCore.Utils;
+global using Entity.SystemMod;
+global using Microsoft.AspNetCore.Authorization;
+global using Microsoft.AspNetCore.Mvc;
+global using ServiceDefaults;
+global using Share;
+global using Share.Implement;
+global using SystemMod.Managers;
+global using SystemMod.Models;

@@ -1,0 +1,44 @@
+[
+    {
+        "name": "menu.system",
+        "path": null,
+        "accessCode": "system",
+        "icon": "admin_panel_settings",
+        "sort": 2,
+        "menuType": 0,
+        "children": [
+            {
+                "name": "menu.systemRole",
+                "path": "/system-role",
+                "accessCode": "system-role",
+                "icon": "groups",
+                "sort": 0,
+                "menuType": 0
+            },
+            {
+                "name": "menu.systemUser",
+                "path": "/system-user",
+                "accessCode": "system-user",
+                "icon": "manage_accounts",
+                "sort": 1,
+                "menuType": 0
+            },
+            {
+                "name": "menu.systemLogs",
+                "path": "/system-logs",
+                "accessCode": "system-logs",
+                "icon": "manage_search",
+                "sort": 3,
+                "menuType": 0
+            },
+            {
+                "name": "menu.systemConfig",
+                "path": "/system-config",
+                "accessCode": "system-config",
+                "icon": "settings",
+                "sort": 4,
+                "menuType": 0
+            }
+        ]
+    }
+]

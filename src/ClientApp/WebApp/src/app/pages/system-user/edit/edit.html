@@ -1,0 +1,77 @@
+<mat-toolbar class="d-flex gap-1">
+  <!-- <mat-icon class="clickable" matTooltip="返回" (click)="back()">arrow_back</mat-icon> -->
+  <span>{{i18nKeys.common.save | translate}}</span>
+</mat-toolbar>
+@if (!isLoading()) {
+  <form class="d-flex p-2" [formGroup]="formGroup">
+    <div class="d-flex flex-column w-100">
+      <mat-form-field class="w-100" appearance="fill">
+        <mat-label>{{i18nKeys.login.username | translate}}</mat-label>
+        <input matInput formControlName="userName" placeholder=""/>
+        @if (formGroup.get('userName')?.invalid) {
+          <mat-error>
+            {{getValidatorMessage('userName')}}
+          </mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field class="w-100" appearance="fill">
+        <mat-label>{{i18nKeys.login.password | translate}}</mat-label>
+        <input matInput formControlName="password" placeholder=""/>
+        @if (formGroup.get('password')?.invalid) {
+          <mat-error>
+            {{getValidatorMessage('password')}}
+          </mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field class="w-100" appearance="fill">
+        <mat-label>{{i18nKeys.systemUser.realName | translate}}</mat-label>
+        <input matInput formControlName="realName" placeholder=""/>
+        @if (formGroup.get('realName')?.invalid) {
+          <mat-error>
+            {{getValidatorMessage('realName')}}
+          </mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field class="w-100" appearance="fill">
+        <mat-label>{{i18nKeys.systemUser.email | translate}}</mat-label>
+        <input matInput formControlName="email" placeholder=""/>
+        @if (formGroup.get('email')?.invalid) {
+          <mat-error>
+            {{getValidatorMessage('email')}}
+          </mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field class="w-100" appearance="fill">
+        <mat-label>{{i18nKeys.systemUser.phoneNumber | translate}}</mat-label>
+        <input matInput formControlName="phoneNumber" placeholder=""/>
+        @if (formGroup.get('phoneNumber')?.invalid) {
+          <mat-error>
+            {{getValidatorMessage('phoneNumber')}}
+          </mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field class="w-100" appearance="fill">
+        <mat-label>{{i18nKeys.systemUser.avatar | translate}}</mat-label>
+        <input matInput formControlName="avatar" placeholder=""/>
+        @if (formGroup.get('avatar')?.invalid) {
+          <mat-error>
+            {{getValidatorMessage('avatar')}}
+          </mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field class="w-100" appearance="fill">
+        <mat-label>{{i18nKeys.systemUser.gender | translate}}</mat-label>
+        <mat-select formControlName="sex" [placeholder]="i18nKeys.systemUser.select | translate">
+          @for (item of GenderType | toKeyValue; track item) {
+            <mat-option [value]="item.value">
+              {{item.key}}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <div class="d-flex mt-1 justify-content-end">
+        <button class="d-flex flex-column" mat-flat-button color="primary" (click)="edit()">{{i18nKeys.common.save | translate}}</button>
+      </div>
+    </div>
+  </form>
+}

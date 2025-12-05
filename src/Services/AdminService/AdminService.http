@@ -1,0 +1,17 @@
+@AdminService_HostAddress = https://localhost:17001/api
+
+// @name auth
+POST {{AdminService_HostAddress}}/systemuser/authorize
+Accept: application/json
+Content-Type: application/json
+{
+  "email": "admin@default.com",
+  "password": "Perigon.20261"
+}
+
+###
+
+GET {{AdminService_HostAddress}}/systemuser/userinfo
+Accept: application/json
+Authorization: Bearer {{auth.response.body.$.accessToken}}
+
