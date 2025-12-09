@@ -12,12 +12,18 @@ param (
 dotnet tool restore
 # 从 appsettings.Development.json 读取数据库类型
 $appSettingsPath = "../src/AppHost/appsettings.Development.json"
+$IsMultiTenant = $true
+
 if (Test-Path $appSettingsPath) {
     try {
         $config = Get-Content $appSettingsPath | ConvertFrom-Json
         if ($null -ne $config.Components.Database) {
             $DatabaseType = $config.Components.Database
             Write-Host "✅ Database type from appsettings: $DatabaseType"
+        }
+        if ($null -ne $config.Components.IsMultiTenant) {
+            $IsMultiTenant = $config.Components.IsMultiTenant
+            Write-Host "✅ IsMultiTenant from appsettings: $IsMultiTenant"
         }
     }
     catch {
@@ -27,6 +33,9 @@ if (Test-Path $appSettingsPath) {
 
 $env:Components__Database = $DatabaseType
 Write-Host "✅ Set environment variable 'Components__Database' to '$DatabaseType' for this session."
+
+$env:Components__IsMultiTenant = $IsMultiTenant
+Write-Host "✅ Set environment variable 'Components__IsMultiTenant' to '$IsMultiTenant' for this session."
 
 $location = Get-Location
 

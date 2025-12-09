@@ -1,6 +1,6 @@
 {
     "servers": {
-        "ater.dry.copilot": {
+        "perigon": {
             "type": "http",
             "url": "http://localhost:19160/mcp/"
         }

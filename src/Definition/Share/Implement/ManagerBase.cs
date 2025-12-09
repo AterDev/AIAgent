@@ -29,7 +29,7 @@ public abstract class ManagerBase<TDbContext>(TDbContext dbContext, ILogger logg
 /// <typeparam name="TEntity">Entity type</typeparam>
 public abstract class ManagerBase<TDbContext, TEntity>
     where TDbContext : DbContext
-    where TEntity : class, IEntityBase
+    where TEntity : class, ITenantEntityBase
 {
     protected IQueryable<TEntity> Queryable { get; set; }
     protected bool IgnoreQueryFilter { get; set; }
@@ -37,6 +37,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
     protected readonly TDbContext _dbContext;
     protected readonly DbSet<TEntity> _dbSet;
     protected readonly IUserContext _userContext;
+    protected readonly bool _isMultiTenant;
 
     public ManagerBase(
         TenantDbFactory dbContextFactory,
@@ -44,13 +45,14 @@ public abstract class ManagerBase<TDbContext, TEntity>
         ILogger logger
     )
     {
-        _logger      = logger;
-        _dbContext   = (dbContextFactory.CreateDbContextAsync().Result as TDbContext)!;
+        _logger = logger;
+        _dbContext = (dbContextFactory.CreateDbContextAsync().Result as TDbContext)!;
         _userContext = userContext;
-        _dbSet       = _dbContext.Set<TEntity>();
-        Queryable    = _dbSet.AsNoTracking().AsQueryable();
+        _isMultiTenant = dbContextFactory.IsMultiTenant;
+        _dbSet = _dbContext.Set<TEntity>();
+        Queryable = _dbSet.AsNoTracking().AsQueryable();
 
-        if (_userContext.TenantId == Guid.Empty)
+        if (_isMultiTenant && _userContext.TenantId == Guid.Empty)
         {
             _logger.LogWarning("TenantId is empty in UserContext");
         }
@@ -75,9 +77,12 @@ public abstract class ManagerBase<TDbContext, TEntity>
     protected async Task<TDto?> FindAsync<TDto>(Expression<Func<TEntity, bool>>? whereExp = null)
         where TDto : class
     {
-        var model = await _dbSet
-            .AsNoTracking()
-            .Where(e => e.TenantId == _userContext.TenantId)
+        var query = _dbSet.AsNoTracking();
+        if (_isMultiTenant)
+        {
+            query = query.Where(e => e.TenantId == _userContext.TenantId);
+        }
+        var model = await query
             .Where(whereExp ?? (e => true))
             .ProjectToType<TDto>()
             .FirstOrDefaultAsync();
@@ -112,8 +117,11 @@ public abstract class ManagerBase<TDbContext, TEntity>
         {
             query = query.IgnoreQueryFilters();
         }
+        if (_isMultiTenant)
+        {
+            query = query.Where(e => e.TenantId == _userContext.TenantId);
+        }
         return await query
-            .Where(e => e.TenantId == _userContext.TenantId)
             .Where(whereExp ?? (e => true))
             .ProjectToType<TDto>()
             .ToListAsync(cancellationToken);
@@ -138,14 +146,17 @@ public abstract class ManagerBase<TDbContext, TEntity>
         {
             Queryable = Queryable.IgnoreQueryFilters();
         }
-        Queryable = Queryable.Where(e => e.TenantId == _userContext.TenantId);
+        if (_isMultiTenant)
+        {
+            Queryable = Queryable.Where(e => e.TenantId == _userContext.TenantId);
+        }
         Queryable =
             filter.OrderBy != null && filter.OrderBy.Count > 0
                 ? Queryable.OrderBy(filter.OrderBy)
                 : Queryable.OrderByDescending(t => t.CreatedTime);
 
-        var         count = Queryable.Count();
-        List<TItem> data  = await Queryable
+        var count = Queryable.Count();
+        List<TItem> data = await Queryable
             .AsNoTracking()
             .Skip((filter.PageIndex - 1) * filter.PageSize)
             .Take(filter.PageSize)
@@ -155,8 +166,8 @@ public abstract class ManagerBase<TDbContext, TEntity>
         ResetQuery();
         return new PageList<TItem>
         {
-            Count     = count,
-            Data      = data,
+            Count = count,
+            Data = data,
             PageIndex = filter.PageIndex,
         };
     }
@@ -168,7 +179,10 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <param name="entity">The entity to insert or update. Cannot be null.</param>
     protected async Task InsertAsync(TEntity entity)
     {
-        entity.TenantId = _userContext.TenantId;
+        if (_isMultiTenant)
+        {
+            entity.TenantId = _userContext.TenantId;
+        }
         await _dbContext.BulkInsertAsync([entity]);
     }
 
@@ -184,8 +198,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
         Guid id,
         TUpdateDto dto,
         bool updateTime = true
-    )
-        where TUpdateDto : class
+    ) where TUpdateDto : class
     {
         return await _dbContext.PartialUpdateAsync<TEntity, TUpdateDto>(id, dto, updateTime);
     }
@@ -197,7 +210,10 @@ public abstract class ManagerBase<TDbContext, TEntity>
     {
         foreach (TEntity entity in entities)
         {
-            entity.TenantId = _userContext.TenantId;
+            if (_isMultiTenant)
+            {
+                entity.TenantId = _userContext.TenantId;
+            }
             entity.UpdatedTime = DateTime.UtcNow;
         }
         await _dbContext.BulkInsertAsync(entities, cancellationToken: cancellationToken);
@@ -299,21 +315,30 @@ public abstract class ManagerBase<TDbContext, TEntity>
         CancellationToken cancellationToken = default
     )
     {
-        using var transaction = await _dbContext
-            .Database
-            .BeginTransactionAsync(cancellationToken);
-        try
+        var strategy = _dbContext.Database.CreateExecutionStrategy();
+        return await strategy.ExecuteAsync<T>(async (cancellationToken) =>
         {
-            var result = await operation();
-            await transaction.CommitAsync(cancellationToken);
-            return result;
-        }
-        catch (Exception ex)
-        {
-            await transaction.RollbackAsync(cancellationToken);
-            _logger.LogError(ex, "执行事务操作时发生错误");
-            throw;
-        }
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                var result = await operation();
+                await transaction.CommitAsync(cancellationToken);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                }
+                catch
+                {
+                    // ignore rollback failures, original exception is more important
+                }
+                _logger.LogError(ex, "执行事务操作时发生错误");
+                throw;
+            }
+        }, cancellationToken);
     }
 
     /// <summary>
@@ -327,20 +352,29 @@ public abstract class ManagerBase<TDbContext, TEntity>
         CancellationToken cancellationToken = default
     )
     {
-        using var transaction = await _dbContext
-            .Database
-            .BeginTransactionAsync(cancellationToken);
-        try
+        var strategy = _dbContext.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async (cancellationToken) =>
         {
-            await operation();
-            await transaction.CommitAsync(cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            await transaction.RollbackAsync(cancellationToken);
-            _logger.LogError(ex, "执行事务操作时发生错误");
-            throw;
-        }
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                await operation();
+                await transaction.CommitAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                }
+                catch
+                {
+                    // ignore rollback failures
+                }
+                _logger.LogError(ex, "执行事务操作时发生错误");
+                throw;
+            }
+        }, cancellationToken);
     }
 
     public abstract Task<bool> HasPermissionAsync(Guid id);

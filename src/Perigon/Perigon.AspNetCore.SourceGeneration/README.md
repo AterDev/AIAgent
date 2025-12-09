@@ -1,6 +1,6 @@
 # Introduction
 
-This library is source generated for Api project in `Perigon.Web.templates`.
+This library is source generated for WebApi project in `Perigon Framework`.
 
-It helps to generate the extension methods for add `Managers` and `Modules`.
-
+- generate the extension methods for add `Managers` and `Modules`.
+- generate Localizer const keys for `IStringLocalizer` usage.

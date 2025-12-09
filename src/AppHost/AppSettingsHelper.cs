@@ -12,11 +12,6 @@ public class AspireSetting
     public string DevPassword { get; set; } =
         "AIAgent_Dev@" + DateOnly.FromDateTime(DateTime.UtcNow).ToString("yyyy");
 
-    /// <summary>
-    /// message queue, default nats
-    /// </summary>
-    public bool EnableNats { get; set; }
-    public bool EnableQdrant { get; set; }
     public int DbPort { get; set; } = 15432;
     public int CachePort { get; set; } = 16379;
 }
@@ -44,8 +39,6 @@ public static class AppSettingsHelper
                 "sqlserver" => 11433,
                 _ => 13306,
             },
-            EnableNats = components.GetValue<bool>("EnableNats"),
-            EnableQdrant = components.GetValue<bool>("EnableQdrant"),
         };
     }
 }

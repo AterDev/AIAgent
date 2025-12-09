@@ -63,6 +63,12 @@ internal class MigrationsModelDifferProxy : DispatchProxy
     {
         try
         {
+            var isMultiTenantEnv = Environment.GetEnvironmentVariable("Components__IsMultiTenant");
+            if (!string.IsNullOrEmpty(isMultiTenantEnv) && bool.TryParse(isMultiTenantEnv, out var isMultiTenant) && !isMultiTenant)
+            {
+                return ops;
+            }
+
             var list = ops.ToList();
 
             // 1. 识别所有包含 TenantId 的表

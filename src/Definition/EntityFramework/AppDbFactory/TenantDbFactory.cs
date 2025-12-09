@@ -18,13 +18,15 @@ public class TenantDbFactory(
     IOptions<ComponentOption> options
 )
 {
+    public bool IsMultiTenant => options.Value.IsMultiTenant;
+
     public async Task<DefaultDbContext> CreateDbContextAsync()
     {
         var builder = new DbContextOptionsBuilder<DefaultDbContext>();
         Guid tenantId = tenantContext.TenantId;
 
         var connectionStrings = configuration.GetConnectionString(AppConst.Default);
-        if (tenantContext.TenantType == TenantType
+        if (IsMultiTenant && tenantContext.TenantType == TenantType
             .Independent
             .ToString())
         {
@@ -47,7 +49,7 @@ public class TenantDbFactory(
         var builder = new DbContextOptionsBuilder<AnalysisDbContext>();
         Guid tenantId = tenantContext.TenantId;
         var connectionStrings = configuration.GetConnectionString(AppConst.Analysis);
-        if (tenantContext.TenantType == TenantType
+        if (IsMultiTenant && tenantContext.TenantType == TenantType
             .Independent
             .ToString())
         {
