@@ -1,7 +1,7 @@
 ﻿namespace Perigon.AspNetCore.Abstraction;
 
 /// <summary>
-/// entity base interface with tenant support
+/// entity base interface
 /// </summary>
 public interface IEntityBase
 {
@@ -9,5 +9,12 @@ public interface IEntityBase
     DateTimeOffset CreatedTime { get; }
     DateTimeOffset UpdatedTime { get; set; }
     bool IsDeleted { get; set; }
+}
+
+/// <summary>
+/// entity base interface with tenant support
+/// </summary>
+public interface ITenantEntityBase : IEntityBase
+{
     Guid TenantId { get; set; }
 }

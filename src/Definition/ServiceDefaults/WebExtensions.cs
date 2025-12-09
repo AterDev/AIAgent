@@ -1,7 +1,6 @@
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using System.Threading.RateLimiting;
-using Perigon.AspNetCore.Converters;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
@@ -9,6 +8,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using Perigon.AspNetCore.Converters;
 using ServiceDefaults;
 using ServiceDefaults.Middleware;
 
@@ -65,8 +65,6 @@ public static class WebExtensions
 
     public static WebApplication UseMiddlewareServices(this WebApplication app)
     {
-        // 异常统一处理
-
         if (app.Environment.IsProduction())
         {
             app.UseCors(AppConst.Default);

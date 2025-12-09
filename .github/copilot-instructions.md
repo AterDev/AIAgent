@@ -1,6 +1,6 @@
 # GitHub Copilot Instructions
 
-本仓库是.NET解决方案。是基于`Ater.Web.template`模板的WebApi项目。在使用GitHub Copilot时，请遵循以下指导原则和偏好设置。
+本仓库是.NET解决方案。是基于`Perigon.template`模板的WebApi项目。在使用GitHub Copilot时，请遵循以下指导原则和偏好设置。
 
 <principles>
 - 只给出确定且验证的内容。

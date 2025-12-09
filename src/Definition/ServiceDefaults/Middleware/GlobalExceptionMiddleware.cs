@@ -1,7 +1,7 @@
-using Perigon.AspNetCore.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using Perigon.AspNetCore.Models;
 using Share.Exceptions;
 
 namespace ServiceDefaults.Middleware;
@@ -43,7 +43,7 @@ public class GlobalExceptionMiddleware(RequestDelegate next, Localizer localizer
         {
             ctx.Response.StatusCode = ex.StatusCodes;
             await ctx.Response.WriteAsJsonAsync(
-                new ErrorResult(localizer.Get(ex.ErrorCode), ctx.TraceIdentifier)
+                new ErrorResult(localizer.Get(ex.LanguageKey), ctx.TraceIdentifier)
             );
         }
         catch (Exception ex)

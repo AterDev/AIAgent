@@ -1,19 +1,19 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Http;
 
 namespace Share.Exceptions;
 
 /// <summary>
 /// throw new BusinessException when business error occurs
 /// </summary>
-/// <param name="errorCode">the key of language const</param>
+/// <param name="LanguageKey">the key of language const</param>
 /// <param name="statusCodes"></param>
 [DebuggerNonUserCode]
 public class BusinessException(
-    string errorCode,
+    string LanguageKey,
     int statusCodes = StatusCodes.Status500InternalServerError
 ) : Exception()
 {
-    public string ErrorCode { get; } = errorCode;
+    public string LanguageKey { get; } = LanguageKey;
     public int StatusCodes { get; } = statusCodes;
 }

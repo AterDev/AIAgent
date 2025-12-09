@@ -19,6 +19,7 @@ public class ComponentOption
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public MQType MQType { get; set; } = MQType.None;
     public bool UseCors { get; set; } = true;
+    public bool IsMultiTenant { get; set; }
     public bool UseSMS { get; set; }
     public bool UseSmtp { get; set; }
     public bool UseAWSS3 { get; set; }

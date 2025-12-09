@@ -5,15 +5,15 @@
 		<LangVersion>latest</LangVersion>
 		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
 		<IsRoslynComponent>true</IsRoslynComponent>
-		<PackageId>Perigon.Web.SourceGeneration</PackageId>
-		<Title>Perigon.Web.SourceGeneration</Title>
+		<PackageId>Perigon.AspNetCore.SourceGeneration</PackageId>
+		<Title>Perigon.AspNetCore.SourceGeneration</Title>
 		<Authors>niltor</Authors>
-		<Version>1.0.0-beta7</Version>
+		<Version>1.0.0-rc1</Version>
 		<PackageTags>analyzer;web framework;ater;webapi;source generator</PackageTags>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageProjectUrl>https://github.com/AterDev/ater.dry.cli</PackageProjectUrl>
+		<PackageProjectUrl>https://github.com/AterDev/Perigon.template</PackageProjectUrl>
 		<PackageIcon>logo.jpg</PackageIcon>
-		<RepositoryUrl>https://github.com/AterDev/ater.dry.cli</RepositoryUrl>
+		<RepositoryUrl>https://github.com/AterDev/Perigon.template</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageReleaseNotes>
 		</PackageReleaseNotes>
@@ -34,7 +34,7 @@
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
 	</ItemGroup>
 	<ItemGroup>
-		<None Include="..\..\..\..\..\logo.jpg">
+		<None Include="..\logo.jpg">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>

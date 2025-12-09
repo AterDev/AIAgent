@@ -5,7 +5,7 @@ namespace Entity;
 /// <summary>
 /// 实体基类
 /// </summary>
-public abstract class EntityBase : IEntityBase
+public abstract class EntityBase : ITenantEntityBase
 {
     [Key]
     public Guid Id { get; set; } = Guid.CreateVersion7();

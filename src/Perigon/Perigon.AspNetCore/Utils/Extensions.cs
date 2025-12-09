@@ -4,7 +4,7 @@ using Mapster;
 
 namespace Perigon.AspNetCore.Utils;
 
-public static partial class Extensions
+public static class Extensions
 {
     extension<TSource>(TSource source)
     {
