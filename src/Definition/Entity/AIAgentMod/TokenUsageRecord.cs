@@ -3,8 +3,7 @@ namespace Entity.AIAgentMod;
 /// 用户Token用量信息
 /// </summary>
 
-[Index(nameof(UserId))]
-[Index(nameof(CreatedTime))]
+[Index(nameof(UserId), nameof(CreatedTime))]
 public class TokenUsageRecord : EntityBase
 {
     /// <summary>

@@ -4,7 +4,7 @@ namespace Entity.AIAgentMod;
 /// 对话实例
 /// </summary>
 
-[Index(nameof(UserId), nameof(Name))]
+[Index(nameof(UserId), nameof(CreatedTime))]
 public class Conversation : EntityBase
 {
     /// <summary>
@@ -53,5 +53,9 @@ public class Conversation : EntityBase
     /// <summary>
     /// 对话中的消息列表
     /// </summary>
-    public virtual ICollection<ChatMessage> Messages { get; set; } = [];
+    public virtual ICollection<ChatMessage> Messages
+    {
+        get { return field.OrderBy(m => m.CreatedTime).ToList(); }
+        set { field = value; }
+    } = [];
 }

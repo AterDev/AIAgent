@@ -23,7 +23,7 @@ public class AIAgent : EntityBase
     /// <summary>
     /// Agent 所使用的大模型名称（例如 "gpt-4", "qwen-max", "custom-llm"）
     /// </summary>
-    public required string ModelName { get; set; }
+    public required string ModelId { get; set; }
 
     /// <summary>
     /// Agent 的角色设定（System Prompt）

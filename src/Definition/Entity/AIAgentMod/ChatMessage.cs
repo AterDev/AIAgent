@@ -4,7 +4,7 @@
 /// 聊天消息
 /// </summary>
 
-[Index(nameof(UserId), nameof(Role))]
+[Index(nameof(UserId), nameof(ConversationId), nameof(CreatedTime))]
 public class ChatMessage : EntityBase
 {
     /// <summary>
@@ -27,7 +27,7 @@ public class ChatMessage : EntityBase
     /// 角色（用户、AI等）
     /// </summary>
     [MaxLength(32)]
-    public string Role { get; set; } = string.Empty;
+    public ChatMessageRole Role { get; set; } = ChatMessageRole.User;
 
     /// <summary>
     /// 消息内容
@@ -38,7 +38,7 @@ public class ChatMessage : EntityBase
     /// 内容类型（文本、图片、文件等）
     /// </summary>
     [MaxLength(32)]
-    public string ContentType { get; set; } = "text";
+    public ChatMessageType ContentType { get; set; } = ChatMessageType.Text;
 
     /// <summary>
     /// 令牌数量
@@ -50,5 +50,19 @@ public class ChatMessage : EntityBase
     /// </summary>
     [MaxLength(128)]
     public string? ModelName { get; set; }
+}
 
+public enum ChatMessageRole
+{
+    User,
+    AI,
+    System,
+    Tool
+}
+
+public enum ChatMessageType
+{
+    Text,
+    Image,
+    File
 }

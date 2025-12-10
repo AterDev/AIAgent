@@ -28,6 +28,7 @@
     <Project Path="src/Definition/Share/Share.csproj" />
   </Folder>
   <Folder Name="/src/Modules/">
+    <Project Path="src/Modules/AIAgentMod/AIAgentMod.csproj" />
     <Project Path="src/Modules/CommonMod/CommonMod.csproj" Id="f2def1d4-f065-d84e-4e7b-454a998f4dfc" />
     <Project Path="src/Modules/SystemMod/SystemMod.csproj" />
   </Folder>

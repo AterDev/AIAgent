@@ -4,7 +4,8 @@
 /// McpServer
 /// </summary>
 
-[Index(nameof(Name))]
+[Index(nameof(DisplayName))]
+[Index(nameof(IdentityName), IsUnique = true)]
 public class MCPServerInfo : EntityBase
 {
     /// <summary>
@@ -15,7 +16,7 @@ public class MCPServerInfo : EntityBase
     /// <summary>
     /// MCP Server 名称
     /// </summary>
-    public string Name { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = string.Empty;
 
     /// <summary>
     /// 传输类型（http, stdio, sse, websocket）
@@ -56,7 +57,7 @@ public enum TransportType
 {
     Http,
     Stdio,
-    Sse,
+    SSE,
     Websocket
 }
 public enum AuthType

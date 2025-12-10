@@ -29,7 +29,7 @@ public abstract class ManagerBase<TDbContext>(TDbContext dbContext, ILogger logg
 /// <typeparam name="TEntity">Entity type</typeparam>
 public abstract class ManagerBase<TDbContext, TEntity>
     where TDbContext : DbContext
-    where TEntity : class, ITenantEntityBase
+    where TEntity : class, IEntityBase
 {
     protected IQueryable<TEntity> Queryable { get; set; }
     protected bool IgnoreQueryFilter { get; set; }
@@ -38,6 +38,8 @@ public abstract class ManagerBase<TDbContext, TEntity>
     protected readonly DbSet<TEntity> _dbSet;
     protected readonly IUserContext _userContext;
     protected readonly bool _isMultiTenant;
+
+    protected bool IsTenantScoped => typeof(ITenantEntityBase).IsAssignableFrom(typeof(TEntity));
 
     public ManagerBase(
         TenantDbFactory dbContextFactory,
@@ -78,10 +80,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
         where TDto : class
     {
         var query = _dbSet.AsNoTracking();
-        if (_isMultiTenant)
-        {
-            query = query.Where(e => e.TenantId == _userContext.TenantId);
-        }
+        query = ApplyTenantFilter(query);
         var model = await query
             .Where(whereExp ?? (e => true))
             .ProjectToType<TDto>()
@@ -117,10 +116,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
         {
             query = query.IgnoreQueryFilters();
         }
-        if (_isMultiTenant)
-        {
-            query = query.Where(e => e.TenantId == _userContext.TenantId);
-        }
+        query = ApplyTenantFilter(query);
         return await query
             .Where(whereExp ?? (e => true))
             .ProjectToType<TDto>()
@@ -146,10 +142,9 @@ public abstract class ManagerBase<TDbContext, TEntity>
         {
             Queryable = Queryable.IgnoreQueryFilters();
         }
-        if (_isMultiTenant)
-        {
-            Queryable = Queryable.Where(e => e.TenantId == _userContext.TenantId);
-        }
+
+        Queryable = ApplyTenantFilter(Queryable);
+
         Queryable =
             filter.OrderBy != null && filter.OrderBy.Count > 0
                 ? Queryable.OrderBy(filter.OrderBy)
@@ -179,9 +174,9 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <param name="entity">The entity to insert or update. Cannot be null.</param>
     protected async Task InsertAsync(TEntity entity)
     {
-        if (_isMultiTenant)
+        if (_isMultiTenant && IsTenantScoped)
         {
-            entity.TenantId = _userContext.TenantId;
+            ((ITenantEntityBase)entity).TenantId = _userContext.TenantId;
         }
         await _dbContext.BulkInsertAsync([entity]);
     }
@@ -210,10 +205,11 @@ public abstract class ManagerBase<TDbContext, TEntity>
     {
         foreach (TEntity entity in entities)
         {
-            if (_isMultiTenant)
+            if (_isMultiTenant && IsTenantScoped)
             {
-                entity.TenantId = _userContext.TenantId;
+                ((ITenantEntityBase)entity).TenantId = _userContext.TenantId;
             }
+
             entity.UpdatedTime = DateTime.UtcNow;
         }
         await _dbContext.BulkInsertAsync(entities, cancellationToken: cancellationToken);
@@ -385,5 +381,14 @@ public abstract class ManagerBase<TDbContext, TEntity>
     protected void ResetQuery()
     {
         Queryable = _dbSet.AsQueryable();
+    }
+
+    protected IQueryable<TEntity> ApplyTenantFilter(IQueryable<TEntity> query)
+    {
+        if (_isMultiTenant && IsTenantScoped)
+        {
+            return query.Where(e => ((ITenantEntityBase)e).TenantId == _userContext.TenantId);
+        }
+        return query;
     }
 }
