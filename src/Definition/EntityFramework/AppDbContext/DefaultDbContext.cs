@@ -1,4 +1,5 @@
 
+using Entity.AIAgentMod;
 using Entity.SystemMod;
 
 namespace EntityFramework.AppDbContext;
@@ -10,7 +11,7 @@ namespace EntityFramework.AppDbContext;
 public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options)
     : ContextBase(options)
 {
-
+    #region SystemMod
     public DbSet<SystemUser> SystemUsers { get; set; }
     public DbSet<SystemRole> SystemRoles { get; set; }
     public DbSet<SystemUserRole> SystemUserRoles { get; set; }
@@ -28,6 +29,26 @@ public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options
     public DbSet<SystemPermissionGroup> SystemPermissionGroups { get; set; }
     public DbSet<SystemLogs> SystemLogs { get; set; }
     public DbSet<SystemOrganization> SystemOrganizations { get; set; } = null!;
+    #endregion
+
+    #region AIAgentMod
+
+    public DbSet<AIAgent> AIAgents { get; set; }
+
+    public DbSet<TokenUsage> TokenUsages { get; set; }
+
+    public DbSet<AIModelInfo> AIModelInfos { get; set; }
+    public DbSet<AIModelProvider> AIModelProviders { get; set; }
+
+    public DbSet<ChatMessage> ChatMessages { get; set; }
+
+    public DbSet<Conversation> Conversations { get; set; }
+
+    public DbSet<MCPServerInfo> MCPServerInfos { get; set; }
+
+    public DbSet<TokenUsageRecord> TokenUsageRecords { get; set; }
+
+    #endregion
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
