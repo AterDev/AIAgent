@@ -11,7 +11,7 @@ import { Location } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { CommonFormModules } from 'src/app/share/shared-modules';
 import { ToKeyValuePipe } from 'src/app/share/pipe/to-key-value.pipe';
-import { GenderType } from 'src/app/services/admin/models/ater/gender-type.model';
+import { GenderType } from 'src/app/services/admin/models/perigon/gender-type.model';
 import { TranslateService } from '@ngx-translate/core';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
 

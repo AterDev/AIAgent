@@ -16,7 +16,7 @@ import { Detail } from '../detail/detail';
 import { Add } from '../add/add';
 import { Edit } from '../edit/edit';
 import { Menus } from '../menus/menus';
-import { PageList } from 'src/app/services/admin/models/ater/page-list.model';
+import { PageList } from 'src/app/services/admin/models/perigon/page-list.model';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
 import { TranslateService } from '@ngx-translate/core';
 

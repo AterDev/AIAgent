@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { ArticleCategoryService } from './services/article-category.service';
+import { AIAgentService } from './services/aiagent.service';
+import { AIModelProviderService } from './services/aimodel-provider.service';
 import { SystemConfigService } from './services/system-config.service';
 import { SystemLogsService } from './services/system-logs.service';
 import { SystemMenuService } from './services/system-menu.service';
@@ -11,8 +12,10 @@ import { SystemUserService } from './services/system-user.service';
   providedIn: 'root'
 })
 export class AdminClient {
-  /** ArticleCategory */
-  public articleCategory = inject(ArticleCategoryService);
+  /** agent */
+  public aIAgent = inject(AIAgentService);
+  /** AI模型提供商 */
+  public aIModelProvider = inject(AIModelProviderService);
   /** 系统配置 */
   public systemConfig = inject(SystemConfigService);
   /** 系统日志 */

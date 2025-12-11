@@ -5,7 +5,7 @@ namespace AIAgentMod.Managers;
 /// agent
 /// </summary>
 public class AIAgentManager(
-    TenantDbFactory dbContextFactory,
+    TenantDbFactory dbContextFactory, 
     ILogger<AIAgentManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, AIAgent>(dbContextFactory, userContext, logger)
@@ -14,7 +14,7 @@ public class AIAgentManager(
     /// Filter agent with paging
     /// </summary>
     public async Task<PageList<AIAgentItemDto>> FilterAsync(AIAgentFilterDto filter)
-    {
+    {        
         Queryable = Queryable.Where(q => q.UserId == _userContext.UserId)
             .WhereNotNull(filter.Enable, q => q.Enable == filter.Enable)
             .WhereNotNull(filter.IsTemplate, q => q.IsTemplate == filter.IsTemplate)

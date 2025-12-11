@@ -9,8 +9,4 @@
     <ItemGroup>
         <ProjectReference Include="..\CommonMod\CommonMod.csproj" />
     </ItemGroup>
-    <ItemGroup>
-        <Folder Include="Managers\" />
-        <Folder Include="Models\" />
-    </ItemGroup>
 </Project>

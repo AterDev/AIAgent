@@ -2,7 +2,7 @@ import { BaseService } from '../base.service';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { SystemConfigFilterDto } from '../models/system-mod/system-config-filter-dto.model';
-import { PageList } from '../models/ater/page-list.model';
+import { PageList } from '../models/perigon/page-list.model';
 import { SystemConfigItemDto } from '../models/system-mod/system-config-item-dto.model';
 import { SystemConfigAddDto } from '../models/system-mod/system-config-add-dto.model';
 import { SystemConfig } from '../models/entity/system-config.model';

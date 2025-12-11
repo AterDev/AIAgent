@@ -1,13 +1,11 @@
 /**
- * 目录查询筛选
+ * AI模型提供商FilterDto
  */
-export interface ArticleCategoryFilterDto {
+export interface AIModelProviderFilterDto {
   /** pageIndex */
   pageIndex?: number | null;
   /** pageSize */
   pageSize?: number | null;
   /** orderBy */
   orderBy?: Record<string, boolean> | null;
-  /** 目录名称 */
-  name?: string | null;
 }

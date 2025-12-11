@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { SystemLoginDto } from '../models/system-mod/system-login-dto.model';
 import { AccessTokenDto } from '../models/share/access-token-dto.model';
 import { UserInfoDto } from '../models/system-mod/user-info-dto.model';
-import { PageList } from '../models/ater/page-list.model';
+import { PageList } from '../models/perigon/page-list.model';
 import { SystemUserItemDto } from '../models/system-mod/system-user-item-dto.model';
 import { SystemUserAddDto } from '../models/system-mod/system-user-add-dto.model';
 import { SystemUser } from '../models/entity/system-user.model';
@@ -31,8 +31,7 @@ export class SystemUserService extends BaseService {
     return this.request<any>('get', _url);
   }
   /**
-   * 登录获取Token ✅
-  返回仅包含 token 信息和用户 id/username
+   * Get AccessToken ✅
    * @param data SystemLoginDto
    */
   login(data: SystemLoginDto): Observable<AccessTokenDto> {
@@ -40,7 +39,7 @@ export class SystemUserService extends BaseService {
     return this.request<AccessTokenDto>('post', _url, data);
   }
   /**
-   * 根据用户 id 获取用户角色、菜单与权限组等信息
+   * Get UserInfo ✅
    */
   getUserInfo(): Observable<UserInfoDto> {
     const _url = `/api/SystemUser/userinfo`;
