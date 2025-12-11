@@ -1,5 +1,5 @@
 using AIAgentMod.Models.AIModelProviderDtos;
-namespace AdminService.AIAgentMod.Controllers;
+namespace AdminService.Controllers.AIAgentMod;
 
 /// <summary>
 /// AI模型提供商

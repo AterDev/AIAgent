@@ -8,10 +8,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { CommonFormModules } from 'src/app/share/shared-modules';
-import { GenderType } from 'src/app/services/admin/models/ater/gender-type.model';
+import { GenderType } from 'src/app/services/admin/models/perigon/gender-type.model';
 import { forkJoin, Observable } from 'rxjs';
 import { SystemRoleItemDto } from 'src/app/services/admin/models/system-mod/system-role-item-dto.model';
-import { PageList } from 'src/app/services/admin/models/ater/page-list.model';
+import { PageList } from 'src/app/services/admin/models/perigon/page-list.model';
 import { TranslateService } from '@ngx-translate/core';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
 

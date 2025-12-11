@@ -1,14 +1,12 @@
-import { Inject, Injectable, inject } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { from, map, Observable, switchMap } from 'rxjs';
-import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BaseService {
   protected baseUrl: string | null;
-  private translate = inject(TranslateService);
   constructor(
     protected http: HttpClient,
     @Inject('ADMIN_BASE_URL') baseUrl: string
@@ -81,8 +79,7 @@ export class BaseService {
   protected getHeaders(): HttpHeaders {
     return new HttpHeaders({
       Accept: 'application/json, text/plain, */*',
-      Authorization: 'Bearer ' + localStorage.getItem('accessToken'),
-      'Accept-Language': this.translate.getCurrentLang() || 'zh-CN'
+      Authorization: 'Bearer ' + localStorage.getItem('accessToken')
     });
   }
   public isMobile(): boolean {

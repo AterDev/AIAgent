@@ -1,4 +1,4 @@
-import { UserActionType } from '../ater/user-action-type.model';
+import { UserActionType } from '../perigon/user-action-type.model';
 import { SystemUser } from '../entity/system-user.model';
 
 /**

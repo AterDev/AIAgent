@@ -1,7 +1,7 @@
 import { BaseService } from '../base.service';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { PageList } from '../models/ater/page-list.model';
+import { PageList } from '../models/perigon/page-list.model';
 import { SystemRoleItemDto } from '../models/system-mod/system-role-item-dto.model';
 import { SystemRoleAddDto } from '../models/system-mod/system-role-add-dto.model';
 import { SystemRole } from '../models/entity/system-role.model';

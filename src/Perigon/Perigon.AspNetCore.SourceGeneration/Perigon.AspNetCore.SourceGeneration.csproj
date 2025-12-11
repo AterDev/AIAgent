@@ -1,48 +1,48 @@
 <Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
-		<Nullable>enable</Nullable>
-		<LangVersion>latest</LangVersion>
-		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-		<IsRoslynComponent>true</IsRoslynComponent>
-		<PackageId>Perigon.AspNetCore.SourceGeneration</PackageId>
-		<Title>Perigon.AspNetCore.SourceGeneration</Title>
-		<Authors>niltor</Authors>
-		<Version>1.0.0-rc1</Version>
-		<PackageTags>analyzer;web framework;ater;webapi;source generator</PackageTags>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageProjectUrl>https://github.com/AterDev/Perigon.template</PackageProjectUrl>
-		<PackageIcon>logo.jpg</PackageIcon>
-		<RepositoryUrl>https://github.com/AterDev/Perigon.template</RepositoryUrl>
-		<RepositoryType>git</RepositoryType>
-		<PackageReleaseNotes>
-		</PackageReleaseNotes>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<AnalysisLevel>none</AnalysisLevel>
-		<Description>Source Generator for Perigon.Web project in api service</Description>
-		<NeutralLanguage>en</NeutralLanguage>
-		<IncludeBuildOutput>false</IncludeBuildOutput>
-	</PropertyGroup>
-	<ItemGroup>
-		<None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="Microsoft.CodeAnalysis.Analyzers">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="..\logo.jpg">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
-	</ItemGroup>
-	<ItemGroup>
-		<None Update="README.md">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
-	</ItemGroup>
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <LangVersion>latest</LangVersion>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <IsRoslynComponent>true</IsRoslynComponent>
+        <PackageId>Perigon.AspNetCore.SourceGeneration</PackageId>
+        <Title>Perigon.AspNetCore.SourceGeneration</Title>
+        <Authors>niltor</Authors>
+        <Version>1.0.0-rc1</Version>
+        <PackageTags>analyzer;web framework;ater;webapi;source generator</PackageTags>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/AterDev/Perigon.template</PackageProjectUrl>
+        <PackageIcon>logo.jpg</PackageIcon>
+        <RepositoryUrl>https://github.com/AterDev/Perigon.template</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageReleaseNotes>
+        </PackageReleaseNotes>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <AnalysisLevel>none</AnalysisLevel>
+        <Description>Source Generator for Perigon.Web project in api service</Description>
+        <NeutralLanguage>en</NeutralLanguage>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="..\logo.jpg">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+    </ItemGroup>
+    <ItemGroup>
+        <None Update="README.md">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+    </ItemGroup>
 </Project>

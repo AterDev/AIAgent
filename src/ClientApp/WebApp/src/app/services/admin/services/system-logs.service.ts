@@ -2,7 +2,7 @@ import { BaseService } from '../base.service';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { SystemLogsFilterDto } from '../models/system-mod/system-logs-filter-dto.model';
-import { PageList } from '../models/ater/page-list.model';
+import { PageList } from '../models/perigon/page-list.model';
 import { SystemLogsItemDto } from '../models/system-mod/system-logs-item-dto.model';
 /**
  * 系统日志

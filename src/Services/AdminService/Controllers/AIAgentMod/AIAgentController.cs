@@ -30,7 +30,7 @@ public class AIAgentController(
     [HttpPost]
     public async Task<ActionResult<AIAgent>> AddAsync(AIAgentAddDto dto)
     {
-
+        
         var entity = await _manager.AddAsync(dto);
         return CreatedAtAction(nameof(DetailAsync), new { id = entity.Id }, entity);
     }

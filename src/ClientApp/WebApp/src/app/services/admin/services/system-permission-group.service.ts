@@ -2,7 +2,7 @@ import { BaseService } from '../base.service';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { SystemPermissionGroupFilterDto } from '../models/system-mod/system-permission-group-filter-dto.model';
-import { PageList } from '../models/ater/page-list.model';
+import { PageList } from '../models/perigon/page-list.model';
 import { SystemPermissionGroupItemDto } from '../models/system-mod/system-permission-group-item-dto.model';
 import { SystemPermissionGroupAddDto } from '../models/system-mod/system-permission-group-add-dto.model';
 import { SystemPermissionGroup } from '../models/entity/system-permission-group.model';

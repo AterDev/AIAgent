@@ -16,7 +16,7 @@ import { Detail } from '../detail/detail';
 import { Add } from '../add/add';
 import { Edit } from '../edit/edit';
 import { EnumTextPipe } from 'src/app/pipe/admin/enum-text.pipe';
-import { PageList } from 'src/app/services/admin/models/ater/page-list.model';
+import { PageList } from 'src/app/services/admin/models/perigon/page-list.model';
 import { SystemUserItemDto } from 'src/app/services/admin/models/system-mod/system-user-item-dto.model';
 import { TranslateService } from '@ngx-translate/core';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';

@@ -2,7 +2,7 @@ import { BaseService } from '../base.service';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { SystemMenuFilterDto } from '../models/system-mod/system-menu-filter-dto.model';
-import { PageList } from '../models/ater/page-list.model';
+import { PageList } from '../models/perigon/page-list.model';
 import { SystemMenu } from '../models/entity/system-menu.model';
 import { SystemMenuAddDto } from '../models/system-mod/system-menu-add-dto.model';
 import { SystemMenuUpdateDto } from '../models/system-mod/system-menu-update-dto.model';

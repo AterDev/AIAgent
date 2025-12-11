@@ -1,4 +1,4 @@
-import { GenderType } from '../ater/gender-type.model';
+import { GenderType } from '../perigon/gender-type.model';
 
 /**
  * 系统用户概要

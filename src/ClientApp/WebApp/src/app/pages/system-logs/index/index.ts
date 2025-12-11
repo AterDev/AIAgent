@@ -12,10 +12,10 @@ import { FormGroup } from '@angular/forms';
 import { Observable, forkJoin } from 'rxjs';
 import { CommonFormModules, CommonListModules } from 'src/app/share/shared-modules';
 import { TypedCellDefDirective } from 'src/app/share/typed-cell-def.directive';
-import { UserActionType } from 'src/app/services/admin/models/ater/user-action-type.model';
+import { UserActionType } from 'src/app/services/admin/models/perigon/user-action-type.model';
 import { EnumTextPipe } from 'src/app/pipe/admin/enum-text.pipe';
 import { ToKeyValuePipe } from 'src/app/share/pipe/to-key-value.pipe';
-import { PageList } from 'src/app/services/admin/models/ater/page-list.model';
+import { PageList } from 'src/app/services/admin/models/perigon/page-list.model';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
 
 

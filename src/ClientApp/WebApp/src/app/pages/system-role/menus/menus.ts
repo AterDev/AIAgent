@@ -10,7 +10,7 @@ import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox
 import { CommonModules } from 'src/app/share/shared-modules';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { PageList } from 'src/app/services/admin/models/ater/page-list.model';
+import { PageList } from 'src/app/services/admin/models/perigon/page-list.model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
 

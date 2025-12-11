@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
-namespace Perigon.Web.SourceGeneration;
+namespace Perigon.AspNetCore.SourceGeneration;
 
 [Generator(LanguageNames.CSharp)]
 public class LocalizerConstGen : IIncrementalGenerator
@@ -157,7 +157,7 @@ public class LocalizerConstGen : IIncrementalGenerator
             var hash = ClassName?.GetHashCode() ?? 0;
             foreach (var key in Keys)
             {
-                hash = hash * 31 + (key?.GetHashCode() ?? 0);
+                hash = (hash * 31) + (key?.GetHashCode() ?? 0);
             }
             return hash;
         }
@@ -183,7 +183,7 @@ public class LocalizerConstGen : IIncrementalGenerator
 
         public override int GetHashCode()
         {
-            return (ClassName?.GetHashCode() ?? 0) * 31 + (Namespace?.GetHashCode() ?? 0);
+            return ((ClassName?.GetHashCode() ?? 0) * 31) + (Namespace?.GetHashCode() ?? 0);
         }
     }
 
