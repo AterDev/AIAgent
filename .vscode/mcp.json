@@ -1,0 +1,9 @@
+{
+	"servers": {
+		"perigon": {
+			"url": "http://localhost:19160/mcp",
+			"type": "http"
+		}
+	},
+	"inputs": []
+}
