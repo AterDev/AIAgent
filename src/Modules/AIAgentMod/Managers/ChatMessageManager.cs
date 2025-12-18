@@ -1,43 +1,47 @@
-using AIAgentMod.Models.AIModelProviderDtos;
+using AIAgentMod.Models.ChatMessageDtos;
 
 namespace AIAgentMod.Managers;
 /// <summary>
-/// AI模型提供商
+/// 聊天消息
 /// </summary>
-public class AIModelProviderManager(
-    TenantDbFactory dbContextFactory,
-    ILogger<AIModelProviderManager> logger,
+public class ChatMessageManager(
+    TenantDbFactory dbContextFactory, 
+    ILogger<ChatMessageManager> logger,
     IUserContext userContext
-) : ManagerBase<DefaultDbContext, AIModelProvider>(dbContextFactory, userContext, logger)
+) : ManagerBase<DefaultDbContext, ChatMessage>(dbContextFactory, userContext, logger)
 {
     /// <summary>
-    /// Filter AI模型提供商 with paging
+    /// Filter 聊天消息: 仅根据userId和conversationId筛选，并按时间正序排列
     /// </summary>
-    public async Task<PageList<AIModelProviderItemDto>> FilterAsync(AIModelProviderFilterDto filter)
+    public async Task<PageList<ChatMessageItemDto>> FilterAsync(ChatMessageFilterDto filter)
     {
-        return await PageListAsync<AIModelProviderFilterDto, AIModelProviderItemDto>(filter);
+        Queryable = Queryable
+            .WhereNotNull(filter.UserId, q => q.UserId == filter.UserId)
+            .WhereNotNull(filter.ConversationId, q => q.ConversationId == filter.ConversationId)
+            .OrderBy(q => q.CreatedTime);
+        return await PageListAsync<ChatMessageFilterDto, ChatMessageItemDto>(filter);
     }
 
     /// <summary>
-    /// Add AI模型提供商
+    /// Add 聊天消息
     /// </summary>
     /// <param name="dto"></param>
     /// <returns></returns>
-    public async Task<AIModelProvider> AddAsync(AIModelProviderAddDto dto)
+    public async Task<ChatMessage> AddAsync(ChatMessageAddDto dto)
     {
-        var entity = dto.MapTo<AIModelProvider>();
-
+        var entity = dto.MapTo<ChatMessage>();
+        
         await InsertAsync(entity);
         return entity;
     }
 
     /// <summary>
-    /// edit AI模型提供商
+    /// edit 聊天消息
     /// </summary>
     /// <param name="id"></param>
     /// <param name="dto"></param>
     /// <returns></returns>
-    public async Task<int> EditAsync(Guid id, AIModelProviderUpdateDto dto)
+    public async Task<int> EditAsync(Guid id, ChatMessageUpdateDto dto)
     {
         if (await HasPermissionAsync(id))
         {
@@ -48,21 +52,21 @@ public class AIModelProviderManager(
 
 
     /// <summary>
-    /// Get AI模型提供商 detail
+    /// Get 聊天消息 detail
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public async Task<AIModelProviderDetailDto?> GetAsync(Guid id)
+    public async Task<ChatMessageDetailDto?> GetAsync(Guid id)
     {
         if (await HasPermissionAsync(id))
         {
-            return await FindAsync<AIModelProviderDetailDto>(q => q.Id == id);
+            return await FindAsync<ChatMessageDetailDto>(q => q.Id == id);
         }
         throw new BusinessException(Localizer.NoPermission);
     }
 
     /// <summary>
-    /// Delete  AI模型提供商
+    /// Delete  聊天消息
     /// </summary>
     /// <param name="ids"></param>
     /// <param name="softDelete"></param>

@@ -145,10 +145,11 @@ public abstract class ManagerBase<TDbContext, TEntity>
 
         Queryable = ApplyTenantFilter(Queryable);
 
-        Queryable =
-            filter.OrderBy != null && filter.OrderBy.Count > 0
+        Queryable = filter.OrderBy != null && filter.OrderBy.Count > 0
                 ? Queryable.OrderBy(filter.OrderBy)
-                : Queryable.OrderByDescending(t => t.CreatedTime);
+                : Queryable is IOrderedQueryable<TEntity>
+                    ? Queryable
+                    : Queryable.OrderByDescending(t => t.CreatedTime);
 
         var count = Queryable.Count();
         List<TItem> data = await Queryable

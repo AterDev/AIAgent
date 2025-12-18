@@ -30,7 +30,7 @@ public class AIModelProviderController(
     [HttpPost]
     public async Task<ActionResult<AIModelProvider>> AddAsync(AIModelProviderAddDto dto)
     {
-        
+
         var entity = await _manager.AddAsync(dto);
         return CreatedAtAction(nameof(DetailAsync), new { id = entity.Id }, entity);
     }
