@@ -48,7 +48,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
     )
     {
         _logger = logger;
-        _dbContext = (dbContextFactory.CreateDbContextAsync().Result as TDbContext)!;
+        _dbContext = (dbContextFactory.CreateDbContextAsync().GetAwaiter().GetResult() as TDbContext)!;
         _userContext = userContext;
         _isMultiTenant = dbContextFactory.IsMultiTenant;
         _dbSet = _dbContext.Set<TEntity>();
