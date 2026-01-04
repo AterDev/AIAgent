@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.0.1">
+<Project Sdk="Aspire.AppHost.Sdk/13.1.0">
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net10.0</TargetFramework>
@@ -9,15 +9,14 @@
     <ItemGroup>
         <PackageReference Include="Aspire.Hosting.AppHost" />
         <PackageReference Include="Aspire.Hosting.Nats" />
-        <PackageReference Include="Aspire.Hosting.NodeJs" />
+        <PackageReference Include="Aspire.Hosting.JavaScript" />
         <PackageReference Include="Aspire.Hosting.Qdrant" />
         <PackageReference Include="Aspire.Hosting.Redis" />
         <PackageReference Include="Aspire.Hosting.SqlServer" />
         <PackageReference Include="Aspire.Hosting.PostgreSQL" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\Perigon\Perigon.AspNetCore\Perigon.AspNetCore.csproj"
-                          IsAspireProjectResource="false"/>
+        <ProjectReference Include="..\Perigon\Perigon.AspNetCore\Perigon.AspNetCore.csproj" IsAspireProjectResource="false" />
         <ProjectReference Include="..\Services\AdminService\AdminService.csproj" />
         <ProjectReference Include="..\Services\ApiService\ApiService.csproj" />
         <ProjectReference Include="..\Services\MigrationService\MigrationService.csproj" />

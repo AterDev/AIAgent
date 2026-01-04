@@ -62,7 +62,8 @@ var adminService = builder.AddProject<Projects.AdminService>("AdminService").Wai
     .WithParentRelationship(serviceGroup);
 
 // run frontend app, you should install npm packages first
-var webApp = builder.AddNpmApp("frontend", "../ClientApp/WebApp")
+var webApp = builder.AddJavaScriptApp("frontend", "../ClientApp/WebApp", "start")
+    .WithPnpm()
     .WithUrl("http://localhost:4200")
     .WaitFor(adminService)
     .WithParentRelationship(serviceGroup);
