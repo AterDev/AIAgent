@@ -32,6 +32,7 @@
     <Project Path="src/Modules/CommonMod/CommonMod.csproj" Id="f2def1d4-f065-d84e-4e7b-454a998f4dfc" />
     <Project Path="src/Modules/SystemMod/SystemMod.csproj" />
   </Folder>
+  <Folder Name="/src/SDKs/" />
   
   <Folder Name="/src/Services/" Id="02ea681e-c7d8-13c7-8484-4ac65e1b71e8">
     <Project Path="src/Services/AdminService/AdminService.csproj" />
