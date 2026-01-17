@@ -8,14 +8,14 @@ import { AdminClient } from 'src/app/services/admin/admin-client';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
 import { initStarfield } from './starfield';
-import { form, Field, required, email, FieldState, minLength, maxLength, ValidationError } from '@angular/forms/signals'
+import { form, FormField, required, email, FieldState, minLength, maxLength, ValidationError } from '@angular/forms/signals'
 import { SystemLoginDto } from 'src/app/services/admin/models/system-mod/system-login-dto.model';
 import { translateValidationError } from 'src/app/share/validation-helpers';
 
 
 @Component({
   selector: 'app-login',
-  imports: [CommonFormModules, MatCardModule, Field],
+  imports: [CommonFormModules, MatCardModule, FormField],
   templateUrl: './login.html',
   styleUrls: ['./login.scss']
 })
