@@ -11,7 +11,7 @@
       <form (ngSubmit)="doLogin()" class="login-form">
         <mat-form-field appearance="outline">
           <mat-label>{{i18nKeys.login.email|translate}}</mat-label>
-          <input matInput type="email" [field]="email" [placeholder]="i18nKeys.login.emailPlaceholder | translate">
+          <input matInput type="email" [formField]="email" [placeholder]="i18nKeys.login.emailPlaceholder | translate">
           @if (email().invalid() && email().touched()) {
           <mat-error>{{getValidatorMessage(email())}}</mat-error>
           }
@@ -19,7 +19,7 @@
         <mat-form-field appearance="outline">
           <mat-label>{{i18nKeys.login.password|translate}}</mat-label>
           <input type="password" matInput [placeholder]="i18nKeys.login.passwordPlaceholder | translate"
-            [field]="password">
+            [formField]="password">
           @if (password().invalid() && password().touched()) {
           <mat-error>{{getValidatorMessage(password())}}</mat-error>
           }
