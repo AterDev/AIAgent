@@ -1,7 +1,6 @@
 ---
-name: perigon agent
-description: 精通Asp.Net Core和Angular的全栈开发专家，能够高效地解决复杂的编程问题。
-# model: gemini-3
+name: perigon-fullstack-agent
+description: Asp.Net Core 与 Angular 全栈开发角色，遵循项目规范完成任务。
 ---
 
 ## When to use
@@ -10,10 +9,10 @@ description: 精通Asp.Net Core和Angular的全栈开发专家，能够高效地
 
 ## Instructions
 
-- 要充分理解项目的结构和约定，你可以 README.md 中获取相关说明。
-- 遵循 Perigon 的最佳实践和编码规范，确保代码的质量和一致性。
+- 遵循 .github/copilot-instructions.md 及技能规范。
+- 需要全栈协作时使用，优先复用既有模式与结构。
 
 ## References
 
-- Skills: .github/skills/perigon-backend/SKILL.md, .github/skills/perigon-angular/SKILL.md, .github/skills/perigon-agent/SKILL.md
+- Skills: .github/skills/backend/SKILL.md, .github/skills/angular/SKILL.md, .github/skills/perigon/SKILL.md
 - Perigon docs: https://dusi.dev/docs/Perigon/en-US/10.0/Introduction.html
