@@ -1,5 +1,5 @@
 ---
-name: perigon-angular
+name: angular
 description: Angular 21+ standalone/Material/signal conventions for Perigon WebApp
 ---
 ## When to use
@@ -13,3 +13,10 @@ description: Angular 21+ standalone/Material/signal conventions for Perigon WebA
 - i18n: strings live in assets/i18n/*.json; align keys with app/share/i18n-keys.ts and scripts/i18n-keys.js.
 - UX/auth: reuse layout/navigation components; auth via auth.service + auth.guard; paginator intl in share/custom-paginator-intl.ts.
 - Tooling: use pnpm; avoid builds/tests unless requested. Keep ESLint/tsconfig defaults; prefer standalone Material imports over deprecated modules.
+- Angular conventions:
+	- Use async pipe or signals; avoid manual subscriptions unless necessary.
+	- Use takeUntilDestroyed for subscriptions that must be manual.
+	- Keep routing lazy-loaded where appropriate and colocate route-level providers.
+	- Forms: use typed forms and clear validation messages; keep form logic in component.
+	- Accessibility: use proper aria attributes and Material accessibility patterns.
+	- Styles: keep SCSS local to components; avoid global overrides unless required by theme.
