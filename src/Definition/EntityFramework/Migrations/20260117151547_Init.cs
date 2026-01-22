@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -11,6 +12,95 @@ namespace EntityFramework.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "AIAgents",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    ModelId = table.Column<string>(type: "text", nullable: false),
+                    SystemPrompt = table.Column<string>(type: "text", nullable: false),
+                    Tools = table.Column<List<string>>(type: "text[]", nullable: false),
+                    Enable = table.Column<bool>(type: "boolean", nullable: false),
+                    IsTemplate = table.Column<bool>(type: "boolean", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AIAgents", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AIModelProviders",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    LogoUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    Website = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AIModelProviders", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Conversations",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    ModelName = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    SystemPrompt = table.Column<string>(type: "text", nullable: true),
+                    TotalTokens = table.Column<int>(type: "integer", nullable: false),
+                    IsPinned = table.Column<bool>(type: "boolean", nullable: false),
+                    LastActiveTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Conversations", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MCPServerInfos",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    IdentityName = table.Column<string>(type: "text", nullable: false),
+                    DisplayName = table.Column<string>(type: "text", nullable: false),
+                    TransportType = table.Column<int>(type: "integer", nullable: false),
+                    Endpoint = table.Column<string>(type: "text", nullable: true),
+                    ExecutablePath = table.Column<string>(type: "text", nullable: true),
+                    Arguments = table.Column<List<string>>(type: "text[]", nullable: true),
+                    AuthType = table.Column<int>(type: "integer", nullable: false),
+                    AuthValue = table.Column<string>(type: "text", nullable: true),
+                    Description = table.Column<string>(type: "text", nullable: true),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MCPServerInfos", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "SystemConfigs",
                 columns: table => new
@@ -173,6 +263,100 @@ namespace EntityFramework.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "TokenUsageRecords",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Description = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    ModelId = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Price = table.Column<decimal>(type: "numeric", nullable: false),
+                    UsedTokens = table.Column<int>(type: "integer", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TokenUsageRecords", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TokenUsages",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TotalTokens = table.Column<int>(type: "integer", nullable: false),
+                    UsedTokens = table.Column<int>(type: "integer", nullable: false),
+                    ExpirateTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TokenUsages", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AIModelInfos",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProviderId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    ContextLength = table.Column<int>(type: "integer", nullable: false),
+                    InputPrice = table.Column<decimal>(type: "numeric", nullable: false),
+                    OutputPrice = table.Column<decimal>(type: "numeric", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AIModelInfos", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AIModelInfos_AIModelProviders_ProviderId",
+                        column: x => x.ProviderId,
+                        principalTable: "AIModelProviders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ChatMessages",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ConversationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Role = table.Column<int>(type: "integer", maxLength: 32, nullable: false),
+                    Content = table.Column<string>(type: "text", nullable: false),
+                    ContentType = table.Column<int>(type: "integer", maxLength: 32, nullable: false),
+                    TokenCount = table.Column<int>(type: "integer", nullable: true),
+                    ModelName = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ChatMessages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ChatMessages_Conversations_ConversationId",
+                        column: x => x.ConversationId,
+                        principalTable: "Conversations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SystemPermissions",
                 columns: table => new
                 {
@@ -331,6 +515,48 @@ namespace EntityFramework.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_AIAgents_Name",
+                table: "AIAgents",
+                column: "Name");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AIAgents_UserId",
+                table: "AIAgents",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AIModelInfos_ProviderId_Name",
+                table: "AIModelInfos",
+                columns: new[] { "ProviderId", "Name" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ChatMessages_ConversationId",
+                table: "ChatMessages",
+                column: "ConversationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ChatMessages_UserId_ConversationId_CreatedTime",
+                table: "ChatMessages",
+                columns: new[] { "UserId", "ConversationId", "CreatedTime" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Conversations_UserId_CreatedTime",
+                table: "Conversations",
+                columns: new[] { "UserId", "CreatedTime" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MCPServerInfos_DisplayName",
+                table: "MCPServerInfos",
+                column: "DisplayName");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MCPServerInfos_IdentityName",
+                table: "MCPServerInfos",
+                column: "IdentityName",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SystemConfigs_GroupName_Key",
                 table: "SystemConfigs",
                 columns: new[] { "GroupName", "Key" },
@@ -452,11 +678,33 @@ namespace EntityFramework.Migrations
                 table: "Tenants",
                 column: "Domain",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TokenUsageRecords_UserId_CreatedTime",
+                table: "TokenUsageRecords",
+                columns: new[] { "UserId", "CreatedTime" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TokenUsages_UserId",
+                table: "TokenUsages",
+                column: "UserId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "AIAgents");
+
+            migrationBuilder.DropTable(
+                name: "AIModelInfos");
+
+            migrationBuilder.DropTable(
+                name: "ChatMessages");
+
+            migrationBuilder.DropTable(
+                name: "MCPServerInfos");
+
             migrationBuilder.DropTable(
                 name: "SystemConfigs");
 
@@ -480,6 +728,18 @@ namespace EntityFramework.Migrations
 
             migrationBuilder.DropTable(
                 name: "Tenants");
+
+            migrationBuilder.DropTable(
+                name: "TokenUsageRecords");
+
+            migrationBuilder.DropTable(
+                name: "TokenUsages");
+
+            migrationBuilder.DropTable(
+                name: "AIModelProviders");
+
+            migrationBuilder.DropTable(
+                name: "Conversations");
 
             migrationBuilder.DropTable(
                 name: "SystemMenus");

@@ -7,16 +7,14 @@ description: Angular 21+ standalone/Material/signals specialist for Perigon WebA
 - Routes/layout, services, i18n, theming, auth.
 
 ## Instructions
-- Follow .github/skills/perigon-angular/SKILL.md and .github/copilot-instructions.md.
-- Standalone components only; routes in app/app.routes.ts; layout in app/layout; pages under app/pages; shared UI in app/share/components; pipes in app/share/pipe.
-- Use signals and signal forms; Angular Material with project theming (styles.scss/theme.scss/vars.scss).
-- Services/types in app/services; honor customer-http.interceptor; env via environments/*.ts; use pnpm.
-- i18n keys in assets/i18n/*.json, align with app/share/i18n-keys.ts; keep styles colocated.
-- Ask for API contracts before calling backend; prefer existing base.service/admin-client patterns.
+- Follow .github/skills/angular/SKILL.md and .github/copilot-instructions.md.
+- Keep UI logic in components; keep API logic in services and follow existing patterns.
+- Ask for API contracts before calling backend.
+- Do not build/run tests unless requested.
 
 ## Don’t
 - Don’t add NgModules; don’t run builds/tests unless asked; don’t hardcode endpoints (use env/proxy).
 
 ## References
-- Frontend skill: .github/skills/perigon-angular/SKILL.md
+- Frontend skill: .github/skills/angular/SKILL.md
 - Perigon docs (frontend via template): https://dusi.dev/docs/Perigon/en-US/10.0/Project-Templates/Overview.html
