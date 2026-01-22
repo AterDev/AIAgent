@@ -5,6 +5,19 @@
     <File Path=".github/copilot-instructions.md" />
     <File Path="Directory.Packages.props" />
   </Folder>
+  <Folder Name="/demos/">
+    <Project Path="src-demos/Demos.Core/Demos.Core.csproj" Id="0a6fb819-cc3a-471d-af5b-dbb355403819" />
+    <Project Path="src-demos/StartDemos.AppHost/StartDemos.AppHost.csproj" Id="29bda09f-b681-4cce-8a48-eb953572a7cf" />
+  </Folder>
+  <Folder Name="/demos/app-admins/">
+    <Project Path="src-demos/AdminDemoApp.Core/AdminDemoApp.Core.csproj" />
+    <Project Path="src-demos/AdminDemoApp/AdminDemoApp.csproj" Id="34058842-3e5f-4dcf-a9d7-73a5c3f001db" />
+  </Folder>
+  <Folder Name="/demos/app-portals/">
+    <Project Path="src-demos/WebDemoApp.Core/WebDemoApp.Core.csproj" Id="a2653736-77ed-4a09-90eb-1e6657e90d95" />
+    <Project Path="src-demos/WebDemoApp/WebDemoApp.csproj" Id="f6fd8f39-eb37-48df-86d8-559208e5bd92" />
+  </Folder>
+  <Folder Name="/demos/webs/" />
   <Folder Name="/docs/">
     <File Path="docs/docs.md" />
     <File Path="README.md" />
