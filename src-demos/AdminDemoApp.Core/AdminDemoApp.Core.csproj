@@ -13,7 +13,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Modules\SystemMod\SystemMod.csproj" />
-    <ProjectReference Include="..\..\src\Perigon\Perigon.AspNetCore.SourceGeneration\Perigon.AspNetCore.SourceGeneration.csproj" />
     <ProjectReference Include="..\Demos.Core\Demos.Core.csproj" />
   </ItemGroup>
 

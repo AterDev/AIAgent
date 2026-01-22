@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Definition\ServiceDefaults\ServiceDefaults.csproj" />
     <ProjectReference Include="..\WebDemoApp.Core\WebDemoApp.Core.csproj" />
+	  <ProjectReference Include="..\..\src\Perigon\Perigon.AspNetCore.SourceGeneration\Perigon.AspNetCore.SourceGeneration.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>
