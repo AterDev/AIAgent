@@ -15,10 +15,6 @@ public static class ModuleExtensions
         builder.Services.AddScoped<IAgentExecutionService, AgentExecutionService>();
         builder.Services.AddHostedService<AgentExecutionWorker>();
         
-        // AG-UI Integration Services
-        builder.Services.AddSingleton<AgUiCommunicationService>();
-        builder.Services.AddScoped<IStreamingAgentExecutor, StreamingAgentExecutor>();
-        
         return builder;
     }
 }

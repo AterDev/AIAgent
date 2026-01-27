@@ -76,12 +76,6 @@ public static class WebExtensions
             app.UseCors(AppConst.Default);
         }
 
-        // Enable WebSocket support for AG-UI
-        app.UseWebSockets(new WebSocketOptions
-        {
-            KeepAliveInterval = TimeSpan.FromMinutes(2)
-        });
-
         app.UseRateLimiter();
         app.UseStaticFiles();
         app.UseRequestLocalization();
