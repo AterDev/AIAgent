@@ -1,4 +1,3 @@
-using Entity.AIAgentMod;
 namespace AIAgentMod.Models.MCPServerInfoDtos;
 /// <summary>
 /// McpServerUpdateDto
@@ -42,5 +41,5 @@ public class MCPServerInfoUpdateDto
     /// 传输类型（http, stdio, sse, websocket）
     /// </summary>
     public TransportType? TransportType { get; set; }
-    
+
 }

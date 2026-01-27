@@ -1,4 +1,3 @@
-using Entity.AIAgentMod;
 namespace AIAgentMod.Models.ChatMessageDtos;
 /// <summary>
 /// 聊天消息UpdateDto
@@ -34,5 +33,5 @@ public class ChatMessageUpdateDto
     /// </summary>
     public Guid? UserId { get; set; }
     public Guid? ConversationId { get; set; }
-    
+
 }

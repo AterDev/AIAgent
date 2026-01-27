@@ -1,4 +1,3 @@
-using Entity.ModelMod;
 namespace ModelMod.Models.ApplicationDtos;
 /// <summary>
 /// 应用定义UpdateDto
@@ -15,5 +14,5 @@ public class ApplicationUpdateDto
     [MaxLength(200)]
     public string? SecretKey { get; set; }
     public bool? IsEnabled { get; set; }
-    
+
 }

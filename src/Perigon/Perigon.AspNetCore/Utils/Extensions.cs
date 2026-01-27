@@ -1,6 +1,6 @@
+using Mapster;
 using System.Collections;
 using System.Data;
-using Mapster;
 
 namespace Perigon.AspNetCore.Utils;
 

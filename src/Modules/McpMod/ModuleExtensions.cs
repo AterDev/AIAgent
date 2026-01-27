@@ -1,7 +1,7 @@
-using System.ComponentModel;
 using McpMod.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
+using System.ComponentModel;
 
 namespace McpMod;
 
@@ -31,7 +31,7 @@ public static class ModuleExtensions
     // The module middlewares registration
     public static WebApplication UseMcpModServices(this WebApplication app)
     {
-       // custom middlewares and init task
-       return app;
+        // custom middlewares and init task
+        return app;
     }
 }

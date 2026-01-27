@@ -1,4 +1,3 @@
-using Entity.AIAgentMod;
 namespace AIAgentMod.Models.AIModelProviderDtos;
 /// <summary>
 /// AI模型提供商FilterDto
@@ -6,5 +5,5 @@ namespace AIAgentMod.Models.AIModelProviderDtos;
 /// <see cref="Entity.AIAgentMod.AIModelProvider"/>
 public class AIModelProviderFilterDto : FilterBase
 {
-    
+
 }

@@ -5,7 +5,7 @@ namespace AIAgentMod.Managers;
 /// 对话实例
 /// </summary>
 public class ConversationManager(
-    TenantDbFactory dbContextFactory, 
+    TenantDbFactory dbContextFactory,
     ILogger<ConversationManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, Conversation>(dbContextFactory, userContext, logger)
@@ -14,7 +14,7 @@ public class ConversationManager(
     /// Filter 对话实例 with paging
     /// </summary>
     public async Task<PageList<ConversationItemDto>> FilterAsync(ConversationFilterDto filter)
-    {        
+    {
         Queryable = Queryable
             .WhereNotNull(filter.IsPinned, q => q.IsPinned == filter.IsPinned)
             .WhereNotNull(filter.UserId, q => q.UserId == filter.UserId);
@@ -30,7 +30,7 @@ public class ConversationManager(
     public async Task<Conversation> AddAsync(ConversationAddDto dto)
     {
         var entity = dto.MapTo<Conversation>();
-        
+
         await InsertAsync(entity);
         return entity;
     }

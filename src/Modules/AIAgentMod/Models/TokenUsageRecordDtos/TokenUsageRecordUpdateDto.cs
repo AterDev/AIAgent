@@ -1,4 +1,3 @@
-using Entity.AIAgentMod;
 namespace AIAgentMod.Models.TokenUsageRecordDtos;
 /// <summary>
 /// 用户Token用量信息UpdateDto
@@ -22,5 +21,5 @@ public class TokenUsageRecordUpdateDto
     /// 用户ID
     /// </summary>
     public Guid? UserId { get; set; }
-    
+
 }

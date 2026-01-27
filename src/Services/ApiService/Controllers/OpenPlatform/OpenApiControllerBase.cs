@@ -1,7 +1,4 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Perigon.AspNetCore.Abstraction;
-using Perigon.AspNetCore.Constants;
 
 namespace ApiService.Controllers.OpenPlatform;
 

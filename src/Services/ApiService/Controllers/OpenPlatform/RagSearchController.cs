@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
 using Share.Services;
 
 namespace ApiService.Controllers.OpenPlatform;

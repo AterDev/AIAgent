@@ -1,5 +1,5 @@
-using System.Reflection;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using System.Reflection;
 
 namespace MigrationService.DesignTime;
 

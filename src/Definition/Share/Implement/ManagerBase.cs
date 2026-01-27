@@ -1,8 +1,8 @@
-using System.Linq.Expressions;
 using EFCore.BulkExtensions;
 using EntityFramework;
 using EntityFramework.AppDbFactory;
 using Mapster;
+using System.Linq.Expressions;
 
 namespace Share.Implement;
 

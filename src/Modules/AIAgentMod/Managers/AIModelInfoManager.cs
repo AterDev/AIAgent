@@ -5,7 +5,7 @@ namespace AIAgentMod.Managers;
 /// 模型信息
 /// </summary>
 public class AIModelInfoManager(
-    TenantDbFactory dbContextFactory, 
+    TenantDbFactory dbContextFactory,
     ILogger<AIModelInfoManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, AIModelInfo>(dbContextFactory, userContext, logger)
@@ -14,8 +14,8 @@ public class AIModelInfoManager(
     /// Filter 模型信息 with paging
     /// </summary>
     public async Task<PageList<AIModelInfoItemDto>> FilterAsync(AIModelInfoFilterDto filter)
-    {        
-        
+    {
+
 
         return await PageListAsync<AIModelInfoFilterDto, AIModelInfoItemDto>(filter);
     }
@@ -28,7 +28,7 @@ public class AIModelInfoManager(
     public async Task<AIModelInfo> AddAsync(AIModelInfoAddDto dto)
     {
         var entity = dto.MapTo<AIModelInfo>();
-        
+
         await InsertAsync(entity);
         return entity;
     }

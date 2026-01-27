@@ -1,4 +1,3 @@
-using Entity.AIAgentMod;
 namespace AIAgentMod.Models.TokenUsageDtos;
 /// <summary>
 /// 用户Token用量信息ItemDto
@@ -20,5 +19,5 @@ public class TokenUsageItemDto
     /// 已用Token数量
     /// </summary>
     public int? UsedTokens { get; set; }
-    
+
 }

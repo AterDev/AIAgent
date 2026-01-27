@@ -1,4 +1,3 @@
-using Entity.ModelMod;
 namespace ModelMod.Models.ApplicationDtos;
 /// <summary>
 /// 应用定义FilterDto
@@ -11,5 +10,5 @@ public class ApplicationFilterDto : FilterBase
     [MaxLength(100)]
     public string? AccessKey { get; set; }
     public bool? IsEnabled { get; set; }
-    
+
 }

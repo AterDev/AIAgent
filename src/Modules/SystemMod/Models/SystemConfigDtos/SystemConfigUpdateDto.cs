@@ -1,4 +1,3 @@
-using Entity.SystemMod;
 namespace SystemMod.Models.SystemConfigDtos;
 /// <summary>
 /// 系统配置UpdateDto
@@ -25,5 +24,5 @@ public class SystemConfigUpdateDto
     /// </summary>
     [MaxLength(60)]
     public string? GroupName { get; set; }
-    
+
 }

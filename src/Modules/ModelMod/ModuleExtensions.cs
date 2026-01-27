@@ -1,7 +1,7 @@
-using System.ComponentModel;
-using ModelMod.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
+using ModelMod.Services;
+using System.ComponentModel;
 
 namespace ModelMod;
 
@@ -29,7 +29,7 @@ public static class ModuleExtensions
     // The module middlewares registration
     public static WebApplication UseModelModServices(this WebApplication app)
     {
-       // custom middlewares and init task
-       return app;
+        // custom middlewares and init task
+        return app;
     }
 }

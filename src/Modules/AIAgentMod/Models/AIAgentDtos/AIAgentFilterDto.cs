@@ -1,4 +1,3 @@
-using Entity.AIAgentMod;
 namespace AIAgentMod.Models.AIAgentDtos;
 /// <summary>
 /// agentFilterDto
@@ -21,5 +20,5 @@ public class AIAgentFilterDto : FilterBase
     [MaxLength(100)]
     public string? Name { get; set; }
     public Guid? UserId { get; set; }
-    
+
 }

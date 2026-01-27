@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
-using ModelMod.Managers;
 using ModelMod.Models.ApplicationDtos;
 
 namespace ApiService.Controllers.OpenPlatform;

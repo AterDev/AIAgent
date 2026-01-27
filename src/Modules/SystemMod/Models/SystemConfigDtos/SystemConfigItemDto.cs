@@ -1,4 +1,3 @@
-using Entity.SystemMod;
 namespace SystemMod.Models.SystemConfigDtos;
 /// <summary>
 /// 系统配置ItemDto
@@ -21,5 +20,5 @@ public class SystemConfigItemDto
     [Key]
     public Guid Id { get; set; } = Guid.CreateVersion7();
     public DateTimeOffset CreatedTime { get; set; } = DateTimeOffset.UtcNow;
-    
+
 }

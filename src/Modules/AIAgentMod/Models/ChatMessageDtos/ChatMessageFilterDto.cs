@@ -1,4 +1,3 @@
-using Entity.AIAgentMod;
 namespace AIAgentMod.Models.ChatMessageDtos;
 /// <summary>
 /// 聊天消息FilterDto
@@ -21,5 +20,5 @@ public class ChatMessageFilterDto : FilterBase
     /// </summary>
     public Guid? UserId { get; set; }
     public Guid? ConversationId { get; set; }
-    
+
 }

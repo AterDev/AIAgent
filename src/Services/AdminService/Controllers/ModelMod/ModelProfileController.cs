@@ -1,5 +1,3 @@
-using Entity.ModelMod;
-using ModelMod.Managers;
 using ModelMod.Models.ModelProfileDtos;
 
 namespace AdminService.Controllers.ModelMod;

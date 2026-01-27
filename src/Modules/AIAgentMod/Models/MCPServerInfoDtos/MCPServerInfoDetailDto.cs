@@ -1,4 +1,3 @@
-using Entity.AIAgentMod;
 namespace AIAgentMod.Models.MCPServerInfoDtos;
 /// <summary>
 /// McpServerDetailDto
@@ -46,5 +45,5 @@ public class MCPServerInfoDetailDto
     /// </summary>
     public TransportType? TransportType { get; set; }
     public DateTimeOffset UpdatedTime { get; set; }
-    
+
 }

@@ -1,4 +1,3 @@
-using Entity.SystemMod;
 namespace SystemMod.Models.SystemConfigDtos;
 /// <summary>
 /// 系统配置DetailDto
@@ -30,5 +29,5 @@ public class SystemConfigDetailDto
     public DateTimeOffset CreatedTime { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset UpdatedTime { get; set; } = DateTimeOffset.UtcNow;
     public Guid TenantId { get; set; }
-    
+
 }

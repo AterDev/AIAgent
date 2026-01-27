@@ -1,4 +1,3 @@
-using Entity.ModelMod;
 namespace ModelMod.Models.ApplicationDtos;
 /// <summary>
 /// 应用定义DetailDto
@@ -20,5 +19,5 @@ public class ApplicationDetailDto
     public DateTimeOffset CreatedTime { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset UpdatedTime { get; set; } = DateTimeOffset.UtcNow;
     public Guid TenantId { get; set; }
-    
+
 }

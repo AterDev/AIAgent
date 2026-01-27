@@ -1,4 +1,3 @@
-using Entity.AIAgentMod;
 namespace AIAgentMod.Models.AIAgentDtos;
 /// <summary>
 /// agentAddDto
@@ -34,5 +33,5 @@ public class AIAgentAddDto
     /// </summary>
     public List<string> Tools { get; set; } = [];
     public Guid? UserId { get; set; }
-    
+
 }

@@ -5,7 +5,7 @@ namespace SystemMod.Managers;
 /// 系统配置
 /// </summary>
 public class SystemConfigManager(
-    TenantDbFactory dbContextFactory, 
+    TenantDbFactory dbContextFactory,
     ILogger<SystemConfigManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, SystemConfig>(dbContextFactory, userContext, logger)
@@ -14,7 +14,7 @@ public class SystemConfigManager(
     /// Filter 系统配置 with paging
     /// </summary>
     public async Task<PageList<SystemConfigItemDto>> FilterAsync(SystemConfigFilterDto filter)
-    {        
+    {
         Queryable = Queryable
             .WhereNotNull(filter.GroupName, q => q.GroupName == filter.GroupName)
             .WhereNotNull(filter.Key, q => q.Key == filter.Key)
@@ -33,7 +33,7 @@ public class SystemConfigManager(
     {
         EnsureAdminForSystem(dto.IsSystem);
         var entity = dto.MapTo<SystemConfig>();
-        
+
         await InsertAsync(entity);
         _logger.LogInformation(
             "SystemConfig created. Id={Id}, Key={Key}, Group={Group}, IsSystem={IsSystem}, UserId={UserId}",

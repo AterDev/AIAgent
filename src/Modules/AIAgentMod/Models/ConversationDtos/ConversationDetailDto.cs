@@ -1,4 +1,3 @@
-using Entity.AIAgentMod;
 namespace AIAgentMod.Models.ConversationDtos;
 /// <summary>
 /// 对话实例DetailDto
@@ -45,5 +44,5 @@ public class ConversationDetailDto
     /// 用户ID
     /// </summary>
     public Guid? UserId { get; set; }
-    
+
 }

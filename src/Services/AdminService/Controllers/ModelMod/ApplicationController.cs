@@ -30,7 +30,7 @@ public class ApplicationController(
     [HttpPost]
     public async Task<ActionResult<Application>> AddAsync(ApplicationAddDto dto)
     {
-        
+
         var entity = await _manager.AddAsync(dto);
         return CreatedAtRoute(nameof(DetailAsync), new { id = entity.Id }, entity);
     }

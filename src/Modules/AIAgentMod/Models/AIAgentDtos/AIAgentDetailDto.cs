@@ -1,4 +1,3 @@
-using Entity.AIAgentMod;
 namespace AIAgentMod.Models.AIAgentDtos;
 /// <summary>
 /// agentDetailDto
@@ -38,5 +37,5 @@ public class AIAgentDetailDto
     public List<string>? Tools { get; set; }
     public DateTimeOffset UpdatedTime { get; set; }
     public Guid? UserId { get; set; }
-    
+
 }

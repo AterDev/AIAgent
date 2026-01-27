@@ -1,7 +1,7 @@
-using System.ComponentModel;
 using CoreMod.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
+using System.ComponentModel;
 
 namespace CoreMod;
 
@@ -31,7 +31,7 @@ public static class ModuleExtensions
     // The module middlewares registration
     public static WebApplication UseCoreModServices(this WebApplication app)
     {
-       // custom middlewares and init task
-       return app;
+        // custom middlewares and init task
+        return app;
     }
 }

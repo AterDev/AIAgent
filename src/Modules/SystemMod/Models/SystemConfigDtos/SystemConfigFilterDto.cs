@@ -1,4 +1,3 @@
-using Entity.SystemMod;
 namespace SystemMod.Models.SystemConfigDtos;
 /// <summary>
 /// 系统配置FilterDto
@@ -18,5 +17,5 @@ public class SystemConfigFilterDto : FilterBase
     /// 是否属于系统配置
     /// </summary>
     public bool? IsSystem { get; set; }
-    
+
 }
