@@ -12,3 +12,4 @@ global using Share.Exceptions;
 global using Share.Implement;
 global using System;
 global using System.ComponentModel.DataAnnotations;
+global using System.Diagnostics;

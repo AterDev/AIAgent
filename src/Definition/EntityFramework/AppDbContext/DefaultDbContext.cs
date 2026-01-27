@@ -1,6 +1,10 @@
 
 using Entity.AIAgentMod;
+using Entity.KnowledgeBaseMod;
+using Entity.McpMod;
+using Entity.ModelMod;
 using Entity.SystemMod;
+using Entity.WorkflowMod;
 
 namespace EntityFramework.AppDbContext;
 
@@ -11,26 +15,6 @@ namespace EntityFramework.AppDbContext;
 public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options)
     : ContextBase(options)
 {
-    #region SystemMod
-    public DbSet<SystemUser> SystemUsers { get; set; }
-    public DbSet<SystemRole> SystemRoles { get; set; }
-    public DbSet<SystemUserRole> SystemUserRoles { get; set; }
-    public DbSet<SystemConfig> SystemConfigs { get; set; }
-
-    /// <summary>
-    /// 菜单
-    /// </summary>
-    public DbSet<SystemMenu> SystemMenus { get; set; }
-    public DbSet<SystemPermission> SystemPermissions { get; set; }
-
-    /// <summary>
-    /// 权限组
-    /// </summary>
-    public DbSet<SystemPermissionGroup> SystemPermissionGroups { get; set; }
-    public DbSet<SystemLogs> SystemLogs { get; set; }
-    public DbSet<SystemOrganization> SystemOrganizations { get; set; } = null!;
-    #endregion
-
     #region AIAgentMod
 
     public DbSet<AIAgent> AIAgents { get; set; }
@@ -48,36 +32,63 @@ public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options
 
     public DbSet<TokenUsageRecord> TokenUsageRecords { get; set; }
 
+    public DbSet<AgentExecution> AgentExecutions { get; set; }
+
+    #endregion
+
+    #region ModelMod
+
+    public DbSet<Application> Applications { get; set; }
+
+    public DbSet<ApplicationQuota> ApplicationQuotas { get; set; }
+
+    public DbSet<ApplicationModelPermission> ApplicationModelPermissions { get; set; }
+
+    public DbSet<ApplicationToolPermission> ApplicationToolPermissions { get; set; }
+
+    public DbSet<ModelProfile> ModelProfiles { get; set; }
+
+    public DbSet<ModelProvider> ModelProviders { get; set; }
+
+    public DbSet<ModelInvocation> ModelInvocations { get; set; }
+
+    #endregion
+
+    #region KnowledgeBaseMod
+
+    public DbSet<RagCollection> RagCollections { get; set; }
+
+    public DbSet<RagDocument> RagDocuments { get; set; }
+
+    public DbSet<RagChunk> RagChunks { get; set; }
+
+    #endregion
+
+    #region McpMod
+
+    public DbSet<McpTool> McpTools { get; set; }
+
+    public DbSet<ToolCallRecord> ToolCallRecords { get; set; }
+
+    #endregion
+
+    #region WorkflowMod
+
+    public DbSet<Workflow> Workflows { get; set; }
+
+    public DbSet<WorkflowExecution> WorkflowExecutions { get; set; }
+
+    #endregion
+
+    #region SystemMod
+
+    public DbSet<SystemConfig> SystemConfigs { get; set; }
+
     #endregion
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        builder.Entity<SystemLogs>().Ignore(e => e.IsDeleted);
 
-        builder
-            .Entity<SystemUser>()
-            .HasMany(u => u.SystemRoles)
-            .WithMany(r => r.Users)
-            .UsingEntity<SystemUserRole>(
-                j => j.HasOne(ur => ur.Role).WithMany().HasForeignKey(ur => ur.RoleId),
-                j => j.HasOne(ur => ur.User).WithMany().HasForeignKey(ur => ur.UserId),
-                j =>
-                {
-                    j.HasKey(ur => ur.Id);
-                }
-            );
-        builder
-            .Entity<SystemMenu>()
-            .HasMany(u => u.SystemRoles)
-            .WithMany(r => r.SystemMenus)
-            .UsingEntity<SystemMenuRole>(
-                j => j.HasOne(ur => ur.SystemRole).WithMany().HasForeignKey(ur => ur.RoleId),
-                j => j.HasOne(ur => ur.SystemMenu).WithMany().HasForeignKey(ur => ur.MenuId),
-                j =>
-                {
-                    j.HasKey(ur => ur.Id);
-                }
-            );
     }
 }

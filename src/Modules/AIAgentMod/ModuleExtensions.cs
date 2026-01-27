@@ -1,3 +1,5 @@
+using AIAgentMod.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 namespace AIAgentMod;
 
@@ -8,6 +10,10 @@ public static class ModuleExtensions
     /// </summary>
     public static IHostApplicationBuilder AddAIAgentMod(this IHostApplicationBuilder builder)
     {
+        builder.Services.AddSingleton<IEntityTaskQueue<AgentExecutionTask>>(new EntityTaskQueue<AgentExecutionTask>());
+        builder.Services.AddSingleton<IAgentExecutionQueue, AgentExecutionQueue>();
+        builder.Services.AddScoped<IAgentExecutionService, AgentExecutionService>();
+        builder.Services.AddHostedService<AgentExecutionWorker>();
         return builder;
     }
 }

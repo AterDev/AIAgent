@@ -1,0 +1,11 @@
+using Entity.KnowledgeBaseMod;
+namespace KnowledgeBaseMod.Models.RagChunkDtos;
+
+/// <summary>
+/// 分块 FilterDto
+/// </summary>
+/// <see cref="Entity.KnowledgeBaseMod.RagChunk"/>
+public class RagChunkFilterDto : FilterBase
+{
+    public Guid? DocumentId { get; set; }
+}

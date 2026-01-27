@@ -29,6 +29,11 @@
   <Folder Name="/src/Modules/">
     <Project Path="src/Modules/AIAgentMod/AIAgentMod.csproj" />
     <Project Path="src/Modules/CoreMod/CoreMod.csproj" />
+    <Project Path="src/Modules/KnowledgeBaseMod/KnowledgeBaseMod.csproj" />
+    <Project Path="src/Modules/ModelMod/ModelMod.csproj" />
+    <Project Path="src/Modules/McpMod/McpMod.csproj" />
+    <Project Path="src/Modules/WorkflowMod/WorkflowMod.csproj" />
+    <Project Path="src/Modules/SystemMod/SystemMod.csproj" />
   </Folder>
   
   <Folder Name="/src/Services/" Id="02ea681e-c7d8-13c7-8484-4ac65e1b71e8">

@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using CoreMod.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 
@@ -20,7 +21,10 @@ public static class ModuleExtensions
     // The module services registration
     private static IHostApplicationBuilder AddModServices(this IHostApplicationBuilder builder)
     {
-        // custom services registration
+        builder.Services.AddScoped<IModelClient, OpenAiCompatibleClient>();
+        builder.Services.AddScoped<IModelRouter, DbModelRouter>();
+        builder.Services.AddSingleton<IModelCapabilityResolver, DefaultModelCapabilityResolver>();
+        builder.Services.AddSingleton<IUsageMeter, DefaultUsageMeter>();
         return builder;
     }
 
