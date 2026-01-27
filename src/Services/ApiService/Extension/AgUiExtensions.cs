@@ -1,6 +1,6 @@
 using Microsoft.Agents.AI.Hosting.AGUI.AspNetCore;
 
-namespace ApiService.Extensions;
+namespace ApiService.Extension;
 
 /// <summary>
 /// AG-UI 集成扩展方法，使用官方 Microsoft.Agents.AI.Hosting.AGUI.AspNetCore 包

@@ -1,5 +1,3 @@
-using ApiService.Extensions;
-
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // 共享基础服务:health check, service discovery, opentelemetry, http retry etc.
@@ -36,10 +34,10 @@ WebApplication app = builder.Build();
 
 app.MapDefaultEndpoints();
 
-// 使用中间件
-app.UseMiddlewareServices();
-
 // TODO: 在配置好 IChatClient 并注册 Agent 后，取消注释以下代码来启用 AG-UI 端点
 // app.MapAGUIEndpoints();
+
+// 使用中间件
+app.UseMiddlewareServices();
 
 await app.RunAsync();

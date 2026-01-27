@@ -14,7 +14,7 @@ public static class ModuleExtensions
         builder.Services.AddSingleton<IAgentExecutionQueue, AgentExecutionQueue>();
         builder.Services.AddScoped<IAgentExecutionService, AgentExecutionService>();
         builder.Services.AddHostedService<AgentExecutionWorker>();
-        
+
         return builder;
     }
 }
