@@ -1,4 +1,3 @@
-using Entity.AIAgentMod;
 namespace AIAgentMod.Models.ChatMessageDtos;
 /// <summary>
 /// 聊天消息DetailDto
@@ -41,5 +40,5 @@ public class ChatMessageDetailDto
     /// 用户ID
     /// </summary>
     public Guid? UserId { get; set; }
-    
+
 }

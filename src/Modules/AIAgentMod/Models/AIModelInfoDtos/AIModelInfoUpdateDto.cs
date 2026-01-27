@@ -1,4 +1,3 @@
-using Entity.AIAgentMod;
 namespace AIAgentMod.Models.AIModelInfoDtos;
 /// <summary>
 /// 模型信息UpdateDto
@@ -26,5 +25,5 @@ public class AIModelInfoUpdateDto
     public string? Name { get; set; }
     public decimal? OutputPrice { get; set; }
     public Guid? ProviderId { get; set; }
-    
+
 }

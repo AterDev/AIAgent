@@ -1,4 +1,3 @@
-using Entity.AIAgentMod;
 namespace AIAgentMod.Models.AIModelInfoDtos;
 /// <summary>
 /// 模型信息ItemDto
@@ -17,5 +16,5 @@ public class AIModelInfoItemDto
     /// </summary>
     public decimal? InputPrice { get; set; }
     public decimal? OutputPrice { get; set; }
-    
+
 }

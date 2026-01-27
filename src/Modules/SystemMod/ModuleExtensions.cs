@@ -1,6 +1,6 @@
-using System.ComponentModel;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
+using System.ComponentModel;
 using SystemMod.Services;
 
 namespace SystemMod;
@@ -28,7 +28,7 @@ public static class ModuleExtensions
     // The module middlewares registration
     public static WebApplication UseSystemModServices(this WebApplication app)
     {
-       // custom middlewares and init task
-       return app;
+        // custom middlewares and init task
+        return app;
     }
 }

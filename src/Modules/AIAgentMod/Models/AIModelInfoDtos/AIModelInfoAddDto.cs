@@ -1,4 +1,3 @@
-using Entity.AIAgentMod;
 namespace AIAgentMod.Models.AIModelInfoDtos;
 /// <summary>
 /// 模型信息AddDto
@@ -26,5 +25,5 @@ public class AIModelInfoAddDto
     public string Name { get; set; } = default!;
     public decimal OutputPrice { get; set; }
     public Guid ProviderId { get; set; } = default!;
-    
+
 }

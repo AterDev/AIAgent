@@ -1,4 +1,3 @@
-using Entity.AIAgentMod;
 namespace AIAgentMod.Models.MCPServerInfoDtos;
 /// <summary>
 /// McpServerFilterDto
@@ -22,5 +21,5 @@ public class MCPServerInfoFilterDto : FilterBase
     /// 传输类型（http, stdio, sse, websocket）
     /// </summary>
     public TransportType? TransportType { get; set; }
-    
+
 }

@@ -1,5 +1,3 @@
-using CoreMod.Models;
-
 namespace ModelMod.Services;
 
 public interface IModelInvokeService

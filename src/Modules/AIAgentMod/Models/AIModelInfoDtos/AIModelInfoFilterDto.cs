@@ -1,4 +1,3 @@
-using Entity.AIAgentMod;
 namespace AIAgentMod.Models.AIModelInfoDtos;
 /// <summary>
 /// 模型信息FilterDto
@@ -7,5 +6,5 @@ namespace AIAgentMod.Models.AIModelInfoDtos;
 public class AIModelInfoFilterDto : FilterBase
 {
     public Guid? ProviderId { get; set; }
-    
+
 }

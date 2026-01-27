@@ -1,5 +1,5 @@
-using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 namespace MigrationService;
 

@@ -1,4 +1,3 @@
-using Entity.McpMod;
 namespace McpMod.Models.ToolCallRecordDtos;
 
 /// <summary>

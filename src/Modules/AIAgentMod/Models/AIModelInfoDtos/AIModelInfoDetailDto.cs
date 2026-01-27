@@ -1,4 +1,3 @@
-using Entity.AIAgentMod;
 namespace AIAgentMod.Models.AIModelInfoDtos;
 /// <summary>
 /// 模型信息DetailDto
@@ -33,5 +32,5 @@ public class AIModelInfoDetailDto
     public Guid? ProviderId { get; set; }
     public Guid TenantId { get; set; }
     public DateTimeOffset UpdatedTime { get; set; }
-    
+
 }

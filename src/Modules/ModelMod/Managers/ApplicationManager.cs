@@ -5,7 +5,7 @@ namespace ModelMod.Managers;
 /// 应用定义
 /// </summary>
 public class ApplicationManager(
-    TenantDbFactory dbContextFactory, 
+    TenantDbFactory dbContextFactory,
     ILogger<ApplicationManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, Application>(dbContextFactory, userContext, logger)
@@ -14,7 +14,7 @@ public class ApplicationManager(
     /// Filter 应用定义 with paging
     /// </summary>
     public async Task<PageList<ApplicationItemDto>> FilterAsync(ApplicationFilterDto filter)
-    {        
+    {
         Queryable = Queryable
             .WhereNotNull(filter.Name, q => q.Name == filter.Name)
             .WhereNotNull(filter.AccessKey, q => q.AccessKey == filter.AccessKey)
@@ -31,7 +31,7 @@ public class ApplicationManager(
     public async Task<Application> AddAsync(ApplicationAddDto dto)
     {
         var entity = dto.MapTo<Application>();
-        
+
         await InsertAsync(entity);
         return entity;
     }

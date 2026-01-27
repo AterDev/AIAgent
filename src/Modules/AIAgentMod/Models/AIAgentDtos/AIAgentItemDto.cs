@@ -1,4 +1,3 @@
-using Entity.AIAgentMod;
 namespace AIAgentMod.Models.AIAgentDtos;
 /// <summary>
 /// agentItemDto
@@ -22,5 +21,5 @@ public class AIAgentItemDto
     /// Agent 的角色设定（System Prompt）
     /// </summary>
     public string? SystemPrompt { get; set; }
-    
+
 }

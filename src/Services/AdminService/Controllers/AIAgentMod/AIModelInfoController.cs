@@ -30,7 +30,7 @@ public class AIModelInfoController(
     [HttpPost]
     public async Task<ActionResult<AIModelInfo>> AddAsync(AIModelInfoAddDto dto)
     {
-        
+
         var entity = await _manager.AddAsync(dto);
         return CreatedAtRoute(nameof(DetailAsync), new { id = entity.Id }, entity);
     }

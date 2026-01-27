@@ -1,4 +1,3 @@
-using Entity.AIAgentMod;
 namespace AIAgentMod.Models.AIModelProviderDtos;
 /// <summary>
 /// AI模型提供商ItemDto
@@ -8,5 +7,5 @@ public class AIModelProviderItemDto
 {
     public Guid Id { get; set; }
     public DateTimeOffset CreatedTime { get; set; }
-    
+
 }

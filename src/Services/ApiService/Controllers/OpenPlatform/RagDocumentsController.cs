@@ -1,7 +1,6 @@
 using KnowledgeBaseMod.Managers;
 using KnowledgeBaseMod.Models.RagDocumentDtos;
 using KnowledgeBaseMod.Services;
-using Microsoft.AspNetCore.Mvc;
 
 namespace ApiService.Controllers.OpenPlatform;
 

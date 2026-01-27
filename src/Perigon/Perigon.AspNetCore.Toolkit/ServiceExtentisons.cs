@@ -1,7 +1,7 @@
-﻿using Perigon.AspNetCore.Options;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Perigon.AspNetCore.Options;
 
 namespace Perigon.AspNetCore.Toolkit;
 

@@ -1,4 +1,3 @@
-using Entity.KnowledgeBaseMod;
 namespace KnowledgeBaseMod.Models.RagChunkDtos;
 
 /// <summary>

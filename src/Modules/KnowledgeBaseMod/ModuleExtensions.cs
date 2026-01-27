@@ -1,9 +1,9 @@
-using System.ComponentModel;
 using KnowledgeBaseMod.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using System.ComponentModel;
 
 namespace KnowledgeBaseMod;
 
@@ -71,7 +71,7 @@ public static class ModuleExtensions
     // The module middlewares registration
     public static WebApplication UseKnowledgeBaseModServices(this WebApplication app)
     {
-       // custom middlewares and init task
-       return app;
+        // custom middlewares and init task
+        return app;
     }
 }

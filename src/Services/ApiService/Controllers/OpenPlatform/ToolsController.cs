@@ -1,7 +1,6 @@
 using McpMod.Managers;
 using McpMod.Models;
 using McpMod.Models.McpToolDtos;
-using Microsoft.AspNetCore.Mvc;
 
 namespace ApiService.Controllers.OpenPlatform;
 

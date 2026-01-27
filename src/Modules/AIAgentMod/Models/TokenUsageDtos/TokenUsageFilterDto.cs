@@ -1,4 +1,3 @@
-using Entity.AIAgentMod;
 namespace AIAgentMod.Models.TokenUsageDtos;
 /// <summary>
 /// 用户Token用量信息FilterDto
@@ -10,5 +9,5 @@ public class TokenUsageFilterDto : FilterBase
     /// 用户ID
     /// </summary>
     public Guid? UserId { get; set; }
-    
+
 }

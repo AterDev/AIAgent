@@ -1,4 +1,3 @@
-using Entity.ModelMod;
 namespace ModelMod.Models.ApplicationDtos;
 /// <summary>
 /// 应用定义ItemDto
@@ -14,5 +13,5 @@ public class ApplicationItemDto
     [Key]
     public Guid Id { get; set; } = Guid.CreateVersion7();
     public DateTimeOffset CreatedTime { get; set; } = DateTimeOffset.UtcNow;
-    
+
 }

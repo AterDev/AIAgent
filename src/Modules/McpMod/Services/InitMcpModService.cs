@@ -1,7 +1,6 @@
-using System.Net.Http.Json;
 using McpMod.Models;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Net.Http.Json;
 
 namespace McpMod.Services;
 

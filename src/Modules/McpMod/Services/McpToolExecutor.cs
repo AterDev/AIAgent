@@ -1,6 +1,5 @@
-using System.Diagnostics;
-using System.Text.Json;
 using McpMod.Models.ToolExecutionDtos;
+using System.Text.Json;
 
 namespace McpMod.Services;
 

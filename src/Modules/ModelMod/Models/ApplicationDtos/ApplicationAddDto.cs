@@ -1,4 +1,3 @@
-using Entity.ModelMod;
 namespace ModelMod.Models.ApplicationDtos;
 /// <summary>
 /// 应用定义AddDto
@@ -15,5 +14,5 @@ public class ApplicationAddDto
     [MaxLength(200)]
     public string SecretKey { get; set; } = default!;
     public bool IsEnabled { get; set; } = true;
-    
+
 }

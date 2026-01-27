@@ -1,4 +1,3 @@
-using Entity.ModelMod;
 namespace ModelMod.Models.ApplicationToolPermissionDtos;
 
 /// <summary>

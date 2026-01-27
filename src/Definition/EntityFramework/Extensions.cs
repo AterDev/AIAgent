@@ -15,11 +15,11 @@ public static class Extensions
     {
         DbSet<TEntity> set = db.Set<TEntity>();
 
-        ParameterExpression eParam      = Expression.Parameter(typeof(TEntity), "e");
-        MemberExpression    keyProp     = Expression.Property(eParam, nameof(EntityBase.Id));
-        ConstantExpression  idConst     = Expression.Constant(id, typeof(Guid));
-        BinaryExpression    equal       = Expression.Equal(keyProp, idConst);
-        var                 whereLambda = Expression.Lambda<Func<TEntity, bool>>(equal, eParam);
+        ParameterExpression eParam = Expression.Parameter(typeof(TEntity), "e");
+        MemberExpression keyProp = Expression.Property(eParam, nameof(EntityBase.Id));
+        ConstantExpression idConst = Expression.Constant(id, typeof(Guid));
+        BinaryExpression equal = Expression.Equal(keyProp, idConst);
+        var whereLambda = Expression.Lambda<Func<TEntity, bool>>(equal, eParam);
 
         // 构造 ExecuteUpdate 的 lambda
         return await set.Where(whereLambda)

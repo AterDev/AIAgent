@@ -1,4 +1,3 @@
-using Entity.AIAgentMod;
 namespace AIAgentMod.Models.ConversationDtos;
 /// <summary>
 /// 对话实例ItemDto
@@ -29,5 +28,5 @@ public class ConversationItemDto
     /// 总令牌数量
     /// </summary>
     public int? TotalTokens { get; set; }
-    
+
 }

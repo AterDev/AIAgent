@@ -5,7 +5,7 @@ namespace AIAgentMod.Managers;
 /// 聊天消息
 /// </summary>
 public class ChatMessageManager(
-    TenantDbFactory dbContextFactory, 
+    TenantDbFactory dbContextFactory,
     ILogger<ChatMessageManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, ChatMessage>(dbContextFactory, userContext, logger)
@@ -30,7 +30,7 @@ public class ChatMessageManager(
     public async Task<ChatMessage> AddAsync(ChatMessageAddDto dto)
     {
         var entity = dto.MapTo<ChatMessage>();
-        
+
         await InsertAsync(entity);
         return entity;
     }

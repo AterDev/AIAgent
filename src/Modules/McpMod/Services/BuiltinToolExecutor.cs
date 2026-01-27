@@ -1,10 +1,8 @@
-using System.Data;
-using System.Text.Json;
 using KnowledgeBaseMod.Models.RagQueryDtos;
 using KnowledgeBaseMod.Services;
 using McpMod.Models.ToolExecutionDtos;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+using System.Data;
+using System.Text.Json;
 
 namespace McpMod.Services;
 

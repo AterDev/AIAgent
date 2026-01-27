@@ -1,4 +1,3 @@
-using Entity.AIAgentMod;
 namespace AIAgentMod.Models.AIModelProviderDtos;
 /// <summary>
 /// AI模型提供商DetailDto
@@ -27,5 +26,5 @@ public class AIModelProviderDetailDto
     /// </summary>
     [MaxLength(500)]
     public string? Website { get; set; }
-    
+
 }
