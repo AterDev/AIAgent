@@ -17,7 +17,7 @@
    - 统一解析接口 IDocumentParser。
    - 分块规则：512-1024 tokens，20% 重叠，语义边界优先。
    - 解析与训练过程调用大语言模型时，提示词复用 SystemConfig 配置。
-   - 大语言模型调用通过 CommonMod 封装执行。
+   - 大语言模型调用通过 CoreMod 封装执行。
 
 3. **向量化与存储**
    - 调用 embedding 模型（优先 text-embedding-3-small/large）。

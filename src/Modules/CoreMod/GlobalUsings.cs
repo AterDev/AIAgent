@@ -1,0 +1,15 @@
+global using System.ComponentModel.DataAnnotations;
+global using System.Diagnostics;
+global using System.Linq.Expressions;
+global using Perigon.AspNetCore;
+global using Perigon.AspNetCore.Models;
+global using Perigon.AspNetCore.Utils;
+global using Perigon.AspNetCore.Toolkit;
+global using Entity;
+global using EntityFramework;
+global using EntityFramework.AppDbContext;
+global using Microsoft.AspNetCore.Authorization;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.Extensions.Logging;
