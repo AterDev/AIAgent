@@ -6,11 +6,12 @@ var aspireSetting = AppSettingsHelper.LoadAspireSettings(builder.Configuration);
 
 IResourceBuilder<IResourceWithConnectionString>? database = null;
 IResourceBuilder<IResourceWithConnectionString>? cache = null;
+IResourceBuilder<QdrantServerResource>? qdrant = null;
 
 // if you have exist resource, you can set connection string here, without create container
 // database = builder.AddConnectionString(AppConst.Default, "");
 // nats = builder.AddConnectionString("mq", "");
-// qdrant = builder.AddConnectionString("qdrant", "");
+// qdrant = builder.AddQdrant("qdrant");
 
 #region infrastructure
 var defaultName = "AIAgent_dev";
@@ -46,9 +47,17 @@ _ = aspireSetting.CacheType?.ToLowerInvariant() switch
         .WithPersistence(interval: TimeSpan.FromMinutes(5)),
 };
 
+if (aspireSetting.VectorStoreType?.ToLowerInvariant() == "qdrant")
+{
+    qdrant = builder
+        .AddQdrant("qdrant", apiKey: devPassword, httpPort: aspireSetting.QdrantPort)
+        .WithDataVolume();
+}
+
 devPassword.WithParentRelationship(infrastructureGroup);
 database?.WithParentRelationship(infrastructureGroup);
 cache?.WithParentRelationship(infrastructureGroup);
+qdrant?.WithParentRelationship(infrastructureGroup);
 
 #endregion
 
@@ -79,6 +88,11 @@ if (cache != null)
     migration.WithReference(cache).WaitFor(cache);
     apiService.WithReference(cache);
     adminService.WithReference(cache);
+}
+if (qdrant != null)
+{
+    apiService.WithReference(qdrant);
+    adminService.WithReference(qdrant);
 }
 # endregion
 

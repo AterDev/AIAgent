@@ -17,6 +17,7 @@ public class SystemConfig : EntityBase
 
     [MaxLength(500)]
     public string? Description { get; set; }
+
     public bool Valid { get; set; } = true;
 
     /// <summary>
@@ -33,10 +34,6 @@ public class SystemConfig : EntityBase
     /// <summary>
     /// 创建系统配置
     /// </summary>
-    /// <param name="groupName">分组名称</param>
-    /// <param name="key"></param>
-    /// <param name="value"></param>
-    /// <returns></returns>
     public static SystemConfig NewSystemConfig(string groupName, string key, string value)
     {
         return new SystemConfig

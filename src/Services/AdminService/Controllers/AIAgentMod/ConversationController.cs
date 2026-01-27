@@ -27,7 +27,7 @@ public class ConversationController(
     public async Task<ActionResult<Conversation>> AddAsync(ConversationAddDto dto)
     {
         var entity = await _manager.AddAsync(dto);
-        return CreatedAtAction(nameof(DetailAsync), new { id = entity.Id }, entity);
+        return CreatedAtRoute(nameof(DetailAsync), new { id = entity.Id }, entity);
     }
 
     /// <summary>

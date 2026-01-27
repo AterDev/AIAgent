@@ -8,6 +8,8 @@ global using Perigon.AspNetCore.Toolkit;
 global using Entity;
 global using EntityFramework;
 global using EntityFramework.AppDbContext;
+global using EntityFramework.AppDbFactory;
+global using Perigon.AspNetCore.Abstraction;
 global using Microsoft.AspNetCore.Authorization;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.AspNetCore.Mvc;
