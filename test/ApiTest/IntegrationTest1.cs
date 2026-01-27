@@ -1,7 +1,6 @@
-using System.Net.Http.Json;
 using ApiTest.Data;
 using Share.Models.Auth;
-using SystemMod.Models;
+using System.Net.Http.Json;
 
 namespace ApiTest;
 
@@ -13,7 +12,7 @@ public class IntegrationTest1
     {
         var httpClient = httpClientData.HttpClient;
 
-        var loginDto = new SystemLoginDto
+        var loginDto = new
         {
             Email = "admin@default.com",
             Password = "Perigon.2026"

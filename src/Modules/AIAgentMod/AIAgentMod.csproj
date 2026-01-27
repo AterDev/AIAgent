@@ -7,6 +7,7 @@
         <NoWarn>1701;1702;1591</NoWarn>
     </PropertyGroup>
     <ItemGroup>
-        <ProjectReference Include="..\CommonMod\CommonMod.csproj" />
+      <ProjectReference Include="..\..\Definition\Share\Share.csproj" />
     </ItemGroup>
+
 </Project>

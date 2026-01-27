@@ -6,7 +6,6 @@
     <File Path="Directory.Packages.props" />
   </Folder>
   <Folder Name="/docs/">
-    <File Path="docs/docs.md" />
     <File Path="README.md" />
   </Folder>
   <Folder Name="/scripts/">
@@ -29,7 +28,6 @@
   </Folder>
   <Folder Name="/src/Modules/">
     <Project Path="src/Modules/AIAgentMod/AIAgentMod.csproj" />
-    <Project Path="src/Modules/SystemMod/SystemMod.csproj" />
   </Folder>
   
   <Folder Name="/src/Services/" Id="02ea681e-c7d8-13c7-8484-4ac65e1b71e8">
