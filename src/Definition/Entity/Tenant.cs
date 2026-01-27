@@ -1,5 +1,5 @@
 ﻿// ⚠️ dont delete this file unless you are absolutely sure about it.
-namespace Entity.CommonMod;
+namespace Entity;
 
 /// <summary>
 /// The tenant entity

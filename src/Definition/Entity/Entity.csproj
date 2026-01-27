@@ -17,4 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Perigon\Perigon.AspNetCore\Perigon.AspNetCore.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="CommonMod\" />
+  </ItemGroup>
 </Project>

@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using Entity.CommonMod;
+using Entity;
 using EntityFramework.AppDbContext;
 using Microsoft.AspNetCore.Http;
 using Perigon.AspNetCore.Services;
