@@ -1,31 +1,125 @@
----
+﻿---
 name: backend
-description: Perigon ASP.NET Core + EF Core + Aspire conventions
+description: Asp.Net Core/Aspire 后端开发规范和最佳实践
 ---
-## When to use
-- Backend work across src/Definition, src/Modules, src/Services, and src/AppHost (entities, DTOs, managers, controllers, EF, hosting).
 
-## Usage
-- Architecture: Definition (entities/EF/Share/ServiceDefaults) -> Modules (Managers + DTOs) -> Services (controllers). Use Code First with <Nullable>enable.
-- Project configuration: enable <Nullable> and follow RESTful naming conventions in controllers (AddAsync/UpdateAsync/DeleteAsync/GetDetailAsync/FilterAsync).
-- Entities: inherit EntityBase (Id, CreatedAt, UpdatedAt, IsDeleted); Id uses Guid v7 client-generated. Strings need max length; decimals set precision (10,2 or 18,6); enums require [Description]; prefer DateTimeOffset/DateOnly/TimeOnly.
-- Database: prefer SQL Server (commercial) or PostgreSQL; use foreign keys within a domain; avoid string-delimited lists (use arrays/JSON). Use SQL Server 2025+ / PostgreSQL 18+ for new projects. Migrations via scripts/EFMigrations.ps1; files under Definition/EntityFramework/Migrations.
-- Data access: DbContexts live in Definition/EntityFramework/AppDbContext; default TenantDbFactory/UniversalDbFactory for creation. Prefer Queryable with Select projections; AsNoTracking by default; use EFCore.BulkExtensions for bulk ops.
-- Managers: place in src/Modules/{Mod}/Managers; inherit ManagerBase (generic when tied to entity) for DI. Do not return ActionResult or touch HttpContext; avoid manager-to-manager refs. Use base ops (FindAsync, ExistAsync, ListAsync, PageListAsync, InsertAsync, UpdateAsync, DeleteAsync, BulkInsertAsync, ExecuteInTransactionAsync). Throw BusinessException for business errors; keep third-party calls/helpers in Share/Services. Avoid defining Manager interfaces unless multiple implementations are required.
-- DTOs: store under src/Modules/{Mod}/Models/{Entity}Dtos with Detail/Add/Update/Item/Filter shapes; map via Mapster.
-- Controllers: under src/Services/*/Controllers; inherit RestControllerBase. Use HTTP verb attributes and method names AddAsync/UpdateAsync/DeleteAsync/GetDetailAsync/FilterAsync. Return ActionResult<T>; use Problem/NotFound for errors; avoid ApiResponse wrappers; keep business logic in Manager; handle auth/permission/validation here. Controllers handle routing, validation, permission checks, and error mapping; they should not implement business logic or data access.
-- Aspire/AppHost: AppHost orchestrates infra/services; ensure Docker/Podman running. Configure via appsettings*.json. Avoid build/run commands unless requested; check editor diagnostics after changes.
-- C#/.NET conventions:
-	- Prefer file-scoped namespaces, primary constructors, and collection expressions where appropriate (C# 14).
-	- Async all the way: use async/await, pass CancellationToken from controllers to managers/data access.
-	- Validate inputs at the API boundary; keep business rules in Managers.
-	- Use DI via constructor injection; avoid service locator patterns.
-- ASP.NET Core API conventions:
-	- Keep controllers thin; avoid DbContext usage outside Managers.
-	- Use explicit [FromBody]/[FromQuery]/[FromRoute] when ambiguous.
-	- Prefer HTTP verb attributes over [Route] for action routing.
-	- Use pagination for list endpoints and avoid returning large unbounded sets.
-	- Return ActionResult<T> (or model directly) on success; use Problem() / NotFound() for errors.
-- Response standards:
-	- Use HTTP status codes: 200 OK, 201 Created, 401 Unauthorized, 403 Forbidden, 404 NotFound, 409 Conflict, 500 Server/Business error.
-	- Error responses follow ProblemDetails (title/status/detail/traceId). Business errors should throw BusinessException in Manager and be mapped by middleware.
+## 何时使用
+
+在编写后端项目时，如Aspire/Asp.Net Core WebAPI及其他与后端相关的内容。
+
+## Perigon分层结构
+
+```sh
+src/
+├── Definition/
+│   ├── Entity/              # 实体定义（按模块分文件夹）
+│   ├── EntityFramework/     # EF DbContext 和迁移
+│   ├── Share/               # 共享常量、扩展、服务
+│   └── ServiceDefaults/     # 服务注册和中间件
+├── Modules/
+│   └── {ModuleName}/
+│       ├── Managers/        # 业务逻辑层
+│       └── Models/          # DTO 定义（按实体分文件夹）
+│       └── Services/        # 模块内服务（可选）
+└── Services/
+    ├── ApiService/          # 公共 API
+    ├── AdminService/        # 管理后台 API
+    └── MigrationService/    # 数据库迁移服务
+```
+
+### Share共享项目
+
+- Shared constants live in src/Definition/Share/Constants; module-specific constants stay in their module/service.
+- Extend AppConst via extension methods in Share/Constants (e.g., AppExtensions) rather than modifying base constants.
+
+### 模块依赖层次（从下到上）
+
+1. **Entity** → 定义数据模型
+2. **EntityFramework** → 配置 DbContext，依赖 Entity
+3. **Share + ServiceDefaults** → 共享工具和服务注册，依赖 EntityFramework
+4. **Modules** → 业务逻辑和 DTO，依赖 Entity 和 Share
+5. **Services** → API 控制器，依赖 Modules
+
+**禁止**：
+- ❌ Manager 之间直接调用（通过共享服务或事件解耦）
+- ❌ Controller 绕过 Manager 直接访问 DbContext
+- ❌ Entity 包含业务逻辑（仅数据模型和验证注解）
+
+---
+
+## 开发流程
+
+1. 先处理定义层，即实体的定义，DbContext的处理，以及共享服务的编写
+2. 然后处理模块层，即Manager和DTO的编写
+3. 最后处理服务层，即Controller的编写
+4. 检查项目依赖关系，检查错误，确保没有违反分层原则
+
+**要优先使用MCP工具`Perigon`，生成或创建模块/Entity/DTO/Manager/Controller等内容。**
+
+MCP server config lives in [.mcp.json](.mcp.json) and [.vscode/mcp.json](.vscode/mcp.json); use configured endpoints when invoking tools.
+
+---
+
+## 开发规范
+
+### 错误处理
+- 业务错误：抛出 `BusinessException`
+- 第三方服务调用：保留在`Share/Services`中
+
+---
+
+### DTO（数据传输对象）
+
+通过MCP工具生成Dto，然后以此为模板再根据实际需求调整。
+
+### Manager
+
+通过MCP工具生成Manager，然后以此为模板再根据实际需求调整。
+
+如果Manager没有绑定特定的实体，则继承`ManagerBase.cs`的其他基类。
+
+###  对象映射
+
+优先使用`Perigon.AspNetCore.Utils.Extensions` 中的扩展方法`Merge/MapTo`进行映射。
+
+### 控制器（Controllers）
+
+通过MCP工具生成Controller，然后以此为模板再根据实际需求调整。
+
+如果Controller没有绑定特定的Manager，则继承`RestControllerBase`的其他基类。
+
+✗ **避免**：
+- 直接访问 DbContext
+- 实现业务逻辑
+- ApiResponse 包装器（使用标准响应）
+
+### 返回值
+- **成功**：`ActionResult<T>` 直接返回模型
+- **错误**：使用 `Problem()` 或 `NotFound()`
+- **参数绑定**：有歧义时使用显式特性 `[FromBody]` / `[FromQuery]` / `[FromRoute]`
+
+### Aspire / AppHost
+
+可参考微软官方文档以实现相关的需求。
+优先使用Aspire生态提供的功能和中间件。
+
+---
+
+## 代码约定
+
+### C# 14 语言特性
+- 使用文件作用域命名空间
+- 使用主构造函数
+- 使用集合表达式
+
+### 异步编程
+- **全程异步**：使用 `async/await`
+- **传递 Token**：从 Controller 向 Manager/数据访问传递 `CancellationToken`
+
+### 依赖注入
+- 使用构造函数注入（Constructor Injection）
+- ✗ 避免服务定位器模式
+
+### 验证和业务规则
+- **API 边界**：验证输入参数
+- **业务逻辑**：验证规则保留在 Manager 中
