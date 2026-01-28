@@ -14,7 +14,6 @@ public class RagCollectionManager(
     public async Task<PageList<RagCollectionItemDto>> FilterAsync(RagCollectionFilterDto filter)
     {
         Queryable = Queryable
-            .AsNoTracking()
             .Where(q => q.TenantId == _userContext.TenantId)
             .WhereNotNull(filter.Name, q => q.Name == filter.Name)
             .WhereNotNull(filter.IsPublic, q => q.IsPublic == filter.IsPublic)

@@ -21,7 +21,6 @@ public class AIAgentManager(
     public async Task<PageList<AIAgentItemDto>> FilterAsync(AIAgentFilterDto filter)
     {
         Queryable = Queryable
-            .AsNoTracking()
             .Where(q => q.UserId == _userContext.UserId)
             .WhereNotNull(filter.Enable, q => q.Enable == filter.Enable)
             .WhereNotNull(filter.IsTemplate, q => q.IsTemplate == filter.IsTemplate)

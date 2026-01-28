@@ -19,7 +19,6 @@ public class ModelProfileManager(
     public async Task<PageList<ModelProfileItemDto>> FilterAsync(ModelProfileFilterDto filter)
     {
         Queryable = Queryable
-            .AsNoTracking()
             .Where(q => q.TenantId == _userContext.TenantId)
             .WhereNotNull(filter.ProviderId, q => q.ProviderId == filter.ProviderId)
             .WhereNotNull(filter.Name, q => q.Name == filter.Name)

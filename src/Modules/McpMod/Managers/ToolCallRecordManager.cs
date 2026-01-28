@@ -14,7 +14,6 @@ public class ToolCallRecordManager(
     public async Task<PageList<ToolCallRecordItemDto>> FilterAsync(ToolCallRecordFilterDto filter)
     {
         Queryable = Queryable
-            .AsNoTracking()
             .Where(q => q.TenantId == _userContext.TenantId)
             .WhereNotNull(filter.ToolId, q => q.ToolId == filter.ToolId)
             .WhereNotNull(filter.Status, q => q.Status == filter.Status);

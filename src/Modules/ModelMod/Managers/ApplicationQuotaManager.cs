@@ -14,7 +14,6 @@ public class ApplicationQuotaManager(
     public async Task<PageList<ApplicationQuotaItemDto>> FilterAsync(ApplicationQuotaFilterDto filter)
     {
         Queryable = Queryable
-            .AsNoTracking()
             .Where(q => q.TenantId == _userContext.TenantId)
             .WhereNotNull(filter.ApplicationId, q => q.ApplicationId == filter.ApplicationId)
             .WhereNotNull(filter.PeriodType, q => q.PeriodType == filter.PeriodType)

@@ -14,7 +14,6 @@ public class ModelInvocationManager(
     public async Task<PageList<ModelInvocationItemDto>> FilterAsync(ModelInvocationFilterDto filter)
     {
         Queryable = Queryable
-            .AsNoTracking()
             .Where(q => q.TenantId == _userContext.TenantId)
             .WhereNotNull(filter.ApplicationId, q => q.ApplicationId == filter.ApplicationId)
             .WhereNotNull(filter.ModelProfileId, q => q.ModelProfileId == filter.ModelProfileId)
