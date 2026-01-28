@@ -1,0 +1,81 @@
+<div class="rag-document-list-page">
+  <div class="toolbar">
+    <div class="d-flex align-items-center gap-2 justify-content-between p-1">
+      <div class="d-flex gap-2 align-items-center">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ 'ragDocument.name' | translate }}</mat-label>
+          <input matInput [(ngModel)]="filterDto.name" [placeholder]="'ragDocument.name' | translate" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ 'ragDocument.collectionId' | translate }}</mat-label>
+          <input matInput [(ngModel)]="filterDto.collectionId" [placeholder]="'ragDocument.collectionId' | translate" />
+        </mat-form-field>
+
+        <button mat-flat-button color="primary" (click)="filter()">{{ i18nKeys.common.search | translate }}</button>
+      </div>
+
+      <div>
+        <button mat-flat-button color="accent" (click)="openAdd()">
+          {{ i18nKeys.common.add | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <table mat-table [dataSource]="dataSource" #table="matTable">
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ 'ragDocument.name' | translate }}
+      </th>
+      <td mat-cell *matCellDef="let item;table:table">
+        {{ item.name }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="collectionId">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ 'ragDocument.collectionId' | translate }}
+      </th>
+      <td mat-cell *matCellDef="let item;table:table">
+        {{ item.collectionId }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ 'ragDocument.status' | translate }}
+      </th>
+      <td mat-cell *matCellDef="let item;table:table">
+        {{ item.status }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="chunkCount">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ 'ragDocument.chunkCount' | translate }}
+      </th>
+      <td mat-cell *matCellDef="let item;table:table">
+        {{ item.chunkCount }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ i18nKeys.common.actions | translate }}
+      </th>
+      <td mat-cell *matCellDef="let item">
+        <button mat-icon-button class="secondary" (click)="openDetail(item.id)"><mat-icon>visibility</mat-icon></button>
+        <button mat-icon-button class="primary" (click)="openEdit(item.id)"><mat-icon>edit</mat-icon></button>
+        <button mat-icon-button class="accent" (click)="deleteItem(item.id)"><mat-icon>delete</mat-icon></button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+  </table>
+
+  <mat-paginator [length]="total" [pageSize]="filterDto.pageSize" (page)="pageChanged($event)"></mat-paginator>
+
+</div>

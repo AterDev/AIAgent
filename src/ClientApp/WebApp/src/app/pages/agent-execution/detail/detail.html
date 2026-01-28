@@ -1,0 +1,42 @@
+@if (!isLoading()) {
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ i18nKeys.common.view | translate }} {{ 'agentExecution.title' | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content class="d-flex gap-2 p-2">
+    <mat-list>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'agentExecution.agentId' | translate }}:</strong>
+        <span>{{ model.agentId }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'agentExecution.status' | translate }}:</strong>
+        <span>{{ model.status }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'agentExecution.inputJson' | translate }}:</strong>
+        <span class="pre-wrap">{{ model.inputJson }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'agentExecution.outputJson' | translate }}:</strong>
+        <span class="pre-wrap">{{ model.outputJson }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'agentExecution.durationMs' | translate }}:</strong>
+        <span>{{ model.durationMs }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'agentExecution.completedTime' | translate }}:</strong>
+        <span>{{ model.completedTime | date:'short' }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'agentExecution.errorMessage' | translate }}:</strong>
+        <span class="pre-wrap">{{ model.errorMessage }}</span>
+      </mat-list-item>
+    </mat-list>
+  </mat-card-content>
+  <mat-card-actions class="d-flex justify-content-end gap-2">
+    <button mat-button (click)="close()">{{ i18nKeys.common.close | translate }}</button>
+  </mat-card-actions>
+</mat-card>
+}

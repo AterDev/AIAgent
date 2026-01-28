@@ -1,0 +1,127 @@
+@* Add component TypeScript (with imports and stable formatting) *@
+@{
+    var name = ModelName ?? "Model";
+    var camel = (ModelName ?? "Model").ToCamelCase();
+    var module = (Namespace ?? string.Empty).Split('.').LastOrDefault()?.ToHyphen() ?? string.Empty;
+  var hasEnumAdd = AddPropertyInfos.Any(p => p.IsEnum);
+  var hasIdAddFields = AddPropertyInfos.Any(p => p.Type != null && p.Type.ToLower().Contains("guid"));
+  var idAddFields = AddPropertyInfos.Where(p => p.Type != null && p.Type.ToLower().Contains("guid")).ToList();
+  var enumImports = hasEnumAdd ? ", ToKeyValuePipe, EnumTextPipe" : string.Empty;
+}
+import { Component, OnInit } from '@@angular/core';
+import { AbstractControl, FormBuilder, FormGroup, FormControl, Validators } from '@@angular/forms';
+import { MatDialogRef } from '@@angular/material/dialog';
+import { MatCheckboxModule } from '@@angular/material/checkbox';
+import { MatCard, MatCardHeader, MatCardTitle, MatCardContent, MatCardActions } from '@@angular/material/card';
+import { TranslateService } from '@@ngx-translate/core';
+import { AdminClient } from 'src/app/services/admin/admin-client';
+import { I18N_KEYS } from 'src/app/share/i18n-keys';
+import { CommonFormModules } from 'src/app/share/shared-modules';
+@{ if (hasEnumAdd) { WriteLiteral("import { ToKeyValuePipe } from 'src/app/share/pipe/to-key-value.pipe';\n"); WriteLiteral("import { EnumTextPipe } from 'src/app/pipe/admin/enum-text.pipe';\n"); } }
+@{ if (hasIdAddFields) { WriteLiteral("import { forkJoin, Observable } from 'rxjs';\n"); WriteLiteral("import { PageList } from 'src/app/services/admin/models/perigon/page-list.model';\n"); } }
+@{ 
+  foreach (var field in idAddFields) 
+  { 
+    var camelField = field.Name.ToCamelCase();
+    var optionsField = (camelField.EndsWith("s") ? camelField.Substring(0, camelField.Length - 1) : camelField) + "Options";
+    var navigationName = field.NavigationName ?? field.Name.Replace("Id", "").Replace("s", "");
+    var pascalNavigationName = navigationName.Substring(0, 1).ToUpper() + navigationName.Substring(1);
+    var itemDtoType = pascalNavigationName + "ItemDto";
+    var namespaceParts = (Namespace ?? string.Empty).Split('.');
+    var moduleName = namespaceParts.Length > 1 ? namespaceParts[1].ToHyphen() : string.Empty;
+    WriteLiteral($"import {{ {itemDtoType} }} from 'src/app/services/admin/models/{moduleName}/{navigationName.ToHyphen()}-item-dto.model';\n");
+  }
+}
+import { @(ModelName)AddDto } from 'src/app/services/admin/models/@(module)/@(ModelName.ToHyphen())-add-dto.model';
+
+@{ WriteLiteral("@Component({\n  selector: 'app-" + camel + "-add',\n  imports: [CommonFormModules, MatCheckboxModule, MatCard, MatCardHeader, MatCardTitle, MatCardContent, MatCardActions" + enumImports + "],\n  templateUrl: './add.html'\n})\n"); }
+export class @(ModelName)Add implements OnInit {
+
+  i18nKeys = I18N_KEYS;
+
+  form!: FormGroup;
+
+@{ 
+  foreach (var field in idAddFields) 
+  { 
+    var camelField = field.Name.ToCamelCase();
+    var optionsField = (camelField.EndsWith("s") ? camelField.Substring(0, camelField.Length - 1) : camelField) + "Options";
+    var navigationName = field.NavigationName ?? field.Name.Replace("Id", "").Replace("s", "");
+    var pascalNavigationName = navigationName.Substring(0, 1).ToUpper() + navigationName.Substring(1);
+    var itemDtoType = pascalNavigationName + "ItemDto";
+    WriteLiteral($"  {optionsField}: {itemDtoType}[] = [];\n");
+  } 
+}
+
+  constructor(
+    private fb: FormBuilder,
+    private adminClient: AdminClient,
+    private dialogRef: MatDialogRef<@(ModelName)Add>,
+    private translate: TranslateService
+  ) {
+    this.buildForm();
+  }
+
+  ngOnInit(): void {
+@{ 
+  if (idAddFields.Count > 0) 
+  { 
+    WriteLiteral("    const requests: Observable<PageList<any>>[] = [];\n");
+    foreach (var field in idAddFields)
+    {
+      var camelField = field.Name.ToCamelCase();
+      WriteLiteral($"    requests.push(this.get{field.Name}());\n");
+    }
+    WriteLiteral("    forkJoin(requests).subscribe({\n");
+    WriteLiteral("      next: (results) => {\n");
+    for (int i = 0; i < idAddFields.Count; i++)
+    {
+      var camelField = idAddFields[i].Name.ToCamelCase();
+      var optionsField = (camelField.EndsWith("s") ? camelField.Substring(0, camelField.Length - 1) : camelField) + "Options";
+      WriteLiteral($"        this.{optionsField} = results[{i}].data || [];\n");
+    }
+    WriteLiteral("      }\n");
+    WriteLiteral("    });\n");
+  }
+}
+  }
+
+@{
+  foreach (var field in idAddFields)
+  {
+    var navigationName = field.NavigationName ?? field.Name.Replace("Id", "").Replace("s", "");
+    var pascalNavigationName = navigationName.Substring(0, 1).ToUpper() + navigationName.Substring(1);
+    var camelField = field.Name.ToCamelCase();
+    var itemDtoType = pascalNavigationName + "ItemDto";
+    WriteLiteral($"  get{field.Name}(): Observable<PageList<{itemDtoType}>> {{\n");
+    WriteLiteral($"    return this.adminClient.{pascalNavigationName.ToCamelCase()}.list({{ pageIndex: 1, pageSize: 100 }});\n");
+    WriteLiteral("  }\n\n");
+  }
+}
+
+  buildForm() {
+    this.form = this.fb.group({
+      @( string.Join(",\n      ", AddPropertyInfos.Select(p => p.Name.ToCamelCase() + ": [null, [" + (p.IsRequired ? "Validators.required" : "") + (p.MinLength.HasValue ? ((p.IsRequired ? ", " : "") + "Validators.minLength(" + p.MinLength + ")") : "") + (p.MaxLength.HasValue ? ((p.IsRequired || p.MinLength.HasValue) ? ", " : "") + "Validators.maxLength(" + p.MaxLength + ")" : "") + "]]")) )
+    });
+  }
+
+@foreach (var p in AddPropertyInfos)
+  {
+    WriteLiteral($"  get {p.Name.ToCamelCase()}() {{ return this.form.get('{p.Name.ToCamelCase()}') as FormControl; }}\n");
+  }
+
+  getValidatorMessage(control: AbstractControl | null): string {
+    if (!control || !control.errors) { return ''; }
+    const errors = control.errors;
+    const key = Object.keys(errors)[0];
+    const params = errors[key];
+    return this.translate.instant(`validation.${key.toLowerCase()}`, params);
+  }
+
+  submit() {
+    if (this.form.invalid) return;
+    this.adminClient.@(camel).add(this.form.value as @(ModelName)AddDto).subscribe(() => this.dialogRef.close(true));
+  }
+
+  close(result: boolean) { this.dialogRef.close(result); }
+}

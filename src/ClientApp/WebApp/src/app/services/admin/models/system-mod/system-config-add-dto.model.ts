@@ -1,5 +1,5 @@
 /**
- * 系统配置添加时请求结构
+ * 系统配置AddDto
  */
 export interface SystemConfigAddDto {
   /** key */
@@ -13,5 +13,5 @@ export interface SystemConfigAddDto {
   /** 是否属于系统配置 */
   isSystem: boolean;
   /** 组 */
-  groupName?: string | null;
+  groupName: string;
 }

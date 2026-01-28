@@ -1,0 +1,87 @@
+<div class="system-config-list-page">
+  <div class="toolbar">
+    <div class="d-flex align-items-center gap-2 justify-content-between p-1">
+      <div class="d-flex gap-2 align-items-center">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ 'systemConfig.key' | translate }}</mat-label>
+          <input matInput [(ngModel)]="filterDto.key" [placeholder]="'systemConfig.key' | translate" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ 'systemConfig.groupName' | translate }}</mat-label>
+          <input matInput [(ngModel)]="filterDto.groupName" [placeholder]="'systemConfig.groupName' | translate" />
+        </mat-form-field>
+
+        <mat-checkbox [(ngModel)]="filterDto.valid">{{ 'systemConfig.valid' | translate }}</mat-checkbox>
+
+        <button mat-flat-button color="primary" (click)="filter()">{{ i18nKeys.common.search | translate }}</button>
+      </div>
+
+      <div>
+        <button mat-flat-button color="accent" (click)="openAdd()">
+          {{ i18nKeys.common.add | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <table mat-table [dataSource]="dataSource" #table="matTable">
+    <ng-container matColumnDef="key">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ 'systemConfig.key' | translate }}
+      </th>
+      <td mat-cell *matCellDef="let item;table:table">
+        {{ item.key }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="groupName">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ 'systemConfig.groupName' | translate }}
+      </th>
+      <td mat-cell *matCellDef="let item;table:table">
+        {{ item.groupName }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="valid">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ 'systemConfig.valid' | translate }}
+      </th>
+      <td mat-cell *matCellDef="let item;table:table">
+        <mat-icon [color]="item.valid ? 'primary' : 'warn'">
+          {{ item.valid ? 'check_circle' : 'cancel' }}
+        </mat-icon>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="isSystem">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ 'systemConfig.isSystem' | translate }}
+      </th>
+      <td mat-cell *matCellDef="let item;table:table">
+        <mat-icon [color]="item.isSystem ? 'primary' : 'warn'">
+          {{ item.isSystem ? 'check_circle' : 'cancel' }}
+        </mat-icon>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ i18nKeys.common.actions | translate }}
+      </th>
+      <td mat-cell *matCellDef="let item">
+        <button mat-icon-button class="secondary" (click)="openDetail(item.id)"><mat-icon>visibility</mat-icon></button>
+        <button mat-icon-button class="primary" (click)="openEdit(item.id)"><mat-icon>edit</mat-icon></button>
+        <button mat-icon-button class="accent" (click)="deleteItem(item.id)"><mat-icon>delete</mat-icon></button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+  </table>
+
+  <mat-paginator [length]="total" [pageSize]="filterDto.pageSize" (page)="pageChanged($event)"></mat-paginator>
+
+</div>

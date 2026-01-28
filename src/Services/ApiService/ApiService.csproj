@@ -9,15 +9,10 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy" />
-    <PackageReference Include="Microsoft.Agents.AI.Hosting.AGUI.AspNetCore" />
     <PackageReference Include="Microsoft.Extensions.AI.Abstractions" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference
-      Include="..\..\Perigon\Perigon.AspNetCore.SourceGeneration\Perigon.AspNetCore.SourceGeneration.csproj"
-      OutputItemType="Analyzer"
-      ReferenceOutputAssembly="false"
-    />
+    <ProjectReference Include="..\..\Perigon\Perigon.AspNetCore.SourceGeneration\Perigon.AspNetCore.SourceGeneration.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />
     <ProjectReference Include="..\..\Modules\CoreMod\CoreMod.csproj" />
     <ProjectReference Include="..\..\Modules\ModelMod\ModelMod.csproj" />
@@ -28,6 +23,7 @@
     <ProjectReference Include="..\..\Modules\SystemMod\SystemMod.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Extension\" />
     <Folder Include="Middleware\" />
   </ItemGroup>
 </Project>

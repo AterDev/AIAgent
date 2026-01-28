@@ -1,0 +1,51 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ i18nKeys.common.add | translate }} {{ 'mcpTool.title' | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="form" (ngSubmit)="submit()" class="d-flex flex-column p-2 mt-2 gap-2">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'mcpTool.name' | translate }}</mat-label>
+        <input matInput type="text" [formControl]="name" />
+        @if (name.invalid) {
+          <mat-error>{{ getValidatorMessage(name) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'mcpTool.description' | translate }}</mat-label>
+        <textarea matInput rows="4" [formControl]="description"></textarea>
+        @if (description.invalid) {
+          <mat-error>{{ getValidatorMessage(description) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'mcpTool.version' | translate }}</mat-label>
+        <input matInput type="text" [formControl]="version" />
+        @if (version.invalid) {
+          <mat-error>{{ getValidatorMessage(version) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'mcpTool.schemaJson' | translate }}</mat-label>
+        <textarea matInput rows="6" [formControl]="schemaJson"></textarea>
+        @if (schemaJson.invalid) {
+          <mat-error>{{ getValidatorMessage(schemaJson) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-checkbox [formControl]="isEnabled">{{ 'mcpTool.isEnabled' | translate }}</mat-checkbox>
+      @if (isEnabled.invalid) {
+        <mat-error>{{ getValidatorMessage(isEnabled) }}</mat-error>
+      }
+
+      <div class="d-flex justify-content-end gap-2">
+        <button mat-button type="button" (click)="close(false)">{{ i18nKeys.common.cancel | translate }}</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">{{ i18nKeys.common.save | translate }}</button>
+      </div>
+
+    </form>
+  </mat-card-content>
+</mat-card>

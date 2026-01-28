@@ -1,0 +1,34 @@
+@if (!isLoading()) {
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ i18nKeys.common.view | translate }} {{ 'workflow.title' | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content class="d-flex gap-2 p-2">
+    <mat-list>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'workflow.name' | translate }}:</strong>
+        <span>{{ model.name }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'workflow.description' | translate }}:</strong>
+        <span class="pre-wrap">{{ model.description }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'workflow.version' | translate }}:</strong>
+        <span>{{ model.version }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'workflow.isPublished' | translate }}:</strong>
+        <span>{{ model.isPublished }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'workflow.definitionJson' | translate }}:</strong>
+        <span class="pre-wrap">{{ model.definitionJson }}</span>
+      </mat-list-item>
+    </mat-list>
+  </mat-card-content>
+  <mat-card-actions class="d-flex justify-content-end gap-2">
+    <button mat-button (click)="close()">{{ i18nKeys.common.close | translate }}</button>
+  </mat-card-actions>
+</mat-card>
+}

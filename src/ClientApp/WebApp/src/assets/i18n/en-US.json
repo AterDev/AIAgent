@@ -89,10 +89,120 @@
     "team": "Team",
     "product": "Product",
     "order": "Order",
+    "model": "Model Management",
+    "application": "Application",
+    "modelProfile": "Model Profile",
+    "modelProvider": "Model Provider",
+    "knowledge": "Knowledge Base",
+    "ragCollection": "Collection",
+    "ragDocument": "Document",
+    "mcp": "MCP Tools",
+    "mcpTool": "Tool Management",
+    "agent": "AI Agent",
+    "aiagent": "Agent Management",
+    "agentExecution": "Execution Log",
+    "workflow": "Workflow",
+    "workflowExecution": "Execution Log",
     "system": "System",
     "systemRole": "Role",
     "systemUser": "Account",
     "systemLogs": "Logs",
     "systemConfig": "Settings"
+  },
+  "application": {
+    "title": "Application",
+    "name": "Name",
+    "description": "Description",
+    "accessKey": "Access Key",
+    "secretKey": "Secret Key",
+    "isEnabled": "Enabled"
+  },
+  "modelProfile": {
+    "title": "Model Profile",
+    "name": "Model Name",
+    "modelType": "Model Type",
+    "provider": "Provider",
+    "capabilities": "Capabilities",
+    "isEnabled": "Enabled"
+  },
+  "modelProvider": {
+    "title": "Model Provider",
+    "name": "Name",
+    "apiKey": "API Key",
+    "endpoint": "Endpoint",
+    "isEnabled": "Enabled"
+  },
+  "ragCollection": {
+    "title": "Collection",
+    "name": "Collection Name",
+    "description": "Description",
+    "isPublic": "Public",
+    "isEnabled": "Enabled",
+    "tags": "Tags"
+  },
+  "ragDocument": {
+    "title": "Document",
+    "name": "Document Name",
+    "fileName": "File Name",
+    "fileSize": "File Size",
+    "fileType": "File Type",
+    "collectionId": "Collection",
+    "status": "Status",
+    "chunkCount": "Chunk Count"
+  },
+  "mcpTool": {
+    "title": "MCP Tool",
+    "name": "Tool Name",
+    "description": "Description",
+    "toolType": "Tool Type",
+    "version": "Version",
+    "isEnabled": "Enabled",
+    "schemaJson": "Schema",
+    "serverId": "Server ID"
+  },
+  "aiagent": {
+    "title": "AI Agent",
+    "name": "Agent Name",
+    "description": "Description",
+    "systemPrompt": "System Prompt",
+    "modelId": "Model",
+    "temperature": "Temperature",
+    "maxTokens": "Max Tokens",
+    "isEnabled": "Enabled",
+    "tags": "Tags"
+  },
+  "agentExecution": {
+    "title": "Execution Log",
+    "agentId": "Agent",
+    "status": "Status",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "duration": "Duration",
+    "inputTokens": "Input Tokens",
+    "outputTokens": "Output Tokens"
+  },
+  "workflow": {
+    "title": "Workflow",
+    "name": "Workflow Name",
+    "description": "Description",
+    "definition": "Definition",
+    "isEnabled": "Enabled",
+    "status": "Status",
+    "tags": "Tags"
+  },
+  "workflowExecution": {
+    "title": "Execution Log",
+    "workflowId": "Workflow",
+    "status": "Status",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "duration": "Duration"
+  },
+  "systemConfig": {
+    "title": "System Config",
+    "key": "Config Key",
+    "value": "Config Value",
+    "description": "Description",
+    "isSystem": "System Config"
   }
 }

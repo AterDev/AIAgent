@@ -1,0 +1,42 @@
+@if (!isLoading()) {
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ i18nKeys.common.view | translate }} {{ 'aiagent.title' | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content class="d-flex gap-2 p-2">
+    <mat-list>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'aiagent.name' | translate }}:</strong>
+        <span>{{ model.name }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'aiagent.description' | translate }}:</strong>
+        <span class="pre-wrap">{{ model.description }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'aiagent.modelId' | translate }}:</strong>
+        <span>{{ model.modelId }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'aiagent.systemPrompt' | translate }}:</strong>
+        <span class="pre-wrap">{{ model.systemPrompt }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'aiagent.tools' | translate }}:</strong>
+        <span>{{ model.tools?.join(', ') }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'aiagent.enable' | translate }}:</strong>
+        <span>{{ model.enable }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'aiagent.isTemplate' | translate }}:</strong>
+        <span>{{ model.isTemplate }}</span>
+      </mat-list-item>
+    </mat-list>
+  </mat-card-content>
+  <mat-card-actions class="d-flex justify-content-end gap-2">
+    <button mat-button (click)="close()">{{ i18nKeys.common.close | translate }}</button>
+  </mat-card-actions>
+</mat-card>
+}

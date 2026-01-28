@@ -1,0 +1,42 @@
+@if (!isLoading()) {
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ i18nKeys.common.view | translate }} {{ 'workflowExecution.title' | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content class="d-flex gap-2 p-2">
+    <mat-list>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'workflowExecution.workflowId' | translate }}:</strong>
+        <span>{{ model.workflowId }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'workflowExecution.status' | translate }}:</strong>
+        <span>{{ model.status }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'workflowExecution.inputJson' | translate }}:</strong>
+        <span class="pre-wrap">{{ model.inputJson }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'workflowExecution.outputJson' | translate }}:</strong>
+        <span class="pre-wrap">{{ model.outputJson }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'workflowExecution.durationMs' | translate }}:</strong>
+        <span>{{ model.durationMs }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'workflowExecution.completedTime' | translate }}:</strong>
+        <span>{{ model.completedTime | date:'short' }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'workflowExecution.errorMessage' | translate }}:</strong>
+        <span class="pre-wrap">{{ model.errorMessage }}</span>
+      </mat-list-item>
+    </mat-list>
+  </mat-card-content>
+  <mat-card-actions class="d-flex justify-content-end gap-2">
+    <button mat-button (click)="close()">{{ i18nKeys.common.close | translate }}</button>
+  </mat-card-actions>
+</mat-card>
+}

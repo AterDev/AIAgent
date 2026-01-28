@@ -14,22 +14,15 @@ import { SystemConfigDetailDto } from '../models/system-mod/system-config-detail
 @Injectable({ providedIn: 'root' })
 export class SystemConfigService extends BaseService {
   /**
-   * 获取配置列表 ✅
+   * list 系统配置 with page ✍️
    * @param data SystemConfigFilterDto
    */
-  filter(data: SystemConfigFilterDto): Observable<PageList<SystemConfigItemDto>> {
+  list(data: SystemConfigFilterDto): Observable<PageList<SystemConfigItemDto>> {
     const _url = `/api/SystemConfig/filter`;
     return this.request<PageList<SystemConfigItemDto>>('post', _url, data);
   }
   /**
-   * 获取枚举信息 ✅
-   */
-  getEnumConfigs(): Observable<Record<string, any[]>> {
-    const _url = `/api/SystemConfig/enum`;
-    return this.request<Record<string, any[]>>('get', _url);
-  }
-  /**
-   * 新增 ✅
+   * Add 系统配置 ✍️
    * @param data SystemConfigAddDto
    */
   add(data: SystemConfigAddDto): Observable<SystemConfig> {
@@ -37,7 +30,7 @@ export class SystemConfigService extends BaseService {
     return this.request<SystemConfig>('post', _url, data);
   }
   /**
-   * 更新 ✅
+   * Update 系统配置 ✍️
    * @param id
    * @param data SystemConfigUpdateDto
    */
@@ -46,15 +39,15 @@ export class SystemConfigService extends BaseService {
     return this.request<boolean>('patch', _url, data);
   }
   /**
-   * 详情 ✅
+   * Get 系统配置 Detail ✍️
    * @param id
    */
-  getDetail(id: string): Observable<SystemConfigDetailDto> {
+  detail(id: string): Observable<SystemConfigDetailDto> {
     const _url = `/api/SystemConfig/${id}`;
     return this.request<SystemConfigDetailDto>('get', _url);
   }
   /**
-   * ⚠删除 ✅
+   * Delete 系统配置 ✍️
    * @param id
    */
   delete(id: string): Observable<boolean> {

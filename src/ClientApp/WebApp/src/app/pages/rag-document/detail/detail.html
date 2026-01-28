@@ -1,0 +1,54 @@
+@if (!isLoading()) {
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ i18nKeys.common.view | translate }} {{ 'ragDocument.title' | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content class="d-flex gap-2 p-2">
+    <mat-list>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'ragDocument.name' | translate }}:</strong>
+        <span>{{ model.name }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'ragDocument.collectionId' | translate }}:</strong>
+        <span>{{ model.collectionId }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'ragDocument.fileName' | translate }}:</strong>
+        <span>{{ model.fileName }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'ragDocument.contentType' | translate }}:</strong>
+        <span>{{ model.contentType }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'ragDocument.status' | translate }}:</strong>
+        <span>{{ model.status }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'ragDocument.chunkCount' | translate }}:</strong>
+        <span>{{ model.chunkCount }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'ragDocument.tokenCount' | translate }}:</strong>
+        <span>{{ model.tokenCount }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'ragDocument.sourceUrl' | translate }}:</strong>
+        <span>{{ model.sourceUrl }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'ragDocument.tags' | translate }}:</strong>
+        <span>{{ model.tags?.join(', ') }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'ragDocument.roles' | translate }}:</strong>
+        <span>{{ model.roles?.join(', ') }}</span>
+      </mat-list-item>
+    </mat-list>
+  </mat-card-content>
+  <mat-card-actions class="d-flex justify-content-end gap-2">
+    <button mat-button (click)="close()">{{ i18nKeys.common.close | translate }}</button>
+  </mat-card-actions>
+</mat-card>
+}

@@ -1,0 +1,38 @@
+@if (!isLoading()) {
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ i18nKeys.common.view | translate }} {{ 'systemConfig.title' | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content class="d-flex gap-2 p-2">
+    <mat-list>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'systemConfig.key' | translate }}:</strong>
+        <span>{{ model.key }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'systemConfig.value' | translate }}:</strong>
+        <span class="pre-wrap">{{ model.value }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'systemConfig.description' | translate }}:</strong>
+        <span class="pre-wrap">{{ model.description }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'systemConfig.groupName' | translate }}:</strong>
+        <span>{{ model.groupName }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'systemConfig.valid' | translate }}:</strong>
+        <span>{{ model.valid }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ 'systemConfig.isSystem' | translate }}:</strong>
+        <span>{{ model.isSystem }}</span>
+      </mat-list-item>
+    </mat-list>
+  </mat-card-content>
+  <mat-card-actions class="d-flex justify-content-end gap-2">
+    <button mat-button (click)="close()">{{ i18nKeys.common.close | translate }}</button>
+  </mat-card-actions>
+</mat-card>
+}

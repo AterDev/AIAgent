@@ -83,12 +83,11 @@ public static class WebExtensions
         app.UseOutputCache();
         app.MapSwagger().CacheOutput("openapi");
 
-        //app.UseMiddleware<JwtMiddleware>();
         app.UseMiddleware<GlobalExceptionMiddleware>();
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
-        app.MapFallbackToFile("index.html");
+
         return app;
     }
 

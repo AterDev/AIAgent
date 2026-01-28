@@ -1,5 +1,5 @@
 /**
- * 系统配置更新时请求结构
+ * 系统配置UpdateDto
  */
 export interface SystemConfigUpdateDto {
   /** key */
@@ -10,6 +10,8 @@ export interface SystemConfigUpdateDto {
   description?: string | null;
   /** valid */
   valid?: boolean | null;
-  /** 分组 */
+  /** 是否属于系统配置 */
+  isSystem?: boolean | null;
+  /** 组 */
   groupName?: string | null;
 }
