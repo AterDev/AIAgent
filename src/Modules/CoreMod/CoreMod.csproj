@@ -11,6 +11,12 @@
         <ProjectReference Include="..\..\Perigon\Perigon.AspNetCore.Toolkit\Perigon.AspNetCore.Toolkit.csproj" />
     </ItemGroup>
     <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.AI.Abstractions" />
+        <PackageReference Include="Microsoft.Extensions.AI.OpenAI" />
+        <PackageReference Include="OpenAI" />
+        <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+    </ItemGroup>
+    <ItemGroup>
         <Folder Include="Managers\" />
         <Folder Include="Models\" />
     </ItemGroup>

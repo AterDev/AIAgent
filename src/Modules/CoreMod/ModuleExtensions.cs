@@ -21,7 +21,11 @@ public static class ModuleExtensions
     // The module services registration
     private static IHostApplicationBuilder AddModServices(this IHostApplicationBuilder builder)
     {
-        builder.Services.AddScoped<IModelClient, OpenAiCompatibleClient>();
+        // 使用新的 ExtensionsAIModelClient 支持更广泛的 OpenAI 兼容平台
+        builder.Services.AddScoped<IModelClient, ExtensionsAIModelClient>();
+        // 保留旧实现作为备选（如果需要可以通过配置切换）
+        builder.Services.AddScoped<OpenAiCompatibleClient>();
+        
         builder.Services.AddScoped<IModelRouter, DbModelRouter>();
         builder.Services.AddSingleton<IModelCapabilityResolver, DefaultModelCapabilityResolver>();
         builder.Services.AddSingleton<IUsageMeter, DefaultUsageMeter>();
