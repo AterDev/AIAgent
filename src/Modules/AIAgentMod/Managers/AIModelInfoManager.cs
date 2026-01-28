@@ -15,7 +15,8 @@ public class AIModelInfoManager(
     /// </summary>
     public async Task<PageList<AIModelInfoItemDto>> FilterAsync(AIModelInfoFilterDto filter)
     {
-
+        Queryable = Queryable
+            .AsNoTracking();
 
         return await PageListAsync<AIModelInfoFilterDto, AIModelInfoItemDto>(filter);
     }

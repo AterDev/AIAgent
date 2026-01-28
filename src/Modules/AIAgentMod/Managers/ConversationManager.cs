@@ -16,6 +16,7 @@ public class ConversationManager(
     public async Task<PageList<ConversationItemDto>> FilterAsync(ConversationFilterDto filter)
     {
         Queryable = Queryable
+            .AsNoTracking()
             .WhereNotNull(filter.IsPinned, q => q.IsPinned == filter.IsPinned)
             .WhereNotNull(filter.UserId, q => q.UserId == filter.UserId);
 

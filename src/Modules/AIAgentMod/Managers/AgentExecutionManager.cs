@@ -13,7 +13,9 @@ public class AgentExecutionManager(
 {
     public async Task<PageList<AgentExecutionItemDto>> FilterAsync(AgentExecutionFilterDto filter)
     {
-        Queryable = Queryable.Where(q => q.TenantId == _userContext.TenantId)
+        Queryable = Queryable
+            .AsNoTracking()
+            .Where(q => q.TenantId == _userContext.TenantId)
             .WhereNotNull(filter.AgentId, q => q.AgentId == filter.AgentId)
             .WhereNotNull(filter.Status, q => q.Status == filter.Status);
 

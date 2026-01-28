@@ -16,6 +16,7 @@ public class ApplicationManager(
     public async Task<PageList<ApplicationItemDto>> FilterAsync(ApplicationFilterDto filter)
     {
         Queryable = Queryable
+            .AsNoTracking()
             .WhereNotNull(filter.Name, q => q.Name == filter.Name)
             .WhereNotNull(filter.AccessKey, q => q.AccessKey == filter.AccessKey)
             .WhereNotNull(filter.IsEnabled, q => q.IsEnabled == filter.IsEnabled);

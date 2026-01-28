@@ -16,6 +16,7 @@ public class ChatMessageManager(
     public async Task<PageList<ChatMessageItemDto>> FilterAsync(ChatMessageFilterDto filter)
     {
         Queryable = Queryable
+            .AsNoTracking()
             .WhereNotNull(filter.UserId, q => q.UserId == filter.UserId)
             .WhereNotNull(filter.ConversationId, q => q.ConversationId == filter.ConversationId)
             .OrderBy(q => q.CreatedTime);

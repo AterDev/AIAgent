@@ -14,6 +14,7 @@ public class MCPServerInfoManager(
     public async Task<PageList<MCPServerInfoItemDto>> FilterAsync(MCPServerInfoFilterDto filter)
     {
         Queryable = Queryable
+            .AsNoTracking()
             .Where(q => q.TenantId == _userContext.TenantId)
             .WhereNotNull(filter.AuthType, q => q.AuthType == filter.AuthType)
             .WhereNotNull(filter.TransportType, q => q.TransportType == filter.TransportType)

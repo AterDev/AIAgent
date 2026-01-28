@@ -13,7 +13,9 @@ public class ApplicationModelPermissionManager(
 {
     public async Task<PageList<ApplicationModelPermissionItemDto>> FilterAsync(ApplicationModelPermissionFilterDto filter)
     {
-        Queryable = Queryable.Where(q => q.TenantId == _userContext.TenantId)
+        Queryable = Queryable
+            .AsNoTracking()
+            .Where(q => q.TenantId == _userContext.TenantId)
             .WhereNotNull(filter.ApplicationId, q => q.ApplicationId == filter.ApplicationId)
             .WhereNotNull(filter.ModelProfileId, q => q.ModelProfileId == filter.ModelProfileId)
             .WhereNotNull(filter.IsEnabled, q => q.IsEnabled == filter.IsEnabled);

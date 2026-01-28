@@ -16,6 +16,7 @@ public class SystemConfigManager(
     public async Task<PageList<SystemConfigItemDto>> FilterAsync(SystemConfigFilterDto filter)
     {
         Queryable = Queryable
+            .AsNoTracking()
             .WhereNotNull(filter.GroupName, q => q.GroupName == filter.GroupName)
             .WhereNotNull(filter.Key, q => q.Key == filter.Key)
             .WhereNotNull(filter.Valid, q => q.Valid == filter.Valid)

@@ -13,7 +13,9 @@ public class RagChunkManager(
 {
     public async Task<PageList<RagChunkItemDto>> FilterAsync(RagChunkFilterDto filter)
     {
-        Queryable = Queryable.Where(q => q.TenantId == _userContext.TenantId)
+        Queryable = Queryable
+            .AsNoTracking()
+            .Where(q => q.TenantId == _userContext.TenantId)
             .WhereNotNull(filter.DocumentId, q => q.DocumentId == filter.DocumentId);
 
         return await PageListAsync<RagChunkFilterDto, RagChunkItemDto>(filter);
