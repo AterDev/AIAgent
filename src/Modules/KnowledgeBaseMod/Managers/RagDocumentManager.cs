@@ -13,7 +13,8 @@ public class RagDocumentManager(
 {
     public async Task<PageList<RagDocumentItemDto>> FilterAsync(RagDocumentFilterDto filter)
     {
-        Queryable = Queryable.Where(q => q.TenantId == _userContext.TenantId)
+        Queryable = Queryable
+            .Where(q => q.TenantId == _userContext.TenantId)
             .WhereNotNull(filter.CollectionId, q => q.CollectionId == filter.CollectionId)
             .WhereNotNull(filter.Name, q => q.Name == filter.Name)
             .WhereNotNull(filter.Status, q => q.Status == filter.Status);

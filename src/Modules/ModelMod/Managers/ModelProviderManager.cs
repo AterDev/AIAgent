@@ -13,7 +13,8 @@ public class ModelProviderManager(
 {
     public async Task<PageList<ModelProviderItemDto>> FilterAsync(ModelProviderFilterDto filter)
     {
-        Queryable = Queryable.Where(q => q.TenantId == _userContext.TenantId)
+        Queryable = Queryable
+            .Where(q => q.TenantId == _userContext.TenantId)
             .WhereNotNull(filter.Name, q => q.Name == filter.Name)
             .WhereNotNull(filter.ProviderType, q => q.ProviderType == filter.ProviderType)
             .WhereNotNull(filter.IsEnabled, q => q.IsEnabled == filter.IsEnabled);

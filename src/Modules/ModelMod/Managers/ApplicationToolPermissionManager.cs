@@ -13,7 +13,8 @@ public class ApplicationToolPermissionManager(
 {
     public async Task<PageList<ApplicationToolPermissionItemDto>> FilterAsync(ApplicationToolPermissionFilterDto filter)
     {
-        Queryable = Queryable.Where(q => q.TenantId == _userContext.TenantId)
+        Queryable = Queryable
+            .Where(q => q.TenantId == _userContext.TenantId)
             .WhereNotNull(filter.ApplicationId, q => q.ApplicationId == filter.ApplicationId)
             .WhereNotNull(filter.ToolName, q => q.ToolName == filter.ToolName)
             .WhereNotNull(filter.IsEnabled, q => q.IsEnabled == filter.IsEnabled);

@@ -14,7 +14,8 @@ public class McpToolManager(
 {
     public async Task<PageList<McpToolItemDto>> FilterAsync(McpToolFilterDto filter)
     {
-        Queryable = Queryable.Where(q => q.TenantId == _userContext.TenantId)
+        Queryable = Queryable
+            .Where(q => q.TenantId == _userContext.TenantId)
             .WhereNotNull(filter.Name, q => q.Name == filter.Name)
             .WhereNotNull(filter.ToolType, q => q.ToolType == filter.ToolType)
             .WhereNotNull(filter.IsEnabled, q => q.IsEnabled == filter.IsEnabled);

@@ -14,7 +14,8 @@ public class WorkflowManager(
 {
     public async Task<PageList<WorkflowItemDto>> FilterAsync(WorkflowFilterDto filter)
     {
-        Queryable = Queryable.Where(q => q.TenantId == _userContext.TenantId)
+        Queryable = Queryable
+            .Where(q => q.TenantId == _userContext.TenantId)
             .WhereNotNull(filter.Name, q => q.Name == filter.Name)
             .WhereNotNull(filter.IsPublished, q => q.IsPublished == filter.IsPublished);
 

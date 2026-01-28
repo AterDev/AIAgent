@@ -13,7 +13,8 @@ public class WorkflowExecutionManager(
 {
     public async Task<PageList<WorkflowExecutionItemDto>> FilterAsync(WorkflowExecutionFilterDto filter)
     {
-        Queryable = Queryable.Where(q => q.TenantId == _userContext.TenantId)
+        Queryable = Queryable
+            .Where(q => q.TenantId == _userContext.TenantId)
             .WhereNotNull(filter.WorkflowId, q => q.WorkflowId == filter.WorkflowId)
             .WhereNotNull(filter.Status, q => q.Status == filter.Status);
 
