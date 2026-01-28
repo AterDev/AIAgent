@@ -160,6 +160,299 @@ public class WorkflowExecutor(
         context[step.Name] = result;
     }
 
+    private async Task ExecuteAgentStepAsync(WorkflowStep step, Dictionary<string, object?> context, CancellationToken cancellationToken)
+    {
+        if (!step.AgentId.HasValue)
+        {
+            throw new BusinessException("Agent step missing agent ID");
+        }
+
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        var agent = await dbContext.AIAgents
+            .AsNoTracking()
+            .FirstOrDefaultAsync(q => q.Id == step.AgentId.Value && q.TenantId == userContext.TenantId, cancellationToken);
+
+        if (agent is null)
+        {
+            throw new BusinessException($"Agent not found: {step.AgentId}");
+        }
+
+        // 构建 Agent 输入
+        var input = step.Prompt ?? JsonSerializer.Serialize(new { prompt = "Execute agent task" });
+
+        // 创建 Agent 执行任务
+        var execution = new AgentExecution
+        {
+            Id = Guid.CreateVersion7(),
+            AgentId = agent.Id,
+            Status = AgentExecutionStatus.Pending,
+            InputJson = input,
+            TenantId = userContext.TenantId,
+        };
+
+        dbContext.AgentExecutions.Add(execution);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        // 执行 Agent（这里简化处理，实际可能需要异步队列）
+        var agentExecutionService = dbContext.Database.GetService<IAgentExecutionService>();
+        if (agentExecutionService != null)
+        {
+            var success = await agentExecutionService.ExecuteAsync(
+                execution.Id,
+                step.ApplicationId ?? Guid.Empty,
+                input,
+                cancellationToken
+            );
+
+            if (!success)
+            {
+                throw new BusinessException($"Agent execution failed: {execution.ErrorMessage}");
+            }
+
+            // 重新加载执行结果
+            await dbContext.Entry(execution).ReloadAsync(cancellationToken);
+            context[step.Name] = execution.OutputJson;
+        }
+        else
+        {
+            throw new BusinessException("Agent execution service not available");
+        }
+    }
+
+    private Task ExecuteConditionStepAsync(WorkflowStep step, Dictionary<string, object?> context, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(step.Condition))
+        {
+            throw new BusinessException("Condition step missing condition expression");
+        }
+
+        // 简单的条件评估（实际项目可以使用更复杂的表达式引擎）
+        var conditionResult = EvaluateCondition(step.Condition, context);
+        
+        context[step.Name] = new
+        {
+            condition = step.Condition,
+            result = conditionResult,
+            nextStep = conditionResult ? step.TrueStepId : step.FalseStepId
+        };
+
+        return Task.CompletedTask;
+    }
+
+    private async Task ExecuteLoopStepAsync(WorkflowStep step, Dictionary<string, object?> context, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(step.LoopCondition) && !step.MaxIterations.HasValue)
+        {
+            throw new BusinessException("Loop step missing condition or max iterations");
+        }
+
+        var maxIterations = step.MaxIterations ?? 100;
+        var iterations = 0;
+        var results = new List<object?>();
+
+        while (iterations < maxIterations)
+        {
+            // 评估循环条件
+            if (!string.IsNullOrWhiteSpace(step.LoopCondition))
+            {
+                var shouldContinue = EvaluateCondition(step.LoopCondition, context);
+                if (!shouldContinue)
+                {
+                    break;
+                }
+            }
+
+            // 执行循环体（这里简化处理，实际可能需要解析并执行嵌套步骤）
+            if (!string.IsNullOrWhiteSpace(step.LoopBody))
+            {
+                // 将循环体作为提示执行
+                var loopBodyResult = await ExecuteLoopBodyAsync(step.LoopBody, context, cancellationToken);
+                results.Add(loopBodyResult);
+            }
+
+            iterations++;
+            context["loop_iteration"] = iterations;
+        }
+
+        context[step.Name] = new
+        {
+            iterations,
+            results
+        };
+    }
+
+    private async Task<object?> ExecuteLoopBodyAsync(string loopBody, Dictionary<string, object?> context, CancellationToken cancellationToken)
+    {
+        // 简化实现：将循环体作为模板渲染并返回
+        // 实际项目可能需要解析并执行嵌套的工作流步骤
+        await Task.CompletedTask;
+        return new { body = loopBody, executed = true };
+    }
+
+    private Task ExecuteDataTransformStepAsync(WorkflowStep step, Dictionary<string, object?> context, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(step.TransformScript))
+        {
+            throw new BusinessException("DataTransform step missing transform script");
+        }
+
+        // 获取输入数据
+        var inputData = !string.IsNullOrWhiteSpace(step.InputPath) && context.TryGetValue(step.InputPath, out var input)
+            ? input
+            : context;
+
+        // 执行转换（这里简化处理，实际可以使用脚本引擎如 Jint 或 IronPython）
+        var transformedData = ApplyTransform(step.TransformScript, inputData, context);
+
+        // 保存输出数据
+        var outputKey = step.OutputPath ?? step.Name;
+        context[outputKey] = transformedData;
+
+        return Task.CompletedTask;
+    }
+
+    private async Task ExecuteDelayStepAsync(WorkflowStep step, Dictionary<string, object?> context, CancellationToken cancellationToken)
+    {
+        var delayMs = step.DelayMs ?? 1000;
+        
+        logger.LogInformation("Workflow step {StepName} delaying for {DelayMs}ms", step.Name, delayMs);
+        
+        await Task.Delay(delayMs, cancellationToken);
+        
+        context[step.Name] = new
+        {
+            delayed = true,
+            delayMs
+        };
+    }
+
+    private bool EvaluateCondition(string condition, Dictionary<string, object?> context)
+    {
+        // 简单的条件评估实现
+        // 支持格式: "key == value", "key != value", "key > value", "key < value"
+        
+        var parts = condition.Split(new[] { "==", "!=", ">", "<", ">=", "<=" }, StringSplitOptions.TrimEntries);
+        if (parts.Length != 2)
+        {
+            // 尝试直接作为布尔值
+            if (bool.TryParse(condition, out var boolValue))
+            {
+                return boolValue;
+            }
+            
+            // 尝试从上下文获取
+            if (context.TryGetValue(condition, out var value) && value is bool b)
+            {
+                return b;
+            }
+            
+            return false;
+        }
+
+        var key = parts[0].Trim();
+        var expectedValue = parts[1].Trim().Trim('"', '\'');
+
+        if (!context.TryGetValue(key, out var actualValue))
+        {
+            return false;
+        }
+
+        var actualString = actualValue?.ToString() ?? string.Empty;
+
+        if (condition.Contains("=="))
+        {
+            return actualString.Equals(expectedValue, StringComparison.OrdinalIgnoreCase);
+        }
+        else if (condition.Contains("!="))
+        {
+            return !actualString.Equals(expectedValue, StringComparison.OrdinalIgnoreCase);
+        }
+        else if (condition.Contains(">="))
+        {
+            return double.TryParse(actualString, out var a) && 
+                   double.TryParse(expectedValue, out var b) && 
+                   a >= b;
+        }
+        else if (condition.Contains("<="))
+        {
+            return double.TryParse(actualString, out var a) && 
+                   double.TryParse(expectedValue, out var b) && 
+                   a <= b;
+        }
+        else if (condition.Contains(">"))
+        {
+            return double.TryParse(actualString, out var a) && 
+                   double.TryParse(expectedValue, out var b) && 
+                   a > b;
+        }
+        else if (condition.Contains("<"))
+        {
+            return double.TryParse(actualString, out var a) && 
+                   double.TryParse(expectedValue, out var b) && 
+                   a < b;
+        }
+
+        return false;
+    }
+
+    private object? ApplyTransform(string transformScript, object? inputData, Dictionary<string, object?> context)
+    {
+        // 简单的数据转换实现
+        // 实际项目可以使用更强大的脚本引擎
+        
+        // 支持 JSON 路径提取: "$.path.to.field"
+        if (transformScript.StartsWith("$."))
+        {
+            var path = transformScript[2..];
+            return ExtractJsonPath(inputData, path);
+        }
+
+        // 支持简单的模板替换: "{{key}}"
+        if (transformScript.Contains("{{") && transformScript.Contains("}}"))
+        {
+            var result = transformScript;
+            foreach (var kvp in context)
+            {
+                result = result.Replace($"{{{{{kvp.Key}}}}}", kvp.Value?.ToString() ?? string.Empty);
+            }
+            return result;
+        }
+
+        // 默认返回原始脚本
+        return transformScript;
+    }
+
+    private object? ExtractJsonPath(object? data, string path)
+    {
+        if (data == null) return null;
+
+        var segments = path.Split('.');
+        var current = data;
+
+        foreach (var segment in segments)
+        {
+            if (current == null) return null;
+
+            if (current is Dictionary<string, object?> dict)
+            {
+                current = dict.TryGetValue(segment, out var value) ? value : null;
+            }
+            else if (current is JsonElement element)
+            {
+                current = element.TryGetProperty(segment, out var prop) ? prop : null;
+            }
+            else
+            {
+                // 尝试使用反射
+                var type = current.GetType();
+                var property = type.GetProperty(segment);
+                current = property?.GetValue(current);
+            }
+        }
+
+        return current;
+    }
+
     private static List<WorkflowStep> ParseSteps(string? definitionJson)
     {
         if (string.IsNullOrWhiteSpace(definitionJson))
@@ -297,6 +590,21 @@ public class WorkflowExecutor(
             case WorkflowStepKind.RagQuery:
                 await ExecuteRagStepAsync(step, context, cancellationToken);
                 break;
+            case WorkflowStepKind.AgentCall:
+                await ExecuteAgentStepAsync(step, context, cancellationToken);
+                break;
+            case WorkflowStepKind.Condition:
+                await ExecuteConditionStepAsync(step, context, cancellationToken);
+                break;
+            case WorkflowStepKind.Loop:
+                await ExecuteLoopStepAsync(step, context, cancellationToken);
+                break;
+            case WorkflowStepKind.DataTransform:
+                await ExecuteDataTransformStepAsync(step, context, cancellationToken);
+                break;
+            case WorkflowStepKind.Delay:
+                await ExecuteDelayStepAsync(step, context, cancellationToken);
+                break;
             default:
                 throw new BusinessException($"Workflow step type not supported: {step.Type}");
         }
@@ -321,6 +629,20 @@ public class WorkflowExecutor(
             AgentId = GetGuid(element, "agentId"),
             CollectionId = GetGuid(element, "collectionId"),
             NextStepIds = GetStringArray(element, "nextStepIds"),
+            // Condition step fields
+            Condition = GetString(element, "condition"),
+            TrueStepId = GetString(element, "trueStepId"),
+            FalseStepId = GetString(element, "falseStepId"),
+            // Loop step fields
+            LoopCondition = GetString(element, "loopCondition"),
+            LoopBody = GetString(element, "loopBody"),
+            MaxIterations = GetInt(element, "maxIterations"),
+            // DataTransform step fields
+            TransformScript = GetString(element, "transformScript"),
+            InputPath = GetString(element, "inputPath"),
+            OutputPath = GetString(element, "outputPath"),
+            // Delay step fields
+            DelayMs = GetInt(element, "delayMs"),
         };
 
         step.Kind = ParseStepKind(step.Type, element);
@@ -454,6 +776,24 @@ public class WorkflowExecutor(
         public Guid? CollectionId { get; set; }
         public int? TopK { get; set; }
         public string[]? NextStepIds { get; set; }
+        
+        // Condition step fields
+        public string? Condition { get; set; }
+        public string? TrueStepId { get; set; }
+        public string? FalseStepId { get; set; }
+        
+        // Loop step fields
+        public string? LoopCondition { get; set; }
+        public string? LoopBody { get; set; }
+        public int? MaxIterations { get; set; }
+        
+        // DataTransform step fields
+        public string? TransformScript { get; set; }
+        public string? InputPath { get; set; }
+        public string? OutputPath { get; set; }
+        
+        // Delay step fields
+        public int? DelayMs { get; set; }
     }
 
     private enum WorkflowStepKind
