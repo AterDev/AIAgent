@@ -27,7 +27,6 @@ description: 全栈代码审查规范 - 质量保障、性能优化、安全检�
   - 是否继承 `ManagerBase<T>` 或 `ManagerBase`？
   - 是否避免了 Manager 之间的直接调用？
   - 异常处理是否抛出 `BusinessException`？
-  - 数据库操作是否使用 `AsNoTracking()`？
   
 - **Controller 层**:
   - 是否继承 `RestControllerBase`？

@@ -78,6 +78,8 @@ MCP server config lives in [.mcp.json](.mcp.json) and [.vscode/mcp.json](.vscode
 
 如果Manager没有绑定特定的实体，则继承`ManagerBase.cs`的其他基类。
 
+EF Core 查询，要使用方法调用，而不是使用 LINQ 查询语法。
+
 ###  对象映射
 
 优先使用`Perigon.AspNetCore.Utils.Extensions` 中的扩展方法`Merge/MapTo`进行映射。
