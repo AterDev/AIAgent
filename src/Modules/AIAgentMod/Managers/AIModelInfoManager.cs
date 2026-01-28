@@ -15,8 +15,6 @@ public class AIModelInfoManager(
     /// </summary>
     public async Task<PageList<AIModelInfoItemDto>> FilterAsync(AIModelInfoFilterDto filter)
     {
-
-
         return await PageListAsync<AIModelInfoFilterDto, AIModelInfoItemDto>(filter);
     }
 

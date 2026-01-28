@@ -9,6 +9,12 @@
     <ItemGroup>
         <ProjectReference Include="..\..\Definition\Share\Share.csproj" />
         <ProjectReference Include="..\..\Perigon\Perigon.AspNetCore.Toolkit\Perigon.AspNetCore.Toolkit.csproj" />
+        <ProjectReference Include="..\CoreMod\CoreMod.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="DocumentFormat.OpenXml" />
+        <PackageReference Include="EPPlus" />
+        <PackageReference Include="itext7" />
     </ItemGroup>
     <ItemGroup>
         <Folder Include="Managers\" />

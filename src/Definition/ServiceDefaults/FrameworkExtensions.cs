@@ -138,6 +138,8 @@ public static class FrameworkExtensions
             });
 
             builder.Services.AddSingleton<CacheService>();
+            // 添加分布式缓存服务
+            builder.Services.AddScoped<Share.Services.ICacheService, Share.Services.RedisCacheService>();
             return builder;
         }
     }

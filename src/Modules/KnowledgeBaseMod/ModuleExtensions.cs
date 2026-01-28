@@ -52,9 +52,15 @@ public static class ModuleExtensions
         builder.Services.AddHostedService<RagIngestionWorker>();
         builder.Services.AddScoped<IRagQueryService, RagQueryService>();
         builder.Services.AddScoped<Share.Services.IRagQueryFacade, RagQueryFacade>();
-        builder.Services.AddScoped<IDocumentParser, SimpleDocumentParser>();
+        // 使用多格式文档解析器，支持 PDF、Word、Excel
+        builder.Services.AddScoped<IDocumentParser, MultiFormatDocumentParser>();
+        // 保留简单解析器作为备选
+        builder.Services.AddScoped<SimpleDocumentParser>();
         builder.Services.AddScoped<ITextChunker, DefaultTextChunker>();
-        builder.Services.AddScoped<IEmbeddingGenerator, HashEmbeddingGenerator>();
+        // 使用真实的模型调用生成向量，而不是 MD5 哈希
+        builder.Services.AddScoped<IEmbeddingGenerator, CoreModelEmbeddingGenerator>();
+        // 保留旧实现作为备选（如果模型调用失败可以降级）
+        builder.Services.AddScoped<HashEmbeddingGenerator>();
         builder.Services.AddScoped<QdrantVectorStore>();
         builder.Services.AddScoped<NullVectorStore>();
         builder.Services.AddScoped<IVectorStore>(sp =>
