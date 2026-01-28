@@ -1,28 +1,24 @@
 # GitHub Copilot Instructions
 
-本仓库是.NET解决方案。是基于`Perigon.templates`模板的WebApi项目。在使用GitHub Copilot时，请遵循以下指导原则和偏好设置。
+本仓库是.NET解决方案。是基于`Perigon.templates`模板的WebApi项目。并使用`Perigon.CLI`工具进行项目脚手架搭建和代码生成。
 
 ## 总体指导原则
 
 - 准确和确定性为第一原则。
 - 没有明确要求下，不要对项目进行build操作。
-- 生成代码后，要进行检查，在错误列表/输出日志/编辑器报错中检查本次功能相关的内容，并进行修复。
+- 对生成的代码进行自我检查，避免符号，语法，命名空间，依赖等错误。
 - 没有要求的情况下，不要生成任何总结/更新/测试相关的文档。
 
 ## 关键技术栈
-1. 主要语言是:C# 14，前端是TypeScript，在代码提示时使用最新语法
-2. 后端基于ASP.NET Core 10 和EF Core 10构建
-3. 前端使用Angular 21+
+1. 基于最新的C# 14语言特性
+2. 后端强依赖于：Aspire 13+,ASP.NET Core 10,EF Core 10
+3. 开发环境：Windows11，可充分利用pwsh以及dotnet工具链
 
-## AI skills 规范入口
-- 后端规范: .github/skills/backend/SKILL.md
-- 前端规范: .github/skills/angular/SKILL.md
+## Agent说明
 
-## Agent角色定义
-- 后端开发: .github/agent/backend.md
-- 前端开发: .github/agent/frontend.md
-- 文档撰写: .github/agent/docs.md
-- 通用全栈: .github/agent/perigon.md
+本项目代码生成请使用以下Agent：
+
+`.github/agents/engineer.md` - 资深全栈工程师，统一处理所有开发任务
 
 ## MCP工具
 
