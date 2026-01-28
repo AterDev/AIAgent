@@ -1,0 +1,98 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ 'modelProfile.title' | translate }} {{ 'common.detail' | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    @if (isLoading()) {
+      <div class="d-flex justify-content-center align-items-center p-5">
+        <mat-spinner></mat-spinner>
+      </div>
+    } @else {
+      <mat-list>
+        <mat-list-item>
+          <span matListItemTitle>{{ 'common.id' | translate }}</span>
+          <span matListItemLine>{{ model.id }}</span>
+        </mat-list-item>
+        <mat-list-item>
+          <span matListItemTitle>{{ 'modelProfile.providerId' | translate }}</span>
+          <span matListItemLine>{{ model.providerId }}</span>
+        </mat-list-item>
+        <mat-list-item>
+          <span matListItemTitle>{{ 'modelProfile.name' | translate }}</span>
+          <span matListItemLine>{{ model.name }}</span>
+        </mat-list-item>
+        <mat-list-item>
+          <span matListItemTitle>{{ 'modelProfile.displayName' | translate }}</span>
+          <span matListItemLine>{{ model.displayName }}</span>
+        </mat-list-item>
+        <mat-list-item>
+          <span matListItemTitle>{{ 'modelProfile.description' | translate }}</span>
+          <span matListItemLine>{{ model.description }}</span>
+        </mat-list-item>
+        <mat-list-item>
+          <span matListItemTitle>{{ 'modelProfile.maxContextTokens' | translate }}</span>
+          <span matListItemLine>{{ model.maxContextTokens }}</span>
+        </mat-list-item>
+        <mat-list-item>
+          <span matListItemTitle>{{ 'modelProfile.supportsChat' | translate }}</span>
+          <span matListItemLine>
+            <mat-icon [ngClass]="model.supportsChat ? 'text-success' : 'text-muted'">
+              {{ model.supportsChat ? 'check_circle' : 'cancel' }}
+            </mat-icon>
+          </span>
+        </mat-list-item>
+        <mat-list-item>
+          <span matListItemTitle>{{ 'modelProfile.supportsEmbedding' | translate }}</span>
+          <span matListItemLine>
+            <mat-icon [ngClass]="model.supportsEmbedding ? 'text-success' : 'text-muted'">
+              {{ model.supportsEmbedding ? 'check_circle' : 'cancel' }}
+            </mat-icon>
+          </span>
+        </mat-list-item>
+        <mat-list-item>
+          <span matListItemTitle>{{ 'modelProfile.supportsTools' | translate }}</span>
+          <span matListItemLine>
+            <mat-icon [ngClass]="model.supportsTools ? 'text-success' : 'text-muted'">
+              {{ model.supportsTools ? 'check_circle' : 'cancel' }}
+            </mat-icon>
+          </span>
+        </mat-list-item>
+        <mat-list-item>
+          <span matListItemTitle>{{ 'modelProfile.supportsVision' | translate }}</span>
+          <span matListItemLine>
+            <mat-icon [ngClass]="model.supportsVision ? 'text-success' : 'text-muted'">
+              {{ model.supportsVision ? 'check_circle' : 'cancel' }}
+            </mat-icon>
+          </span>
+        </mat-list-item>
+        <mat-list-item>
+          <span matListItemTitle>{{ 'modelProfile.supportsResponsesApi' | translate }}</span>
+          <span matListItemLine>
+            <mat-icon [ngClass]="model.supportsResponsesApi ? 'text-success' : 'text-muted'">
+              {{ model.supportsResponsesApi ? 'check_circle' : 'cancel' }}
+            </mat-icon>
+          </span>
+        </mat-list-item>
+        <mat-list-item>
+          <span matListItemTitle>{{ 'modelProfile.isEnabled' | translate }}</span>
+          <span matListItemLine>
+            <mat-icon [ngClass]="model.isEnabled ? 'text-success' : 'text-muted'">
+              {{ model.isEnabled ? 'check_circle' : 'cancel' }}
+            </mat-icon>
+          </span>
+        </mat-list-item>
+        <mat-list-item>
+          <span matListItemTitle>{{ 'common.createdTime' | translate }}</span>
+          <span matListItemLine>{{ model.createdTime | date:'medium' }}</span>
+        </mat-list-item>
+        <mat-list-item>
+          <span matListItemTitle>{{ 'common.updatedTime' | translate }}</span>
+          <span matListItemLine>{{ model.updatedTime | date:'medium' }}</span>
+        </mat-list-item>
+      </mat-list>
+    }
+  </mat-card-content>
+  <mat-card-actions class="d-flex justify-content-end gap-2">
+    <button mat-button (click)="close()">{{ i18nKeys.common.close | translate }}</button>
+  </mat-card-actions>
+</mat-card>

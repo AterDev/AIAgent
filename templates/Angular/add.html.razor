@@ -1,0 +1,101 @@
+@* Add page template (single-file placement) *@
+@{
+    var name = ModelName ?? "Model";
+    
+    string RenderFormField(PropertyInfo p)
+    {
+        var camelName = p.Name.ToCamelCase();
+        var label = p.CommentSummary ?? p.Name;
+        
+        if (p.IsEnum)
+        {
+            var enumType = p.Type;
+            return $"<mat-form-field appearance=\"outline\">{NewLine}" +
+                   $"    <mat-label>{label}</mat-label>{NewLine}" +
+                   $"    <mat-select [formControl]=\"{camelName}\"{(p.IsList ? " multiple" : "")}>{NewLine}" +
+                   $"      @for (opt of {enumType} | toKeyValue; track opt.value) {{{NewLine}" +
+                   $"        <mat-option [value]=\"opt.value\">{{{{ opt.value | enumText:'{enumType}' }}}}</mat-option>{NewLine}" +
+                   $"      }}{NewLine}" +
+                   $"    </mat-select>{NewLine}" +
+                   $"    @if ({camelName}.invalid) {{{NewLine}" +
+                   $"      <mat-error>{{{{ getValidatorMessage({camelName}) }}}}</mat-error>{NewLine}" +
+                   $"    }}{NewLine}" +
+                   $"  </mat-form-field>";
+        }
+        else if (p.Type != null && p.Type.ToLower().Contains("bool"))
+        {
+            return $"<mat-checkbox [formControl]=\"{camelName}\">{label}</mat-checkbox>{NewLine}" +
+                   $"  @if ({camelName}.invalid) {{{NewLine}" +
+                   $"    <mat-error>{{{{ getValidatorMessage({camelName}) }}}}</mat-error>{NewLine}" +
+                   $"  }}";
+        }
+        else if (p.Type != null && p.Type.ToLower().Contains("date"))
+        {
+            var pickerName = camelName + "Picker";
+            return $"<mat-form-field appearance=\"outline\">{NewLine}" +
+                   $"    <mat-label>{label}</mat-label>{NewLine}" +
+                   $"    <input matInput [matDatepicker]=\"{pickerName}\" [formControl]=\"{camelName}\" />{NewLine}" +
+                   $"    <mat-datepicker-toggle matSuffix [for]=\"{pickerName}\"></mat-datepicker-toggle>{NewLine}" +
+                   $"    <mat-datepicker #{pickerName}></mat-datepicker>{NewLine}" +
+                   $"    @if ({camelName}.invalid) {{{NewLine}" +
+                   $"      <mat-error>{{{{ getValidatorMessage({camelName}) }}}}</mat-error>{NewLine}" +
+                   $"    }}{NewLine}" +
+                   $"  </mat-form-field>";
+        }
+        else if (p.Type != null && p.Type.ToLower().Contains("guid"))
+        {
+            var optionsName = (camelName.EndsWith("s") ? camelName.Substring(0, camelName.Length - 1) : camelName) + "Options";
+            return $"<mat-form-field appearance=\"outline\">{NewLine}" +
+                   $"    <mat-label>{label}</mat-label>{NewLine}" +
+                   $"    <mat-select [formControl]=\"{camelName}\"{(p.IsList ? " multiple" : "")}>{NewLine}" +
+                   $"      @for (opt of {optionsName}; track opt.id) {{{NewLine}" +
+                   $"        <mat-option [value]=\"opt.id\">{{{{ opt.name }}}}</mat-option>{NewLine}" +
+                   $"      }}{NewLine}" +
+                   $"    </mat-select>{NewLine}" +
+                   $"    @if ({camelName}.invalid) {{{NewLine}" +
+                   $"      <mat-error>{{{{ getValidatorMessage({camelName}) }}}}</mat-error>{NewLine}" +
+                   $"    }}{NewLine}" +
+                   $"  </mat-form-field>";
+        }
+        else if (p.MaxLength.HasValue && p.MaxLength > 200)
+        {
+            return $"<mat-form-field appearance=\"outline\">{NewLine}" +
+                   $"    <mat-label>{label}</mat-label>{NewLine}" +
+                   $"    <textarea matInput rows=\"4\" [formControl]=\"{camelName}\"></textarea>{NewLine}" +
+                   $"    @if ({camelName}.invalid) {{{NewLine}" +
+                   $"      <mat-error>{{{{ getValidatorMessage({camelName}) }}}}</mat-error>{NewLine}" +
+                   $"    }}{NewLine}" +
+                   $"  </mat-form-field>{NewLine}";
+        }
+        else
+        {
+            var inputType = p.IsDecimal ? "number" : "text";
+            return $"<mat-form-field appearance=\"outline\">{NewLine}" +
+                   $"    <mat-label>{label}</mat-label>{NewLine}" +
+                   $"    <input matInput type=\"{inputType}\" [formControl]=\"{camelName}\" />{NewLine}" +
+                   $"    @if ({camelName}.invalid) {{{NewLine}" +
+                   $"      <mat-error>{{{{ getValidatorMessage({camelName}) }}}}</mat-error>{NewLine}" +
+                   $"    }}{NewLine}" +
+                   $"  </mat-form-field>{NewLine}";
+        }
+    }
+}
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ i18nKeys.common.add | translate }} @(name)</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="form" (ngSubmit)="submit()" class="d-flex flex-column p-2 mt-2 gap-2">
+      @foreach (var p in AddPropertyInfos)
+      {
+        WriteLiteral(RenderFormField(p));
+      }
+
+      <div class="d-flex justify-content-end gap-2">
+        <button mat-button type="button" (click)="close(false)">{{ i18nKeys.common.cancel | translate }}</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">{{ i18nKeys.common.save | translate }}</button>
+      </div>
+
+    </form>
+  </mat-card-content>
+</mat-card>

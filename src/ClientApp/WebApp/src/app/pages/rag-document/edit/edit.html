@@ -1,0 +1,56 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ i18nKeys.common.edit | translate }} {{ 'ragDocument.title' | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="form" (ngSubmit)="submit()" class="d-flex flex-column p-2 mt-2 gap-2">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'ragDocument.collectionId' | translate }}</mat-label>
+        <input matInput type="text" [formControl]="collectionId" />
+        @if (collectionId.invalid) {
+          <mat-error>{{ getValidatorMessage(collectionId) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'ragDocument.name' | translate }}</mat-label>
+        <input matInput type="text" [formControl]="name" />
+        @if (name.invalid) {
+          <mat-error>{{ getValidatorMessage(name) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'ragDocument.fileName' | translate }}</mat-label>
+        <input matInput type="text" [formControl]="fileName" />
+        @if (fileName.invalid) {
+          <mat-error>{{ getValidatorMessage(fileName) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'ragDocument.contentType' | translate }}</mat-label>
+        <input matInput type="text" [formControl]="contentType" />
+        @if (contentType.invalid) {
+          <mat-error>{{ getValidatorMessage(contentType) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'ragDocument.sourceUrl' | translate }}</mat-label>
+        <input matInput type="text" [formControl]="sourceUrl" />
+        @if (sourceUrl.invalid) {
+          <mat-error>{{ getValidatorMessage(sourceUrl) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <div class="d-flex justify-content-end gap-2">
+        <button mat-button type="button" (click)="close(false)">{{ i18nKeys.common.cancel | translate }}</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">{{ i18nKeys.common.save | translate }}</button>
+      </div>
+
+    </form>
+  </mat-card-content>
+  <mat-card-actions class="d-flex justify-content-end gap-2">
+  </mat-card-actions>
+</mat-card>

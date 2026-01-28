@@ -1,0 +1,26 @@
+@* Detail page template (single-file placement) *@
+@{
+    var name = ModelName ?? "Model";
+    var at = "@";
+}
+@{ WriteLiteral(at + "if (!isLoading()) {"); }
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ i18nKeys.common.detail | translate }} @(name)</mat-card-title>
+  </mat-card-header>
+  <mat-card-content class="d-flex gap-2 p-2">
+    <mat-list>
+      @foreach (var p in DetailPropertyInfos)
+      {
+        <mat-list-item>
+          <strong style="width:160px;display:inline-block;">@(p.CommentSummary ?? p.Name):</strong>
+          <span@(p.Type != null && p.Type.ToLower().Contains("string") && p.MaxLength.HasValue && p.MaxLength > 200 ? " style=\"white-space:pre-wrap\"" : "")>{{ model.@(p.Name.ToCamelCase())@(p.Type != null && p.Type.ToLower().Contains("date") ? " | date:'short'" : "") }}</span>
+        </mat-list-item>
+      }
+    </mat-list>
+  </mat-card-content>
+  <mat-card-actions class="d-flex justify-content-end gap-2">
+    <button mat-button (click)="close()">{{ i18nKeys.common.close | translate }}</button>
+  </mat-card-actions>
+</mat-card>
+@{ WriteLiteral("}"); }

@@ -1,0 +1,88 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ i18nKeys.common.add | translate }} {{ 'modelProfile.title' | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="form" (ngSubmit)="submit()" class="d-flex flex-column p-2 mt-2 gap-2">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'modelProfile.providerId' | translate }}</mat-label>
+        <mat-select [formControl]="providerId">
+          @for (provider of providers; track provider.id) {
+            <mat-option [value]="provider.id">{{ provider.name }}</mat-option>
+          }
+        </mat-select>
+        @if (providerId.invalid) {
+          <mat-error>{{ getValidatorMessage(providerId) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'modelProfile.name' | translate }}</mat-label>
+        <input matInput type="text" [formControl]="name" />
+        @if (name.invalid) {
+          <mat-error>{{ getValidatorMessage(name) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'modelProfile.displayName' | translate }}</mat-label>
+        <input matInput type="text" [formControl]="displayName" />
+        @if (displayName.invalid) {
+          <mat-error>{{ getValidatorMessage(displayName) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'modelProfile.description' | translate }}</mat-label>
+        <textarea matInput rows="4" [formControl]="description"></textarea>
+        @if (description.invalid) {
+          <mat-error>{{ getValidatorMessage(description) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'modelProfile.maxContextTokens' | translate }}</mat-label>
+        <input matInput type="number" [formControl]="maxContextTokens" />
+        @if (maxContextTokens.invalid) {
+          <mat-error>{{ getValidatorMessage(maxContextTokens) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-checkbox [formControl]="supportsChat">{{ 'modelProfile.supportsChat' | translate }}</mat-checkbox>
+      @if (supportsChat.invalid) {
+        <mat-error>{{ getValidatorMessage(supportsChat) }}</mat-error>
+      }
+
+      <mat-checkbox [formControl]="supportsEmbedding">{{ 'modelProfile.supportsEmbedding' | translate }}</mat-checkbox>
+      @if (supportsEmbedding.invalid) {
+        <mat-error>{{ getValidatorMessage(supportsEmbedding) }}</mat-error>
+      }
+
+      <mat-checkbox [formControl]="supportsTools">{{ 'modelProfile.supportsTools' | translate }}</mat-checkbox>
+      @if (supportsTools.invalid) {
+        <mat-error>{{ getValidatorMessage(supportsTools) }}</mat-error>
+      }
+
+      <mat-checkbox [formControl]="supportsVision">{{ 'modelProfile.supportsVision' | translate }}</mat-checkbox>
+      @if (supportsVision.invalid) {
+        <mat-error>{{ getValidatorMessage(supportsVision) }}</mat-error>
+      }
+
+      <mat-checkbox [formControl]="supportsResponsesApi">{{ 'modelProfile.supportsResponsesApi' | translate }}</mat-checkbox>
+      @if (supportsResponsesApi.invalid) {
+        <mat-error>{{ getValidatorMessage(supportsResponsesApi) }}</mat-error>
+      }
+
+      <mat-checkbox [formControl]="isEnabled">{{ 'modelProfile.isEnabled' | translate }}</mat-checkbox>
+      @if (isEnabled.invalid) {
+        <mat-error>{{ getValidatorMessage(isEnabled) }}</mat-error>
+      }
+
+      <div class="d-flex justify-content-end gap-2">
+        <button mat-button type="button" (click)="close(false)">{{ i18nKeys.common.cancel | translate }}</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">{{ i18nKeys.common.save | translate }}</button>
+      </div>
+
+    </form>
+  </mat-card-content>
+</mat-card>

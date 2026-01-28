@@ -1,0 +1,43 @@
+@* Detail component TypeScript (preserves readable output) *@
+@{
+    var name = ModelName ?? "Model";
+    var camel = (ModelName ?? "Model").ToCamelCase();
+    var module = (Namespace ?? string.Empty).Split('.').LastOrDefault()?.ToHyphen() ?? string.Empty;
+}
+import { Component, Inject, OnInit, signal } from '@@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@@angular/material/dialog';
+import { MatListModule } from '@@angular/material/list';
+import { MatCard, MatCardHeader, MatCardTitle, MatCardContent, MatCardActions } from '@@angular/material/card';
+import { AdminClient } from 'src/app/services/admin/admin-client';
+import { I18N_KEYS } from 'src/app/share/i18n-keys';
+import { BaseMatModules } from 'src/app/share/shared-modules';
+import { @(ModelName)DetailDto } from 'src/app/services/admin/models/@(module)/@(ModelName.ToHyphen())-detail-dto.model';
+
+@{ WriteLiteral("@Component({\n  selector: 'app-" + camel + "-detail',\n  imports: [BaseMatModules, MatListModule, MatCard, MatCardHeader, MatCardTitle, MatCardContent, MatCardActions],\n  templateUrl: './detail.html'\n})\n"); }
+export class @(ModelName)Detail implements OnInit {
+
+  i18nKeys = I18N_KEYS;
+
+  model!: @(ModelName)DetailDto;
+  id?: string;
+  isLoading = signal(true);
+
+  constructor(
+    private adminClient: AdminClient,
+    private dialogRef: MatDialogRef<@(ModelName)Detail>,
+    @@Inject(MAT_DIALOG_DATA) public data: any
+  ) {
+    this.id = data?.id;
+  }
+
+  ngOnInit() {
+    if (this.id) {
+      this.adminClient.@(camel).detail(this.id).subscribe((res: @(ModelName)DetailDto) => {
+        this.model = res;
+        this.isLoading.set(false);
+      });
+    }
+  }
+
+  close() { this.dialogRef.close(); }
+}

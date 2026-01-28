@@ -1,0 +1,66 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ 'modelProvider.title' | translate }} {{ 'common.detail' | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    @if (isLoading()) {
+      <div class="d-flex justify-content-center align-items-center p-5">
+        <mat-spinner></mat-spinner>
+      </div>
+    } @else {
+      <mat-list>
+        <mat-list-item>
+          <span matListItemTitle>{{ 'common.id' | translate }}</span>
+          <span matListItemLine>{{ model.id }}</span>
+        </mat-list-item>
+        <mat-list-item>
+          <span matListItemTitle>{{ 'modelProvider.name' | translate }}</span>
+          <span matListItemLine>{{ model.name }}</span>
+        </mat-list-item>
+        <mat-list-item>
+          <span matListItemTitle>{{ 'modelProvider.baseUrl' | translate }}</span>
+          <span matListItemLine>{{ model.baseUrl }}</span>
+        </mat-list-item>
+        <mat-list-item>
+          <span matListItemTitle>{{ 'modelProvider.apiKey' | translate }}</span>
+          <span matListItemLine>{{ model.apiKey }}</span>
+        </mat-list-item>
+        <mat-list-item>
+          <span matListItemTitle>{{ 'modelProvider.providerType' | translate }}</span>
+          <span matListItemLine>{{ getProviderTypeName(model.providerType) }}</span>
+        </mat-list-item>
+        <mat-list-item>
+          <span matListItemTitle>{{ 'modelProvider.timeoutSeconds' | translate }}</span>
+          <span matListItemLine>{{ model.timeoutSeconds }}</span>
+        </mat-list-item>
+        <mat-list-item>
+          <span matListItemTitle>{{ 'modelProvider.retryCount' | translate }}</span>
+          <span matListItemLine>{{ model.retryCount }}</span>
+        </mat-list-item>
+        <mat-list-item>
+          <span matListItemTitle>{{ 'modelProvider.description' | translate }}</span>
+          <span matListItemLine>{{ model.description }}</span>
+        </mat-list-item>
+        <mat-list-item>
+          <span matListItemTitle>{{ 'modelProvider.isEnabled' | translate }}</span>
+          <span matListItemLine>
+            <mat-icon [ngClass]="model.isEnabled ? 'text-success' : 'text-muted'">
+              {{ model.isEnabled ? 'check_circle' : 'cancel' }}
+            </mat-icon>
+          </span>
+        </mat-list-item>
+        <mat-list-item>
+          <span matListItemTitle>{{ 'common.createdTime' | translate }}</span>
+          <span matListItemLine>{{ model.createdTime | date:'medium' }}</span>
+        </mat-list-item>
+        <mat-list-item>
+          <span matListItemTitle>{{ 'common.updatedTime' | translate }}</span>
+          <span matListItemLine>{{ model.updatedTime | date:'medium' }}</span>
+        </mat-list-item>
+      </mat-list>
+    }
+  </mat-card-content>
+  <mat-card-actions class="d-flex justify-content-end gap-2">
+    <button mat-button (click)="close()">{{ i18nKeys.common.close | translate }}</button>
+  </mat-card-actions>
+</mat-card>

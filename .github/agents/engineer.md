@@ -1,5 +1,5 @@
 ---
-name: perigon-senior-engineer  
+name: engineer  
 description: 资深全栈工程师 - 精通 Perigon 技术栈的代码实现、架构设计、代码审查和文档编写
 
 ---

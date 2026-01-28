@@ -17,4 +17,7 @@
     <ProjectReference Include="..\..\Modules\AIAgentMod\AIAgentMod.csproj" />
     <ProjectReference Include="..\..\Modules\SystemMod\SystemMod.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
 </Project>

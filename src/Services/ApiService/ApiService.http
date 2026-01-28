@@ -1,4 +1,17 @@
-# For more info on HTTP files go to https://aka.ms/vs/httpfile
+@HostAddress = https://localhost:17002
 
-@HostAddress = https://localhost:7000
+
+
+POST {{HostAddress}}/chat-agent
+Accept: application/json
+Content-Type: application/json
+
+{
+  "messages": [
+    {
+      "role": "user",
+        "content": "Hello, how can I use the ApiService?"
+    }
+  ]
+}
 

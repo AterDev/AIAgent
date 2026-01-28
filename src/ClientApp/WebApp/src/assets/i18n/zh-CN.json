@@ -89,10 +89,120 @@
     "team": "团队管理",
     "product": "产品管理",
     "order": "订单管理",
+    "model": "模型管理",
+    "application": "应用管理",
+    "modelProfile": "模型配置",
+    "modelProvider": "模型提供商",
+    "knowledge": "知识库",
+    "ragCollection": "知识库管理",
+    "ragDocument": "文档管理",
+    "mcp": "MCP工具",
+    "mcpTool": "工具管理",
+    "agent": "AI Agent",
+    "aiagent": "Agent管理",
+    "agentExecution": "执行记录",
+    "workflow": "工作流管理",
+    "workflowExecution": "执行记录",
     "system": "系统管理",
     "systemRole": "角色管理",
     "systemUser": "账号管理",
     "systemLogs": "系统日志",
     "systemConfig": "系统设置"
+  },
+  "application": {
+    "title": "应用",
+    "name": "应用名称",
+    "description": "描述",
+    "accessKey": "访问密钥",
+    "secretKey": "密钥",
+    "isEnabled": "已启用"
+  },
+  "modelProfile": {
+    "title": "模型配置",
+    "name": "模型名称",
+    "modelType": "模型类型",
+    "provider": "提供商",
+    "capabilities": "能力",
+    "isEnabled": "已启用"
+  },
+  "modelProvider": {
+    "title": "模型提供商",
+    "name": "名称",
+    "apiKey": "API密钥",
+    "endpoint": "端点地址",
+    "isEnabled": "已启用"
+  },
+  "ragCollection": {
+    "title": "知识库",
+    "name": "知识库名称",
+    "description": "描述",
+    "isPublic": "公开",
+    "isEnabled": "已启用",
+    "tags": "标签"
+  },
+  "ragDocument": {
+    "title": "文档",
+    "name": "文档名称",
+    "fileName": "文件名",
+    "fileSize": "文件大小",
+    "fileType": "文件类型",
+    "collectionId": "所属知识库",
+    "status": "状态",
+    "chunkCount": "分块数量"
+  },
+  "mcpTool": {
+    "title": "MCP工具",
+    "name": "工具名称",
+    "description": "描述",
+    "toolType": "工具类型",
+    "version": "版本",
+    "isEnabled": "已启用",
+    "schemaJson": "Schema定义",
+    "serverId": "服务器ID"
+  },
+  "aiagent": {
+    "title": "AI Agent",
+    "name": "Agent名称",
+    "description": "描述",
+    "systemPrompt": "系统提示词",
+    "modelId": "模型",
+    "temperature": "温度",
+    "maxTokens": "最大Token数",
+    "isEnabled": "已启用",
+    "tags": "标签"
+  },
+  "agentExecution": {
+    "title": "执行记录",
+    "agentId": "Agent",
+    "status": "状态",
+    "startTime": "开始时间",
+    "endTime": "结束时间",
+    "duration": "耗时",
+    "inputTokens": "输入Token",
+    "outputTokens": "输出Token"
+  },
+  "workflow": {
+    "title": "工作流",
+    "name": "工作流名称",
+    "description": "描述",
+    "definition": "定义",
+    "isEnabled": "已启用",
+    "status": "状态",
+    "tags": "标签"
+  },
+  "workflowExecution": {
+    "title": "执行记录",
+    "workflowId": "工作流",
+    "status": "状态",
+    "startTime": "开始时间",
+    "endTime": "结束时间",
+    "duration": "耗时"
+  },
+  "systemConfig": {
+    "title": "系统配置",
+    "key": "配置键",
+    "value": "配置值",
+    "description": "描述",
+    "isSystem": "系统配置"
   }
 }

@@ -1,5 +1,5 @@
 /**
- * 系统配置查询筛选
+ * 系统配置FilterDto
  */
 export interface SystemConfigFilterDto {
   /** pageIndex */
@@ -12,4 +12,8 @@ export interface SystemConfigFilterDto {
   key?: string | null;
   /** 组 */
   groupName?: string | null;
+  /** valid */
+  valid?: boolean | null;
+  /** 是否属于系统配置 */
+  isSystem?: boolean | null;
 }

@@ -9,55 +9,119 @@ export class EnumTextPipe implements PipeTransform {
   transform(value: unknown, type: string): string {
     let result = '';
     switch (type) {
-      case 'MenuType':
+      case 'AgentExecutionStatus':
         switch (value) {
-          case 0: result = '页面'; break;
-          case 1: result = '按钮'; break;
+          case 0: result = 'Running'; break;
+          case 1: result = 'Completed'; break;
+          case 2: result = 'Failed'; break;
+          case 3: result = 'Canceled'; break;
           default: result = '默认'; break;
         }
         break;
 
-      case 'PermissionType':
+      case 'AuthType':
         switch (value) {
-          case 0: result = '无权限'; break;
-          case 1: result = '可读'; break;
-          case 2: result = '可审核'; break;
-          case 4: result = '仅添加'; break;
-          case 16: result = '仅编辑'; break;
-          case 21: result = '可读写'; break;
-          case 23: result = '读写且可审核'; break;
+          case 0: result = 'None'; break;
+          case 1: result = 'ApiKey'; break;
+          case 2: result = 'OAuth'; break;
+          case 3: result = 'Token'; break;
           default: result = '默认'; break;
         }
         break;
 
-      case 'Sex':
+      case 'ChatMessageRole':
         switch (value) {
-          case 0: result = '男性'; break;
-          case 1: result = '女性'; break;
-          case 2: result = '其他'; break;
+          case 0: result = 'User'; break;
+          case 1: result = 'AI'; break;
+          case 2: result = 'System'; break;
+          case 3: result = 'Tool'; break;
           default: result = '默认'; break;
         }
         break;
 
-      case 'GenderType':
+      case 'ChatMessageType':
         switch (value) {
-          case 0: result = '男性'; break;
-          case 1: result = '女性'; break;
-          case 2: result = '其他'; break;
+          case 0: result = 'Text'; break;
+          case 1: result = 'Image'; break;
+          case 2: result = 'File'; break;
           default: result = '默认'; break;
         }
         break;
 
-      case 'UserActionType':
+      case 'TransportType':
         switch (value) {
-          case 0: result = '其它'; break;
-          case 1: result = '登录'; break;
-          case 2: result = '添加'; break;
-          case 3: result = '更新'; break;
-          case 4: result = '删除'; break;
-          case 5: result = '审核'; break;
-          case 6: result = '导入'; break;
-          case 7: result = '导出'; break;
+          case 0: result = 'Http'; break;
+          case 1: result = 'Stdio'; break;
+          case 2: result = 'SSE'; break;
+          case 3: result = 'Websocket'; break;
+          default: result = '默认'; break;
+        }
+        break;
+
+      case 'RagDocumentStatus':
+        switch (value) {
+          case 0: result = 'Pending'; break;
+          case 1: result = 'Parsing'; break;
+          case 2: result = 'Vectorizing'; break;
+          case 3: result = 'Completed'; break;
+          case 4: result = 'Failed'; break;
+          default: result = '默认'; break;
+        }
+        break;
+
+      case 'McpToolType':
+        switch (value) {
+          case 0: result = 'Builtin'; break;
+          case 1: result = 'External'; break;
+          case 2: result = 'Custom'; break;
+          default: result = '默认'; break;
+        }
+        break;
+
+      case 'ToolCallStatus':
+        switch (value) {
+          case 0: result = 'Success'; break;
+          case 1: result = 'Failed'; break;
+          case 2: result = 'Timeout'; break;
+          case 3: result = 'Canceled'; break;
+          default: result = '默认'; break;
+        }
+        break;
+
+      case 'InvocationStatus':
+        switch (value) {
+          case 0: result = 'Success'; break;
+          case 1: result = 'Failed'; break;
+          case 2: result = 'Timeout'; break;
+          case 3: result = 'Canceled'; break;
+          default: result = '默认'; break;
+        }
+        break;
+
+      case 'ModelProviderType':
+        switch (value) {
+          case 0: result = 'OpenAI compatible'; break;
+          case 1: result = 'Custom provider'; break;
+          default: result = '默认'; break;
+        }
+        break;
+
+      case 'QuotaPeriodType':
+        switch (value) {
+          case 0: result = 'Minute'; break;
+          case 1: result = 'Hour'; break;
+          case 2: result = 'Day'; break;
+          case 3: result = 'Month'; break;
+          default: result = '默认'; break;
+        }
+        break;
+
+      case 'WorkflowExecutionStatus':
+        switch (value) {
+          case 0: result = 'Running'; break;
+          case 1: result = 'Completed'; break;
+          case 2: result = 'Failed'; break;
+          case 3: result = 'Canceled'; break;
           default: result = '默认'; break;
         }
         break;

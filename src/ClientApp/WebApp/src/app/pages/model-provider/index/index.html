@@ -1,0 +1,87 @@
+<div class="model-provider-list-page">
+  <div class="toolbar">
+    <div class="d-flex align-items-center gap-2 justify-content-between p-1">
+      <div class="d-flex gap-2 align-items-center">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ 'modelProvider.name' | translate }}</mat-label>
+          <input matInput [(ngModel)]="filterDto.name" placeholder="{{ 'modelProvider.name' | translate }}" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ 'modelProvider.providerType' | translate }}</mat-label>
+          <mat-select [(ngModel)]="filterDto.providerType">
+            <mat-option [value]="null">{{ 'common.all' | translate }}</mat-option>
+            <mat-option [value]="ModelProviderType.OpenAiCompatible">OpenAI Compatible</mat-option>
+            <mat-option [value]="ModelProviderType.Custom">Custom</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button matButton="filled" (click)="filter()">{{ i18nKeys.common.search | translate }}</button>
+      </div>
+
+      <div>
+        <button matButton="filled" (click)="openAdd()">
+          {{ i18nKeys.common.add | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <table mat-table [dataSource]="dataSource" #table="matTable">
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ 'modelProvider.name' | translate }}
+      </th>
+      <td mat-cell *matCellDef="let item;table:table">
+        {{ item.name }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="baseUrl">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ 'modelProvider.baseUrl' | translate }}
+      </th>
+      <td mat-cell *matCellDef="let item;table:table">
+        {{ item.baseUrl }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="providerType">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ 'modelProvider.providerType' | translate }}
+      </th>
+      <td mat-cell *matCellDef="let item;table:table">
+        {{ getProviderTypeName(item.providerType) }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="isEnabled">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ 'modelProvider.isEnabled' | translate }}
+      </th>
+      <td mat-cell *matCellDef="let item;table:table">
+        <mat-icon [ngClass]="item.isEnabled ? 'text-success' : 'text-muted'">
+          {{ item.isEnabled ? 'check_circle' : 'cancel' }}
+        </mat-icon>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ 'common.actions' | translate }}
+      </th>
+      <td mat-cell *matCellDef="let item">
+        <button mat-icon-button class="secondary" (click)="openDetail(item.id)"><mat-icon>visibility</mat-icon></button>
+        <button mat-icon-button class="primary" (click)="openEdit(item.id)"><mat-icon>edit</mat-icon></button>
+        <button mat-icon-button class="accent" (click)="deleteItem(item.id)"><mat-icon>delete</mat-icon></button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+  </table>
+
+  <mat-paginator [length]="total" [pageSize]="filterDto.pageSize" (page)="pageChanged($event)"></mat-paginator>
+
+</div>

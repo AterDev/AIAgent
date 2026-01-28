@@ -1,0 +1,53 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ i18nKeys.common.edit | translate }} {{ 'workflow.title' | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="form" (ngSubmit)="submit()" class="d-flex flex-column p-2 mt-2 gap-2">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'workflow.name' | translate }}</mat-label>
+        <input matInput type="text" [formControl]="name" />
+        @if (name.invalid) {
+          <mat-error>{{ getValidatorMessage(name) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'workflow.description' | translate }}</mat-label>
+        <textarea matInput rows="4" [formControl]="description"></textarea>
+        @if (description.invalid) {
+          <mat-error>{{ getValidatorMessage(description) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'workflow.definitionJson' | translate }}</mat-label>
+        <textarea matInput rows="8" [formControl]="definitionJson"></textarea>
+        @if (definitionJson.invalid) {
+          <mat-error>{{ getValidatorMessage(definitionJson) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'workflow.version' | translate }}</mat-label>
+        <input matInput type="number" [formControl]="version" />
+        @if (version.invalid) {
+          <mat-error>{{ getValidatorMessage(version) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-checkbox [formControl]="isPublished">{{ 'workflow.isPublished' | translate }}</mat-checkbox>
+      @if (isPublished.invalid) {
+        <mat-error>{{ getValidatorMessage(isPublished) }}</mat-error>
+      }
+
+      <div class="d-flex justify-content-end gap-2">
+        <button mat-button type="button" (click)="close(false)">{{ i18nKeys.common.cancel | translate }}</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">{{ i18nKeys.common.save | translate }}</button>
+      </div>
+
+    </form>
+  </mat-card-content>
+  <mat-card-actions class="d-flex justify-content-end gap-2">
+  </mat-card-actions>
+</mat-card>
