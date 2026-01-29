@@ -52,12 +52,15 @@ src/ClientApp/WebApp/
 
 ## 开发流程
 
+0. 先调用MCP 工具，从Api文档生成客户端请求服务，输出目录在前端的`src\app`目录下(绝对路径),clientType为:NgHttp
 1. 创建独立组件：目录及文件结构
 2. 配置路由和菜单
 3. 实现ts逻辑和HTML模板
 4. 检查导入和依赖
 
-优先通过使用 MCP 工具生成组件，Perigon提供执行任务的能力，通过执行angular组件生成任务(如果有)获取模板示例代码。
+优先通过使用 MCP 工具生成组件，Perigon提供`通过razor 模板生成代码`的能力，以获取可参考的代码结构和示例。
+
+**特别注意**：生成的请求服务代码不要添加或修改，它是与接口保持一致的，包括类型定义，切勿重复定义类型。
 
 ## 组件开发
 
@@ -105,7 +108,7 @@ userForm = new FormGroup({
 
 // 类型安全
 get nameControl() {
-  return this.userForm.controls.name;
+  return this.userForm.get('name') as FormControl;
 }
 ```
 
@@ -113,6 +116,51 @@ get nameControl() {
 - ✓ 使用类型化表单（Typed Forms）
 - ✓ 提供清晰的验证消息
 - ✓ 表单逻辑保留在组件中
+- ✓ **在 FormGroup 内优先使用 `[formControl]`，不要用 `formControlName`**
+- ✓ **在 TypeScript 中定义 getter 访问控件，避免字符串硬编码**
+- ✓ 通过 getter 复用控件，保持一致性和类型安全
+
+**模板示例**：
+```html
+<!-- ✅ 推荐：使用 [formControl] + getter，避免字符串硬编码 -->
+<form [formGroup]="form">
+  <mat-form-field>
+    <mat-label>Name</mat-label>
+    <input matInput [formControl]="name" />
+    @if (name.errors) {
+      <mat-error>{{ getValidatorMessage(name) }}</mat-error>
+    }
+  </mat-form-field>
+</form>
+
+<!-- ❌ 避免：formControlName 使用字符串硬编码 -->
+<form [formGroup]="form">
+  <input matInput formControlName="name" />
+</form>
+```
+
+**组件示例（通过 getter 访问）**：
+```typescript
+export class UserForm {
+  form = this.fb.group({
+    name: ['', [Validators.required, Validators.maxLength(100)]],
+    email: ['', [Validators.required, Validators.email]]
+  });
+
+  // ✅ 通过 getter 访问控件，避免字符串，便于复用和重构
+  get name() { return this.form.get('name') as FormControl; }
+  get email() { return this.form.get('email') as FormControl; }
+
+  getValidatorMessage(control: AbstractControl | null): string {
+    if (!control || !control.errors) { return ''; }
+    const errors = control.errors;
+    const key = Object.keys(errors)[0];
+    const params = errors[key];
+    return this.translate.instant(`validation.${key.toLowerCase()}`, params);
+  }
+}
+```
+
 ---
 
 ## 服务和 API
@@ -220,6 +268,77 @@ export const routes: Routes = [
 **自定义分页器**：
 - **位置**：`share/custom-paginator-intl.ts`
 - 本地化分页标签
+
+---
+
+## 模板语法
+
+### 控制流语法（Angular 17+）
+
+**必须使用新的控制流语法**，不再使用旧的结构指令：
+
+| 旧语法 (❌) | 新语法 (✓) |
+|------------|-----------|
+| `*ngIf` | `@if` / `@else` |
+| `*ngFor` | `@for` |
+| `*ngSwitch` | `@switch` / `@case` |
+
+**示例：**
+
+```html
+<!-- ❌ 旧语法 - 禁止使用 -->
+<div *ngIf="isLoading">Loading...</div>
+<div *ngFor="let item of items">{{ item }}</div>
+
+<!-- ✓ 新语法 - 必须使用 -->
+@if (isLoading) {
+  <div>Loading</div>
+} @else {
+  <div>Content</div>
+}
+
+@for (item of items; track item.id) {
+  <div>{{ item.name }}</div>
+}
+
+@switch (status) {
+  @case ('active') { <span>Active</span> }
+  @case ('pending') { <span>Pending</span> }
+  @default { <span>Unknown</span> }
+}
+```
+
+**注意事项**：
+- ✓ `@for` 循环必须包含 `track` 表达式
+- ✓ Material Table 的 `*matHeaderRowDef` / `*matRowDef` 保留不变（这些是 Material 特有指令）
+- ✗ 不要在新项目中使用 `*ngIf` / `*ngFor`
+
+### 数据绑定和管道
+
+**属性绑定和插值**：
+```html
+<!-- 属性绑定 -->
+<button [disabled]="isLoading">Submit</button>
+<img [src]="imageUrl" [alt]="description" />
+
+<!-- 插值表达式 -->
+<h1>{{ title }}</h1>
+
+<!-- 事件绑定 -->
+<button (click)="handleClick()">Click</button>
+```
+
+**管道使用**：
+```html
+<!-- 日期和翻译管道 -->
+<span>{{ createdTime | date: 'short' }}</span>
+<h2>{{ i18nKeys.common.title | translate }}</h2>
+
+<!-- title 属性中使用管道 -->
+<button [title]="i18nKeys.common.view | translate">
+  <mat-icon>visibility</mat-icon>
+</button>
+```
 
 ---
 

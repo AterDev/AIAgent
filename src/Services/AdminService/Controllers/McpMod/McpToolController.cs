@@ -31,7 +31,7 @@ public class McpToolController(
     public async Task<ActionResult<McpTool>> AddAsync(McpToolAddDto dto)
     {
         var entity = await _manager.AddAsync(dto);
-        return CreatedAtRoute(nameof(DetailAsync), new { id = entity.Id }, entity);
+        return CreatedAtRoute(null, new { id = entity.Id }, entity);
     }
 
     [HttpPatch("{id}")]

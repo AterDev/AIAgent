@@ -18,4 +18,6 @@ export interface ModelInvocationUpdateDto {
   status?: InvocationStatus | null;
   /** errorMessage */
   errorMessage?: string | null;
+  /** aiModelInfoId */
+  aiModelInfoId?: string | null;
 }

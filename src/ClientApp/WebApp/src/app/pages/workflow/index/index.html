@@ -3,11 +3,11 @@
     <div class="d-flex align-items-center gap-2 justify-content-between p-1">
       <div class="d-flex gap-2 align-items-center">
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>{{ 'workflow.name' | translate }}</mat-label>
-          <input matInput [(ngModel)]="filterDto.name" [placeholder]="'workflow.name' | translate" />
+          <mat-label>{{ i18nKeys.workflow.name | translate }}</mat-label>
+          <input matInput [(ngModel)]="filterDto.name" [placeholder]="i18nKeys.workflow.name | translate" />
         </mat-form-field>
 
-        <mat-checkbox [(ngModel)]="filterDto.isPublished">{{ 'workflow.isPublished' | translate }}</mat-checkbox>
+        <mat-checkbox [(ngModel)]="filterDto.isPublished">{{ i18nKeys.workflow.isPublished | translate }}</mat-checkbox>
 
         <button mat-flat-button color="primary" (click)="filter()">{{ i18nKeys.common.search | translate }}</button>
       </div>
@@ -20,30 +20,35 @@
     </div>
   </div>
 
+  @if (isLoading()) {
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+      <mat-spinner></mat-spinner>
+    </div>
+  } @else {
   <table mat-table [dataSource]="dataSource" #table="matTable">
     <ng-container matColumnDef="name">
       <th mat-header-cell *matHeaderCellDef>
-        {{ 'workflow.name' | translate }}
+        {{ i18nKeys.workflow.name | translate }}
       </th>
-      <td mat-cell *matCellDef="let item;table:table">
+      <td mat-cell *matCellDef="let item">
         {{ item.name }}
       </td>
     </ng-container>
 
     <ng-container matColumnDef="version">
       <th mat-header-cell *matHeaderCellDef>
-        {{ 'workflow.version' | translate }}
+        {{ i18nKeys.workflow.version | translate }}
       </th>
-      <td mat-cell *matCellDef="let item;table:table">
+      <td mat-cell *matCellDef="let item">
         {{ item.version }}
       </td>
     </ng-container>
 
     <ng-container matColumnDef="isPublished">
       <th mat-header-cell *matHeaderCellDef>
-        {{ 'workflow.isPublished' | translate }}
+        {{ i18nKeys.workflow.isPublished | translate }}
       </th>
-      <td mat-cell *matCellDef="let item;table:table">
+      <td mat-cell *matCellDef="let item">
         <mat-icon [color]="item.isPublished ? 'primary' : 'warn'">
           {{ item.isPublished ? 'check_circle' : 'cancel' }}
         </mat-icon>
@@ -67,5 +72,6 @@
   </table>
 
   <mat-paginator [length]="total" [pageSize]="filterDto.pageSize" (page)="pageChanged($event)"></mat-paginator>
+  }
 
 </div>

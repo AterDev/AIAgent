@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateService } from '@ngx-translate/core';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
@@ -14,7 +15,7 @@ import { WorkflowDetail } from '../detail/detail';
 
 @Component({
   selector: 'app-workflow-index',
-  imports: [CommonListModules, CommonFormModules],
+  imports: [CommonListModules, CommonFormModules, MatProgressSpinnerModule],
   templateUrl: './index.html',
   standalone: true
 })
@@ -25,6 +26,8 @@ export class WorkflowIndex implements OnInit {
   filterDto: WorkflowFilterDto = { pageIndex: 1, pageSize: 10 };
   dataSource = new MatTableDataSource<WorkflowItemDto>();
   displayedColumns = ["name", "version", "isPublished", "actions"];
+
+  isLoading = signal(false);
 
   total = 0;
   pageSize = 10;
@@ -40,9 +43,14 @@ export class WorkflowIndex implements OnInit {
   }
 
   loadData(): void {
-    this.adminClient.workflow.list(this.filterDto as WorkflowFilterDto).subscribe((res) => {
-      this.dataSource.data = (res.data || []);
-      this.total = (res.count ?? res.data?.length ?? this.dataSource.data.length);
+    this.isLoading.set(true);
+    this.adminClient.workflow.list(this.filterDto as WorkflowFilterDto).subscribe({
+      next: (res) => {
+        this.dataSource.data = (res.data || []);
+        this.total = (res.count ?? res.data?.length ?? this.dataSource.data.length);
+        this.isLoading.set(false);
+      },
+      error: () => this.isLoading.set(false)
     });
   }
 

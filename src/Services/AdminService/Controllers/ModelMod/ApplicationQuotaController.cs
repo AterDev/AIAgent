@@ -22,7 +22,7 @@ public class ApplicationQuotaController(
     public async Task<ActionResult<ApplicationQuota>> AddAsync(ApplicationQuotaAddDto dto)
     {
         var entity = await _manager.AddAsync(dto);
-        return CreatedAtRoute(nameof(DetailAsync), new { id = entity.Id }, entity);
+        return CreatedAtRoute(null, new { id = entity.Id }, entity);
     }
 
     [HttpPatch("{id}")]

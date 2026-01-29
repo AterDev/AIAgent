@@ -30,7 +30,6 @@ export class LayoutComponent {
   ) {
     router.events.subscribe((event) => {
       if (event instanceof NavigationStart) {
-        console.log(event);
         this.isLogin = this.auth.isLogin;
         this.isAdmin = this.auth.isAdmin;
         this.username = this.auth.userName;

@@ -1,42 +1,148 @@
 [
     {
-        "name": "menu.system",
+        "name": "menu.model",
         "path": null,
-        "accessCode": "system",
-        "icon": "admin_panel_settings",
-        "sort": 2,
+        "accessCode": "model",
+        "icon": "psychology",
+        "sort": 0,
         "menuType": 0,
         "children": [
             {
-                "name": "menu.systemRole",
-                "path": "/system-role",
-                "accessCode": "system-role",
-                "icon": "groups",
+                "name": "menu.application",
+                "path": "/application",
+                "accessCode": "application",
+                "icon": "apps",
                 "sort": 0,
                 "menuType": 0
             },
             {
-                "name": "menu.systemUser",
-                "path": "/system-user",
-                "accessCode": "system-user",
-                "icon": "manage_accounts",
+                "name": "menu.aiModelInfo",
+                "path": "/ai-model-info",
+                "accessCode": "ai-model-info",
+                "icon": "settings_suggest",
                 "sort": 1,
                 "menuType": 0
             },
             {
-                "name": "menu.systemLogs",
-                "path": "/system-logs",
-                "accessCode": "system-logs",
-                "icon": "manage_search",
-                "sort": 3,
+                "name": "menu.aiModelProvider",
+                "path": "/ai-model-provider",
+                "accessCode": "ai-model-provider",
+                "icon": "cloud_sync",
+                "sort": 2,
+                "menuType": 0
+            }
+        ]
+    },
+    {
+        "name": "menu.knowledge",
+        "path": null,
+        "accessCode": "knowledge",
+        "icon": "library_books",
+        "sort": 1,
+        "menuType": 0,
+        "children": [
+            {
+                "name": "menu.ragCollection",
+                "path": "/rag-collection",
+                "accessCode": "rag-collection",
+                "icon": "folder_open",
+                "sort": 0,
                 "menuType": 0
             },
+            {
+                "name": "menu.ragDocument",
+                "path": "/rag-document",
+                "accessCode": "rag-document",
+                "icon": "description",
+                "sort": 1,
+                "menuType": 0
+            }
+        ]
+    },
+    {
+        "name": "menu.tools",
+        "path": null,
+        "accessCode": "tools",
+        "icon": "build",
+        "sort": 2,
+        "menuType": 0,
+        "children": [
+            {
+                "name": "menu.mcpTool",
+                "path": "/mcp-tool",
+                "accessCode": "mcp-tool",
+                "icon": "construction",
+                "sort": 0,
+                "menuType": 0
+            }
+        ]
+    },
+    {
+        "name": "menu.agent",
+        "path": null,
+        "accessCode": "agent",
+        "icon": "smart_toy",
+        "sort": 3,
+        "menuType": 0,
+        "children": [
+            {
+                "name": "menu.aiAgent",
+                "path": "/aiagent",
+                "accessCode": "aiagent",
+                "icon": "chat",
+                "sort": 0,
+                "menuType": 0
+            },
+            {
+                "name": "menu.agentExecution",
+                "path": "/agent-execution",
+                "accessCode": "agent-execution",
+                "icon": "play_circle",
+                "sort": 1,
+                "menuType": 0
+            }
+        ]
+    },
+    {
+        "name": "menu.workflow",
+        "path": null,
+        "accessCode": "workflow",
+        "icon": "workbench",
+        "sort": 4,
+        "menuType": 0,
+        "children": [
+            {
+                "name": "menu.workflow",
+                "path": "/workflow",
+                "accessCode": "workflow",
+                "icon": "schema",
+                "sort": 0,
+                "menuType": 0
+            },
+            {
+                "name": "menu.workflowExecution",
+                "path": "/workflow-execution",
+                "accessCode": "workflow-execution",
+                "icon": "trending_up",
+                "sort": 1,
+                "menuType": 0
+            }
+        ]
+    },
+    {
+        "name": "menu.system",
+        "path": null,
+        "accessCode": "system",
+        "icon": "admin_panel_settings",
+        "sort": 5,
+        "menuType": 0,
+        "children": [
             {
                 "name": "menu.systemConfig",
                 "path": "/system-config",
                 "accessCode": "system-config",
                 "icon": "settings",
-                "sort": 4,
+                "sort": 0,
                 "menuType": 0
             }
         ]

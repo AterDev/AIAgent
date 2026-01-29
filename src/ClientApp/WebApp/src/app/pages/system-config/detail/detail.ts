@@ -2,6 +2,7 @@ import { Component, Inject, OnInit, signal } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatListModule } from '@angular/material/list';
 import { MatCard, MatCardHeader, MatCardTitle, MatCardContent, MatCardActions } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
 import { BaseMatModules } from 'src/app/share/shared-modules';
@@ -9,7 +10,7 @@ import { SystemConfigDetailDto } from 'src/app/services/admin/models/system-mod/
 
 @Component({
   selector: 'app-system-config-detail',
-  imports: [BaseMatModules, MatListModule, MatCard, MatCardHeader, MatCardTitle, MatCardContent, MatCardActions],
+  imports: [BaseMatModules, MatListModule, MatProgressSpinnerModule, MatCard, MatCardHeader, MatCardTitle, MatCardContent, MatCardActions],
   templateUrl: './detail.html',
   standalone: true
 })
@@ -31,9 +32,13 @@ export class SystemConfigDetail implements OnInit {
 
   ngOnInit() {
     if (this.id) {
-      this.adminClient.systemConfig.detail(this.id).subscribe((res: SystemConfigDetailDto) => {
-        this.model = res;
-        this.isLoading.set(false);
+      this.isLoading.set(true);
+      this.adminClient.systemConfig.detail(this.id).subscribe({
+        next: (res: SystemConfigDetailDto) => {
+          this.model = res;
+          this.isLoading.set(false);
+        },
+        error: () => this.isLoading.set(false)
       });
     }
   }

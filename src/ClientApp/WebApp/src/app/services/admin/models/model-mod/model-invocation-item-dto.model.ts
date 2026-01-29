@@ -8,8 +8,8 @@ export interface ModelInvocationItemDto {
   id: string;
   /** applicationId */
   applicationId: string;
-  /** modelProfileId */
-  modelProfileId: string;
+  /** aiModelInfoId */
+  aiModelInfoId: string;
   /** scene */
   scene?: string | null;
   /** totalTokens */

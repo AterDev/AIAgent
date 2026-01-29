@@ -1,0 +1,44 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ i18nKeys.common.add | translate }} {{ i18nKeys.menu.aiModelProvider | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="form" class="d-flex flex-column p-2 mt-2 gap-2">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ i18nKeys.aiModelProvider.name | translate }}</mat-label>
+        <input matInput [formControl]="name" [placeholder]="i18nKeys.aiModelProvider.name | translate" />
+        @if (name.errors) {
+          <mat-error>{{ getValidatorMessage(name) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ i18nKeys.aiModelProvider.description | translate }}</mat-label>
+        <textarea matInput [formControl]="description" [placeholder]="i18nKeys.aiModelProvider.description | translate" rows="4"></textarea>
+        @if (description.errors) {
+          <mat-error>{{ getValidatorMessage(description) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Logo URL</mat-label>
+        <input matInput [formControl]="logoUrl" />
+        @if (logoUrl.errors) {
+          <mat-error>{{ getValidatorMessage(logoUrl) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Website</mat-label>
+        <input matInput [formControl]="website" />
+        @if (website.errors) {
+          <mat-error>{{ getValidatorMessage(website) }}</mat-error>
+        }
+      </mat-form-field>
+    </form>
+  </mat-card-content>
+  <mat-card-actions class="d-flex justify-content-end gap-2">
+    <button mat-button (click)="close(false)">{{ i18nKeys.common.cancel | translate }}</button>
+    <button mat-flat-button color="primary" (click)="submit()" [disabled]="form.invalid">{{ i18nKeys.common.save | translate }}</button>
+  </mat-card-actions>
+</mat-card>

@@ -1,32 +1,36 @@
-@if (!isLoading()) {
+@if (isLoading()) {
+<div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+  <mat-spinner></mat-spinner>
+</div>
+} @else {
 <mat-card>
   <mat-card-header>
-    <mat-card-title>{{ i18nKeys.common.view | translate }} {{ 'systemConfig.title' | translate }}</mat-card-title>
+    <mat-card-title>{{ i18nKeys.common.view | translate }} {{ i18nKeys.systemConfig.title | translate }}</mat-card-title>
   </mat-card-header>
   <mat-card-content class="d-flex gap-2 p-2">
     <mat-list>
       <mat-list-item>
-        <strong class="detail-label">{{ 'systemConfig.key' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.systemConfig.key | translate }}:</strong>
         <span>{{ model.key }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong class="detail-label">{{ 'systemConfig.value' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.systemConfig.value | translate }}:</strong>
         <span class="pre-wrap">{{ model.value }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong class="detail-label">{{ 'systemConfig.description' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.systemConfig.description | translate }}:</strong>
         <span class="pre-wrap">{{ model.description }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong class="detail-label">{{ 'systemConfig.groupName' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.systemConfig.groupName | translate }}:</strong>
         <span>{{ model.groupName }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong class="detail-label">{{ 'systemConfig.valid' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.systemConfig.valid | translate }}:</strong>
         <span>{{ model.valid }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong class="detail-label">{{ 'systemConfig.isSystem' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.systemConfig.isSystem | translate }}:</strong>
         <span>{{ model.isSystem }}</span>
       </mat-list-item>
     </mat-list>

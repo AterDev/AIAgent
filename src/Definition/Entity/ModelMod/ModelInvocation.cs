@@ -3,7 +3,7 @@ namespace Entity.ModelMod;
 /// <summary>
 /// 模型调用记录
 /// </summary>
-[Index(nameof(ApplicationId), nameof(ModelProfileId), nameof(Scene))]
+[Index(nameof(ApplicationId), nameof(AIModelInfoId), nameof(Scene))]
 public class ModelInvocation : EntityBase
 {
     public Guid ApplicationId { get; set; }
@@ -11,10 +11,10 @@ public class ModelInvocation : EntityBase
     [ForeignKey(nameof(ApplicationId))]
     public Application? Application { get; set; }
 
-    public Guid ModelProfileId { get; set; }
+    public Guid AIModelInfoId { get; set; }
 
-    [ForeignKey(nameof(ModelProfileId))]
-    public ModelProfile? ModelProfile { get; set; }
+    [ForeignKey(nameof(AIModelInfoId))]
+    public AIModelInfo? AIModelInfo { get; set; }
 
     [MaxLength(100)]
     public string Scene { get; set; } = string.Empty;

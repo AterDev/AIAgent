@@ -1,0 +1,48 @@
+@if (isLoading()) {
+<div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+  <mat-spinner></mat-spinner>
+</div>
+} @else {
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ i18nKeys.common.view | translate }} {{ i18nKeys.menu.aiModelInfo | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content class="d-flex gap-2 p-2">
+    @if (model) {
+    <mat-list>
+      <mat-list-item>
+        <strong style="width:160px;display:inline-block;">{{ i18nKeys.aiModelInfo.name | translate }}:</strong>
+        <span>{{ model.name }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong style="width:160px;display:inline-block;">{{ i18nKeys.aiModelInfo.description | translate }}:</strong>
+        <span style="white-space:pre-wrap">{{ model.description }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong style="width:160px;display:inline-block;">Context Length:</strong>
+        <span>{{ model.contextLength }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong style="width:160px;display:inline-block;">Input Price:</strong>
+        <span>{{ model.inputPrice }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong style="width:160px;display:inline-block;">Output Price:</strong>
+        <span>{{ model.outputPrice }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong style="width:160px;display:inline-block;">{{ i18nKeys.common.createdTime | translate }}:</strong>
+        <span>{{ model.createdTime | date:'short' }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong style="width:160px;display:inline-block;">{{ i18nKeys.common.updatedTime | translate }}:</strong>
+        <span>{{ model.updatedTime | date:'short' }}</span>
+      </mat-list-item>
+    </mat-list>
+    }
+  </mat-card-content>
+  <mat-card-actions class="d-flex justify-content-end gap-2">
+    <button mat-button (click)="onBack()">{{ i18nKeys.common.close | translate }}</button>
+  </mat-card-actions>
+</mat-card>
+}

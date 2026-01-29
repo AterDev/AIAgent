@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateService } from '@ngx-translate/core';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
@@ -11,7 +12,7 @@ import { AgentExecutionDetail } from '../detail/detail';
 
 @Component({
   selector: 'app-agent-execution-index',
-  imports: [CommonListModules, CommonFormModules],
+  imports: [CommonListModules, CommonFormModules, MatProgressSpinnerModule],
   templateUrl: './index.html',
   standalone: true
 })
@@ -22,6 +23,8 @@ export class AgentExecutionIndex implements OnInit {
   filterDto: AgentExecutionFilterDto = { pageIndex: 1, pageSize: 10 };
   dataSource = new MatTableDataSource<AgentExecutionItemDto>();
   displayedColumns = ["agentId", "status", "durationMs", "completedTime", "actions"];
+
+  isLoading = signal(false);
 
   total = 0;
   pageSize = 10;
@@ -37,9 +40,14 @@ export class AgentExecutionIndex implements OnInit {
   }
 
   loadData(): void {
-    this.adminClient.agentExecution.list(this.filterDto as AgentExecutionFilterDto).subscribe((res) => {
-      this.dataSource.data = (res.data || []);
-      this.total = (res.count ?? res.data?.length ?? this.dataSource.data.length);
+    this.isLoading.set(true);
+    this.adminClient.agentExecution.list(this.filterDto as AgentExecutionFilterDto).subscribe({
+      next: (res) => {
+        this.dataSource.data = (res.data || []);
+        this.total = (res.count ?? res.data?.length ?? this.dataSource.data.length);
+        this.isLoading.set(false);
+      },
+      error: () => this.isLoading.set(false)
     });
   }
 

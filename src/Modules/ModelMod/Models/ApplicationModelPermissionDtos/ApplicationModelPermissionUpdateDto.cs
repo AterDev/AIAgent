@@ -7,4 +7,5 @@ namespace ModelMod.Models.ApplicationModelPermissionDtos;
 public class ApplicationModelPermissionUpdateDto
 {
     public bool? IsEnabled { get; set; }
+    public Guid AIModelInfoId { get; set; }
 }

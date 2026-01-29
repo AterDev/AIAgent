@@ -1,36 +1,40 @@
-@if (!isLoading()) {
+@if (isLoading()) {
+<div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+  <mat-spinner></mat-spinner>
+</div>
+} @else {
 <mat-card>
   <mat-card-header>
-    <mat-card-title>{{ i18nKeys.common.view | translate }} {{ 'application.title' | translate }}</mat-card-title>
+    <mat-card-title>{{ i18nKeys.common.view | translate }} {{ i18nKeys.application.title | translate }}</mat-card-title>
   </mat-card-header>
   <mat-card-content class="d-flex gap-2 p-2">
     <mat-list>
       <mat-list-item>
-        <strong style="width:160px;display:inline-block;">{{ 'application.name' | translate }}:</strong>
+        <strong style="width:160px;display:inline-block;">{{ i18nKeys.application.name | translate }}:</strong>
         <span>{{ model.name }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong style="width:160px;display:inline-block;">{{ 'application.description' | translate }}:</strong>
+        <strong style="width:160px;display:inline-block;">{{ i18nKeys.application.description | translate }}:</strong>
         <span style="white-space:pre-wrap">{{ model.description }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong style="width:160px;display:inline-block;">{{ 'application.accessKey' | translate }}:</strong>
+        <strong style="width:160px;display:inline-block;">{{ i18nKeys.application.accessKey | translate }}:</strong>
         <span>{{ model.accessKey }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong style="width:160px;display:inline-block;">{{ 'application.secretKey' | translate }}:</strong>
+        <strong style="width:160px;display:inline-block;">{{ i18nKeys.application.secretKey | translate }}:</strong>
         <span>{{ model.secretKey }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong style="width:160px;display:inline-block;">{{ 'application.isEnabled' | translate }}:</strong>
+        <strong style="width:160px;display:inline-block;">{{ i18nKeys.application.isEnabled | translate }}:</strong>
         <span>{{ model.isEnabled }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong style="width:160px;display:inline-block;">{{ 'common.createdTime' | translate }}:</strong>
+        <strong style="width:160px;display:inline-block;">{{ i18nKeys.common.createdTime | translate }}:</strong>
         <span>{{ model.createdTime | date:'short' }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong style="width:160px;display:inline-block;">{{ 'common.updatedTime' | translate }}:</strong>
+        <strong style="width:160px;display:inline-block;">{{ i18nKeys.common.updatedTime | translate }}:</strong>
         <span>{{ model.updatedTime | date:'short' }}</span>
       </mat-list-item>
     </mat-list>

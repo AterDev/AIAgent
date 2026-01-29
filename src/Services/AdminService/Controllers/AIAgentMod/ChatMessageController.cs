@@ -28,7 +28,7 @@ public class ChatMessageController(
     public async Task<ActionResult<ChatMessage>> AddAsync(ChatMessageAddDto dto)
     {
         var entity = await _manager.AddAsync(dto);
-        return CreatedAtRoute(nameof(DetailAsync), new { id = entity.Id }, entity);
+        return CreatedAtRoute(null, new { id = entity.Id }, entity);
     }
 
     /// <summary>

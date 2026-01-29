@@ -1,0 +1,64 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ i18nKeys.common.add | translate }} {{ i18nKeys.menu.aiModelInfo | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="form" class="d-flex flex-column p-2 mt-2 gap-2">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ i18nKeys.aiModelInfo.name | translate }}</mat-label>
+        <input matInput [formControl]="name" [placeholder]="i18nKeys.aiModelInfo.name | translate" />
+        @if (name.errors) {
+          <mat-error>{{ getValidatorMessage(name) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ i18nKeys.aiModelInfo.provider | translate }}</mat-label>
+        <mat-select [formControl]="providerId">
+          @for (p of providers; track p.id) {
+            <mat-option [value]="p.id">{{ p.name }}</mat-option>
+          }
+        </mat-select>
+        @if (providerId.errors) {
+          <mat-error>{{ getValidatorMessage(providerId) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ i18nKeys.aiModelInfo.description | translate }}</mat-label>
+        <textarea matInput [formControl]="description" [placeholder]="i18nKeys.aiModelInfo.description | translate" rows="4"></textarea>
+        @if (description.errors) {
+          <mat-error>{{ getValidatorMessage(description) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Context Length</mat-label>
+        <input matInput type="number" [formControl]="contextLength" />
+        @if (contextLength.errors) {
+          <mat-error>{{ getValidatorMessage(contextLength) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Input Price</mat-label>
+        <input matInput type="number" step="0.0001" [formControl]="inputPrice" />
+        @if (inputPrice.errors) {
+          <mat-error>{{ getValidatorMessage(inputPrice) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Output Price</mat-label>
+        <input matInput type="number" step="0.0001" [formControl]="outputPrice" />
+        @if (outputPrice.errors) {
+          <mat-error>{{ getValidatorMessage(outputPrice) }}</mat-error>
+        }
+      </mat-form-field>
+    </form>
+  </mat-card-content>
+  <mat-card-actions class="d-flex justify-content-end gap-2">
+    <button mat-button (click)="onCancel()">{{ i18nKeys.common.cancel | translate }}</button>
+    <button mat-flat-button color="primary" (click)="onSubmit()" [disabled]="form.invalid || isLoading()">{{ i18nKeys.common.save | translate }}</button>
+  </mat-card-actions>
+</mat-card>

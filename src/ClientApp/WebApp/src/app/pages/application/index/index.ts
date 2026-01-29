@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateService } from '@ngx-translate/core';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
@@ -14,7 +15,7 @@ import { ApplicationDetail } from '../detail/detail';
 
 @Component({
   selector: 'app-application-index',
-  imports: [CommonListModules, CommonFormModules],
+  imports: [CommonListModules, CommonFormModules, MatProgressSpinnerModule],
   templateUrl: './index.html',
   standalone: true
 })
@@ -25,6 +26,8 @@ export class ApplicationIndex implements OnInit {
   filterDto: ApplicationFilterDto = { pageIndex: 1, pageSize: 10 };
   dataSource = new MatTableDataSource<ApplicationItemDto>();
   displayedColumns = [ "name", "accessKey", "isEnabled", "createdTime", "actions" ];
+
+  isLoading = signal(false);
 
   total = 0;
   pageSize = 10;
@@ -40,9 +43,14 @@ export class ApplicationIndex implements OnInit {
   }
 
   loadData(): void {
-    this.adminClient.application.list(this.filterDto as ApplicationFilterDto).subscribe((res) => {
-      this.dataSource.data = (res.data || []);
-      this.total = (res.count ?? res.data?.length ?? this.dataSource.data.length);
+    this.isLoading.set(true);
+    this.adminClient.application.list(this.filterDto as ApplicationFilterDto).subscribe({
+      next: (res) => {
+        this.dataSource.data = (res.data || []);
+        this.total = (res.count ?? res.data?.length ?? this.dataSource.data.length);
+        this.isLoading.set(false);
+      },
+      error: () => this.isLoading.set(false)
     });
   }
 

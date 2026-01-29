@@ -1,36 +1,40 @@
-@if (!isLoading()) {
+@if (isLoading()) {
+<div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+  <mat-spinner></mat-spinner>
+</div>
+} @else {
 <mat-card>
   <mat-card-header>
-    <mat-card-title>{{ i18nKeys.common.view | translate }} {{ 'aiagent.title' | translate }}</mat-card-title>
+    <mat-card-title>{{ i18nKeys.common.view | translate }} {{ i18nKeys.aiagent.title | translate }}</mat-card-title>
   </mat-card-header>
   <mat-card-content class="d-flex gap-2 p-2">
     <mat-list>
       <mat-list-item>
-        <strong class="detail-label">{{ 'aiagent.name' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.aiagent.name | translate }}:</strong>
         <span>{{ model.name }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong class="detail-label">{{ 'aiagent.description' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.aiagent.description | translate }}:</strong>
         <span class="pre-wrap">{{ model.description }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong class="detail-label">{{ 'aiagent.modelId' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.aiagent.modelId | translate }}:</strong>
         <span>{{ model.modelId }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong class="detail-label">{{ 'aiagent.systemPrompt' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.aiagent.systemPrompt | translate }}:</strong>
         <span class="pre-wrap">{{ model.systemPrompt }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong class="detail-label">{{ 'aiagent.tools' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.aiagent.tools | translate }}:</strong>
         <span>{{ model.tools?.join(', ') }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong class="detail-label">{{ 'aiagent.enable' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.aiagent.enable | translate }}:</strong>
         <span>{{ model.enable }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong class="detail-label">{{ 'aiagent.isTemplate' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.aiagent.isTemplate | translate }}:</strong>
         <span>{{ model.isTemplate }}</span>
       </mat-list-item>
     </mat-list>

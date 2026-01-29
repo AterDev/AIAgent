@@ -3,16 +3,15 @@
     <div class="d-flex align-items-center gap-2 justify-content-between p-1">
       <div class="d-flex gap-2 align-items-center">
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>{{ 'aiagent.name' | translate }}</mat-label>
-          <input matInput [(ngModel)]="filterDto.name" [placeholder]="'aiagent.name' | translate" />
+          <mat-label>{{ i18nKeys.aiagent.name | translate }}</mat-label>
+          <input matInput [(ngModel)]="filterDto.name" [placeholder]="i18nKeys.aiagent.name | translate" />
         </mat-form-field>
-
-        <mat-checkbox [(ngModel)]="filterDto.enable">{{ 'aiagent.enable' | translate }}</mat-checkbox>
-        <mat-checkbox [(ngModel)]="filterDto.isTemplate">{{ 'aiagent.isTemplate' | translate }}</mat-checkbox>
+        
+        <mat-checkbox [(ngModel)]="filterDto.enable">{{ i18nKeys.aiagent.enable | translate }}</mat-checkbox>
+        <mat-checkbox [(ngModel)]="filterDto.isTemplate">{{ i18nKeys.aiagent.isTemplate | translate }}</mat-checkbox>
 
         <button mat-flat-button color="primary" (click)="filter()">{{ i18nKeys.common.search | translate }}</button>
       </div>
-
       <div>
         <button mat-flat-button color="accent" (click)="openAdd()">
           {{ i18nKeys.common.add | translate }}
@@ -21,30 +20,35 @@
     </div>
   </div>
 
+  @if (isLoading()) {
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+      <mat-spinner></mat-spinner>
+    </div>
+  } @else {
   <table mat-table [dataSource]="dataSource" #table="matTable">
     <ng-container matColumnDef="name">
       <th mat-header-cell *matHeaderCellDef>
-        {{ 'aiagent.name' | translate }}
+        {{ i18nKeys.aiagent.name | translate }}
       </th>
-      <td mat-cell *matCellDef="let item;table:table">
+      <td mat-cell *matCellDef="let item">
         {{ item.name }}
       </td>
     </ng-container>
 
     <ng-container matColumnDef="modelId">
       <th mat-header-cell *matHeaderCellDef>
-        {{ 'aiagent.modelId' | translate }}
+        {{ i18nKeys.aiagent.modelId | translate }}
       </th>
-      <td mat-cell *matCellDef="let item;table:table">
+      <td mat-cell *matCellDef="let item">
         {{ item.modelId }}
       </td>
     </ng-container>
 
     <ng-container matColumnDef="enable">
       <th mat-header-cell *matHeaderCellDef>
-        {{ 'aiagent.enable' | translate }}
+        {{ i18nKeys.aiagent.enable | translate }}
       </th>
-      <td mat-cell *matCellDef="let item;table:table">
+      <td mat-cell *matCellDef="let item">
         <mat-icon [color]="item.enable ? 'primary' : 'warn'">
           {{ item.enable ? 'check_circle' : 'cancel' }}
         </mat-icon>
@@ -53,9 +57,9 @@
 
     <ng-container matColumnDef="isTemplate">
       <th mat-header-cell *matHeaderCellDef>
-        {{ 'aiagent.isTemplate' | translate }}
+        {{ i18nKeys.aiagent.isTemplate | translate }}
       </th>
-      <td mat-cell *matCellDef="let item;table:table">
+      <td mat-cell *matCellDef="let item">
         <mat-icon [color]="item.isTemplate ? 'primary' : 'warn'">
           {{ item.isTemplate ? 'check_circle' : 'cancel' }}
         </mat-icon>
@@ -79,5 +83,6 @@
   </table>
 
   <mat-paginator [length]="total" [pageSize]="filterDto.pageSize" (page)="pageChanged($event)"></mat-paginator>
+  }
 
 </div>

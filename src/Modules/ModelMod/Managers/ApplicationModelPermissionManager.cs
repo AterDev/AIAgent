@@ -16,7 +16,7 @@ public class ApplicationModelPermissionManager(
         Queryable = Queryable
             .Where(q => q.TenantId == _userContext.TenantId)
             .WhereNotNull(filter.ApplicationId, q => q.ApplicationId == filter.ApplicationId)
-            .WhereNotNull(filter.ModelProfileId, q => q.ModelProfileId == filter.ModelProfileId)
+            .WhereNotNull(filter.AIModelInfoId, q => q.AIModelInfoId == filter.AIModelInfoId)
             .WhereNotNull(filter.IsEnabled, q => q.IsEnabled == filter.IsEnabled);
 
         return await PageListAsync<ApplicationModelPermissionFilterDto, ApplicationModelPermissionItemDto>(filter);

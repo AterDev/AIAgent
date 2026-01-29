@@ -1,36 +1,40 @@
-@if (!isLoading()) {
+@if (isLoading()) {
+<div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+  <mat-spinner></mat-spinner>
+</div>
+} @else {
 <mat-card>
   <mat-card-header>
-    <mat-card-title>{{ i18nKeys.common.view | translate }} {{ 'workflowExecution.title' | translate }}</mat-card-title>
+    <mat-card-title>{{ i18nKeys.common.view | translate }} {{ i18nKeys.workflowExecution.title | translate }}</mat-card-title>
   </mat-card-header>
   <mat-card-content class="d-flex gap-2 p-2">
     <mat-list>
       <mat-list-item>
-        <strong class="detail-label">{{ 'workflowExecution.workflowId' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.workflowExecution.workflowId | translate }}:</strong>
         <span>{{ model.workflowId }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong class="detail-label">{{ 'workflowExecution.status' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.workflowExecution.status | translate }}:</strong>
         <span>{{ model.status }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong class="detail-label">{{ 'workflowExecution.inputJson' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.workflowExecution.inputJson | translate }}:</strong>
         <span class="pre-wrap">{{ model.inputJson }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong class="detail-label">{{ 'workflowExecution.outputJson' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.workflowExecution.outputJson | translate }}:</strong>
         <span class="pre-wrap">{{ model.outputJson }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong class="detail-label">{{ 'workflowExecution.durationMs' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.workflowExecution.durationMs | translate }}:</strong>
         <span>{{ model.durationMs }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong class="detail-label">{{ 'workflowExecution.completedTime' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.workflowExecution.completedTime | translate }}:</strong>
         <span>{{ model.completedTime | date:'short' }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong class="detail-label">{{ 'workflowExecution.errorMessage' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.workflowExecution.errorMessage | translate }}:</strong>
         <span class="pre-wrap">{{ model.errorMessage }}</span>
       </mat-list-item>
     </mat-list>

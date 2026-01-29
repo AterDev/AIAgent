@@ -1,32 +1,36 @@
-@if (!isLoading()) {
+@if (isLoading()) {
+<div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+  <mat-spinner></mat-spinner>
+</div>
+} @else {
 <mat-card>
   <mat-card-header>
-    <mat-card-title>{{ i18nKeys.common.view | translate }} {{ 'mcpTool.title' | translate }}</mat-card-title>
+    <mat-card-title>{{ i18nKeys.common.view | translate }} {{ i18nKeys.mcpTool.title | translate }}</mat-card-title>
   </mat-card-header>
   <mat-card-content class="d-flex gap-2 p-2">
     <mat-list>
       <mat-list-item>
-        <strong class="detail-label">{{ 'mcpTool.name' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.mcpTool.name | translate }}:</strong>
         <span>{{ model.name }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong class="detail-label">{{ 'mcpTool.description' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.mcpTool.description | translate }}:</strong>
         <span class="pre-wrap">{{ model.description }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong class="detail-label">{{ 'mcpTool.toolType' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.mcpTool.toolType | translate }}:</strong>
         <span>{{ model.toolType }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong class="detail-label">{{ 'mcpTool.version' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.mcpTool.version | translate }}:</strong>
         <span>{{ model.version }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong class="detail-label">{{ 'mcpTool.isEnabled' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.mcpTool.isEnabled | translate }}:</strong>
         <span>{{ model.isEnabled }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong class="detail-label">{{ 'mcpTool.schemaJson' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.mcpTool.schemaJson | translate }}:</strong>
         <span class="pre-wrap">{{ model.schemaJson }}</span>
       </mat-list-item>
     </mat-list>

@@ -98,14 +98,6 @@ export class EnumTextPipe implements PipeTransform {
         }
         break;
 
-      case 'ModelProviderType':
-        switch (value) {
-          case 0: result = 'OpenAI compatible'; break;
-          case 1: result = 'Custom provider'; break;
-          default: result = '默认'; break;
-        }
-        break;
-
       case 'QuotaPeriodType':
         switch (value) {
           case 0: result = 'Minute'; break;

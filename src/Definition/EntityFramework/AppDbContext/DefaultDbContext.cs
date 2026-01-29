@@ -1,4 +1,3 @@
-
 using Entity.AIAgentMod;
 using Entity.KnowledgeBaseMod;
 using Entity.McpMod;
@@ -20,9 +19,6 @@ public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options
     public DbSet<AIAgent> AIAgents { get; set; }
 
     public DbSet<TokenUsage> TokenUsages { get; set; }
-
-    public DbSet<AIModelInfo> AIModelInfos { get; set; }
-    public DbSet<AIModelProvider> AIModelProviders { get; set; }
 
     public DbSet<ChatMessage> ChatMessages { get; set; }
 
@@ -46,9 +42,11 @@ public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options
 
     public DbSet<ApplicationToolPermission> ApplicationToolPermissions { get; set; }
 
-    public DbSet<ModelProfile> ModelProfiles { get; set; }
-
     public DbSet<ModelProvider> ModelProviders { get; set; }
+
+    public DbSet<AIModelProvider> AIModelProviders { get; set; }
+
+    public DbSet<AIModelInfo> AIModelInfos { get; set; }
 
     public DbSet<ModelInvocation> ModelInvocations { get; set; }
 
@@ -83,6 +81,8 @@ public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options
     #region SystemMod
 
     public DbSet<SystemConfig> SystemConfigs { get; set; }
+
+    public DbSet<SystemUser> SystemUsers { get; set; }
 
     #endregion
 

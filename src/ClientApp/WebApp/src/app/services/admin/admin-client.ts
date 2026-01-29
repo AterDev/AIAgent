@@ -12,12 +12,11 @@ import { ConversationService } from './services/conversation.service';
 import { MCPServerInfoService } from './services/mcpserver-info.service';
 import { McpToolService } from './services/mcp-tool.service';
 import { ModelInvocationService } from './services/model-invocation.service';
-import { ModelProfileService } from './services/model-profile.service';
-import { ModelProviderService } from './services/model-provider.service';
 import { RagChunkService } from './services/rag-chunk.service';
 import { RagCollectionService } from './services/rag-collection.service';
 import { RagDocumentService } from './services/rag-document.service';
 import { SystemConfigService } from './services/system-config.service';
+import { SystemUserService } from './services/system-user.service';
 import { ToolCallRecordService } from './services/tool-call-record.service';
 import { WorkflowService } from './services/workflow.service';
 import { WorkflowExecutionService } from './services/workflow-execution.service';
@@ -51,10 +50,6 @@ export class AdminClient {
   public mcpTool = inject(McpToolService);
   /** 模型调用记录管理 */
   public modelInvocation = inject(ModelInvocationService);
-  /** 模型配置管理 */
-  public modelProfile = inject(ModelProfileService);
-  /** 模型提供商管理 */
-  public modelProvider = inject(ModelProviderService);
   /** 文档分块管理 */
   public ragChunk = inject(RagChunkService);
   /** 知识库管理 */
@@ -63,6 +58,8 @@ export class AdminClient {
   public ragDocument = inject(RagDocumentService);
   /** 系统配置 */
   public systemConfig = inject(SystemConfigService);
+  /** 系统用户 */
+  public systemUser = inject(SystemUserService);
   /** MCP 调用记录管理 */
   public toolCallRecord = inject(ToolCallRecordService);
   /** 工作流管理 */

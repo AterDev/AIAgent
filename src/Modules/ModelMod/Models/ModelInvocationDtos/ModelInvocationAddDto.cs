@@ -8,7 +8,7 @@ public class ModelInvocationAddDto
 {
     public Guid ApplicationId { get; set; }
 
-    public Guid ModelProfileId { get; set; }
+    public Guid AIModelInfoId { get; set; }
 
     [MaxLength(100)]
     public string? Scene { get; set; }

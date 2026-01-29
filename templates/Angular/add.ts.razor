@@ -1,8 +1,8 @@
 @* Add component TypeScript (with imports and stable formatting) *@
 @{
-    var name = ModelName ?? "Model";
-    var camel = (ModelName ?? "Model").ToCamelCase();
-    var module = (Namespace ?? string.Empty).Split('.').LastOrDefault()?.ToHyphen() ?? string.Empty;
+  var name = ModelName ?? "Model";
+  var camel = (ModelName ?? "Model").ToCamelCase();
+  var module = (Namespace ?? string.Empty).Split('.').LastOrDefault()?.ToHyphen() ?? string.Empty;
   var hasEnumAdd = AddPropertyInfos.Any(p => p.IsEnum);
   var hasIdAddFields = AddPropertyInfos.Any(p => p.Type != null && p.Type.ToLower().Contains("guid"));
   var idAddFields = AddPropertyInfos.Where(p => p.Type != null && p.Type.ToLower().Contains("guid")).ToList();

@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCard, MatCardHeader, MatCardTitle, MatCardContent, MatCardActions } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateService } from '@ngx-translate/core';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
@@ -12,7 +13,7 @@ import { McpToolType } from 'src/app/services/admin/models/entity/mcp-tool-type.
 
 @Component({
   selector: 'app-mcp-tool-add',
-  imports: [CommonFormModules, MatCheckboxModule, MatCard, MatCardHeader, MatCardTitle, MatCardContent],
+  imports: [CommonFormModules, MatCheckboxModule, MatProgressSpinnerModule, MatCard, MatCardHeader, MatCardTitle, MatCardContent],
   templateUrl: './add.html',
   standalone: true
 })
@@ -21,6 +22,7 @@ export class McpToolAdd implements OnInit {
   i18nKeys = I18N_KEYS;
 
   form!: FormGroup;
+  isLoading = signal(false);
 
   constructor(
     private fb: FormBuilder,

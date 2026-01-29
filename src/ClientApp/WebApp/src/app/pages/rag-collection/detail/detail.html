@@ -1,28 +1,32 @@
-@if (!isLoading()) {
+@if (isLoading()) {
+<div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+  <mat-spinner></mat-spinner>
+</div>
+} @else {
 <mat-card>
   <mat-card-header>
-    <mat-card-title>{{ i18nKeys.common.view | translate }} {{ 'ragCollection.title' | translate }}</mat-card-title>
+    <mat-card-title>{{ i18nKeys.common.view | translate }} {{ i18nKeys.ragCollection.title | translate }}</mat-card-title>
   </mat-card-header>
   <mat-card-content class="d-flex gap-2 p-2">
     <mat-list>
       <mat-list-item>
-        <strong class="detail-label">{{ 'ragCollection.name' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.ragCollection.name | translate }}:</strong>
         <span>{{ model.name }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong class="detail-label">{{ 'ragCollection.description' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.ragCollection.description | translate }}:</strong>
         <span class="pre-wrap">{{ model.description }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong class="detail-label">{{ 'ragCollection.isPublic' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.ragCollection.isPublic | translate }}:</strong>
         <span>{{ model.isPublic }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong class="detail-label">{{ 'ragCollection.isEnabled' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.ragCollection.isEnabled | translate }}:</strong>
         <span>{{ model.isEnabled }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong class="detail-label">{{ 'ragCollection.tags' | translate }}:</strong>
+        <strong class="detail-label">{{ i18nKeys.ragCollection.tags | translate }}:</strong>
         <span>{{ model.tags?.join(', ') }}</span>
       </mat-list-item>
     </mat-list>

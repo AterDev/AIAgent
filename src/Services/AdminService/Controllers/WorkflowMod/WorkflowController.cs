@@ -24,7 +24,7 @@ public class WorkflowController(
     public async Task<ActionResult<Workflow>> AddAsync(WorkflowAddDto dto)
     {
         var entity = await _manager.AddAsync(dto);
-        return CreatedAtRoute(nameof(DetailAsync), new { id = entity.Id }, entity);
+        return CreatedAtRoute(null, new { id = entity.Id }, entity);
     }
 
     [HttpPatch("{id}")]

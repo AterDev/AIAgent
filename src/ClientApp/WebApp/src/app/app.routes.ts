@@ -21,17 +21,17 @@ export const routes: Routes = [
         ]
       },
       {
-        path: 'model-profile',
+        path: 'ai-model-info',
         children: [
-          { path: '', redirectTo: '/model-profile/index', pathMatch: 'full' },
-          { path: 'index', loadComponent: () => import('./pages/model-profile/index/index').then(m => m.ModelProfileIndex) },
+          { path: '', redirectTo: '/ai-model-info/index', pathMatch: 'full' },
+          { path: 'index', loadComponent: () => import('./pages/ai-model-info/index/index').then(m => m.AIModelInfoIndex) },
         ]
       },
       {
-        path: 'model-provider',
+        path: 'ai-model-provider',
         children: [
-          { path: '', redirectTo: '/model-provider/index', pathMatch: 'full' },
-          { path: 'index', loadComponent: () => import('./pages/model-provider/index/index').then(m => m.ModelProviderIndex) },
+          { path: '', redirectTo: '/ai-model-provider/index', pathMatch: 'full' },
+          { path: 'index', loadComponent: () => import('./pages/ai-model-provider/index/index').then(m => m.AIModelProviderIndex) },
         ]
       },
       // KnowledgeBaseMod - 知识库管理
@@ -94,28 +94,7 @@ export const routes: Routes = [
           { path: '', redirectTo: '/system-config/index', pathMatch: 'full' },
           { path: 'index', loadComponent: () => import('./pages/system-config/index/index').then(m => m.SystemConfigIndex) },
         ]
-      },
-      {
-        path: 'system-role',
-        children: [
-          { path: '', redirectTo: '/system-role/index', pathMatch: 'full' },
-          { path: 'index', loadComponent: () => import('./pages/system-role/index/index').then(m => m.Index) },
-        ]
-      },
-      {
-        path: 'system-user',
-        children: [
-          { path: '', redirectTo: '/system-user/index', pathMatch: 'full' },
-          { path: 'index', loadComponent: () => import('./pages/system-user/index/index').then(m => m.Index) },
-        ]
-      },
-      {
-        path: 'system-logs',
-        children: [
-          { path: '', redirectTo: '/system-logs/index', pathMatch: 'full' },
-          { path: 'index', loadComponent: () => import('./pages/system-logs/index/index').then(m => m.Index) },
-        ]
-      },
+      }
     ],
   },
   

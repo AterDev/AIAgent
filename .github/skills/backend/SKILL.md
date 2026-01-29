@@ -53,6 +53,7 @@ src/
 2. 然后处理模块层，即Manager和DTO的编写
 3. 最后处理服务层，即Controller的编写
 4. 检查项目依赖关系，检查错误，确保没有违反分层原则
+5. 没有错误，添加或修改了实体，必须通过`scripts/EFMigrations.ps1`脚本，生成迁移文件。
 
 **要优先使用MCP工具`Perigon`，生成或创建模块/Entity/DTO/Manager/Controller等内容。**
 
