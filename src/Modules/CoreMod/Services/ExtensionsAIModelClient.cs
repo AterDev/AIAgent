@@ -54,17 +54,17 @@ public class ExtensionsAIModelClient(
             };
 
             // 调用聊天API
-            var response = await chatClient.CompleteAsync(messages, options, cancellationToken);
+            var response = await chatClient.GetResponseAsync(messages, options, cancellationToken);
 
             return new ModelResponse
             {
                 Success = true,
-                Content = response.Message.Text ?? string.Empty,
+                Content = response.Text ?? string.Empty,
                 Usage = new UsageStats
                 {
-                    PromptTokens = response.Usage?.InputTokenCount ?? 0,
-                    CompletionTokens = response.Usage?.OutputTokenCount ?? 0,
-                    TotalTokens = response.Usage?.TotalTokenCount ?? 0,
+                    PromptTokens = (int)(response.Usage?.InputTokenCount ?? 0),
+                    CompletionTokens = (int)(response.Usage?.OutputTokenCount ?? 0),
+                    TotalTokens = (int)(response.Usage?.TotalTokenCount ?? 0),
                 },
             };
         }
@@ -102,7 +102,12 @@ public class ExtensionsAIModelClient(
         {
             var embeddingGenerator = CreateEmbeddingGenerator(route, request.Model);
             
-            var embedding = await embeddingGenerator.GenerateEmbeddingAsync(input, cancellationToken: cancellationToken);
+            var embeddings = await embeddingGenerator.GenerateAsync([input], cancellationToken: cancellationToken);
+            var embedding = embeddings.FirstOrDefault();
+            if (embedding == null)
+            {
+                return Failed("Failed to generate embedding");
+            }
 
             return new ModelResponse
             {
@@ -110,8 +115,8 @@ public class ExtensionsAIModelClient(
                 Content = System.Text.Json.JsonSerializer.Serialize(embedding.Vector.ToArray()),
                 Usage = new UsageStats
                 {
-                    PromptTokens = embedding.Usage?.InputTokenCount ?? 0,
-                    TotalTokens = embedding.Usage?.TotalTokenCount ?? 0,
+                    PromptTokens = (int)(embeddings.Usage?.InputTokenCount ?? 0),
+                    TotalTokens = (int)(embeddings.Usage?.TotalTokenCount ?? 0),
                 },
             };
         }

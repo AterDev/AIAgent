@@ -40,13 +40,7 @@ public class AIAgentManager(
         var entity = dto.MapTo<AIAgent>();
         entity.UserId = _userContext.UserId;
         await InsertAsync(entity);
-        
-        // 清除缓存
-        if (cacheService != null)
-        {
-            await cacheService.RemoveAsync(GetCacheKey(entity.Id));
-        }
-        
+
         return entity;
     }
 
@@ -61,13 +55,6 @@ public class AIAgentManager(
         if (await HasPermissionAsync(id))
         {
             var result = await UpdateAsync(id, dto);
-            
-            // 清除缓存
-            if (cacheService != null && result > 0)
-            {
-                await cacheService.RemoveAsync(GetCacheKey(id));
-            }
-            
             return result;
         }
         throw new BusinessException(Localizer.NoPermission);
@@ -86,27 +73,8 @@ public class AIAgentManager(
             throw new BusinessException(Localizer.NoPermission);
         }
 
-        // 尝试从缓存获取
-        if (cacheService != null)
-        {
-            var cached = await cacheService.GetAsync<AIAgentDetailDto>(GetCacheKey(id));
-            if (cached != null)
-            {
-                _logger.LogDebug("Cache hit for AIAgent: {Id}", id);
-                return cached;
-            }
-        }
-
         // 从数据库查询
         var result = await FindAsync<AIAgentDetailDto>(q => q.Id == id);
-        
-        // 保存到缓存
-        if (cacheService != null && result != null)
-        {
-            await cacheService.SetAsync(GetCacheKey(id), result, CacheExpiration);
-            _logger.LogDebug("Cache set for AIAgent: {Id}", id);
-        }
-        
         return result;
     }
 
@@ -128,13 +96,6 @@ public class AIAgentManager(
             if (await HasPermissionAsync(id))
             {
                 var result = await DeleteOrUpdateAsync(ids, !softDelete) > 0;
-                
-                // 清除缓存
-                if (cacheService != null && result)
-                {
-                    await cacheService.RemoveAsync(GetCacheKey(id));
-                }
-                
                 return result;
             }
             throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
@@ -145,16 +106,6 @@ public class AIAgentManager(
             if (ownedIds.Any())
             {
                 var result = await DeleteOrUpdateAsync(ownedIds, !softDelete) > 0;
-                
-                // 清除缓存
-                if (cacheService != null && result)
-                {
-                    foreach (var id in ownedIds)
-                    {
-                        await cacheService.RemoveAsync(GetCacheKey(id));
-                    }
-                }
-                
                 return result;
             }
             throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);

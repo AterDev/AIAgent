@@ -1,3 +1,5 @@
+using AIAgentMod.Services;
+using Entity.AIAgentMod;
 using Microsoft.Agents.AI.Workflows;
 using Share.Services;
 using System.Text.Json;
@@ -16,6 +18,7 @@ public class WorkflowExecutor(
     IRagQueryFacade ragQueryFacade,
     IMcpToolExecutorFacade mcpToolExecutorFacade,
     Share.Services.ISystemConfigFacade systemConfigFacade,
+    IAgentExecutionService agentExecutionService,
     ILogger<WorkflowExecutor> logger
 ) : IWorkflowExecutor
 {
@@ -185,7 +188,7 @@ public class WorkflowExecutor(
         {
             Id = Guid.CreateVersion7(),
             AgentId = agent.Id,
-            Status = AgentExecutionStatus.Pending,
+            Status = AgentExecutionStatus.Running,
             InputJson = input,
             TenantId = userContext.TenantId,
         };
@@ -194,29 +197,23 @@ public class WorkflowExecutor(
         await dbContext.SaveChangesAsync(cancellationToken);
 
         // 执行 Agent（这里简化处理，实际可能需要异步队列）
-        var agentExecutionService = dbContext.Database.GetService<IAgentExecutionService>();
-        if (agentExecutionService != null)
+        var success = await agentExecutionService.ExecuteAsync(
+            execution.Id,
+            step.ApplicationId ?? Guid.Empty,
+            input,
+            cancellationToken
+        );
+
+        if (!success)
         {
-            var success = await agentExecutionService.ExecuteAsync(
-                execution.Id,
-                step.ApplicationId ?? Guid.Empty,
-                input,
-                cancellationToken
-            );
-
-            if (!success)
-            {
-                throw new BusinessException($"Agent execution failed: {execution.ErrorMessage}");
-            }
-
-            // 重新加载执行结果
+            // 重新加载执行结果以获取错误信息
             await dbContext.Entry(execution).ReloadAsync(cancellationToken);
-            context[step.Name] = execution.OutputJson;
+            throw new BusinessException($"Agent execution failed: {execution.ErrorMessage}");
         }
-        else
-        {
-            throw new BusinessException("Agent execution service not available");
-        }
+
+        // 重新加载执行结果
+        await dbContext.Entry(execution).ReloadAsync(cancellationToken);
+        context[step.Name] = execution.OutputJson;
     }
 
     private Task ExecuteConditionStepAsync(WorkflowStep step, Dictionary<string, object?> context, CancellationToken cancellationToken)
@@ -228,7 +225,7 @@ public class WorkflowExecutor(
 
         // 简单的条件评估（实际项目可以使用更复杂的表达式引擎）
         var conditionResult = EvaluateCondition(step.Condition, context);
-        
+
         context[step.Name] = new
         {
             condition = step.Condition,
@@ -314,11 +311,11 @@ public class WorkflowExecutor(
     private async Task ExecuteDelayStepAsync(WorkflowStep step, Dictionary<string, object?> context, CancellationToken cancellationToken)
     {
         var delayMs = step.DelayMs ?? 1000;
-        
+
         logger.LogInformation("Workflow step {StepName} delaying for {DelayMs}ms", step.Name, delayMs);
-        
+
         await Task.Delay(delayMs, cancellationToken);
-        
+
         context[step.Name] = new
         {
             delayed = true,
@@ -330,7 +327,7 @@ public class WorkflowExecutor(
     {
         // 简单的条件评估实现
         // 支持格式: "key == value", "key != value", "key > value", "key < value"
-        
+
         var parts = condition.Split(new[] { "==", "!=", ">", "<", ">=", "<=" }, StringSplitOptions.TrimEntries);
         if (parts.Length != 2)
         {
@@ -339,13 +336,13 @@ public class WorkflowExecutor(
             {
                 return boolValue;
             }
-            
+
             // 尝试从上下文获取
             if (context.TryGetValue(condition, out var value) && value is bool b)
             {
                 return b;
             }
-            
+
             return false;
         }
 
@@ -369,26 +366,26 @@ public class WorkflowExecutor(
         }
         else if (condition.Contains(">="))
         {
-            return double.TryParse(actualString, out var a) && 
-                   double.TryParse(expectedValue, out var b) && 
+            return double.TryParse(actualString, out var a) &&
+                   double.TryParse(expectedValue, out var b) &&
                    a >= b;
         }
         else if (condition.Contains("<="))
         {
-            return double.TryParse(actualString, out var a) && 
-                   double.TryParse(expectedValue, out var b) && 
+            return double.TryParse(actualString, out var a) &&
+                   double.TryParse(expectedValue, out var b) &&
                    a <= b;
         }
         else if (condition.Contains(">"))
         {
-            return double.TryParse(actualString, out var a) && 
-                   double.TryParse(expectedValue, out var b) && 
+            return double.TryParse(actualString, out var a) &&
+                   double.TryParse(expectedValue, out var b) &&
                    a > b;
         }
         else if (condition.Contains("<"))
         {
-            return double.TryParse(actualString, out var a) && 
-                   double.TryParse(expectedValue, out var b) && 
+            return double.TryParse(actualString, out var a) &&
+                   double.TryParse(expectedValue, out var b) &&
                    a < b;
         }
 
@@ -399,7 +396,7 @@ public class WorkflowExecutor(
     {
         // 简单的数据转换实现
         // 实际项目可以使用更强大的脚本引擎
-        
+
         // 支持 JSON 路径提取: "$.path.to.field"
         if (transformScript.StartsWith("$."))
         {
@@ -424,14 +421,20 @@ public class WorkflowExecutor(
 
     private object? ExtractJsonPath(object? data, string path)
     {
-        if (data == null) return null;
+        if (data == null)
+        {
+            return null;
+        }
 
         var segments = path.Split('.');
         var current = data;
 
         foreach (var segment in segments)
         {
-            if (current == null) return null;
+            if (current == null)
+            {
+                return null;
+            }
 
             if (current is Dictionary<string, object?> dict)
             {
@@ -776,22 +779,22 @@ public class WorkflowExecutor(
         public Guid? CollectionId { get; set; }
         public int? TopK { get; set; }
         public string[]? NextStepIds { get; set; }
-        
+
         // Condition step fields
         public string? Condition { get; set; }
         public string? TrueStepId { get; set; }
         public string? FalseStepId { get; set; }
-        
+
         // Loop step fields
         public string? LoopCondition { get; set; }
         public string? LoopBody { get; set; }
         public int? MaxIterations { get; set; }
-        
+
         // DataTransform step fields
         public string? TransformScript { get; set; }
         public string? InputPath { get; set; }
         public string? OutputPath { get; set; }
-        
+
         // Delay step fields
         public int? DelayMs { get; set; }
     }
