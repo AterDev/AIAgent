@@ -14,7 +14,7 @@
     <ItemGroup>
         <PackageReference Include="DocumentFormat.OpenXml" />
         <PackageReference Include="EPPlus" />
-        <PackageReference Include="itext7" />
+        <PackageReference Include="itext" />
     </ItemGroup>
     <ItemGroup>
         <Folder Include="Managers\" />

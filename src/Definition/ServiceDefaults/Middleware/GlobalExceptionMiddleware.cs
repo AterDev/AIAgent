@@ -1,5 +1,6 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Npgsql;
 using Perigon.AspNetCore.Models;
 using Share.Exceptions;
@@ -78,7 +79,7 @@ public class GlobalExceptionMiddleware(
                 new ErrorResult(ex.Message, ctx.TraceIdentifier, "validation error")
             );
         }
-        catch (TaskCanceledException ex)
+        catch (TaskCanceledException)
         {
             // 请求取消（通常由客户端断开连接引起）
             logger.LogInformation("Request cancelled: {TraceId}", ctx.TraceIdentifier);
@@ -87,7 +88,7 @@ public class GlobalExceptionMiddleware(
                 new ErrorResult("Request cancelled", ctx.TraceIdentifier)
             );
         }
-        catch (OperationCanceledException ex)
+        catch (OperationCanceledException)
         {
             // 操作取消
             logger.LogInformation("Operation cancelled: {TraceId}", ctx.TraceIdentifier);
