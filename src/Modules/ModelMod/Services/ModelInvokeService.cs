@@ -38,15 +38,15 @@ public class ModelInvokeService(
             throw new BusinessException("Application not found");
         }
 
-        var modelQuery = from profile in dbContext.ModelProfiles.AsNoTracking()
+        var modelQuery = from modelInfo in dbContext.AIModelInfos.AsNoTracking()
                          join provider in dbContext.ModelProviders.AsNoTracking()
-                             on profile.ProviderId equals provider.Id
-                         where profile.TenantId == userContext.TenantId
+                             on modelInfo.ProviderId equals provider.Id
+                         where modelInfo.TenantId == userContext.TenantId
                              && provider.TenantId == userContext.TenantId
-                             && profile.IsEnabled
+                             && modelInfo.IsEnabled
                              && provider.IsEnabled
-                             && profile.Name == request.Model
-                         select new { profile, provider };
+                             && modelInfo.Name == request.Model
+                         select new { modelInfo, provider };
 
         if (!string.IsNullOrWhiteSpace(request.Provider))
         {
@@ -62,7 +62,7 @@ public class ModelInvokeService(
         var allowed = await dbContext.ApplicationModelPermissions
             .AsNoTracking()
             .AnyAsync(q => q.ApplicationId == applicationId
-                && q.ModelProfileId == model.profile.Id
+                && q.AIModelInfoId == model.modelInfo.Id
                 && q.IsEnabled
                 && q.TenantId == userContext.TenantId, cancellationToken);
 
@@ -81,7 +81,7 @@ public class ModelInvokeService(
         var invocation = new ModelInvocation
         {
             ApplicationId = applicationId,
-            ModelProfileId = model.profile.Id,
+            AIModelInfoId = model.modelInfo.Id,
             Scene = request.Scene ?? string.Empty,
             PromptTokens = usage.PromptTokens,
             CompletionTokens = usage.CompletionTokens,

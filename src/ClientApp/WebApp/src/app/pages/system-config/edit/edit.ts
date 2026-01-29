@@ -1,8 +1,9 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCard, MatCardHeader, MatCardTitle, MatCardContent, MatCardActions } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateService } from '@ngx-translate/core';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
@@ -12,7 +13,7 @@ import { SystemConfigDetailDto } from 'src/app/services/admin/models/system-mod/
 
 @Component({
   selector: 'app-system-config-edit',
-  imports: [CommonFormModules, MatCheckboxModule, MatCard, MatCardHeader, MatCardTitle, MatCardContent, MatCardActions],
+  imports: [CommonFormModules, MatCheckboxModule, MatProgressSpinnerModule, MatCard, MatCardHeader, MatCardTitle, MatCardContent, MatCardActions],
   templateUrl: './edit.html',
   standalone: true
 })
@@ -22,6 +23,7 @@ export class SystemConfigEdit implements OnInit {
 
   form!: FormGroup;
   id?: string;
+  isLoading = signal(false);
 
   constructor(
     private fb: FormBuilder,
@@ -36,7 +38,14 @@ export class SystemConfigEdit implements OnInit {
 
   ngOnInit() {
     if (this.id) {
-      this.adminClient.systemConfig.detail(this.id).subscribe((res: SystemConfigDetailDto) => this.form.patchValue(res));
+      this.isLoading.set(true);
+      this.adminClient.systemConfig.detail(this.id).subscribe({
+        next: (res: SystemConfigDetailDto) => {
+          this.form.patchValue(res);
+          this.isLoading.set(false);
+        },
+        error: () => this.isLoading.set(false)
+      });
     }
   }
 

@@ -6,8 +6,8 @@ import { InvocationStatus } from '../entity/invocation-status.model';
 export interface ModelInvocationAddDto {
   /** applicationId */
   applicationId: string;
-  /** modelProfileId */
-  modelProfileId: string;
+  /** aiModelInfoId */
+  aiModelInfoId: string;
   /** scene */
   scene?: string | null;
   /** promptTokens */

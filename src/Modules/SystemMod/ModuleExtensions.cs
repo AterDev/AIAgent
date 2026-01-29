@@ -14,6 +14,8 @@ public static class ModuleExtensions
     /// </summary>
     public static IHostApplicationBuilder AddSystemMod(this IHostApplicationBuilder builder)
     {
+
+        builder.Services.AddHostedService<InitSystemModService>();
         builder.AddModServices();
         return builder;
     }

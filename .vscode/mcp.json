@@ -3,6 +3,22 @@
 		"perigon": {
 			"url": "http://localhost:19160/mcp",
 			"type": "http"
+		},
+		"aspire": {
+			"type": "stdio",
+			"command": "aspire",
+			"args": [
+				"mcp",
+				"start"
+			]
+		},
+		"playwright": {
+			"type": "stdio",
+			"command": "npx",
+			"args": [
+				"-y",
+				"@playwright/mcp@latest"
+			]
 		}
 	},
 	"inputs": []

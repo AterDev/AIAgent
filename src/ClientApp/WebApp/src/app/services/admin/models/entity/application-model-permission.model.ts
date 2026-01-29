@@ -1,5 +1,5 @@
 import { Application } from '../entity/application.model';
-import { ModelProfile } from '../entity/model-profile.model';
+import { AIModelInfo } from '../entity/aimodel-info.model';
 
 /**
  * 应用模型权限
@@ -19,10 +19,10 @@ export interface ApplicationModelPermission {
   applicationId: string;
   /** 应用定义 */
   application: Application;
-  /** modelProfileId */
-  modelProfileId: string;
-  /** 模型元数据与能力 */
-  modelProfile: ModelProfile;
+  /** aiModelInfoId */
+  aiModelInfoId: string;
+  /** 模型信息（包含能力和定价） */
+  aiModelInfo: AIModelInfo;
   /** isEnabled */
   isEnabled: boolean;
 }

@@ -8,6 +8,6 @@ public class ApplicationModelPermissionItemDto
 {
     public Guid Id { get; set; }
     public Guid ApplicationId { get; set; }
-    public Guid ModelProfileId { get; set; }
+    public Guid AIModelInfoId { get; set; }
     public bool IsEnabled { get; set; }
 }

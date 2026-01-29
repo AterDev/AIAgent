@@ -3,8 +3,8 @@
     <div class="d-flex align-items-center gap-2 justify-content-between p-1">
       <div class="d-flex gap-2 align-items-center">
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>{{ 'workflowExecution.workflowId' | translate }}</mat-label>
-          <input matInput [(ngModel)]="filterDto.workflowId" [placeholder]="'workflowExecution.workflowId' | translate" />
+          <mat-label>{{ i18nKeys.workflowExecution.workflowId | translate }}</mat-label>
+          <input matInput [(ngModel)]="filterDto.workflowId" [placeholder]="i18nKeys.workflowExecution.workflowId | translate" />
         </mat-form-field>
 
         <button mat-flat-button color="primary" (click)="filter()">{{ i18nKeys.common.search | translate }}</button>
@@ -12,39 +12,44 @@
     </div>
   </div>
 
+  @if (isLoading()) {
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+      <mat-spinner></mat-spinner>
+    </div>
+  } @else {
   <table mat-table [dataSource]="dataSource" #table="matTable">
     <ng-container matColumnDef="workflowId">
       <th mat-header-cell *matHeaderCellDef>
-        {{ 'workflowExecution.workflowId' | translate }}
+        {{ i18nKeys.workflowExecution.workflowId | translate }}
       </th>
-      <td mat-cell *matCellDef="let item;table:table">
+      <td mat-cell *matCellDef="let item">
         {{ item.workflowId }}
       </td>
     </ng-container>
 
     <ng-container matColumnDef="status">
       <th mat-header-cell *matHeaderCellDef>
-        {{ 'workflowExecution.status' | translate }}
+        {{ i18nKeys.workflowExecution.status | translate }}
       </th>
-      <td mat-cell *matCellDef="let item;table:table">
+      <td mat-cell *matCellDef="let item">
         {{ item.status }}
       </td>
     </ng-container>
 
     <ng-container matColumnDef="durationMs">
       <th mat-header-cell *matHeaderCellDef>
-        {{ 'workflowExecution.durationMs' | translate }}
+        {{ i18nKeys.workflowExecution.durationMs | translate }}
       </th>
-      <td mat-cell *matCellDef="let item;table:table">
+      <td mat-cell *matCellDef="let item">
         {{ item.durationMs }}
       </td>
     </ng-container>
 
     <ng-container matColumnDef="completedTime">
       <th mat-header-cell *matHeaderCellDef>
-        {{ 'workflowExecution.completedTime' | translate }}
+        {{ i18nKeys.workflowExecution.completedTime | translate }}
       </th>
-      <td mat-cell *matCellDef="let item;table:table">
+      <td mat-cell *matCellDef="let item">
         {{ item.completedTime | date:'short' }}
       </td>
     </ng-container>
@@ -64,5 +69,6 @@
   </table>
 
   <mat-paginator [length]="total" [pageSize]="filterDto.pageSize" (page)="pageChanged($event)"></mat-paginator>
+  }
 
 </div>

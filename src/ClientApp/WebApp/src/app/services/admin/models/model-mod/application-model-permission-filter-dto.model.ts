@@ -10,8 +10,8 @@ export interface ApplicationModelPermissionFilterDto {
   orderBy?: Record<string, boolean> | null;
   /** applicationId */
   applicationId?: string | null;
-  /** modelProfileId */
-  modelProfileId?: string | null;
+  /** aiModelInfoId */
+  aiModelInfoId?: string | null;
   /** isEnabled */
   isEnabled?: boolean | null;
 }

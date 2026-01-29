@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateService } from '@ngx-translate/core';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
@@ -14,18 +15,16 @@ import { RagCollectionDetail } from '../detail/detail';
 
 @Component({
   selector: 'app-rag-collection-index',
-  imports: [CommonListModules, CommonFormModules],
+  imports: [CommonListModules, CommonFormModules, MatProgressSpinnerModule],
   templateUrl: './index.html',
   standalone: true
 })
 export class RagCollectionIndex implements OnInit {
-
   i18nKeys = I18N_KEYS;
-
   filterDto: RagCollectionFilterDto = { pageIndex: 1, pageSize: 10 };
   dataSource = new MatTableDataSource<RagCollectionItemDto>();
   displayedColumns = ["name", "isPublic", "isEnabled", "actions"];
-
+  isLoading = signal(true);
   total = 0;
   pageSize = 10;
 
@@ -40,10 +39,16 @@ export class RagCollectionIndex implements OnInit {
   }
 
   loadData(): void {
-    this.adminClient.ragCollection.list(this.filterDto as RagCollectionFilterDto).subscribe((res) => {
-      this.dataSource.data = (res.data || []);
-      this.total = (res.count ?? res.data?.length ?? this.dataSource.data.length);
-    });
+    this.isLoading.set(true);
+    this.adminClient.ragCollection.list(this.filterDto as RagCollectionFilterDto)
+      .subscribe({
+        next: (res) => {
+          this.dataSource.data = (res.data || []);
+          this.total = (res.count ?? res.data?.length ?? this.dataSource.data.length);
+          this.isLoading.set(false);
+        },
+        error: () => this.isLoading.set(false)
+      });
   }
 
   filter(): void {

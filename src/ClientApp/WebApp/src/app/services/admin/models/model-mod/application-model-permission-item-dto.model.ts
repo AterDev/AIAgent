@@ -6,8 +6,8 @@ export interface ApplicationModelPermissionItemDto {
   id: string;
   /** applicationId */
   applicationId: string;
-  /** modelProfileId */
-  modelProfileId: string;
+  /** aiModelInfoId */
+  aiModelInfoId: string;
   /** isEnabled */
   isEnabled: boolean;
 }

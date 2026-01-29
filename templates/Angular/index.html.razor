@@ -80,13 +80,13 @@
       </div>
     </div>
   </div>
-
+  @@if(!isLoading()){
   <table mat-table [dataSource]="dataSource" #table="matTable">
     @foreach (var c in ItemPropertyInfos)
     {
       <ng-container matColumnDef="@c.Name">
         <th mat-header-cell *matHeaderCellDef>
-          @(c.CommentSummary ?? c.Name)
+          {{ i18nKeys.@name.@(c.Name.ToCamelCase()) | translate }}
         </th>
         <td mat-cell *matCellDef="let item;table:table">
           {{ item.@(c.Name.ToCamelCase()) }}
@@ -109,7 +109,11 @@
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 
   </table>
-
   <mat-paginator [length]="total" [pageSize]="filterDto.pageSize" (page)="pageChanged($event)"></mat-paginator>
-
+  }
+  @@else{
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 300px;">
+      <mat-spinner></mat-spinner>
+    </div>
+  }
 </div>

@@ -22,7 +22,7 @@ public class ApplicationToolPermissionController(
     public async Task<ActionResult<ApplicationToolPermission>> AddAsync(ApplicationToolPermissionAddDto dto)
     {
         var entity = await _manager.AddAsync(dto);
-        return CreatedAtRoute(nameof(DetailAsync), new { id = entity.Id }, entity);
+        return CreatedAtRoute(null, new { id = entity.Id }, entity);
     }
 
     [HttpPatch("{id}")]

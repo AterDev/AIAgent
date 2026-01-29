@@ -12,8 +12,8 @@ export interface ModelInvocationFilterDto {
   orderBy?: Record<string, boolean> | null;
   /** applicationId */
   applicationId?: string | null;
-  /** modelProfileId */
-  modelProfileId?: string | null;
+  /** aiModelInfoId */
+  aiModelInfoId?: string | null;
   /** scene */
   scene?: string | null;
   /** status */

@@ -25,7 +25,7 @@ public class RagDocumentsController(
     public async Task<ActionResult<Entity.KnowledgeBaseMod.RagDocument>> AddAsync(RagDocumentAddDto dto)
     {
         var entity = await _manager.AddAsync(dto);
-        return CreatedAtRoute(nameof(DetailAsync), new { id = entity.Id }, entity);
+        return CreatedAtRoute(null, new { id = entity.Id }, entity);
     }
 
     [HttpGet("{id}")]

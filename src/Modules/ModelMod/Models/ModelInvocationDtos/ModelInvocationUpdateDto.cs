@@ -21,4 +21,6 @@ public class ModelInvocationUpdateDto
 
     [MaxLength(500)]
     public string? ErrorMessage { get; set; }
+
+    public Guid AIModelInfoId { get; set; }
 }

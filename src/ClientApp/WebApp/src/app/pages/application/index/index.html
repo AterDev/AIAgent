@@ -3,50 +3,55 @@
     <div class="d-flex align-items-center gap-2 justify-content-between p-1">
       <div class="d-flex gap-2 align-items-center">
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>{{ 'application.name' | translate }}</mat-label>
-          <input matInput [(ngModel)]="filterDto.name" placeholder="{{ 'application.name' | translate }}" />
+          <mat-label>{{ i18nKeys.application.name | translate }}</mat-label>
+          <input matInput [(ngModel)]="filterDto.name" placeholder="{{ i18nKeys.application.name | translate }}" />
         </mat-form-field>
 
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>{{ 'application.accessKey' | translate }}</mat-label>
+          <mat-label>{{ i18nKeys.application.accessKey | translate }}</mat-label>
           <input matInput [(ngModel)]="filterDto.accessKey" />
         </mat-form-field>
 
-        <button matButton="filled" (click)="filter()">{{ i18nKeys.common.search | translate }}</button>
+        <button mat-flat-button color="primary" (click)="filter()">{{ i18nKeys.common.search | translate }}</button>
       </div>
 
       <div>
-        <button matButton="filled" (click)="openAdd()">
+        <button mat-flat-button color="accent" (click)="openAdd()">
           {{ i18nKeys.common.add | translate }}
         </button>
       </div>
     </div>
   </div>
 
+  @if (isLoading()) {
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+      <mat-spinner></mat-spinner>
+    </div>
+  } @else {
   <table mat-table [dataSource]="dataSource" #table="matTable">
     <ng-container matColumnDef="name">
       <th mat-header-cell *matHeaderCellDef>
-        {{ 'application.name' | translate }}
+        {{ i18nKeys.application.name | translate }}
       </th>
-      <td mat-cell *matCellDef="let item;table:table">
+      <td mat-cell *matCellDef="let item">
         {{ item.name }}
       </td>
     </ng-container>
 
     <ng-container matColumnDef="accessKey">
       <th mat-header-cell *matHeaderCellDef>
-        {{ 'application.accessKey' | translate }}
+        {{ i18nKeys.application.accessKey | translate }}
       </th>
-      <td mat-cell *matCellDef="let item;table:table">
+      <td mat-cell *matCellDef="let item">
         {{ item.accessKey }}
       </td>
     </ng-container>
 
     <ng-container matColumnDef="isEnabled">
       <th mat-header-cell *matHeaderCellDef>
-        {{ 'application.isEnabled' | translate }}
+        {{ i18nKeys.application.isEnabled | translate }}
       </th>
-      <td mat-cell *matCellDef="let item;table:table">
+      <td mat-cell *matCellDef="let item">
         <mat-icon [ngClass]="item.isEnabled ? 'text-success' : 'text-muted'">
           {{ item.isEnabled ? 'check_circle' : 'cancel' }}
         </mat-icon>
@@ -55,16 +60,16 @@
 
     <ng-container matColumnDef="createdTime">
       <th mat-header-cell *matHeaderCellDef>
-        {{ 'common.createdTime' | translate }}
+        {{ i18nKeys.common.createdTime | translate }}
       </th>
-      <td mat-cell *matCellDef="let item;table:table">
+      <td mat-cell *matCellDef="let item">
         {{ item.createdTime | date:'short' }}
       </td>
     </ng-container>
 
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef>
-        {{ 'common.actions' | translate }}
+        {{ i18nKeys.common.actions | translate }}
       </th>
       <td mat-cell *matCellDef="let item">
         <button mat-icon-button class="secondary" (click)="openDetail(item.id)"><mat-icon>visibility</mat-icon></button>
@@ -79,5 +84,6 @@
   </table>
 
   <mat-paginator [length]="total" [pageSize]="filterDto.pageSize" (page)="pageChanged($event)"></mat-paginator>
+  }
 
 </div>

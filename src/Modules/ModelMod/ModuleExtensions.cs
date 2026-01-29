@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 using ModelMod.Services;
+using ModelMod.Managers;
 using System.ComponentModel;
 
 namespace ModelMod;
@@ -23,6 +24,8 @@ public static class ModuleExtensions
     {
         builder.Services.AddScoped<IModelInvokeService, ModelInvokeService>();
         builder.Services.AddScoped<Share.Services.IModelInvokeFacade, ModelInvokeFacade>();
+        builder.Services.AddScoped<AIModelProviderManager>();
+        builder.Services.AddScoped<AIModelInfoManager>();
         return builder;
     }
 

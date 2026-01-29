@@ -3,16 +3,16 @@
     <div class="d-flex align-items-center gap-2 justify-content-between p-1">
       <div class="d-flex gap-2 align-items-center">
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>{{ 'systemConfig.key' | translate }}</mat-label>
-          <input matInput [(ngModel)]="filterDto.key" [placeholder]="'systemConfig.key' | translate" />
+          <mat-label>{{ i18nKeys.systemConfig.key | translate }}</mat-label>
+          <input matInput [(ngModel)]="filterDto.key" [placeholder]="i18nKeys.systemConfig.key | translate" />
         </mat-form-field>
 
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>{{ 'systemConfig.groupName' | translate }}</mat-label>
-          <input matInput [(ngModel)]="filterDto.groupName" [placeholder]="'systemConfig.groupName' | translate" />
+          <mat-label>{{ i18nKeys.systemConfig.groupName | translate }}</mat-label>
+          <input matInput [(ngModel)]="filterDto.groupName" [placeholder]="i18nKeys.systemConfig.groupName | translate" />
         </mat-form-field>
 
-        <mat-checkbox [(ngModel)]="filterDto.valid">{{ 'systemConfig.valid' | translate }}</mat-checkbox>
+        <mat-checkbox [(ngModel)]="filterDto.valid">{{ i18nKeys.systemConfig.valid | translate }}</mat-checkbox>
 
         <button mat-flat-button color="primary" (click)="filter()">{{ i18nKeys.common.search | translate }}</button>
       </div>
@@ -25,30 +25,35 @@
     </div>
   </div>
 
+  @if (isLoading()) {
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+      <mat-spinner></mat-spinner>
+    </div>
+  } @else {
   <table mat-table [dataSource]="dataSource" #table="matTable">
     <ng-container matColumnDef="key">
       <th mat-header-cell *matHeaderCellDef>
-        {{ 'systemConfig.key' | translate }}
+        {{ i18nKeys.systemConfig.key | translate }}
       </th>
-      <td mat-cell *matCellDef="let item;table:table">
+      <td mat-cell *matCellDef="let item">
         {{ item.key }}
       </td>
     </ng-container>
 
     <ng-container matColumnDef="groupName">
       <th mat-header-cell *matHeaderCellDef>
-        {{ 'systemConfig.groupName' | translate }}
+        {{ i18nKeys.systemConfig.groupName | translate }}
       </th>
-      <td mat-cell *matCellDef="let item;table:table">
+      <td mat-cell *matCellDef="let item">
         {{ item.groupName }}
       </td>
     </ng-container>
 
     <ng-container matColumnDef="valid">
       <th mat-header-cell *matHeaderCellDef>
-        {{ 'systemConfig.valid' | translate }}
+        {{ i18nKeys.systemConfig.valid | translate }}
       </th>
-      <td mat-cell *matCellDef="let item;table:table">
+      <td mat-cell *matCellDef="let item">
         <mat-icon [color]="item.valid ? 'primary' : 'warn'">
           {{ item.valid ? 'check_circle' : 'cancel' }}
         </mat-icon>
@@ -57,9 +62,9 @@
 
     <ng-container matColumnDef="isSystem">
       <th mat-header-cell *matHeaderCellDef>
-        {{ 'systemConfig.isSystem' | translate }}
+        {{ i18nKeys.systemConfig.isSystem | translate }}
       </th>
-      <td mat-cell *matCellDef="let item;table:table">
+      <td mat-cell *matCellDef="let item">
         <mat-icon [color]="item.isSystem ? 'primary' : 'warn'">
           {{ item.isSystem ? 'check_circle' : 'cancel' }}
         </mat-icon>
@@ -83,5 +88,6 @@
   </table>
 
   <mat-paginator [length]="total" [pageSize]="filterDto.pageSize" (page)="pageChanged($event)"></mat-paginator>
+  }
 
 </div>

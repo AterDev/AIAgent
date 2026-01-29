@@ -4,4 +4,6 @@
 export interface ApplicationModelPermissionUpdateDto {
   /** isEnabled */
   isEnabled?: boolean | null;
+  /** aiModelInfoId */
+  aiModelInfoId?: string | null;
 }

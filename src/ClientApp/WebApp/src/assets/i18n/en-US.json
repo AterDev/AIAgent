@@ -30,7 +30,10 @@
     "saveFail": "Save failed",
     "formInvalid": "Form invalid, please check the content!",
     "updatedTime": "Updated Time",
-    "pageNotFound": "Page Not Found"
+    "pageNotFound": "Page Not Found",
+    "unknown": "Unknown",
+    "deleteConfirm": "Are you sure you want to delete?",
+    "detail": "Detail"
   },
   "login": {
     "username": "Username",
@@ -91,15 +94,16 @@
     "order": "Order",
     "model": "Model Management",
     "application": "Application",
-    "modelProfile": "Model Profile",
-    "modelProvider": "Model Provider",
+    "aiModelInfo": "AI Model Config",
+    "aiModelProvider": "AI Model Provider",
     "knowledge": "Knowledge Base",
     "ragCollection": "Collection",
     "ragDocument": "Document",
     "mcp": "MCP Tools",
     "mcpTool": "Tool Management",
+    "tools": "Tools",
     "agent": "AI Agent",
-    "aiagent": "Agent Management",
+    "aiAgent": "Agent Management",
     "agentExecution": "Execution Log",
     "workflow": "Workflow",
     "workflowExecution": "Execution Log",
@@ -123,14 +127,61 @@
     "modelType": "Model Type",
     "provider": "Provider",
     "capabilities": "Capabilities",
-    "isEnabled": "Enabled"
+    "isEnabled": "Enabled",
+    "displayName": "Display Name",
+    "providerId": "Provider",
+    "supportsTools": "Supports Tools",
+    "description": "Description",
+    "maxContextTokens": "Max Context Tokens",
+    "supportsChat": "Supports Chat",
+    "supportsEmbedding": "Supports Embedding",
+    "supportsVision": "Supports Vision",
+    "supportsResponsesApi": "Supports Responses API"
   },
   "modelProvider": {
     "title": "Model Provider",
     "name": "Name",
     "apiKey": "API Key",
     "endpoint": "Endpoint",
-    "isEnabled": "Enabled"
+    "isEnabled": "Enabled",
+    "baseUrl": "Base URL",
+    "providerType": "Provider Type",
+    "openAiCompatible": "OpenAI Compatible",
+    "custom": "Custom",
+    "description": "Description",
+    "timeoutSeconds": "Timeout (seconds)",
+    "retryCount": "Retry Count"
+  },
+  "aiModelProvider": {
+    "title": "AI Model Provider",
+    "name": "Name",
+    "apiKey": "API Key",
+    "endpoint": "Endpoint",
+    "isEnabled": "Enabled",
+    "baseUrl": "Base URL",
+    "providerType": "Provider Type",
+    "openAiCompatible": "OpenAI Compatible",
+    "custom": "Custom",
+    "description": "Description",
+    "timeoutSeconds": "Timeout (seconds)",
+    "retryCount": "Retry Count"
+  },
+  "aiModelInfo": {
+    "title": "AI Model Config",
+    "name": "Model Name",
+    "modelType": "Model Type",
+    "provider": "Provider",
+    "capabilities": "Capabilities",
+    "isEnabled": "Enabled",
+    "displayName": "Display Name",
+    "providerId": "Provider",
+    "supportsTools": "Supports Tools",
+    "description": "Description",
+    "maxContextTokens": "Max Context Tokens",
+    "supportsChat": "Supports Chat",
+    "supportsEmbedding": "Supports Embedding",
+    "supportsVision": "Supports Vision",
+    "supportsResponsesApi": "Supports Responses API"
   },
   "ragCollection": {
     "title": "Collection",
@@ -148,7 +199,12 @@
     "fileType": "File Type",
     "collectionId": "Collection",
     "status": "Status",
-    "chunkCount": "Chunk Count"
+    "chunkCount": "Chunk Count",
+    "contentType": "Content Type",
+    "sourceUrl": "Source URL",
+    "tokenCount": "Token Count",
+    "roles": "Roles",
+    "tags": "Tags"
   },
   "mcpTool": {
     "title": "MCP Tool",
@@ -169,7 +225,10 @@
     "temperature": "Temperature",
     "maxTokens": "Max Tokens",
     "isEnabled": "Enabled",
-    "tags": "Tags"
+    "tags": "Tags",
+    "enable": "Enabled",
+    "isTemplate": "Template",
+    "tools": "Tools"
   },
   "agentExecution": {
     "title": "Execution Log",
@@ -179,7 +238,12 @@
     "endTime": "End Time",
     "duration": "Duration",
     "inputTokens": "Input Tokens",
-    "outputTokens": "Output Tokens"
+    "outputTokens": "Output Tokens",
+    "durationMs": "Duration (ms)",
+    "completedTime": "Completed Time",
+    "inputJson": "Input Data",
+    "outputJson": "Output Data",
+    "errorMessage": "Error Message"
   },
   "workflow": {
     "title": "Workflow",
@@ -188,7 +252,10 @@
     "definition": "Definition",
     "isEnabled": "Enabled",
     "status": "Status",
-    "tags": "Tags"
+    "tags": "Tags",
+    "version": "Version",
+    "isPublished": "Published",
+    "definitionJson": "Definition JSON"
   },
   "workflowExecution": {
     "title": "Execution Log",
@@ -196,13 +263,20 @@
     "status": "Status",
     "startTime": "Start Time",
     "endTime": "End Time",
-    "duration": "Duration"
+    "duration": "Duration",
+    "durationMs": "Duration (ms)",
+    "completedTime": "Completed Time",
+    "inputJson": "Input JSON",
+    "outputJson": "Output JSON",
+    "errorMessage": "Error Message"
   },
   "systemConfig": {
     "title": "System Config",
     "key": "Config Key",
     "value": "Config Value",
     "description": "Description",
-    "isSystem": "System Config"
+    "isSystem": "System Config",
+    "groupName": "Group",
+    "valid": "Valid"
   }
 }

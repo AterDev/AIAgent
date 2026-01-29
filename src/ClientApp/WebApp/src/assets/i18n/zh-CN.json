@@ -30,7 +30,10 @@
     "saveFail": "保存失败",
     "formInvalid": "表单验证不通过，请检查填写的内容!",
     "updatedTime": "更新时间",
-    "pageNotFound": "这里什么都没有"
+    "pageNotFound": "这里什么都没有",
+    "unknown": "未知",
+    "deleteConfirm": "是否确定删除？",
+    "detail": "详情"
   },
   "login": {
     "username": "用户名",
@@ -91,15 +94,16 @@
     "order": "订单管理",
     "model": "模型管理",
     "application": "应用管理",
-    "modelProfile": "模型配置",
-    "modelProvider": "模型提供商",
+    "aiModelInfo": "AI模型配置",
+    "aiModelProvider": "AI模型提供商",
     "knowledge": "知识库",
     "ragCollection": "知识库管理",
     "ragDocument": "文档管理",
     "mcp": "MCP工具",
     "mcpTool": "工具管理",
+    "tools": "工具",
     "agent": "AI Agent",
-    "aiagent": "Agent管理",
+    "aiAgent": "Agent管理",
     "agentExecution": "执行记录",
     "workflow": "工作流管理",
     "workflowExecution": "执行记录",
@@ -123,14 +127,61 @@
     "modelType": "模型类型",
     "provider": "提供商",
     "capabilities": "能力",
-    "isEnabled": "已启用"
+    "isEnabled": "已启用",
+    "displayName": "显示名称",
+    "providerId": "提供商",
+    "supportsTools": "支持工具",
+    "description": "描述",
+    "maxContextTokens": "最大上下文Token",
+    "supportsChat": "支持对话",
+    "supportsEmbedding": "支持向量化",
+    "supportsVision": "支持视觉",
+    "supportsResponsesApi": "支持Responses API"
   },
   "modelProvider": {
     "title": "模型提供商",
     "name": "名称",
     "apiKey": "API密钥",
     "endpoint": "端点地址",
-    "isEnabled": "已启用"
+    "isEnabled": "已启用",
+    "baseUrl": "基础网址",
+    "providerType": "提供商类型",
+    "openAiCompatible": "OpenAI兼容",
+    "custom": "自定义",
+    "description": "描述",
+    "timeoutSeconds": "超时时间(秒)",
+    "retryCount": "重试次数"
+  },
+  "aiModelProvider": {
+    "title": "AI模型提供商",
+    "name": "名称",
+    "apiKey": "API密钥",
+    "endpoint": "端点地址",
+    "isEnabled": "已启用",
+    "baseUrl": "基础网址",
+    "providerType": "提供商类型",
+    "openAiCompatible": "OpenAI兼容",
+    "custom": "自定义",
+    "description": "描述",
+    "timeoutSeconds": "超时时间(秒)",
+    "retryCount": "重试次数"
+  },
+  "aiModelInfo": {
+    "title": "AI模型配置",
+    "name": "模型名称",
+    "modelType": "模型类型",
+    "provider": "提供商",
+    "capabilities": "能力",
+    "isEnabled": "已启用",
+    "displayName": "显示名称",
+    "providerId": "提供商",
+    "supportsTools": "支持工具",
+    "description": "描述",
+    "maxContextTokens": "最大上下文Token",
+    "supportsChat": "支持对话",
+    "supportsEmbedding": "支持向量化",
+    "supportsVision": "支持视觉",
+    "supportsResponsesApi": "支持Responses API"
   },
   "ragCollection": {
     "title": "知识库",
@@ -148,7 +199,12 @@
     "fileType": "文件类型",
     "collectionId": "所属知识库",
     "status": "状态",
-    "chunkCount": "分块数量"
+    "chunkCount": "分块数量",
+    "contentType": "内容类型",
+    "sourceUrl": "来源地址",
+    "tokenCount": "Token数量",
+    "roles": "角色",
+    "tags": "标签"
   },
   "mcpTool": {
     "title": "MCP工具",
@@ -169,7 +225,10 @@
     "temperature": "温度",
     "maxTokens": "最大Token数",
     "isEnabled": "已启用",
-    "tags": "标签"
+    "tags": "标签",
+    "enable": "已启用",
+    "isTemplate": "模板",
+    "tools": "工具"
   },
   "agentExecution": {
     "title": "执行记录",
@@ -179,7 +238,12 @@
     "endTime": "结束时间",
     "duration": "耗时",
     "inputTokens": "输入Token",
-    "outputTokens": "输出Token"
+    "outputTokens": "输出Token",
+    "durationMs": "耗时(毫秒)",
+    "completedTime": "完成时间",
+    "inputJson": "输入数据",
+    "outputJson": "输出数据",
+    "errorMessage": "错误信息"
   },
   "workflow": {
     "title": "工作流",
@@ -188,7 +252,10 @@
     "definition": "定义",
     "isEnabled": "已启用",
     "status": "状态",
-    "tags": "标签"
+    "tags": "标签",
+    "version": "版本",
+    "isPublished": "已发布",
+    "definitionJson": "定义JSON"
   },
   "workflowExecution": {
     "title": "执行记录",
@@ -196,13 +263,20 @@
     "status": "状态",
     "startTime": "开始时间",
     "endTime": "结束时间",
-    "duration": "耗时"
+    "duration": "耗时",
+    "durationMs": "耗时(毫秒)",
+    "completedTime": "完成时间",
+    "inputJson": "输入JSON",
+    "outputJson": "输出JSON",
+    "errorMessage": "错误信息"
   },
   "systemConfig": {
     "title": "系统配置",
     "key": "配置键",
     "value": "配置值",
     "description": "描述",
-    "isSystem": "系统配置"
+    "isSystem": "系统配置",
+    "groupName": "配置组",
+    "valid": "有效"
   }
 }

@@ -15,15 +15,15 @@ public class DbModelRouter(
     {
         await using var dbContext = await dbContextFactory.CreateDbContextAsync();
 
-        var query = from profile in dbContext.ModelProfiles.AsNoTracking()
+        var query = from modelInfo in dbContext.AIModelInfos.AsNoTracking()
                     join provider in dbContext.ModelProviders.AsNoTracking()
-                        on profile.ProviderId equals provider.Id
-                    where profile.TenantId == userContext.TenantId
+                        on modelInfo.ProviderId equals provider.Id
+                    where modelInfo.TenantId == userContext.TenantId
                         && provider.TenantId == userContext.TenantId
-                        && profile.IsEnabled
+                        && modelInfo.IsEnabled
                         && provider.IsEnabled
-                        && profile.Name == request.Model
-                    select new { profile, provider };
+                        && modelInfo.Name == request.Model
+                    select new { modelInfo, provider };
 
         if (!string.IsNullOrWhiteSpace(request.Provider))
         {

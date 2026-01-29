@@ -16,7 +16,7 @@ public class ModelInvocationManager(
         Queryable = Queryable
             .Where(q => q.TenantId == _userContext.TenantId)
             .WhereNotNull(filter.ApplicationId, q => q.ApplicationId == filter.ApplicationId)
-            .WhereNotNull(filter.ModelProfileId, q => q.ModelProfileId == filter.ModelProfileId)
+            .WhereNotNull(filter.AIModelInfoId, q => q.AIModelInfoId == filter.AIModelInfoId)
             .WhereNotNull(filter.Scene, q => q.Scene == filter.Scene)
             .WhereNotNull(filter.Status, q => q.Status == filter.Status);
 

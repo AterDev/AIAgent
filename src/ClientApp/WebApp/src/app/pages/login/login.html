@@ -10,10 +10,10 @@
     <mat-card-content>
       <form (ngSubmit)="doLogin()" class="login-form">
         <mat-form-field appearance="outline">
-          <mat-label>{{i18nKeys.login.email|translate}}</mat-label>
-          <input matInput type="email" [formField]="email" [placeholder]="i18nKeys.login.emailPlaceholder | translate">
-          @if (email().invalid() && email().touched()) {
-          <mat-error>{{getValidatorMessage(email())}}</mat-error>
+          <mat-label>{{i18nKeys.login.username|translate}}</mat-label>
+          <input matInput type="text" [formField]="userName" [placeholder]="i18nKeys.login.usernamePlaceholder | translate">
+          @if (userName().invalid() && userName().touched()) {
+          <mat-error>{{getValidatorMessage(userName())}}</mat-error>
           }
         </mat-form-field>
         <mat-form-field appearance="outline">

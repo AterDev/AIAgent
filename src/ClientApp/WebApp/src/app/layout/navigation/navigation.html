@@ -12,7 +12,11 @@
       }
     </div>
 
-    @if(menus().length>0){
+    @if(isLoading()){
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+      <mat-spinner></mat-spinner>
+    </div>
+    } @else if(menus().length>0){
     <mat-accordion multi>
       @for (menu of menus(); track $index) {
       @if(menu.menuType==0){
@@ -45,6 +49,10 @@
       }
       }
     </mat-accordion>
+    } @else {
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 120px;">
+      <span>{{ i18nKeys.common.noData | translate }}</span>
+    </div>
     }
   </mat-drawer>
   <mat-drawer-content>

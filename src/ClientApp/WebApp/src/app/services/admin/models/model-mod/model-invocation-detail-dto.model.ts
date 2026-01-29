@@ -8,8 +8,8 @@ export interface ModelInvocationDetailDto {
   id: string;
   /** applicationId */
   applicationId: string;
-  /** modelProfileId */
-  modelProfileId: string;
+  /** aiModelInfoId */
+  aiModelInfoId: string;
   /** createdTime */
   createdTime: Date;
   /** updatedTime */
