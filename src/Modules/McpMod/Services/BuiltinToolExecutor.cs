@@ -23,6 +23,7 @@ public class BuiltinToolExecutor(
 
     public async Task<ToolExecutionResult> ExecuteAsync(ToolExecutionRequest request, CancellationToken cancellationToken = default)
     {
+        _ = userContext;
         return request.ToolName switch
         {
             "query_knowledge_base" => await ExecuteRagQueryAsync(request, cancellationToken),

@@ -324,10 +324,11 @@ public class EnhancedAgentExecutionService(
                 }
             }
         }
-        catch (JsonException ex)
+        catch (JsonException)
         {
             // 如果无法解析 JSON，可能不是工具调用
             // 返回空列表
+            return [];
         }
 
         return toolCalls;

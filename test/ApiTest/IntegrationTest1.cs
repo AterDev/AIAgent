@@ -19,7 +19,8 @@ public class IntegrationTest1
         };
         var response = await httpClient.PostAsJsonAsync("/api/systemUser/authorize", loginDto);
         var resData = await response.Content.ReadFromJsonAsync<AccessTokenDto>();
-        await Assert.That(resData.AccessToken).IsNotNullOrEmpty();
+        await Assert.That(resData).IsNotNull();
+        await Assert.That(resData!.AccessToken).IsNotNullOrEmpty();
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
     }
