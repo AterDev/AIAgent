@@ -22,7 +22,7 @@ export class McpToolAdd implements OnInit {
   i18nKeys = I18N_KEYS;
 
   form!: FormGroup;
-  isLoading = signal(false);
+  isLoading = signal(true);
 
   constructor(
     private fb: FormBuilder,

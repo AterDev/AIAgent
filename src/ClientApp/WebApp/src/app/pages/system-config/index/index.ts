@@ -27,7 +27,7 @@ export class SystemConfigIndex implements OnInit {
   dataSource = new MatTableDataSource<SystemConfigItemDto>();
   displayedColumns = ["key", "groupName", "valid", "isSystem", "actions"];
 
-  isLoading = signal(false);
+  isLoading = signal(true);
 
   total = 0;
   pageSize = 10;

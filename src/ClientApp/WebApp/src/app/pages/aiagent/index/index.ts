@@ -27,7 +27,7 @@ export class AIAgentIndex implements OnInit {
   dataSource = new MatTableDataSource<AIAgentItemDto>();
   displayedColumns = ["name", "modelId", "enable", "isTemplate", "actions"];
 
-  isLoading = signal(false);
+  isLoading = signal(true);
 
   total = 0;
   pageSize = 10;

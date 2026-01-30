@@ -27,7 +27,7 @@ export class Login implements OnInit, AfterViewInit {
   i18nKeys = I18N_KEYS;
   private adminClient = inject(AdminClient);
   private translate = inject(TranslateService);
-  isLoading = signal(false);
+  isLoading = signal(true);
 
   constructor(
     private authService: AuthService,

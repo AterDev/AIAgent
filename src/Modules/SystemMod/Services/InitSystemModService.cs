@@ -54,7 +54,7 @@ public class InitSystemModService(
                 UserName = "admin",
                 Email = "admin@aiagent.local",
                 RealName = "系统管理员",
-                Password = "Perigon.AIAgent",
+                Password = "Perigon.2026",
                 Roles = WebConst.SuperAdmin,
                 Enabled = true
             };

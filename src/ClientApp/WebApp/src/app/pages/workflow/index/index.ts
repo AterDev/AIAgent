@@ -27,7 +27,7 @@ export class WorkflowIndex implements OnInit {
   dataSource = new MatTableDataSource<WorkflowItemDto>();
   displayedColumns = ["name", "version", "isPublished", "actions"];
 
-  isLoading = signal(false);
+  isLoading = signal(true);
 
   total = 0;
   pageSize = 10;

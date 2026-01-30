@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-namespace EntityFramework;
+﻿namespace EntityFramework;
 
 public static class Extensions
 {
@@ -13,55 +11,58 @@ public static class Extensions
         where TEntity : class, IEntityBase
         where TUpdateDto : class
     {
-        DbSet<TEntity> set = db.Set<TEntity>();
+        var set = db.Set<TEntity>();
 
-        ParameterExpression eParam = Expression.Parameter(typeof(TEntity), "e");
-        MemberExpression keyProp = Expression.Property(eParam, nameof(EntityBase.Id));
-        ConstantExpression idConst = Expression.Constant(id, typeof(Guid));
-        BinaryExpression equal = Expression.Equal(keyProp, idConst);
+        var eParam = Expression.Parameter(typeof(TEntity), "e");
+        var keyProp = Expression.Property(eParam, nameof(EntityBase.Id));
+        var idConst = Expression.Constant(id, typeof(Guid));
+        var equal = Expression.Equal(keyProp, idConst);
         var whereLambda = Expression.Lambda<Func<TEntity, bool>>(equal, eParam);
 
-        // 构造 ExecuteUpdate 的 lambda
-        return await set.Where(whereLambda)
-            .ExecuteUpdateAsync(updater =>
+        return await set.Where(whereLambda).ExecuteUpdateAsync(updater =>
+        {
+            var type = updater.GetType();
+            var setPropertyMethod = type.GetMethods()
+                .First(m => m.Name == "SetProperty"
+                            && m.IsGenericMethod
+                            && m.GetParameters().Length == 2
+                            && m.GetParameters()[1].ParameterType == m.GetGenericArguments()[0]);
+
+            foreach (var dtoProp in typeof(TUpdateDto).GetProperties())
             {
-                foreach (PropertyInfo dtoProp in typeof(TUpdateDto).GetProperties())
+                var value = dtoProp.GetValue(dto);
+                if (value is null)
                 {
-                    var value = dtoProp.GetValue(dto);
-                    if (value is null)
-                    {
-                        continue;
-                    }
-
-                    PropertyInfo? entityPropInfo = typeof(TEntity).GetProperty(dtoProp.Name);
-                    if (entityPropInfo is null)
-                    {
-                        continue;
-                    }
-
-                    // e => e.Prop
-                    MemberExpression eProp = Expression.Property(eParam, entityPropInfo);
-                    var eLambda = Expression.Lambda<Func<TEntity, object>>(
-                        Expression.Convert(eProp, typeof(object)),
-                        eParam
-                    );
-
-                    updater = updater.SetProperty(eLambda, value);
+                    continue;
                 }
 
-                // 如果 updateUpdatedTime 为 true，则更新 UpdatedTime
-                if (updateUpdatedTime)
+                var entityProp = typeof(TEntity).GetProperty(dtoProp.Name);
+                if (entityProp is null)
                 {
-                    MemberExpression updatedTimeEProp = Expression.Property(
-                        eParam,
-                        nameof(EntityBase.UpdatedTime)
-                    );
-                    var updatedTimeLambda = Expression.Lambda<Func<TEntity, object>>(
-                        Expression.Convert(updatedTimeEProp, typeof(object)),
-                        eParam
-                    );
-                    updater = updater.SetProperty(updatedTimeLambda, DateTimeOffset.UtcNow);
+                    continue;
                 }
-            });
+
+                // Construct e => e.Prop
+                var propExp = Expression.Property(eParam, entityProp);
+                var propLambda = Expression.Lambda(propExp, eParam);
+
+                // Invoke SetProperty<TProp>(lambda, value)
+                var genericSetProperty = setPropertyMethod.MakeGenericMethod(entityProp.PropertyType);
+                genericSetProperty.Invoke(updater, [propLambda, value]);
+            }
+
+            if (updateUpdatedTime)
+            {
+                var entityProp = typeof(TEntity).GetProperty(nameof(EntityBase.UpdatedTime));
+                if (entityProp != null)
+                {
+                    var propExp = Expression.Property(eParam, entityProp);
+                    var propLambda = Expression.Lambda(propExp, eParam);
+
+                    var genericSetProperty = setPropertyMethod.MakeGenericMethod(entityProp.PropertyType);
+                    genericSetProperty.Invoke(updater, [propLambda, DateTimeOffset.UtcNow]);
+                }
+            }
+        });
     }
 }

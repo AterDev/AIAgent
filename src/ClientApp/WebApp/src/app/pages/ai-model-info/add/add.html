@@ -13,14 +13,10 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
-        <mat-label>{{ i18nKeys.aiModelInfo.provider | translate }}</mat-label>
-        <mat-select [formControl]="providerId">
-          @for (p of providers; track p.id) {
-            <mat-option [value]="p.id">{{ p.name }}</mat-option>
-          }
-        </mat-select>
-        @if (providerId.errors) {
-          <mat-error>{{ getValidatorMessage(providerId) }}</mat-error>
+        <mat-label>{{ i18nKeys.aiModelInfo.displayName | translate }}</mat-label>
+        <input matInput [formControl]="displayName" [placeholder]="i18nKeys.aiModelInfo.displayName | translate" />
+        @if (displayName.errors) {
+          <mat-error>{{ getValidatorMessage(displayName) }}</mat-error>
         }
       </mat-form-field>
 
@@ -33,12 +29,41 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ i18nKeys.aiModelInfo.provider | translate }}</mat-label>
+        <mat-select [formControl]="providerId">
+          @for (p of providers; track p.id) {
+            <mat-option [value]="p.id">{{ p.name }}</mat-option>
+          }
+        </mat-select>
+        @if (providerId.errors) {
+          <mat-error>{{ getValidatorMessage(providerId) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-label>Context Length</mat-label>
         <input matInput type="number" [formControl]="contextLength" />
         @if (contextLength.errors) {
           <mat-error>{{ getValidatorMessage(contextLength) }}</mat-error>
         }
       </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Max Context Tokens</mat-label>
+        <input matInput type="number" [formControl]="maxContextTokens" />
+        @if (maxContextTokens.errors) {
+          <mat-error>{{ getValidatorMessage(maxContextTokens) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <div class="fw-bold mt-2">{{ i18nKeys.aiModelInfo.capabilities | translate }}</div>
+      <div class="d-flex gap-2 flex-wrap">
+        <mat-checkbox [formControl]="supportsChat">{{ i18nKeys.aiModelInfo.supportsChat | translate }}</mat-checkbox>
+        <mat-checkbox [formControl]="supportsEmbedding">{{ i18nKeys.aiModelInfo.supportsEmbedding | translate }}</mat-checkbox>
+        <mat-checkbox [formControl]="supportsTools">{{ i18nKeys.aiModelInfo.supportsTools | translate }}</mat-checkbox>
+        <mat-checkbox [formControl]="supportsVision">{{ i18nKeys.aiModelInfo.supportsVision | translate }}</mat-checkbox>
+        <mat-checkbox [formControl]="supportsResponsesApi">{{ i18nKeys.aiModelInfo.supportsResponsesApi | translate }}</mat-checkbox>
+      </div>
 
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-label>Input Price</mat-label>
@@ -55,10 +80,12 @@
           <mat-error>{{ getValidatorMessage(outputPrice) }}</mat-error>
         }
       </mat-form-field>
+
+      <mat-checkbox [formControl]="isEnabled">{{ i18nKeys.aiModelInfo.isEnabled | translate }}</mat-checkbox>
     </form>
   </mat-card-content>
   <mat-card-actions class="d-flex justify-content-end gap-2">
-    <button mat-button (click)="onCancel()">{{ i18nKeys.common.cancel | translate }}</button>
-    <button mat-flat-button color="primary" (click)="onSubmit()" [disabled]="form.invalid || isLoading()">{{ i18nKeys.common.save | translate }}</button>
+    <button mat-button (click)="close(false)">{{ i18nKeys.common.cancel | translate }}</button>
+    <button mat-flat-button color="primary" (click)="submit()" [disabled]="form.invalid || isLoading()">{{ i18nKeys.common.save | translate }}</button>
   </mat-card-actions>
 </mat-card>

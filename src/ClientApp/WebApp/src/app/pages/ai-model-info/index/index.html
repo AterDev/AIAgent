@@ -1,7 +1,7 @@
 <div class="aimodel-info-list-page">
   <div class="toolbar">
     <div class="d-flex align-items-center gap-2 justify-content-end p-1">
-      <button mat-flat-button color="accent" (click)="onAdd()">
+      <button mat-flat-button color="accent" (click)="openAdd()">
         {{ i18nKeys.common.add | translate }}
       </button>
     </div>
@@ -65,9 +65,9 @@
         {{ i18nKeys.common.actions | translate }}
       </th>
       <td mat-cell *matCellDef="let item">
-        <button mat-icon-button class="secondary" (click)="onDetail(item.id)"><mat-icon>visibility</mat-icon></button>
-        <button mat-icon-button class="primary" (click)="onEdit(item.id)"><mat-icon>edit</mat-icon></button>
-        <button mat-icon-button class="accent" (click)="onDelete(item.id)"><mat-icon>delete</mat-icon></button>
+        <button mat-icon-button class="secondary" (click)="openDetail(item.id)"><mat-icon>visibility</mat-icon></button>
+        <button mat-icon-button class="primary" (click)="openEdit(item.id)"><mat-icon>edit</mat-icon></button>
+        <button mat-icon-button class="accent" (click)="deleteItem(item.id)"><mat-icon>delete</mat-icon></button>
       </td>
     </ng-container>
 
@@ -76,7 +76,7 @@
 
   </table>
 
-  <mat-paginator [length]="total" [pageSizeOptions]="[10, 25, 50]" (page)="onPageChange($event)"></mat-paginator>
+  <mat-paginator [length]="total" [pageSize]="filterDto.pageSize" (page)="pageChanged($event)"></mat-paginator>
   }
 
 </div>

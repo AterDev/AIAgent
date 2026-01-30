@@ -23,7 +23,7 @@ export class ApplicationEdit implements OnInit {
 
   form!: FormGroup;
   id?: string;
-  isLoading = signal(false);
+  isLoading = signal(true);
 
   constructor(
     private fb: FormBuilder,

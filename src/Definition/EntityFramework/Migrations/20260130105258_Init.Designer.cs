@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EntityFramework.Migrations
 {
     [DbContext(typeof(DefaultDbContext))]
-    [Migration("20260129072739_AddSystemUser")]
-    partial class AddSystemUser
+    [Migration("20260130105258_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -82,93 +82,6 @@ namespace EntityFramework.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("AIAgents");
-                });
-
-            modelBuilder.Entity("Entity.AIAgentMod.AIModelInfo", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("ContextLength")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTimeOffset>("CreatedTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<decimal>("InputPrice")
-                        .HasColumnType("numeric");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<decimal>("OutputPrice")
-                        .HasColumnType("numeric");
-
-                    b.Property<Guid>("ProviderId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("UpdatedTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProviderId", "Name")
-                        .IsUnique();
-
-                    b.ToTable("AIModelInfos");
-                });
-
-            modelBuilder.Entity("Entity.AIAgentMod.AIModelProvider", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("CreatedTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("LogoUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("UpdatedTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Website")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AIModelProviders");
                 });
 
             modelBuilder.Entity("Entity.AIAgentMod.AgentExecution", b =>
@@ -730,6 +643,118 @@ namespace EntityFramework.Migrations
                     b.ToTable("ToolCallRecords");
                 });
 
+            modelBuilder.Entity("Entity.ModelMod.AIModelInfo", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("ContextLength")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("DisplayName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<decimal>("InputPrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("MaxContextTokens")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<decimal>("OutputPrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<Guid>("ProviderId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("SupportsChat")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("SupportsEmbedding")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("SupportsResponsesApi")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("SupportsTools")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("SupportsVision")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProviderId", "Name")
+                        .IsUnique();
+
+                    b.ToTable("AIModelInfos");
+                });
+
+            modelBuilder.Entity("Entity.ModelMod.AIModelProvider", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LogoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AIModelProviders");
+                });
+
             modelBuilder.Entity("Entity.ModelMod.Application", b =>
                 {
                     b.Property<Guid>("Id")
@@ -785,6 +810,9 @@ namespace EntityFramework.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("AIModelInfoId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("ApplicationId")
                         .HasColumnType("uuid");
 
@@ -797,9 +825,6 @@ namespace EntityFramework.Migrations
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("ModelProfileId")
-                        .HasColumnType("uuid");
-
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
 
@@ -808,9 +833,9 @@ namespace EntityFramework.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ModelProfileId");
+                    b.HasIndex("AIModelInfoId");
 
-                    b.HasIndex("ApplicationId", "ModelProfileId")
+                    b.HasIndex("ApplicationId", "AIModelInfoId")
                         .IsUnique();
 
                     b.ToTable("ApplicationModelPermissions");
@@ -903,6 +928,9 @@ namespace EntityFramework.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("AIModelInfoId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("ApplicationId")
                         .HasColumnType("uuid");
 
@@ -921,9 +949,6 @@ namespace EntityFramework.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
-
-                    b.Property<Guid>("ModelProfileId")
-                        .HasColumnType("uuid");
 
                     b.Property<int>("PromptTokens")
                         .HasColumnType("integer");
@@ -947,74 +972,11 @@ namespace EntityFramework.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ModelProfileId");
+                    b.HasIndex("AIModelInfoId");
 
-                    b.HasIndex("ApplicationId", "ModelProfileId", "Scene");
+                    b.HasIndex("ApplicationId", "AIModelInfoId", "Scene");
 
                     b.ToTable("ModelInvocations");
-                });
-
-            modelBuilder.Entity("Entity.ModelMod.ModelProfile", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("CreatedTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<string>("DisplayName")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsEnabled")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("MaxContextTokens")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<Guid>("ProviderId")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("SupportsChat")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("SupportsEmbedding")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("SupportsResponsesApi")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("SupportsTools")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("SupportsVision")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("UpdatedTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProviderId", "Name")
-                        .IsUnique();
-
-                    b.ToTable("ModelProfiles");
                 });
 
             modelBuilder.Entity("Entity.ModelMod.ModelProvider", b =>
@@ -1345,17 +1307,6 @@ namespace EntityFramework.Migrations
                     b.ToTable("WorkflowExecutions");
                 });
 
-            modelBuilder.Entity("Entity.AIAgentMod.AIModelInfo", b =>
-                {
-                    b.HasOne("Entity.AIAgentMod.AIModelProvider", "Provider")
-                        .WithMany("Models")
-                        .HasForeignKey("ProviderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Provider");
-                });
-
             modelBuilder.Entity("Entity.AIAgentMod.AgentExecution", b =>
                 {
                     b.HasOne("Entity.AIAgentMod.AIAgent", "Agent")
@@ -1411,23 +1362,34 @@ namespace EntityFramework.Migrations
                     b.Navigation("Tool");
                 });
 
+            modelBuilder.Entity("Entity.ModelMod.AIModelInfo", b =>
+                {
+                    b.HasOne("Entity.ModelMod.AIModelProvider", "Provider")
+                        .WithMany("Models")
+                        .HasForeignKey("ProviderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Provider");
+                });
+
             modelBuilder.Entity("Entity.ModelMod.ApplicationModelPermission", b =>
                 {
+                    b.HasOne("Entity.ModelMod.AIModelInfo", "AIModelInfo")
+                        .WithMany()
+                        .HasForeignKey("AIModelInfoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Entity.ModelMod.Application", "Application")
                         .WithMany()
                         .HasForeignKey("ApplicationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Entity.ModelMod.ModelProfile", "ModelProfile")
-                        .WithMany()
-                        .HasForeignKey("ModelProfileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("AIModelInfo");
 
                     b.Navigation("Application");
-
-                    b.Navigation("ModelProfile");
                 });
 
             modelBuilder.Entity("Entity.ModelMod.ApplicationQuota", b =>
@@ -1454,32 +1416,21 @@ namespace EntityFramework.Migrations
 
             modelBuilder.Entity("Entity.ModelMod.ModelInvocation", b =>
                 {
+                    b.HasOne("Entity.ModelMod.AIModelInfo", "AIModelInfo")
+                        .WithMany()
+                        .HasForeignKey("AIModelInfoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Entity.ModelMod.Application", "Application")
                         .WithMany()
                         .HasForeignKey("ApplicationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Entity.ModelMod.ModelProfile", "ModelProfile")
-                        .WithMany()
-                        .HasForeignKey("ModelProfileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("AIModelInfo");
 
                     b.Navigation("Application");
-
-                    b.Navigation("ModelProfile");
-                });
-
-            modelBuilder.Entity("Entity.ModelMod.ModelProfile", b =>
-                {
-                    b.HasOne("Entity.ModelMod.ModelProvider", "Provider")
-                        .WithMany()
-                        .HasForeignKey("ProviderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Provider");
                 });
 
             modelBuilder.Entity("Entity.WorkflowMod.WorkflowExecution", b =>
@@ -1493,14 +1444,14 @@ namespace EntityFramework.Migrations
                     b.Navigation("Workflow");
                 });
 
-            modelBuilder.Entity("Entity.AIAgentMod.AIModelProvider", b =>
-                {
-                    b.Navigation("Models");
-                });
-
             modelBuilder.Entity("Entity.AIAgentMod.Conversation", b =>
                 {
                     b.Navigation("Messages");
+                });
+
+            modelBuilder.Entity("Entity.ModelMod.AIModelProvider", b =>
+                {
+                    b.Navigation("Models");
                 });
 #pragma warning restore 612, 618
         }

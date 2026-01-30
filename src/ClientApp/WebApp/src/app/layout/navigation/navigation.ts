@@ -19,7 +19,7 @@ export class NavigationComponent {
   opened = true;
   expanded = true;
   menus = signal<Menu[]>([]);
-  isLoading = signal(false);
+  isLoading = signal(true);
   constructor(
     private http: HttpClient,
   ) {

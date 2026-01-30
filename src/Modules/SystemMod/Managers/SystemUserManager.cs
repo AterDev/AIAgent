@@ -1,16 +1,14 @@
-using System.Security.Claims;
-using Perigon.AspNetCore.Services;
-using Perigon.AspNetCore.Utils;
 using Perigon.AspNetCore.Constants;
-using SystemMod.Models.SystemUserDtos;
+using Perigon.AspNetCore.Services;
 using Share.Models.Auth;
+using SystemMod.Models.SystemUserDtos;
 
 namespace SystemMod.Managers;
 /// <summary>
 /// 系统用户
 /// </summary>
 public class SystemUserManager(
-    TenantDbFactory dbContextFactory, 
+    TenantDbFactory dbContextFactory,
     ILogger<SystemUserManager> logger,
     IUserContext userContext,
     JwtService jwtService
@@ -20,7 +18,7 @@ public class SystemUserManager(
     /// Filter 系统用户 with paging
     /// </summary>
     public async Task<PageList<SystemUserItemDto>> FilterAsync(SystemUserFilterDto filter)
-    {        
+    {
         Queryable = Queryable
             .WhereNotNull(filter.UserName, q => q.UserName == filter.UserName)
             .WhereNotNull(filter.Email, q => q.Email == filter.Email)
@@ -39,21 +37,21 @@ public class SystemUserManager(
         // 检查用户名是否已存在
         if (await _dbSet.AnyAsync(u => u.UserName == dto.UserName))
         {
-            throw new BusinessException($"用户名 {dto.UserName} 已存在");
+            throw new BusinessException(Localizer.UserNameAlreadyExists, arguments: [dto.UserName]);
         }
 
         // 检查邮箱是否已存在
         if (await _dbSet.AnyAsync(u => u.Email == dto.Email))
         {
-            throw new BusinessException($"邮箱 {dto.Email} 已存在");
+            throw new BusinessException(Localizer.EmailAlreadyExists, arguments: [dto.Email]);
         }
 
         var entity = dto.MapTo<SystemUser>();
-        
+
         // 处理密码
         entity.PasswordSalt = HashCrypto.BuildSalt();
         entity.PasswordHash = HashCrypto.GeneratePwd(dto.Password, entity.PasswordSalt);
-        
+
         await InsertAsync(entity);
         return entity;
     }
@@ -149,18 +147,18 @@ public class SystemUserManager(
         var user = await _dbSet
             .Where(u => u.UserName == dto.UserName)
             .FirstOrDefaultAsync()
-            ?? throw new BusinessException("用户名或密码错误", StatusCodes.Status401Unauthorized);
+            ?? throw new BusinessException(Localizer.InvalidUserOrPassword);
 
         // 验证密码
         if (!HashCrypto.Validate(dto.Password, user.PasswordSalt, user.PasswordHash))
         {
-            throw new BusinessException("用户名或密码错误", StatusCodes.Status401Unauthorized);
+            throw new BusinessException(Localizer.InvalidUserOrPassword);
         }
 
         // 检查用户是否启用
         if (!user.Enabled)
         {
-            throw new BusinessException("用户已被禁用", StatusCodes.Status403Forbidden);
+            throw new BusinessException(Localizer.UserDisabled);
         }
 
         // 更新最后登录时间
@@ -168,8 +166,8 @@ public class SystemUserManager(
         await _dbContext.SaveChangesAsync();
 
         // 生成JWT Token
-        var roles = string.IsNullOrEmpty(user.Roles) 
-            ? [WebConst.SuperAdmin] 
+        var roles = string.IsNullOrEmpty(user.Roles)
+            ? [WebConst.SuperAdmin]
             : user.Roles.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
         var token = jwtService.GetToken(user.Id.ToString(), roles);
@@ -193,12 +191,12 @@ public class SystemUserManager(
     public async Task<bool> ChangePasswordAsync(Guid userId, ChangePasswordDto dto)
     {
         var user = await _dbSet.Where(u => u.Id == userId).FirstOrDefaultAsync()
-            ?? throw new BusinessException("用户不存在");
+            ?? throw new BusinessException(Localizer.UserNotFound);
 
         // 验证旧密码
         if (!HashCrypto.Validate(dto.OldPassword, user.PasswordSalt, user.PasswordHash))
         {
-            throw new BusinessException("原密码错误");
+            throw new BusinessException(Localizer.PasswordInvalid);
         }
 
         // 更新密码
