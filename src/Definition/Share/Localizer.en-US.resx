@@ -221,4 +221,20 @@
   <data name="TenantNotExist" xml:space="preserve">
     <value>The tenant does not exist</value>
   </data>
+  <data name="UserNameAlreadyExists" xml:space="preserve">
+    <value>Username {0} already exists</value>
+    <comment>Username already exists during user registration</comment>
+  </data>
+  <data name="EmailAlreadyExists" xml:space="preserve">
+    <value>Email {0} already exists</value>
+    <comment>Email already exists during user registration</comment>
+  </data>
+  <data name="UserDisabled" xml:space="preserve">
+    <value>User is disabled</value>
+    <comment>User is disabled when logging in</comment>
+  </data>
+  <data name="ExternalAuthenticationFailed" xml:space="preserve">
+    <value>External authentication failed</value>
+    <comment>Third-party authentication failed (Microsoft/Google, etc.)</comment>
+  </data>
 </root>

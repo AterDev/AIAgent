@@ -23,7 +23,7 @@ export class McpToolEdit implements OnInit {
 
   form!: FormGroup;
   id?: string;
-  isLoading = signal(false);
+  isLoading = signal(true);
 
   constructor(
     private fb: FormBuilder,

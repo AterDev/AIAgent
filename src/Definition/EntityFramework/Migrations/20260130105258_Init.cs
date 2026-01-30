@@ -208,6 +208,31 @@ namespace EntityFramework.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "SystemUsers",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserName = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false),
+                    Email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    RealName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    PasswordHash = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    PasswordSalt = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false),
+                    Roles = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    Enabled = table.Column<bool>(type: "boolean", nullable: false),
+                    LastLoginTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    Avatar = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    Phone = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SystemUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Tenants",
                 columns: table => new
                 {
@@ -322,10 +347,18 @@ namespace EntityFramework.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     ProviderId = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    DisplayName = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
                     Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     ContextLength = table.Column<int>(type: "integer", nullable: false),
+                    MaxContextTokens = table.Column<int>(type: "integer", nullable: false),
+                    SupportsChat = table.Column<bool>(type: "boolean", nullable: false),
+                    SupportsEmbedding = table.Column<bool>(type: "boolean", nullable: false),
+                    SupportsTools = table.Column<bool>(type: "boolean", nullable: false),
+                    SupportsVision = table.Column<bool>(type: "boolean", nullable: false),
+                    SupportsResponsesApi = table.Column<bool>(type: "boolean", nullable: false),
                     InputPrice = table.Column<decimal>(type: "numeric", nullable: false),
                     OutputPrice = table.Column<decimal>(type: "numeric", nullable: false),
+                    IsEnabled = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
@@ -451,38 +484,6 @@ namespace EntityFramework.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ModelProfiles",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    ProviderId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    DisplayName = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
-                    Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
-                    MaxContextTokens = table.Column<int>(type: "integer", nullable: false),
-                    SupportsChat = table.Column<bool>(type: "boolean", nullable: false),
-                    SupportsEmbedding = table.Column<bool>(type: "boolean", nullable: false),
-                    SupportsTools = table.Column<bool>(type: "boolean", nullable: false),
-                    SupportsVision = table.Column<bool>(type: "boolean", nullable: false),
-                    SupportsResponsesApi = table.Column<bool>(type: "boolean", nullable: false),
-                    IsEnabled = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ModelProfiles", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ModelProfiles_ModelProviders_ProviderId",
-                        column: x => x.ProviderId,
-                        principalTable: "ModelProviders",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "RagDocuments",
                 columns: table => new
                 {
@@ -548,7 +549,7 @@ namespace EntityFramework.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     ApplicationId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ModelProfileId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AIModelInfoId = table.Column<Guid>(type: "uuid", nullable: false),
                     IsEnabled = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -559,15 +560,15 @@ namespace EntityFramework.Migrations
                 {
                     table.PrimaryKey("PK_ApplicationModelPermissions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ApplicationModelPermissions_Applications_ApplicationId",
-                        column: x => x.ApplicationId,
-                        principalTable: "Applications",
+                        name: "FK_ApplicationModelPermissions_AIModelInfos_AIModelInfoId",
+                        column: x => x.AIModelInfoId,
+                        principalTable: "AIModelInfos",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ApplicationModelPermissions_ModelProfiles_ModelProfileId",
-                        column: x => x.ModelProfileId,
-                        principalTable: "ModelProfiles",
+                        name: "FK_ApplicationModelPermissions_Applications_ApplicationId",
+                        column: x => x.ApplicationId,
+                        principalTable: "Applications",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -578,7 +579,7 @@ namespace EntityFramework.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     ApplicationId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ModelProfileId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AIModelInfoId = table.Column<Guid>(type: "uuid", nullable: false),
                     Scene = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     PromptTokens = table.Column<int>(type: "integer", nullable: false),
                     CompletionTokens = table.Column<int>(type: "integer", nullable: false),
@@ -595,15 +596,15 @@ namespace EntityFramework.Migrations
                 {
                     table.PrimaryKey("PK_ModelInvocations", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ModelInvocations_Applications_ApplicationId",
-                        column: x => x.ApplicationId,
-                        principalTable: "Applications",
+                        name: "FK_ModelInvocations_AIModelInfos_AIModelInfoId",
+                        column: x => x.AIModelInfoId,
+                        principalTable: "AIModelInfos",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ModelInvocations_ModelProfiles_ModelProfileId",
-                        column: x => x.ModelProfileId,
-                        principalTable: "ModelProfiles",
+                        name: "FK_ModelInvocations_Applications_ApplicationId",
+                        column: x => x.ApplicationId,
+                        principalTable: "Applications",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -656,15 +657,15 @@ namespace EntityFramework.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_ApplicationModelPermissions_ApplicationId_ModelProfileId",
+                name: "IX_ApplicationModelPermissions_AIModelInfoId",
                 table: "ApplicationModelPermissions",
-                columns: new[] { "ApplicationId", "ModelProfileId" },
-                unique: true);
+                column: "AIModelInfoId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ApplicationModelPermissions_ModelProfileId",
+                name: "IX_ApplicationModelPermissions_ApplicationId_AIModelInfoId",
                 table: "ApplicationModelPermissions",
-                column: "ModelProfileId");
+                columns: new[] { "ApplicationId", "AIModelInfoId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ApplicationQuotas_ApplicationId_PeriodType",
@@ -717,20 +718,14 @@ namespace EntityFramework.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_ModelInvocations_ApplicationId_ModelProfileId_Scene",
+                name: "IX_ModelInvocations_AIModelInfoId",
                 table: "ModelInvocations",
-                columns: new[] { "ApplicationId", "ModelProfileId", "Scene" });
+                column: "AIModelInfoId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ModelInvocations_ModelProfileId",
+                name: "IX_ModelInvocations_ApplicationId_AIModelInfoId_Scene",
                 table: "ModelInvocations",
-                column: "ModelProfileId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ModelProfiles_ProviderId_Name",
-                table: "ModelProfiles",
-                columns: new[] { "ProviderId", "Name" },
-                unique: true);
+                columns: new[] { "ApplicationId", "AIModelInfoId", "Scene" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_ModelProviders_Name",
@@ -758,6 +753,18 @@ namespace EntityFramework.Migrations
                 name: "IX_SystemConfigs_GroupName_Key",
                 table: "SystemConfigs",
                 columns: new[] { "GroupName", "Key" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SystemUsers_Email",
+                table: "SystemUsers",
+                column: "Email",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SystemUsers_UserName",
+                table: "SystemUsers",
+                column: "UserName",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -800,9 +807,6 @@ namespace EntityFramework.Migrations
                 name: "AgentExecutions");
 
             migrationBuilder.DropTable(
-                name: "AIModelInfos");
-
-            migrationBuilder.DropTable(
                 name: "ApplicationModelPermissions");
 
             migrationBuilder.DropTable(
@@ -821,10 +825,16 @@ namespace EntityFramework.Migrations
                 name: "ModelInvocations");
 
             migrationBuilder.DropTable(
+                name: "ModelProviders");
+
+            migrationBuilder.DropTable(
                 name: "RagChunks");
 
             migrationBuilder.DropTable(
                 name: "SystemConfigs");
+
+            migrationBuilder.DropTable(
+                name: "SystemUsers");
 
             migrationBuilder.DropTable(
                 name: "Tenants");
@@ -845,16 +855,13 @@ namespace EntityFramework.Migrations
                 name: "AIAgents");
 
             migrationBuilder.DropTable(
-                name: "AIModelProviders");
-
-            migrationBuilder.DropTable(
                 name: "Conversations");
 
             migrationBuilder.DropTable(
-                name: "Applications");
+                name: "AIModelInfos");
 
             migrationBuilder.DropTable(
-                name: "ModelProfiles");
+                name: "Applications");
 
             migrationBuilder.DropTable(
                 name: "RagDocuments");
@@ -866,7 +873,7 @@ namespace EntityFramework.Migrations
                 name: "Workflows");
 
             migrationBuilder.DropTable(
-                name: "ModelProviders");
+                name: "AIModelProviders");
 
             migrationBuilder.DropTable(
                 name: "RagCollections");

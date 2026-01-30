@@ -24,7 +24,7 @@ export class AgentExecutionIndex implements OnInit {
   dataSource = new MatTableDataSource<AgentExecutionItemDto>();
   displayedColumns = ["agentId", "status", "durationMs", "completedTime", "actions"];
 
-  isLoading = signal(false);
+  isLoading = signal(true);
 
   total = 0;
   pageSize = 10;

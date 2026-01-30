@@ -78,10 +78,10 @@ public class SystemUserController(
     /// <returns>访问令牌</returns>
     [HttpPost("login")]
     [AllowAnonymous]
-    public async Task<ActionResult<AccessTokenDto>> LoginAsync([FromBody] LoginDto dto)
+    public async Task<AccessTokenDto> LoginAsync([FromBody] LoginDto dto)
     {
         var result = await _manager.LoginAsync(dto);
-        return Ok(result);
+        return result;
     }
 
     /// <summary>

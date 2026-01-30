@@ -6,9 +6,16 @@ namespace ModelMod.Models.AIModelInfoDtos;
 public class AIModelInfoAddDto
 {
     /// <summary>
-    /// 上下文长度（tokens）
+    /// 模型名称
     /// </summary>
-    public int ContextLength { get; set; }
+    [MaxLength(200)]
+    public string Name { get; set; } = default!;
+
+    /// <summary>
+    /// 显示名称
+    /// </summary>
+    [MaxLength(200)]
+    public string? DisplayName { get; set; }
 
     /// <summary>
     /// 说明
@@ -17,17 +24,57 @@ public class AIModelInfoAddDto
     public string? Description { get; set; }
 
     /// <summary>
+    /// 所属提供商 Id
+    /// </summary>
+    public Guid ProviderId { get; set; } = default!;
+
+    /// <summary>
+    /// 上下文长度（tokens）
+    /// </summary>
+    public int ContextLength { get; set; }
+
+    /// <summary>
+    /// 最大上下文长度（tokens）
+    /// </summary>
+    public int MaxContextTokens { get; set; } = 8192;
+
+    /// <summary>
+    /// 支持聊天
+    /// </summary>
+    public bool SupportsChat { get; set; } = true;
+
+    /// <summary>
+    /// 支持向量化
+    /// </summary>
+    public bool SupportsEmbedding { get; set; }
+
+    /// <summary>
+    /// 支持工具调用
+    /// </summary>
+    public bool SupportsTools { get; set; }
+
+    /// <summary>
+    /// 支持视觉
+    /// </summary>
+    public bool SupportsVision { get; set; }
+
+    /// <summary>
+    /// 支持 Responses API
+    /// </summary>
+    public bool SupportsResponsesApi { get; set; }
+
+    /// <summary>
     /// 价格（单位: 每 1k tokens 的价格）
     /// </summary>
     public decimal InputPrice { get; set; }
 
     /// <summary>
-    /// 模型名称
+    /// 价格（单位: 每 1k tokens 的价格）
     /// </summary>
-    [MaxLength(200)]
-    public string Name { get; set; } = default!;
-
     public decimal OutputPrice { get; set; }
 
-    public Guid ProviderId { get; set; } = default!;
+    /// <summary>
+    /// 是否启用
+    /// </summary>
+    public bool IsEnabled { get; set; } = true;
 }

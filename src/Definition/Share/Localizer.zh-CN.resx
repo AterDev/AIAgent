@@ -221,4 +221,20 @@
   <data name="TenantNotExist" xml:space="preserve">
     <value>租户不存在</value>
   </data>
+  <data name="UserNameAlreadyExists" xml:space="preserve">
+    <value>用户名{0}已存在</value>
+    <comment>用户注册时用户名已存在</comment>
+  </data>
+  <data name="EmailAlreadyExists" xml:space="preserve">
+    <value>邮箱{0}已存在</value>
+    <comment>用户注册时邮箱已存在</comment>
+  </data>
+  <data name="UserDisabled" xml:space="preserve">
+    <value>用户已被禁用</value>
+    <comment>登录时用户被禁用</comment>
+  </data>
+  <data name="ExternalAuthenticationFailed" xml:space="preserve">
+    <value>外部身份验证失败</value>
+    <comment>Microsoft/Google等第三方认证失败</comment>
+  </data>
 </root>

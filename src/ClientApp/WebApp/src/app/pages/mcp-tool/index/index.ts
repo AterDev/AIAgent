@@ -27,7 +27,7 @@ export class McpToolIndex implements OnInit {
   dataSource = new MatTableDataSource<McpToolItemDto>();
   displayedColumns = ["name", "toolType", "version", "isEnabled", "actions"];
 
-  isLoading = signal(false);
+  isLoading = signal(true);
 
   total = 0;
   pageSize = 10;

@@ -27,7 +27,7 @@ export class RagDocumentIndex implements OnInit {
   dataSource = new MatTableDataSource<RagDocumentItemDto>();
   displayedColumns = ["name", "collectionId", "status", "chunkCount", "actions"];
 
-  isLoading = signal(false);
+  isLoading = signal(true);
 
   total = 0;
   pageSize = 10;

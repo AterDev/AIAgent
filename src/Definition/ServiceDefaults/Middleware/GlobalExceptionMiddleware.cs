@@ -57,8 +57,11 @@ public class GlobalExceptionMiddleware(
                 ctx.TraceIdentifier
             );
             ctx.Response.StatusCode = ex.StatusCodes;
+            var message = ex.Arguments.Length > 0
+                ? localizer.Get(ex.LanguageKey, ex.Arguments)
+                : localizer.Get(ex.LanguageKey);
             await ctx.Response.WriteAsJsonAsync(
-                new ErrorResult(localizer.Get(ex.LanguageKey), ctx.TraceIdentifier)
+                new ErrorResult(message, ctx.TraceIdentifier)
             );
         }
         catch (UnauthorizedAccessException ex)

@@ -68,7 +68,7 @@ public class ExternalAuthController(ILogger<ExternalAuthController> logger) : Co
         if (!result.Succeeded)
         {
             logger.LogWarning("External authentication failed for type: {type}", type);
-            return BadRequest("External authentication failed.");
+            return BadRequest("ExternalAuthenticationFailed");
         }
 
         // 提取用户信息

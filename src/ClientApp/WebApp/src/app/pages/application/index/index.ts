@@ -27,7 +27,7 @@ export class ApplicationIndex implements OnInit {
   dataSource = new MatTableDataSource<ApplicationItemDto>();
   displayedColumns = [ "name", "accessKey", "isEnabled", "createdTime", "actions" ];
 
-  isLoading = signal(false);
+  isLoading = signal(true);
 
   total = 0;
   pageSize = 10;
