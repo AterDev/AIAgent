@@ -15,6 +15,7 @@
         <PackageReference Include="DocumentFormat.OpenXml" />
         <PackageReference Include="EPPlus" />
         <PackageReference Include="itext" />
+        <PackageReference Include="Newtonsoft.Json" />
     </ItemGroup>
     <ItemGroup>
         <Folder Include="Managers\" />

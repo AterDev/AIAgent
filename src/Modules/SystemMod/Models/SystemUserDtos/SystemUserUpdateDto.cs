@@ -21,16 +21,7 @@ public class SystemUserUpdateDto
     /// </summary>
     [MaxLength(100)]
     public string? RealName { get; set; }
-    /// <summary>
-    /// 密码哈希
-    /// </summary>
-    // [MaxLength(200)]
-    // public string? PasswordHash { get; set; }
-    /// <summary>
-    /// 密码盐
-    /// </summary>
-    // [MaxLength(60)]
-    // public string? PasswordSalt { get; set; }
+
     /// <summary>
     /// 角色(多个角色用,分隔)
     /// </summary>

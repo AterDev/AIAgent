@@ -12,6 +12,7 @@ public class InitKnowledgeBaseModService(
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        _ = serviceProvider;
         // using var scope = serviceProvider.CreateScope();
 
         try

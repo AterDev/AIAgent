@@ -8,8 +8,7 @@ namespace AIAgentMod.Managers;
 public class AIAgentManager(
     TenantDbFactory dbContextFactory,
     ILogger<AIAgentManager> logger,
-    IUserContext userContext,
-    ICacheService? cacheService = null
+    IUserContext userContext
 ) : ManagerBase<DefaultDbContext, AIAgent>(dbContextFactory, userContext, logger)
 {
     private const string CacheKeyPrefix = "AIAgent:";

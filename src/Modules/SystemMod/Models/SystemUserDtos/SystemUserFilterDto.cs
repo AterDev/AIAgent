@@ -16,11 +16,7 @@ public class SystemUserFilterDto : FilterBase
     /// </summary>
     [MaxLength(100)]
     public string? Email { get; set; }
-    /// <summary>
-    /// 密码盐
-    /// </summary>
-    // [MaxLength(60)]
-    // public string? PasswordSalt { get; set; }
+
     /// <summary>
     /// 是否启用
     /// </summary>

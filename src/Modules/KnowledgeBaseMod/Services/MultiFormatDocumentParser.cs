@@ -107,7 +107,7 @@ public class MultiFormatDocumentParser(
         using var stream = new MemoryStream(bytes);
         using var wordDoc = WordprocessingDocument.Open(stream, false);
         
-        var body = wordDoc.MainDocumentPart?.Document.Body;
+        var body = wordDoc.MainDocumentPart?.Document?.Body;
         if (body == null)
         {
             return string.Empty;
@@ -125,9 +125,6 @@ public class MultiFormatDocumentParser(
 
     private string ParseExcel(byte[] bytes)
     {
-        // 设置 EPPlus 许可证上下文（非商业使用）
-        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-        
         using var stream = new MemoryStream(bytes);
         using var package = new ExcelPackage(stream);
         
