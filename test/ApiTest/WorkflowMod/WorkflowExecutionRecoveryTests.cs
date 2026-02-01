@@ -61,17 +61,22 @@ public class WorkflowExecutionRecoveryTests
 
     [ClassDataSource<HttpClientDataClass>(Shared = SharedType.PerTestSession)]
     [Test]
-    public async Task ResumeWorkflowExecution_ShouldCreateAndResumeExecution(HttpClientDataClass httpClientData)
+    public async Task ResumeWorkflowExecution_EndpointExists(HttpClientDataClass httpClientData)
     {
-        // This test verifies that the recovery endpoints work with real executions
-        var httpClient = httpClientData.HttpClient;
+        // Note: This is a basic endpoint existence test. A complete integration test would:
+        // 1. Create a workflow definition
+        // 2. Create a workflow execution
+        // 3. Simulate a failure mid-execution
+        // 4. Call resume endpoint with checkpoint step index
+        // 5. Verify execution continues from the checkpoint
+        // 6. Verify completed steps are skipped
+        // Such a test requires a real workflow definition and proper test fixtures.
         
-        // TODO: Create a real workflow and execution, then test resume
-        // For now, just verify endpoint exists
+        var httpClient = httpClientData.HttpClient;
         var executionId = Guid.NewGuid();
         var response = await httpClient.PostAsync($"/api/workflow-execution/{executionId}/resume?fromStep=0", null);
         
-        // Either OK (200) or NotFound (404) is acceptable (means endpoint exists)
+        // Verify endpoint exists (OK=200 for success, NotFound=404 for missing execution)
         var isValidResponse = response.StatusCode == System.Net.HttpStatusCode.OK || 
                             response.StatusCode == System.Net.HttpStatusCode.NotFound;
         

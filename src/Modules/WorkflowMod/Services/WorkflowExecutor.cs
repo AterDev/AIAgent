@@ -143,13 +143,15 @@ public class WorkflowExecutor(
         logger.LogInformation("Scheduling retry for execution {ExecutionId} in {DelayMs}ms (attempt {Attempt}/{Max})",
             executionId, delayMs, execution.RetryCount, execution.MaxRetries);
 
-        // Schedule retry in background without blocking the request
-        var fromStepIndex = execution.LastCheckpointStepIndex ?? 0;
+        // Schedule retry via background task with delay
+        // Note: In production, consider using a proper job scheduler (e.g., Hangfire, Quartz)
+        // or implementing a delayed queue mechanism for more robust handling
         _ = Task.Run(async () =>
         {
             try
             {
                 await Task.Delay(delayMs, CancellationToken.None);
+                var fromStepIndex = execution.LastCheckpointStepIndex ?? 0;
                 await ResumeAsync(executionId, fromStepIndex, CancellationToken.None);
             }
             catch (Exception ex)
