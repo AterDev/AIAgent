@@ -25,6 +25,132 @@ public class WorkflowExecutor(
 {
     public async Task<bool> ExecuteAsync(Guid executionId, CancellationToken cancellationToken = default)
     {
+        return await ExecuteInternalAsync(executionId, 0, cancellationToken);
+    }
+
+    public async Task<bool> ResumeAsync(Guid executionId, int fromStepIndex, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        var execution = await dbContext.WorkflowExecutions
+            .FirstOrDefaultAsync(q => q.Id == executionId && q.TenantId == userContext.TenantId, cancellationToken);
+
+        if (execution is null)
+        {
+            return false;
+        }
+
+        if (execution.Status == WorkflowExecutionStatus.Completed)
+        {
+            logger.LogWarning("Execution {ExecutionId} already completed", executionId);
+            return true;
+        }
+
+        execution.Status = WorkflowExecutionStatus.Running;
+        execution.ExecutionMode = WorkflowExecutionMode.Resumed;
+        execution.ResumedAt = DateTimeOffset.UtcNow;
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        logger.LogInformation("Resuming execution {ExecutionId} from step {StepIndex}", executionId, fromStepIndex);
+
+        return await ExecuteInternalAsync(executionId, fromStepIndex, cancellationToken);
+    }
+
+    public async Task<bool> CancelAsync(Guid executionId, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        var execution = await dbContext.WorkflowExecutions
+            .FirstOrDefaultAsync(q => q.Id == executionId && q.TenantId == userContext.TenantId, cancellationToken);
+
+        if (execution is null)
+        {
+            return false;
+        }
+
+        execution.Status = WorkflowExecutionStatus.Canceled;
+        execution.CompletedTime = DateTimeOffset.UtcNow;
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        logger.LogInformation("Execution {ExecutionId} cancelled", executionId);
+        return true;
+    }
+
+    public async Task<WorkflowExecutionProgress> GetProgressAsync(Guid executionId, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        var execution = await dbContext.WorkflowExecutions
+            .FirstOrDefaultAsync(q => q.Id == executionId && q.TenantId == userContext.TenantId, cancellationToken);
+
+        if (execution is null)
+        {
+            throw new BusinessException("Execution not found");
+        }
+
+        var stepExecutions = string.IsNullOrWhiteSpace(execution.StepExecutionsJson)
+            ? []
+            : JsonSerializer.Deserialize<List<StepExecution>>(execution.StepExecutionsJson) ?? [];
+
+        var completedSteps = stepExecutions.Count(s => s.Status == StepExecutionStatus.Completed);
+        var failedSteps = stepExecutions.Count(s => s.Status == StepExecutionStatus.Failed);
+        var totalSteps = stepExecutions.Count;
+
+        return new WorkflowExecutionProgress
+        {
+            ExecutionId = executionId,
+            Status = execution.Status,
+            TotalSteps = totalSteps,
+            CompletedSteps = completedSteps,
+            FailedSteps = failedSteps,
+            ProgressPercentage = totalSteps > 0 ? (completedSteps * 100.0) / totalSteps : 0,
+            Steps = stepExecutions.Select(s => new StepExecutionInfo
+            {
+                Index = s.Index,
+                Name = s.Name,
+                Status = s.Status,
+                DurationMs = s.DurationMs,
+                ErrorMessage = s.ErrorMessage
+            }).ToList(),
+            CurrentStepName = stepExecutions.LastOrDefault(s => s.Status == StepExecutionStatus.Running)?.Name,
+            ErrorMessage = execution.ErrorMessage
+        };
+    }
+
+    public async Task<bool> RetryAsync(Guid executionId, CancellationToken cancellationToken = default)
+    {
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        var execution = await dbContext.WorkflowExecutions
+            .FirstOrDefaultAsync(q => q.Id == executionId && q.TenantId == userContext.TenantId, cancellationToken);
+
+        if (execution is null)
+        {
+            return false;
+        }
+
+        if (execution.RetryCount >= execution.MaxRetries)
+        {
+            execution.IsAbandoned = true;
+            execution.Status = WorkflowExecutionStatus.Abandoned;
+            logger.LogWarning("Execution {ExecutionId} has exceeded max retries", executionId);
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return false;
+        }
+
+        execution.RetryCount++;
+        execution.Status = WorkflowExecutionStatus.Retrying;
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        // Calculate delay (exponential backoff)
+        var delayMs = (int)Math.Pow(2, execution.RetryCount) * 1000;
+        logger.LogInformation("Retrying execution {ExecutionId} in {DelayMs}ms (attempt {Attempt}/{Max})",
+            executionId, delayMs, execution.RetryCount, execution.MaxRetries);
+        await Task.Delay(delayMs, cancellationToken);
+
+        // Resume from last checkpoint
+        var fromStepIndex = execution.LastCheckpointStepIndex ?? 0;
+        return await ResumeAsync(executionId, fromStepIndex, cancellationToken);
+    }
+
+    private async Task<bool> ExecuteInternalAsync(Guid executionId, int startStepIndex, CancellationToken cancellationToken)
+    {
         await using var dbContext = await dbContextFactory.CreateDbContextAsync();
         var execution = await dbContext.WorkflowExecutions
             .FirstOrDefaultAsync(q => q.Id == executionId && q.TenantId == userContext.TenantId, cancellationToken);
@@ -53,12 +179,21 @@ public class WorkflowExecutor(
         var stopwatch = Stopwatch.StartNew();
 
         var steps = ParseSteps(workflow.DefinitionJson);
-        var context = new Dictionary<string, object?>
-        {
-            ["executionId"] = executionId,
-            ["workflowId"] = workflow.Id,
-            ["tenantId"] = userContext.TenantId,
-        };
+        
+        // Restore context from checkpoint if resuming
+        var context = string.IsNullOrWhiteSpace(execution.ContextJson)
+            ? new Dictionary<string, object?>
+            {
+                ["executionId"] = executionId,
+                ["workflowId"] = workflow.Id,
+                ["tenantId"] = userContext.TenantId,
+            }
+            : JsonSerializer.Deserialize<Dictionary<string, object?>>(execution.ContextJson) ?? [];
+
+        // Restore step executions
+        var stepExecutions = string.IsNullOrWhiteSpace(execution.StepExecutionsJson)
+            ? []
+            : JsonSerializer.Deserialize<List<StepExecution>>(execution.StepExecutionsJson) ?? [];
 
         try
         {
@@ -77,9 +212,13 @@ public class WorkflowExecutor(
 
             execution.Status = WorkflowExecutionStatus.Completed;
             execution.OutputJson = JsonSerializer.Serialize(context);
+            execution.ContextJson = JsonSerializer.Serialize(context);
             execution.CompletedTime = DateTimeOffset.UtcNow;
             execution.DurationMs = (int)stopwatch.ElapsedMilliseconds;
+            execution.ExecutedStepCount = steps.Count;
             await dbContext.SaveChangesAsync(cancellationToken);
+            
+            logger.LogInformation("Workflow {WorkflowId} completed successfully in {Ms}ms", execution.WorkflowId, execution.DurationMs);
             return true;
         }
         catch (Exception ex)
@@ -89,6 +228,11 @@ public class WorkflowExecutor(
             execution.ErrorMessage = ex.Message;
             execution.CompletedTime = DateTimeOffset.UtcNow;
             execution.DurationMs = (int)stopwatch.ElapsedMilliseconds;
+            
+            // Save context for potential resume
+            execution.ContextJson = JsonSerializer.Serialize(context);
+            execution.StepExecutionsJson = JsonSerializer.Serialize(stepExecutions);
+            
             await dbContext.SaveChangesAsync(cancellationToken);
             return false;
         }
