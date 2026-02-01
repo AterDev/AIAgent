@@ -1,0 +1,159 @@
+<div class="model-debug-page">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        <h2>{{ 'Model Online Debug' }}</h2>
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="debug-container">
+        <!-- Debug Form -->
+        <div class="debug-form">
+          <form [formGroup]="debugForm" (ngSubmit)="onSubmit()">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'Select Model' }}</mat-label>
+              <mat-select formControlName="modelId" required>
+                @for (model of availableModels(); track model.id) {
+                  <mat-option [value]="model.id">
+                    {{ model.name }} ({{ model.provider }})
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'System Prompt' }}</mat-label>
+              <textarea matInput formControlName="systemPrompt" rows="3"></textarea>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ 'User Prompt' }}</mat-label>
+              <textarea matInput formControlName="prompt" rows="5" required></textarea>
+              <mat-hint>{{ 'Enter your test prompt here' }}</mat-hint>
+            </mat-form-field>
+
+            <div class="parameters-row">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'Temperature' }}</mat-label>
+                <input matInput type="number" formControlName="temperature" step="0.1" min="0" max="2" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'Max Tokens' }}</mat-label>
+                <input matInput type="number" formControlName="maxTokens" min="1" max="32000" />
+              </mat-form-field>
+            </div>
+
+            <div class="actions">
+              <button mat-raised-button color="primary" type="submit" [disabled]="debugForm.invalid || isLoading()">
+                @if (isLoading()) {
+                  <mat-spinner diameter="20"></mat-spinner>
+                  <span>{{ 'Testing...' }}</span>
+                } @else {
+                  <mat-icon>play_arrow</mat-icon>
+                  <span>{{ 'Test Model' }}</span>
+                }
+              </button>
+              <button mat-stroked-button type="button" (click)="debugForm.reset(); response.set(null); error.set(null)">
+                <mat-icon>clear</mat-icon>
+                {{ 'Clear' }}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Response Display -->
+        <div class="debug-response">
+          @if (error()) {
+            <mat-card class="error-card">
+              <mat-card-content>
+                <mat-icon color="warn">error</mat-icon>
+                <p>{{ error() }}</p>
+              </mat-card-content>
+            </mat-card>
+          }
+
+          @if (response()) {
+            <mat-card class="response-card">
+              <mat-card-header>
+                <mat-card-title>{{ 'Response' }}</mat-card-title>
+                <button mat-icon-button (click)="exportResponse()">
+                  <mat-icon>download</mat-icon>
+                </button>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="response-content">
+                  <p>{{ response()!.content }}</p>
+                </div>
+
+                <mat-divider></mat-divider>
+
+                <div class="response-metadata">
+                  <mat-chip-set>
+                    <mat-chip>
+                      <mat-icon>memory</mat-icon>
+                      {{ response()!.model }}
+                    </mat-chip>
+                    <mat-chip>
+                      <mat-icon>schedule</mat-icon>
+                      {{ response()!.duration }}ms
+                    </mat-chip>
+                    <mat-chip>
+                      <mat-icon>token</mat-icon>
+                      Prompt: {{ response()!.promptTokens }}
+                    </mat-chip>
+                    <mat-chip>
+                      <mat-icon>token</mat-icon>
+                      Completion: {{ response()!.completionTokens }}
+                    </mat-chip>
+                    <mat-chip highlighted>
+                      <mat-icon>functions</mat-icon>
+                      Total: {{ response()!.totalTokens }}
+                    </mat-chip>
+                    <mat-chip>
+                      <mat-icon>flag</mat-icon>
+                      {{ response()!.finishReason }}
+                    </mat-chip>
+                  </mat-chip-set>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      </div>
+
+      <!-- History -->
+      @if (history().length > 0) {
+        <mat-divider></mat-divider>
+        <div class="history-section">
+          <div class="history-header">
+            <h3>{{ 'Test History' }}</h3>
+            <button mat-stroked-button (click)="clearHistory()">
+              <mat-icon>delete_sweep</mat-icon>
+              {{ 'Clear History' }}
+            </button>
+          </div>
+
+          <div class="history-list">
+            @for (item of history(); track item.timestamp) {
+              <mat-card class="history-item" (click)="loadFromHistory(item)">
+                <mat-card-content>
+                  <div class="history-item-header">
+                    <span class="timestamp">{{ item.timestamp | date:'short' }}</span>
+                    <span class="model">{{ item.request.modelId }}</span>
+                  </div>
+                  <p class="prompt-preview">{{ item.request.prompt.substring(0, 100) }}...</p>
+                  <div class="history-item-meta">
+                    <span>{{ item.response.totalTokens }} tokens</span>
+                    <span>{{ item.response.duration }}ms</span>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            }
+          </div>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

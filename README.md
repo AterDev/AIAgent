@@ -1,7 +1,22 @@
-# 说明
+# AIAgent 平台
 
 ![NuGet Version](https://img.shields.io/nuget/v/Perigon.templates?style=flat)
 
+一个开箱即用的 AI Agent 管理平台，提供模型管理、Agent 配置、工作流编排、知识库管理和 MCP 工具集成等完整功能。
+
+## ✨ 新增功能 (2024-02)
+
+### 🔧 AI 能力管理前端页面
+
+- **模型在线调试** (`/model-debug`) - 实时测试 AI 模型，查看响应和 Token 使用情况
+- **Agent 配置与调试** (`/agent-debug`) - 配置和调试 AI Agent，查看工具调用详情
+- **工作流编排监控** (`/workflow-monitor`) - 实时监控工作流执行，查看步骤详情
+
+详细说明请查看 [实现总结文档](docs/实现方案-前端管理页面/2-实现总结.md)
+
+---
+
+## 项目说明
 
 `Perigon.templates`项目模板的使用提供文档支持。
 
