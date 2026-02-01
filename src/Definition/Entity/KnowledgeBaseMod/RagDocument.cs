@@ -17,10 +17,18 @@ public class RagDocument : EntityBase
     [MaxLength(260)]
     public string FileName { get; set; } = string.Empty;
 
+    [MaxLength(500)]
+    public string FilePath { get; set; } = string.Empty;
+
     [MaxLength(100)]
     public string ContentType { get; set; } = string.Empty;
 
     public RagDocumentStatus Status { get; set; }
+
+    /// <summary>
+    /// 重试次数
+    /// </summary>
+    public int RetryCount { get; set; }
 
     public List<string> Tags { get; set; } = [];
 

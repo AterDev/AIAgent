@@ -18,4 +18,7 @@ public enum RagDocumentStatus
 
     [Description("Failed")]
     Failed = 4,
+
+    [Description("Cancelled")]
+    Cancelled = 5,
 }

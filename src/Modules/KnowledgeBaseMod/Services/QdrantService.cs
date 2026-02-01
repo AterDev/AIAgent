@@ -4,12 +4,15 @@ using System.Text.Json;
 
 namespace KnowledgeBaseMod.Services;
 
-public class QdrantVectorStore(
+/// <summary>
+/// Qdrant vector database service for RAG document embedding and search
+/// </summary>
+public class QdrantService(
     IHttpClientFactory httpClientFactory,
     IUserContext userContext,
     IEmbeddingGenerator embeddingGenerator,
     IOptions<QdrantOptions> options,
-    ILogger<QdrantVectorStore> logger
+    ILogger<QdrantService> logger
 ) : IVectorStore
 {
     private readonly QdrantOptions _options = options.Value;
@@ -108,6 +111,57 @@ public class QdrantVectorStore(
         }
 
         return list;
+    }
+
+    /// <summary>
+    /// Delete vectors for a specific document
+    /// </summary>
+    public async Task DeleteDocumentAsync(Guid documentId, CancellationToken cancellationToken = default)
+    {
+        await EnsureCollectionAsync(cancellationToken);
+
+        var filter = new
+        {
+            must = new[]
+            {
+                new { key = "tenantId", match = new { value = userContext.TenantId.ToString() } },
+                new { key = "documentId", match = new { value = documentId.ToString() } }
+            }
+        };
+
+        var body = new
+        {
+            filter
+        };
+
+        var client = CreateClient();
+        using var response = await client.PostAsJsonAsync($"/collections/{_options.CollectionName}/points/delete", body, cancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            logger.LogWarning("Qdrant delete failed for document {DocumentId}: {Status} {Body}", documentId, response.StatusCode, content);
+        }
+    }
+
+    /// <summary>
+    /// Delete vectors for a list of chunk IDs
+    /// </summary>
+    public async Task DeleteChunksAsync(IEnumerable<Guid> chunkIds, CancellationToken cancellationToken = default)
+    {
+        await EnsureCollectionAsync(cancellationToken);
+
+        var body = new
+        {
+            points = chunkIds.ToList()
+        };
+
+        var client = CreateClient();
+        using var response = await client.PostAsJsonAsync($"/collections/{_options.CollectionName}/points/delete", body, cancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            logger.LogWarning("Qdrant delete chunks failed: {Status} {Body}", response.StatusCode, content);
+        }
     }
 
     private async Task EnsureCollectionAsync(CancellationToken cancellationToken)

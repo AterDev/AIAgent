@@ -39,9 +39,10 @@
   <Folder Name="/src/Services/" Id="02ea681e-c7d8-13c7-8484-4ac65e1b71e8">
     <Project Path="src/Services/AdminService/AdminService.csproj" />
     <Project Path="src/Services/ApiService/ApiService.csproj" />
+    <Project Path="src/Services/FileProcessorService/FileProcessorService.csproj" />
     <Project Path="src/Services/MigrationService/MigrationService.csproj" />
   </Folder>
-  <Folder Name="/test/">
+  <Folder Name="/tests/">
     <Project Path="test/ApiTest/ApiTest.csproj" Id="76a6ee38-e083-4d7a-a1f4-5f490942d94b" />
   </Folder>
 </Solution>

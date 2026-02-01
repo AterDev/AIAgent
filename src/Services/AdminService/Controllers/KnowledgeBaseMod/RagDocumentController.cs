@@ -1,12 +1,11 @@
 using Entity.KnowledgeBaseMod;
 using KnowledgeBaseMod.Managers;
 using KnowledgeBaseMod.Models.RagDocumentDtos;
-using KnowledgeBaseMod.Services;
 
 namespace AdminService.Controllers.KnowledgeBaseMod;
 
 /// <summary>
-/// 文档管理
+/// 文档管理（仅管理，不包含处理逻辑）
 /// </summary>
 public class RagDocumentController(
     Localizer localizer,
@@ -44,20 +43,5 @@ public class RagDocumentController(
     public async Task<ActionResult<bool>> DeleteAsync([FromRoute] Guid id)
     {
         return await _manager.DeleteAsync([id], false);
-    }
-
-    /// <summary>
-    /// 解析并向量化文档
-    /// </summary>
-    [HttpPost("{id}/ingest")]
-    public async Task<ActionResult<bool>> IngestAsync(
-        [FromRoute] Guid id,
-        RagDocumentIngestDto dto,
-        [FromServices] IRagIngestionQueue ingestionQueue,
-        CancellationToken cancellationToken
-    )
-    {
-        await ingestionQueue.EnqueueAsync(new RagIngestionTask(id, dto.ContentText));
-        return Accepted(true);
     }
 }

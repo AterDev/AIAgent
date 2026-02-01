@@ -16,6 +16,7 @@ public class AspireSetting
     public int DbPort { get; set; } = 15432;
     public int CachePort { get; set; } = 16379;
     public int QdrantPort { get; set; } = 16333;
+    public int? NatsPort { get; set; } = 14222;
 }
 
 public static class AppSettingsHelper

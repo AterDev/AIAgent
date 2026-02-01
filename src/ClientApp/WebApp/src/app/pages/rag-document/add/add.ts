@@ -1,13 +1,14 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCard, MatCardHeader, MatCardTitle, MatCardContent, MatCardActions } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
-import { AdminClient } from 'src/app/services/admin/admin-client';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
 import { CommonFormModules } from 'src/app/share/shared-modules';
+import { AdminClient } from 'src/app/services/admin/admin-client';
 import { RagDocumentAddDto } from 'src/app/services/admin/models/knowledge-base-mod/rag-document-add-dto.model';
 import { RagDocumentStatus } from 'src/app/services/admin/models/entity/rag-document-status.model';
 
@@ -21,16 +22,21 @@ export class RagDocumentAdd implements OnInit {
 
   i18nKeys = I18N_KEYS;
 
+  private fb = inject(FormBuilder);
+  private dialogRef = inject(MatDialogRef<RagDocumentAdd>);
+  private translate = inject(TranslateService);
+  private snackBar = inject(MatSnackBar);
+  private adminClient = inject(AdminClient);
+
   form!: FormGroup;
   isLoading = signal(true);
+  selectedFile: File | null = null;
+  uploadProgress = signal(0);
+  isUploading = signal(false);
 
-  constructor(
-    private fb: FormBuilder,
-    private adminClient: AdminClient,
-    private dialogRef: MatDialogRef<RagDocumentAdd>,
-    private translate: TranslateService
-  ) {
+  constructor() {
     this.buildForm();
+    this.isLoading.set(false);
   }
 
   ngOnInit(): void {
@@ -45,7 +51,8 @@ export class RagDocumentAdd implements OnInit {
       status: [RagDocumentStatus.Pending, [Validators.required]],
       tags: [[], []],
       roles: [[], []],
-      sourceUrl: [null, [Validators.maxLength(500)]]
+      sourceUrl: [null, [Validators.maxLength(500)]],
+      filePath: [null, []]  // 预留文件路径字段
     });
   }
 
@@ -57,6 +64,7 @@ export class RagDocumentAdd implements OnInit {
   get tags() { return this.form.get('tags') as FormControl; }
   get roles() { return this.form.get('roles') as FormControl; }
   get sourceUrl() { return this.form.get('sourceUrl') as FormControl; }
+  get filePath() { return this.form.get('filePath') as FormControl; }
 
   getValidatorMessage(control: AbstractControl | null): string {
     if (!control || !control.errors) { return ''; }
@@ -66,9 +74,44 @@ export class RagDocumentAdd implements OnInit {
     return this.translate.instant(`validation.${key.toLowerCase()}`, params);
   }
 
+  onFileSelected(event: any) {
+    const file = event.target.files?.[0];
+    if (file) {
+      this.selectedFile = file;
+      this.fileName.setValue(file.name);
+    }
+  }
+
+  uploadFile() {
+    if (!this.selectedFile) {
+      this.snackBar.open('Please select a file', '', { duration: 2000 });
+      return;
+    }
+
+    this.isUploading.set(true);
+    const formData = new FormData();
+    formData.append('file', this.selectedFile);
+    formData.append('folder', 'document');
+    
+    this.adminClient.fileUpload.uploadFile(formData).subscribe({
+      next: (result: any) => {
+        this.filePath.setValue(result.filePath);
+        this.snackBar.open('File uploaded successfully', '', { duration: 2000 });
+        this.isUploading.set(false);
+      },
+      error: (error: any) => {
+        this.snackBar.open('File upload failed', '', { duration: 2000 });
+        this.isUploading.set(false);
+      }
+    });
+  }
+
   submit() {
     if (this.form.invalid) return;
-    this.adminClient.ragDocument.add(this.form.value as RagDocumentAddDto).subscribe(() => this.dialogRef.close(true));
+    this.adminClient.ragDocument.add(this.form.value as RagDocumentAddDto).subscribe({
+      next: () => this.dialogRef.close(true),
+      error: () => this.snackBar.open('Save failed', '', { duration: 2000 })
+    });
   }
 
   close(result: boolean) { this.dialogRef.close(result); }

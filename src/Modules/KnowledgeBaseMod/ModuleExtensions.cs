@@ -1,8 +1,12 @@
+using KnowledgeBaseMod.Managers;
 using KnowledgeBaseMod.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Perigon.AspNetCore.Toolkit.Options;
+using Perigon.AspNetCore.Toolkit.Services;
+using Share.Services;
 using System.ComponentModel;
 
 namespace KnowledgeBaseMod;
@@ -23,6 +27,10 @@ public static class ModuleExtensions
     // The module services registration
     private static IHostApplicationBuilder AddModServices(this IHostApplicationBuilder builder)
     {
+        // Configure AWS S3
+        builder.Services.Configure<AWSS3Option>(builder.Configuration.GetSection(AWSS3Option.ConfigPath));
+        builder.Services.AddScoped<AWSS3Service>();
+        
         builder.Services.Configure<QdrantOptions>(builder.Configuration.GetSection("Qdrant"));
         builder.Services.PostConfigure<QdrantOptions>(options =>
         {
@@ -47,30 +55,31 @@ public static class ModuleExtensions
             }
         });
 
-        builder.Services.AddSingleton<IEntityTaskQueue<RagIngestionTask>>(new EntityTaskQueue<RagIngestionTask>());
-        builder.Services.AddSingleton<IRagIngestionQueue, RagIngestionQueue>();
-        builder.Services.AddHostedService<RagIngestionWorker>();
+        // 注意：队列和后台工作器不再在此注册，将由 FileProcessorService 独立处理
+        // 注册 NATS 消息发布者
+        builder.Services.AddScoped<NatsRagMessagePublisher>();
         builder.Services.AddScoped<IRagQueryService, RagQueryService>();
         builder.Services.AddScoped<Share.Services.IRagQueryFacade, RagQueryFacade>();
-        // 使用多格式文档解析器，支持 PDF、Word、Excel
-        builder.Services.AddScoped<IDocumentParser, MultiFormatDocumentParser>();
-        // 保留简单解析器作为备选
+        // Use Kreuzberg-based parser for all formats
+        builder.Services.AddScoped<IDocumentParser, KreuzbergDocumentParser>();
+        // Keep simple parser as fallback option
         builder.Services.AddScoped<SimpleDocumentParser>();
         builder.Services.AddScoped<ITextChunker, DefaultTextChunker>();
-        // 使用真实的模型调用生成向量，而不是 MD5 哈希
+        // Use real model embedding generation
         builder.Services.AddScoped<IEmbeddingGenerator, CoreModelEmbeddingGenerator>();
-        // 保留旧实现作为备选（如果模型调用失败可以降级）
+        // Keep hash-based generator as fallback
         builder.Services.AddScoped<HashEmbeddingGenerator>();
-        builder.Services.AddScoped<QdrantVectorStore>();
+        builder.Services.AddScoped<QdrantService>();
         builder.Services.AddScoped<NullVectorStore>();
         builder.Services.AddScoped<IVectorStore>(sp =>
         {
             var options = sp.GetRequiredService<IOptions<QdrantOptions>>().Value;
             return string.IsNullOrWhiteSpace(options.Url)
                 ? sp.GetRequiredService<NullVectorStore>()
-                : sp.GetRequiredService<QdrantVectorStore>();
+                : sp.GetRequiredService<QdrantService>();
         });
-        builder.Services.AddScoped<IRagIngestionService, RagIngestionService>();
+        builder.Services.AddScoped<RagIngestionService>();
+        builder.Services.AddScoped<DocumentParsingResultManager>();
         return builder;
     }
 

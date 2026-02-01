@@ -94,6 +94,7 @@
     "order": "Order",
     "model": "Model Management",
     "application": "Application",
+    "applicationQuota": "Application Quota",
     "aiModelInfo": "AI Model Config",
     "aiModelProvider": "AI Model Provider",
     "knowledge": "Knowledge Base",
@@ -190,6 +191,23 @@
     "isPublic": "Public",
     "isEnabled": "Enabled",
     "tags": "Tags"
+  },
+  "applicationQuota": {
+    "title": "Application Quota",
+    "applicationId": "Application ID",
+    "periodType": "Period Type",
+    "maxRequests": "Max Requests",
+    "maxTokens": "Max Tokens",
+    "isEnabled": "Enabled",
+    "currentRequests": "Current Requests",
+    "currentTokens": "Current Tokens",
+    "resetAt": "Reset At",
+    "viewUsage": "View Usage",
+    "resetQuota": "Reset Quota",
+    "minute": "Minute",
+    "hour": "Hour",
+    "day": "Day",
+    "month": "Month"
   },
   "ragDocument": {
     "title": "Document",

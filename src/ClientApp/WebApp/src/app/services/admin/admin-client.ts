@@ -9,6 +9,7 @@ import { ApplicationQuotaService } from './services/application-quota.service';
 import { ApplicationToolPermissionService } from './services/application-tool-permission.service';
 import { ChatMessageService } from './services/chat-message.service';
 import { ConversationService } from './services/conversation.service';
+import { FileUploadService } from './services/file-upload.service';
 import { MCPServerInfoService } from './services/mcpserver-info.service';
 import { McpToolService } from './services/mcp-tool.service';
 import { ModelInvocationService } from './services/model-invocation.service';
@@ -44,6 +45,8 @@ export class AdminClient {
   public chatMessage = inject(ChatMessageService);
   /** 对话实例 */
   public conversation = inject(ConversationService);
+  /** 文件上传管理 */
+  public fileUpload = inject(FileUploadService);
   /** MCP Server 管理 */
   public mCPServerInfo = inject(MCPServerInfoService);
   /** MCP 工具管理 */

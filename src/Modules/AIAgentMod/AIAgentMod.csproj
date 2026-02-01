@@ -8,6 +8,7 @@
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\Definition\Share\Share.csproj" />
+        <ProjectReference Include="..\SystemMod\SystemMod.csproj" />
     </ItemGroup>
 
 </Project>

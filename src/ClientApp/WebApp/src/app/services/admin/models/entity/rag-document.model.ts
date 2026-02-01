@@ -23,6 +23,8 @@ export interface RagDocument {
   name: string;
   /** fileName */
   fileName: string;
+  /** filePath */
+  filePath: string;
   /** contentType */
   contentType: string;
   /** status */

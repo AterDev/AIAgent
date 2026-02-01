@@ -427,6 +427,35 @@ namespace EntityFramework.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "QuotaUsages",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ApplicationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    PeriodType = table.Column<int>(type: "integer", nullable: false),
+                    WindowStart = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    WindowEnd = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    RequestCount = table.Column<int>(type: "integer", nullable: false),
+                    TokensUsed = table.Column<long>(type: "bigint", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_QuotaUsages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_QuotaUsages_Applications_ApplicationId",
+                        column: x => x.ApplicationId,
+                        principalTable: "Applications",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ChatMessages",
                 columns: table => new
                 {
@@ -491,8 +520,10 @@ namespace EntityFramework.Migrations
                     CollectionId = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     FileName = table.Column<string>(type: "character varying(260)", maxLength: 260, nullable: false),
+                    FilePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     ContentType = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
+                    RetryCount = table.Column<int>(type: "integer", nullable: false),
                     Tags = table.Column<List<string>>(type: "text[]", nullable: false),
                     Roles = table.Column<List<string>>(type: "text[]", nullable: false),
                     SourceUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
@@ -610,6 +641,38 @@ namespace EntityFramework.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "DocumentParsingResults",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    RagDocumentId = table.Column<Guid>(type: "uuid", nullable: false),
+                    DocumentFormat = table.Column<int>(type: "integer", nullable: false),
+                    ParsingStatus = table.Column<int>(type: "integer", nullable: false),
+                    TextContent = table.Column<string>(type: "text", nullable: false),
+                    PageCount = table.Column<int>(type: "integer", nullable: true),
+                    WordCount = table.Column<int>(type: "integer", nullable: false),
+                    ErrorMessage = table.Column<string>(type: "text", nullable: true),
+                    StartTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CompletedTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    DurationMs = table.Column<long>(type: "bigint", nullable: true),
+                    ParsingVersion = table.Column<int>(type: "integer", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DocumentParsingResults", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DocumentParsingResults_RagDocuments_RagDocumentId",
+                        column: x => x.RagDocumentId,
+                        principalTable: "RagDocuments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RagChunks",
                 columns: table => new
                 {
@@ -701,6 +764,11 @@ namespace EntityFramework.Migrations
                 columns: new[] { "UserId", "CreatedTime" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_DocumentParsingResults_RagDocumentId",
+                table: "DocumentParsingResults",
+                column: "RagDocumentId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_MCPServerInfos_DisplayName",
                 table: "MCPServerInfos",
                 column: "DisplayName");
@@ -732,6 +800,11 @@ namespace EntityFramework.Migrations
                 table: "ModelProviders",
                 column: "Name",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_QuotaUsages_ApplicationId_PeriodType_WindowStart",
+                table: "QuotaUsages",
+                columns: new[] { "ApplicationId", "PeriodType", "WindowStart" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_RagChunks_DocumentId_ChunkIndex",
@@ -819,6 +892,9 @@ namespace EntityFramework.Migrations
                 name: "ChatMessages");
 
             migrationBuilder.DropTable(
+                name: "DocumentParsingResults");
+
+            migrationBuilder.DropTable(
                 name: "MCPServerInfos");
 
             migrationBuilder.DropTable(
@@ -826,6 +902,9 @@ namespace EntityFramework.Migrations
 
             migrationBuilder.DropTable(
                 name: "ModelProviders");
+
+            migrationBuilder.DropTable(
+                name: "QuotaUsages");
 
             migrationBuilder.DropTable(
                 name: "RagChunks");

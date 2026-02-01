@@ -26,6 +26,7 @@ public static class ModuleExtensions
         builder.Services.AddScoped<Share.Services.IModelInvokeFacade, ModelInvokeFacade>();
         builder.Services.AddScoped<AIModelProviderManager>();
         builder.Services.AddScoped<AIModelInfoManager>();
+        builder.Services.AddScoped<IQuotaLimitingService, QuotaLimitingService>();
         return builder;
     }
 

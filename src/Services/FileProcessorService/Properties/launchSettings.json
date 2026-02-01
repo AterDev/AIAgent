@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "FileProcessorService": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:13704;http://localhost:13705"
+    }
+  }
+}

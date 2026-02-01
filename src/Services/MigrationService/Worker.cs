@@ -50,10 +50,37 @@ public class Worker(
     private static async Task SeedDataAsync<T>(T dbContext, CancellationToken cancellationToken)
         where T : DbContext
     {
-        var strategy = dbContext.Database.CreateExecutionStrategy();
-        await strategy.ExecuteAsync(() =>
+        if (dbContext is not DefaultDbContext defaultDb)
         {
-            return Task.CompletedTask;
+            return;
+        }
+
+        var strategy = dbContext.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
+        {
+            // 检查是否已有用户
+            if (await defaultDb.SystemUsers.AnyAsync(cancellationToken))
+            {
+                return;
+            }
+
+            // 添加默认管理员用户
+            var passwordSalt = HashCrypto.BuildSalt();
+            var adminUser = new SystemUser
+            {
+                Id = Guid.NewGuid(),
+                UserName = "admin",
+                Email = "admin@default.com",
+                RealName = "System Administrator",
+                Phone = "13800138000",
+                PasswordSalt = passwordSalt,
+                PasswordHash = HashCrypto.GeneratePwd("Perigon.2026", passwordSalt),
+                Roles = WebConst.SuperAdmin,
+                Enabled = true
+            };
+
+            defaultDb.SystemUsers.Add(adminUser);
+            await defaultDb.SaveChangesAsync(cancellationToken);
         });
     }
 }

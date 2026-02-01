@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';  
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -23,6 +23,10 @@ export class RagDocumentIndex implements OnInit {
 
   i18nKeys = I18N_KEYS;
 
+  private dialog = inject(MatDialog);
+  private translate = inject(TranslateService);
+  private adminClient = inject(AdminClient);
+
   filterDto: RagDocumentFilterDto = { pageIndex: 1, pageSize: 10 };
   dataSource = new MatTableDataSource<RagDocumentItemDto>();
   displayedColumns = ["name", "collectionId", "status", "chunkCount", "actions"];
@@ -32,20 +36,14 @@ export class RagDocumentIndex implements OnInit {
   total = 0;
   pageSize = 10;
 
-  constructor(
-    private adminClient: AdminClient,
-    private dialog: MatDialog,
-    private translate: TranslateService
-  ) { }
-
   ngOnInit(): void {
     this.loadData();
   }
 
   loadData(): void {
     this.isLoading.set(true);
-    this.adminClient.ragDocument.list(this.filterDto as RagDocumentFilterDto).subscribe({
-      next: (res) => {
+    this.adminClient.ragDocument.list(this.filterDto).subscribe({
+      next: (res: any) => {
         this.dataSource.data = (res.data || []);
         this.total = (res.count ?? res.data?.length ?? this.dataSource.data.length);
         this.isLoading.set(false);
@@ -87,7 +85,9 @@ export class RagDocumentIndex implements OnInit {
       }
     });
     ref.afterClosed().subscribe((ok: boolean) => {
-      if (ok) { this.adminClient.ragDocument.delete(id).subscribe(() => this.loadData()); }
+      if (ok) { 
+        this.adminClient.ragDocument.delete(id).subscribe(() => this.loadData()); 
+      }
     });
   }
 }

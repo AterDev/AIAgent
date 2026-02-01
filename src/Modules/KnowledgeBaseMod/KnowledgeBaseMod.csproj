@@ -12,9 +12,11 @@
         <ProjectReference Include="..\CoreMod\CoreMod.csproj" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="DocumentFormat.OpenXml" />
-        <PackageReference Include="EPPlus" />
-        <PackageReference Include="itext" />
+        <PackageReference Include="HtmlAgilityPack" />
+        <PackageReference Include="Kreuzberg" />
+        <PackageReference Include="Markdig" />
+        <PackageReference Include="NATS.Client.Core" />
+        <PackageReference Include="NATS.Client.JetStream" />
         <PackageReference Include="Newtonsoft.Json" />
     </ItemGroup>
     <ItemGroup>

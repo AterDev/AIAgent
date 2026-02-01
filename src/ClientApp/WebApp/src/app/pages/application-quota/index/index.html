@@ -1,0 +1,127 @@
+<div class="application-quota-list-page">
+  <div class="toolbar">
+    <div class="d-flex align-items-center gap-2 justify-content-between p-1">
+      <div class="d-flex gap-2 align-items-center">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ i18nKeys.applicationQuota.applicationId | translate }}</mat-label>
+          <input matInput [(ngModel)]="filterDto.applicationId" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ i18nKeys.applicationQuota.periodType | translate }}</mat-label>
+          <mat-select [(ngModel)]="filterDto.periodType">
+            <mat-option [value]="null">{{ i18nKeys.common.all | translate }}</mat-option>
+            <mat-option [value]="0">{{ i18nKeys.applicationQuota.minute | translate }}</mat-option>
+            <mat-option [value]="1">{{ i18nKeys.applicationQuota.hour | translate }}</mat-option>
+            <mat-option [value]="2">{{ i18nKeys.applicationQuota.day | translate }}</mat-option>
+            <mat-option [value]="3">{{ i18nKeys.applicationQuota.month | translate }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-flat-button color="primary" (click)="filter()">{{ i18nKeys.common.search | translate }}</button>
+      </div>
+
+      <div>
+        <button mat-flat-button color="accent" (click)="openAdd()">
+          {{ i18nKeys.common.add | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+      <mat-spinner></mat-spinner>
+    </div>
+  } @else {
+  <table mat-table [dataSource]="dataSource" #table="matTable">
+    <ng-container matColumnDef="applicationId">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ i18nKeys.applicationQuota.applicationId | translate }}
+      </th>
+      <td mat-cell *matCellDef="let item">
+        {{ item.applicationId }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="periodType">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ i18nKeys.applicationQuota.periodType | translate }}
+      </th>
+      <td mat-cell *matCellDef="let item">
+        @switch (item.periodType) {
+          @case (0) { {{ i18nKeys.applicationQuota.minute | translate }} }
+          @case (1) { {{ i18nKeys.applicationQuota.hour | translate }} }
+          @case (2) { {{ i18nKeys.applicationQuota.day | translate }} }
+          @case (3) { {{ i18nKeys.applicationQuota.month | translate }} }
+          @default { {{ item.periodType }} }
+        }
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="maxRequests">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ i18nKeys.applicationQuota.maxRequests | translate }}
+      </th>
+      <td mat-cell *matCellDef="let item">
+        {{ item.maxRequests }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="maxTokens">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ i18nKeys.applicationQuota.maxTokens | translate }}
+      </th>
+      <td mat-cell *matCellDef="let item">
+        {{ item.maxTokens }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="isEnabled">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ i18nKeys.applicationQuota.isEnabled | translate }}
+      </th>
+      <td mat-cell *matCellDef="let item">
+        <mat-icon [ngClass]="item.isEnabled ? 'text-success' : 'text-muted'">
+          {{ item.isEnabled ? 'check_circle' : 'cancel' }}
+        </mat-icon>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="createdTime">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ i18nKeys.common.createdTime | translate }}
+      </th>
+      <td mat-cell *matCellDef="let item">
+        {{ item.createdTime | date:'short' }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ i18nKeys.common.actions | translate }}
+      </th>
+      <td mat-cell *matCellDef="let item">
+        <button mat-icon-button class="secondary" (click)="viewUsage(item)" 
+          [title]="i18nKeys.applicationQuota.viewUsage | translate">
+          <mat-icon>bar_chart</mat-icon>
+        </button>
+        <button mat-icon-button class="primary" (click)="resetQuota(item)"
+          [title]="i18nKeys.applicationQuota.resetQuota | translate">
+          <mat-icon>refresh</mat-icon>
+        </button>
+        <button mat-icon-button class="accent" (click)="delete(item.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+  </table>
+
+  <mat-paginator [length]="total" [pageSize]="filterDto.pageSize" (page)="pageChanged($event)"></mat-paginator>
+  }
+
+</div>

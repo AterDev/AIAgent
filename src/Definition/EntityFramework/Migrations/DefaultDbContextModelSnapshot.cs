@@ -375,6 +375,65 @@ namespace EntityFramework.Migrations
                     b.ToTable("TokenUsageRecords");
                 });
 
+            modelBuilder.Entity("Entity.KnowledgeBaseMod.DocumentParsingResult", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("CompletedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DocumentFormat")
+                        .HasColumnType("integer");
+
+                    b.Property<long?>("DurationMs")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("PageCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ParsingStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ParsingVersion")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("RagDocumentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("StartTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TextContent")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("UpdatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("WordCount")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RagDocumentId");
+
+                    b.ToTable("DocumentParsingResults");
+                });
+
             modelBuilder.Entity("Entity.KnowledgeBaseMod.RagChunk", b =>
                 {
                     b.Property<Guid>("Id")
@@ -493,6 +552,11 @@ namespace EntityFramework.Migrations
                         .HasMaxLength(260)
                         .HasColumnType("character varying(260)");
 
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
@@ -500,6 +564,9 @@ namespace EntityFramework.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<int>("RetryCount")
+                        .HasColumnType("integer");
 
                     b.PrimitiveCollection<List<string>>("Roles")
                         .IsRequired()
@@ -1033,6 +1100,55 @@ namespace EntityFramework.Migrations
                     b.ToTable("ModelProviders");
                 });
 
+            modelBuilder.Entity("Entity.ModelMod.QuotaUsage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ApplicationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("PeriodType")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RequestCount")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("TokensUsed")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("UpdatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("WindowEnd")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("WindowStart")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationId", "PeriodType", "WindowStart");
+
+                    b.ToTable("QuotaUsages");
+                });
+
             modelBuilder.Entity("Entity.SystemMod.SystemConfig", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1326,6 +1442,17 @@ namespace EntityFramework.Migrations
                     b.Navigation("Conversation");
                 });
 
+            modelBuilder.Entity("Entity.KnowledgeBaseMod.DocumentParsingResult", b =>
+                {
+                    b.HasOne("Entity.KnowledgeBaseMod.RagDocument", "RagDocument")
+                        .WithMany()
+                        .HasForeignKey("RagDocumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RagDocument");
+                });
+
             modelBuilder.Entity("Entity.KnowledgeBaseMod.RagChunk", b =>
                 {
                     b.HasOne("Entity.KnowledgeBaseMod.RagDocument", "Document")
@@ -1426,6 +1553,17 @@ namespace EntityFramework.Migrations
                         .IsRequired();
 
                     b.Navigation("AIModelInfo");
+
+                    b.Navigation("Application");
+                });
+
+            modelBuilder.Entity("Entity.ModelMod.QuotaUsage", b =>
+                {
+                    b.HasOne("Entity.ModelMod.Application", "Application")
+                        .WithMany()
+                        .HasForeignKey("ApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Application");
                 });

@@ -38,6 +38,8 @@ public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options
 
     public DbSet<ApplicationQuota> ApplicationQuotas { get; set; }
 
+    public DbSet<QuotaUsage> QuotaUsages { get; set; }
+
     public DbSet<ApplicationModelPermission> ApplicationModelPermissions { get; set; }
 
     public DbSet<ApplicationToolPermission> ApplicationToolPermissions { get; set; }
@@ -59,6 +61,8 @@ public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options
     public DbSet<RagDocument> RagDocuments { get; set; }
 
     public DbSet<RagChunk> RagChunks { get; set; }
+
+    public DbSet<DocumentParsingResult> DocumentParsingResults { get; set; }
 
     #endregion
 

@@ -4,6 +4,8 @@ using Perigon.AspNetCore.Constants;
 var builder = DistributedApplication.CreateBuilder(args);
 var aspireSetting = AppSettingsHelper.LoadAspireSettings(builder.Configuration);
 
+var isTesting = builder.Configuration["ASPIRE_ENVIRONMENT"]?.ToLowerInvariant() == "testing";
+
 IResourceBuilder<IResourceWithConnectionString>? database = null;
 IResourceBuilder<IResourceWithConnectionString>? cache = null;
 IResourceBuilder<QdrantServerResource>? qdrant = null;
@@ -14,7 +16,7 @@ IResourceBuilder<QdrantServerResource>? qdrant = null;
 // qdrant = builder.AddQdrant("qdrant");
 
 #region infrastructure
-var defaultName = "AIAgent_dev";
+var defaultName = isTesting ? "AIAgent_test" : "AIAgent_dev";
 var devPassword = builder.AddParameter(
     "dev-password",
     value: aspireSetting.DevPassword,
@@ -22,6 +24,11 @@ var devPassword = builder.AddParameter(
 );
 
 var infrastructureGroup = builder.AddGroup("Infrastructure", "Cloud");
+
+// Add NATS message queue with JetStream support
+var nats = builder.AddNats("nats", port: aspireSetting.NatsPort ?? 4222)
+    .WithJetStream()  // Enable JetStream for distributed streams and consumers
+    .WithParentRelationship(infrastructureGroup);
 _ = aspireSetting.DatabaseType?.ToLowerInvariant() switch
 {
     "postgresql" => database = builder
@@ -69,6 +76,8 @@ var apiService = builder.AddProject<Projects.ApiService>("ApiService").WaitForCo
     .WithParentRelationship(serviceGroup);
 var adminService = builder.AddProject<Projects.AdminService>("AdminService").WaitForCompletion(migration)
     .WithParentRelationship(serviceGroup);
+var fileProcessor = builder.AddProject<Projects.FileProcessorService>("FileProcessorService").WaitForCompletion(migration)
+    .WithParentRelationship(serviceGroup);
 
 // run frontend app, you should install npm packages first
 var webApp = builder.AddJavaScriptApp("frontend", "../ClientApp/WebApp", "start")
@@ -82,18 +91,24 @@ if (database != null)
     migration.WithReference(database).WaitFor(database);
     apiService.WithReference(database);
     adminService.WithReference(database);
+    fileProcessor.WithReference(database);
 }
 if (cache != null)
 {
     migration.WithReference(cache).WaitFor(cache);
     apiService.WithReference(cache);
     adminService.WithReference(cache);
+    fileProcessor.WithReference(cache);
 }
 if (qdrant != null)
 {
     apiService.WithReference(qdrant);
     adminService.WithReference(qdrant);
+    fileProcessor.WithReference(qdrant);
 }
+
+adminService.WithReference(nats);
+fileProcessor.WithReference(nats).WaitFor(nats);
 # endregion
 
 builder.Build().Run();
