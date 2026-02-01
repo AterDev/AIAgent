@@ -11,3 +11,6 @@ global using Share.Exceptions;
 global using Share.Implement;
 global using System.ComponentModel.DataAnnotations;
 global using System.Diagnostics;
+global using System.Text.Json;
+global using System.Text.Json.Serialization;
+global using WorkflowMod.Models;

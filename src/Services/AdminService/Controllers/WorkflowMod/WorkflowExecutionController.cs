@@ -1,5 +1,6 @@
 using Entity.WorkflowMod;
 using WorkflowMod.Managers;
+using WorkflowMod.Models;
 using WorkflowMod.Models.WorkflowExecutionDtos;
 using WorkflowMod.Services;
 
@@ -54,5 +55,49 @@ public class WorkflowExecutionController(
     {
         await queue.EnqueueAsync(new WorkflowTask(id));
         return Accepted(true);
+    }
+
+    /// <summary>
+    /// 获取执行进度
+    /// </summary>
+    [HttpGet("{id}/progress")]
+    public async Task<ActionResult<WorkflowExecutionProgress>> GetProgressAsync([FromRoute] Guid id, [FromServices] IWorkflowExecutor executor)
+    {
+        var progress = await executor.GetProgressAsync(id);
+        if (progress is null)
+        {
+            return NotFound();
+        }
+        return Ok(progress);
+    }
+
+    /// <summary>
+    /// 断点续传执行
+    /// </summary>
+    [HttpPost("{id}/resume")]
+    public async Task<ActionResult<bool>> ResumeAsync([FromRoute] Guid id, [FromQuery] int fromStep, [FromServices] IWorkflowExecutor executor)
+    {
+        var result = await executor.ResumeAsync(id, fromStep);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// 重试失败的执行
+    /// </summary>
+    [HttpPost("{id}/retry")]
+    public async Task<ActionResult<bool>> RetryAsync([FromRoute] Guid id, [FromServices] IWorkflowExecutor executor)
+    {
+        var result = await executor.RetryAsync(id);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// 取消执行
+    /// </summary>
+    [HttpPost("{id}/cancel")]
+    public async Task<ActionResult<bool>> CancelAsync([FromRoute] Guid id, [FromServices] IWorkflowExecutor executor)
+    {
+        var result = await executor.CancelAsync(id);
+        return Ok(result);
     }
 }
