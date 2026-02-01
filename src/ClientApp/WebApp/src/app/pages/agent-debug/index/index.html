@@ -1,19 +1,20 @@
 <div class="agent-debug-page">
   <div class="page-header">
-    <h2>{{ 'AI Agent Config & Debug' }}</h2>
-    <p>{{ 'Configure and test AI agents with real-time debugging capabilities' }}</p>
+    <h2>{{ 'agentDebug.title' | translate }}</h2>
+    <p>{{ 'agentDebug.description' | translate }}</p>
+    <p class="demo-notice">{{ 'agentDebug.demoNotice' | translate }}</p>
   </div>
 
   <div class="debug-layout">
     <!-- Configuration Panel -->
     <mat-card class="config-panel">
       <mat-card-header>
-        <mat-card-title>{{ 'Agent Configuration' }}</mat-card-title>
+        <mat-card-title>{{ 'agentDebug.agentConfiguration' | translate }}</mat-card-title>
       </mat-card-header>
       <mat-card-content>
         <form [formGroup]="configForm">
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>{{ 'Select Agent' }}</mat-label>
+            <mat-label>{{ 'agentDebug.selectAgent' | translate }}</mat-label>
             <mat-select formControlName="agentId" (selectionChange)="onAgentSelected()" required>
               @for (agent of availableAgents(); track agent.id) {
                 <mat-option [value]="agent.id">
@@ -24,33 +25,33 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>{{ 'System Prompt Override' }}</mat-label>
+            <mat-label>{{ 'agentDebug.systemPromptOverride' | translate }}</mat-label>
             <textarea matInput formControlName="systemPrompt" rows="4"></textarea>
-            <mat-hint>{{ 'Leave empty to use agent default' }}</mat-hint>
+            <mat-hint>{{ 'agentDebug.systemPromptHint' | translate }}</mat-hint>
           </mat-form-field>
 
           <mat-expansion-panel>
             <mat-expansion-panel-header>
-              <mat-panel-title>{{ 'Advanced Settings' }}</mat-panel-title>
+              <mat-panel-title>{{ 'agentDebug.advancedSettings' | translate }}</mat-panel-title>
             </mat-expansion-panel-header>
 
             <div class="advanced-settings">
               <mat-form-field appearance="outline">
-                <mat-label>{{ 'Temperature' }}</mat-label>
+                <mat-label>{{ 'agentDebug.temperature' | translate }}</mat-label>
                 <input matInput type="number" formControlName="temperature" step="0.1" min="0" max="2" />
               </mat-form-field>
 
               <mat-form-field appearance="outline">
-                <mat-label>{{ 'Max Tokens' }}</mat-label>
+                <mat-label>{{ 'agentDebug.maxTokens' | translate }}</mat-label>
                 <input matInput type="number" formControlName="maxTokens" min="1" />
               </mat-form-field>
 
               <mat-checkbox formControlName="enableStreaming">
-                {{ 'Enable Streaming' }}
+                {{ 'agentDebug.enableStreaming' | translate }}
               </mat-checkbox>
 
               <mat-checkbox formControlName="enableToolCallLogging">
-                {{ 'Log Tool Calls' }}
+                {{ 'agentDebug.logToolCalls' | translate }}
               </mat-checkbox>
             </div>
           </mat-expansion-panel>
@@ -61,12 +62,12 @@
     <!-- Test Panel -->
     <mat-card class="test-panel">
       <mat-card-header>
-        <mat-card-title>{{ 'Test Agent' }}</mat-card-title>
+        <mat-card-title>{{ 'agentDebug.testAgent' | translate }}</mat-card-title>
       </mat-card-header>
       <mat-card-content>
         <form [formGroup]="testForm" (ngSubmit)="onTest()">
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>{{ 'User Message' }}</mat-label>
+            <mat-label>{{ 'agentDebug.userMessage' | translate }}</mat-label>
             <textarea matInput formControlName="userMessage" rows="4" required></textarea>
           </mat-form-field>
 
@@ -75,15 +76,15 @@
                     [disabled]="configForm.invalid || testForm.invalid || isTesting()">
               @if (isTesting()) {
                 <mat-spinner diameter="20"></mat-spinner>
-                <span>{{ 'Testing...' }}</span>
+                <span>{{ 'agentDebug.testing' | translate }}</span>
               } @else {
                 <mat-icon>play_circle</mat-icon>
-                <span>{{ 'Run Test' }}</span>
+                <span>{{ 'agentDebug.runTest' | translate }}</span>
               }
             </button>
             <button mat-stroked-button type="button" (click)="clearSession()" [disabled]="!currentSession()">
               <mat-icon>clear</mat-icon>
-              {{ 'Clear' }}
+              {{ 'agentDebug.clear' | translate }}
             </button>
           </div>
         </form>
@@ -93,9 +94,9 @@
           <mat-divider style="margin: 1.5rem 0;"></mat-divider>
           <div class="session-display">
             <div class="session-header">
-              <h3>{{ 'Execution Result' }}</h3>
+              <h3>{{ 'agentDebug.executionResult' | translate }}</h3>
               <div class="session-actions">
-                <button mat-icon-button (click)="exportSession()">
+                <button mat-icon-button (click)="exportSession()" [matTooltip]="'agentDebug.export' | translate">
                   <mat-icon>download</mat-icon>
                 </button>
               </div>
@@ -105,7 +106,7 @@
             <mat-chip-set class="status-chips">
               <mat-chip [highlighted]="currentSession()!.status === 'completed'">
                 <mat-icon>{{ currentSession()!.status === 'completed' ? 'check_circle' : currentSession()!.status === 'error' ? 'error' : 'schedule' }}</mat-icon>
-                {{ currentSession()!.status }}
+                {{ 'agentDebug.status.' + currentSession()!.status | translate }}
               </mat-chip>
               <mat-chip>
                 <mat-icon>schedule</mat-icon>
@@ -113,18 +114,18 @@
               </mat-chip>
               <mat-chip>
                 <mat-icon>functions</mat-icon>
-                {{ currentSession()!.metrics.tokenUsage.total }} tokens
+                {{ currentSession()!.metrics.tokenUsage.total }} {{ 'agentDebug.tokens' | translate }}
               </mat-chip>
               <mat-chip>
                 <mat-icon>build</mat-icon>
-                {{ currentSession()!.metrics.toolCallCount }} tool calls
+                {{ currentSession()!.metrics.toolCallCount }} {{ 'agentDebug.toolCalls' | translate }}
               </mat-chip>
             </mat-chip-set>
 
             <!-- Messages -->
             <mat-expansion-panel expanded>
               <mat-expansion-panel-header>
-                <mat-panel-title>{{ 'Conversation' }}</mat-panel-title>
+                <mat-panel-title>{{ 'agentDebug.conversation' | translate }}</mat-panel-title>
               </mat-expansion-panel-header>
               <div class="messages-container">
                 @for (msg of currentSession()!.messages; track $index) {
@@ -143,7 +144,7 @@
             @if (currentSession()!.toolCalls.length > 0) {
               <mat-expansion-panel>
                 <mat-expansion-panel-header>
-                  <mat-panel-title>{{ 'Tool Calls' }} ({{ currentSession()!.toolCalls.length }})</mat-panel-title>
+                  <mat-panel-title>{{ 'agentDebug.toolCallsTitle' | translate }} ({{ currentSession()!.toolCalls.length }})</mat-panel-title>
                 </mat-expansion-panel-header>
                 <div class="tool-calls-container">
                   @for (call of currentSession()!.toolCalls; track $index) {
@@ -155,11 +156,11 @@
                       <mat-card-content>
                         <div class="tool-io">
                           <div class="tool-input">
-                            <strong>Input:</strong>
+                            <strong>{{ 'agentDebug.input' | translate }}:</strong>
                             <pre>{{ call.input | json }}</pre>
                           </div>
                           <div class="tool-output">
-                            <strong>Output:</strong>
+                            <strong>{{ 'agentDebug.output' | translate }}:</strong>
                             <pre>{{ call.output | json }}</pre>
                           </div>
                         </div>
@@ -178,7 +179,7 @@
   <!-- Execution History -->
   <mat-card class="history-panel">
     <mat-card-header>
-      <mat-card-title>{{ 'Execution History' }}</mat-card-title>
+      <mat-card-title>{{ 'agentDebug.executionHistory' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       @if (isLoading()) {
@@ -188,12 +189,12 @@
       } @else {
         <table mat-table [dataSource]="dataSource">
           <ng-container matColumnDef="agentName">
-            <th mat-header-cell *matHeaderCellDef>{{ 'Agent' }}</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'agentDebug.agent' | translate }}</th>
             <td mat-cell *matCellDef="let row">{{ row.agentName }}</td>
           </ng-container>
 
           <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef>{{ 'Status' }}</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'agentDebug.status.label' | translate }}</th>
             <td mat-cell *matCellDef="let row">
               <mat-icon [color]="row.status === 'completed' ? 'primary' : row.status === 'error' ? 'warn' : ''">
                 {{ row.status === 'completed' ? 'check_circle' : row.status === 'error' ? 'error' : 'schedule' }}
@@ -202,34 +203,34 @@
           </ng-container>
 
           <ng-container matColumnDef="duration">
-            <th mat-header-cell *matHeaderCellDef>{{ 'Duration' }}</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'agentDebug.duration' | translate }}</th>
             <td mat-cell *matCellDef="let row">{{ row.metrics.duration }}ms</td>
           </ng-container>
 
           <ng-container matColumnDef="tokens">
-            <th mat-header-cell *matHeaderCellDef>{{ 'Tokens' }}</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'agentDebug.tokens' | translate }}</th>
             <td mat-cell *matCellDef="let row">{{ row.metrics.tokenUsage.total }}</td>
           </ng-container>
 
           <ng-container matColumnDef="toolCalls">
-            <th mat-header-cell *matHeaderCellDef>{{ 'Tools' }}</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'agentDebug.tools' | translate }}</th>
             <td mat-cell *matCellDef="let row">{{ row.metrics.toolCallCount }}</td>
           </ng-container>
 
           <ng-container matColumnDef="timestamp">
-            <th mat-header-cell *matHeaderCellDef>{{ 'Time' }}</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'agentDebug.time' | translate }}</th>
             <td mat-cell *matCellDef="let row">
               {{ row.messages[0]?.timestamp | date:'short' }}
             </td>
           </ng-container>
 
           <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>{{ 'Actions' }}</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'agentDebug.actions' | translate }}</th>
             <td mat-cell *matCellDef="let row">
-              <button mat-icon-button (click)="viewSession(row)" matTooltip="View">
+              <button mat-icon-button (click)="viewSession(row)" [matTooltip]="'agentDebug.view' | translate">
                 <mat-icon>visibility</mat-icon>
               </button>
-              <button mat-icon-button (click)="rerunSession(row)" matTooltip="Re-run">
+              <button mat-icon-button (click)="rerunSession(row)" [matTooltip]="'agentDebug.rerun' | translate">
                 <mat-icon>replay</mat-icon>
               </button>
             </td>

@@ -3,6 +3,16 @@
   max-width: 1400px;
   margin: 0 auto;
 
+  .demo-notice {
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+    padding: 0.75rem;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: #856404;
+  }
+
   .debug-container {
     display: grid;
     grid-template-columns: 1fr 1fr;

@@ -1,17 +1,18 @@
 <div class="workflow-monitor-page">
   <div class="page-header">
     <div>
-      <h2>{{ 'Workflow Orchestration Monitor' }}</h2>
-      <p>{{ 'Real-time monitoring and debugging of workflow executions' }}</p>
+      <h2>{{ 'workflowMonitor.title' | translate }}</h2>
+      <p>{{ 'workflowMonitor.description' | translate }}</p>
+      <p class="demo-notice">{{ 'workflowMonitor.demoNotice' | translate }}</p>
     </div>
     <div class="header-actions">
       <button mat-stroked-button (click)="refresh()" [disabled]="isLoading()">
         <mat-icon>refresh</mat-icon>
-        {{ 'Refresh' }}
+        {{ 'workflowMonitor.refresh' | translate }}
       </button>
       <button mat-stroked-button (click)="toggleAutoRefresh()" [color]="autoRefresh() ? 'accent' : ''">
         <mat-icon>{{ autoRefresh() ? 'pause' : 'play_arrow' }}</mat-icon>
-        {{ autoRefresh() ? 'Auto-Refresh ON' : 'Auto-Refresh OFF' }}
+        {{ (autoRefresh() ? 'workflowMonitor.autoRefreshOn' : 'workflowMonitor.autoRefreshOff') | translate }}
       </button>
     </div>
   </div>
@@ -25,7 +26,7 @@
         </div>
         <div class="stat-info">
           <div class="stat-value">{{ stats().totalRunning }}</div>
-          <div class="stat-label">{{ 'Running' }}</div>
+          <div class="stat-label">{{ 'workflowMonitor.stats.running' | translate }}</div>
         </div>
       </mat-card-content>
     </mat-card>
@@ -37,7 +38,7 @@
         </div>
         <div class="stat-info">
           <div class="stat-value">{{ stats().totalCompleted }}</div>
-          <div class="stat-label">{{ 'Completed' }}</div>
+          <div class="stat-label">{{ 'workflowMonitor.stats.completed' | translate }}</div>
         </div>
       </mat-card-content>
     </mat-card>
@@ -49,7 +50,7 @@
         </div>
         <div class="stat-info">
           <div class="stat-value">{{ stats().successRate }}%</div>
-          <div class="stat-label">{{ 'Success Rate' }}</div>
+          <div class="stat-label">{{ 'workflowMonitor.stats.successRate' | translate }}</div>
         </div>
       </mat-card-content>
     </mat-card>
@@ -61,7 +62,7 @@
         </div>
         <div class="stat-info">
           <div class="stat-value">{{ stats().averageDuration }}ms</div>
-          <div class="stat-label">{{ 'Avg Duration' }}</div>
+          <div class="stat-label">{{ 'workflowMonitor.stats.avgDuration' | translate }}</div>
         </div>
       </mat-card-content>
     </mat-card>
@@ -70,33 +71,33 @@
   <!-- Running Executions -->
   <mat-card class="executions-card">
     <mat-card-header>
-      <mat-card-title>{{ 'Running Workflows' }} ({{ runningExecutions().length }})</mat-card-title>
+      <mat-card-title>{{ 'workflowMonitor.runningWorkflows' | translate }} ({{ runningExecutions().length }})</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       @if (runningExecutions().length === 0) {
         <div class="empty-state">
           <mat-icon>schedule</mat-icon>
-          <p>{{ 'No running workflows' }}</p>
+          <p>{{ 'workflowMonitor.noRunningWorkflows' | translate }}</p>
         </div>
       } @else {
         <table mat-table [dataSource]="runningDataSource">
           <ng-container matColumnDef="workflowName">
-            <th mat-header-cell *matHeaderCellDef>{{ 'Workflow' }}</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'workflowMonitor.workflow' | translate }}</th>
             <td mat-cell *matCellDef="let row">{{ row.workflowName }}</td>
           </ng-container>
 
           <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef>{{ 'Status' }}</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'workflowMonitor.status.label' | translate }}</th>
             <td mat-cell *matCellDef="let row">
               <mat-chip [color]="statusColors[row.status]">
                 <mat-icon>autorenew</mat-icon>
-                {{ row.status }}
+                {{ 'workflowMonitor.status.' + row.status | translate }}
               </mat-chip>
             </td>
           </ng-container>
 
           <ng-container matColumnDef="progress">
-            <th mat-header-cell *matHeaderCellDef>{{ 'Progress' }}</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'workflowMonitor.progress' | translate }}</th>
             <td mat-cell *matCellDef="let row">
               <div class="progress-cell">
                 <mat-progress-bar mode="determinate" [value]="row.progress"></mat-progress-bar>
@@ -106,24 +107,24 @@
           </ng-container>
 
           <ng-container matColumnDef="startTime">
-            <th mat-header-cell *matHeaderCellDef>{{ 'Start Time' }}</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'workflowMonitor.startTime' | translate }}</th>
             <td mat-cell *matCellDef="let row">{{ row.startTime | date:'short' }}</td>
           </ng-container>
 
           <ng-container matColumnDef="duration">
-            <th mat-header-cell *matHeaderCellDef>{{ 'Duration' }}</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'workflowMonitor.duration' | translate }}</th>
             <td mat-cell *matCellDef="let row">
-              {{ row.duration ? row.duration + 'ms' : 'Running...' }}
+              {{ row.duration ? row.duration + 'ms' : ('workflowMonitor.runningStatus' | translate) }}
             </td>
           </ng-container>
 
           <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>{{ 'Actions' }}</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'workflowMonitor.actions' | translate }}</th>
             <td mat-cell *matCellDef="let row">
-              <button mat-icon-button (click)="viewExecution(row)" matTooltip="View Details">
+              <button mat-icon-button (click)="viewExecution(row)" [matTooltip]="'workflowMonitor.viewDetails' | translate">
                 <mat-icon>visibility</mat-icon>
               </button>
-              <button mat-icon-button (click)="cancelExecution(row)" matTooltip="Cancel">
+              <button mat-icon-button (click)="cancelExecution(row)" [matTooltip]="'workflowMonitor.cancel' | translate">
                 <mat-icon color="warn">cancel</mat-icon>
               </button>
             </td>
@@ -139,7 +140,7 @@
   <!-- Completed Executions -->
   <mat-card class="executions-card">
     <mat-card-header>
-      <mat-card-title>{{ 'Recent Executions' }}</mat-card-title>
+      <mat-card-title>{{ 'workflowMonitor.recentExecutions' | translate }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       @if (isLoading()) {
@@ -149,45 +150,45 @@
       } @else {
         <table mat-table [dataSource]="completedDataSource">
           <ng-container matColumnDef="workflowName">
-            <th mat-header-cell *matHeaderCellDef>{{ 'Workflow' }}</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'workflowMonitor.workflow' | translate }}</th>
             <td mat-cell *matCellDef="let row">{{ row.workflowName }}</td>
           </ng-container>
 
           <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef>{{ 'Status' }}</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'workflowMonitor.status.label' | translate }}</th>
             <td mat-cell *matCellDef="let row">
               <mat-chip [color]="statusColors[row.status]">
                 <mat-icon>
                   {{ row.status === 'completed' ? 'check_circle' : row.status === 'failed' ? 'error' : 'cancel' }}
                 </mat-icon>
-                {{ row.status }}
+                {{ 'workflowMonitor.status.' + row.status | translate }}
               </mat-chip>
             </td>
           </ng-container>
 
           <ng-container matColumnDef="progress">
-            <th mat-header-cell *matHeaderCellDef>{{ 'Progress' }}</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'workflowMonitor.progress' | translate }}</th>
             <td mat-cell *matCellDef="let row">{{ row.progress.toFixed(0) }}%</td>
           </ng-container>
 
           <ng-container matColumnDef="startTime">
-            <th mat-header-cell *matHeaderCellDef>{{ 'Start Time' }}</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'workflowMonitor.startTime' | translate }}</th>
             <td mat-cell *matCellDef="let row">{{ row.startTime | date:'short' }}</td>
           </ng-container>
 
           <ng-container matColumnDef="duration">
-            <th mat-header-cell *matHeaderCellDef>{{ 'Duration' }}</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'workflowMonitor.duration' | translate }}</th>
             <td mat-cell *matCellDef="let row">{{ row.duration }}ms</td>
           </ng-container>
 
           <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>{{ 'Actions' }}</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'workflowMonitor.actions' | translate }}</th>
             <td mat-cell *matCellDef="let row">
-              <button mat-icon-button (click)="viewExecution(row)" matTooltip="View Details">
+              <button mat-icon-button (click)="viewExecution(row)" [matTooltip]="'workflowMonitor.viewDetails' | translate">
                 <mat-icon>visibility</mat-icon>
               </button>
               @if (row.status === 'failed') {
-                <button mat-icon-button (click)="retryExecution(row)" matTooltip="Retry">
+                <button mat-icon-button (click)="retryExecution(row)" [matTooltip]="'workflowMonitor.retry' | translate">
                   <mat-icon>replay</mat-icon>
                 </button>
               }
@@ -205,7 +206,7 @@
   @if (selectedExecution()) {
     <mat-card class="details-panel">
       <mat-card-header>
-        <mat-card-title>{{ 'Execution Details' }}</mat-card-title>
+        <mat-card-title>{{ 'workflowMonitor.executionDetails' | translate }}</mat-card-title>
         <button mat-icon-button (click)="selectedExecution.set(null)">
           <mat-icon>close</mat-icon>
         </button>
@@ -214,7 +215,7 @@
         <div class="details-header">
           <h3>{{ selectedExecution()!.workflowName }}</h3>
           <div class="details-actions">
-            <button mat-icon-button (click)="exportExecution()">
+            <button mat-icon-button (click)="exportExecution()" [matTooltip]="'workflowMonitor.export' | translate">
               <mat-icon>download</mat-icon>
             </button>
           </div>
@@ -222,7 +223,7 @@
 
         <mat-chip-set class="details-chips">
           <mat-chip [color]="statusColors[selectedExecution()!.status]">
-            {{ selectedExecution()!.status }}
+            {{ 'workflowMonitor.status.' + selectedExecution()!.status | translate }}
           </mat-chip>
           <mat-chip>{{ selectedExecution()!.startTime | date:'short' }}</mat-chip>
           @if (selectedExecution()!.duration) {
@@ -234,7 +235,7 @@
 
         <!-- Steps Timeline -->
         <div class="steps-timeline">
-          <h4>{{ 'Workflow Steps' }}</h4>
+          <h3>{{ 'workflowMonitor.workflowSteps' | translate }}</h3>
           <div class="timeline">
             @for (step of selectedExecution()!.steps; track step.stepId) {
               <div class="timeline-item" [class]="step.status">
@@ -260,19 +261,19 @@
                     <div class="step-details">
                       @if (step.input) {
                         <div class="step-io">
-                          <strong>Input:</strong>
+                          <strong>{{ 'workflowMonitor.input' | translate }}:</strong>
                           <pre>{{ step.input | json }}</pre>
                         </div>
                       }
                       @if (step.output) {
                         <div class="step-io">
-                          <strong>Output:</strong>
+                          <strong>{{ 'workflowMonitor.output' | translate }}:</strong>
                           <pre>{{ step.output | json }}</pre>
                         </div>
                       }
                       @if (step.error) {
                         <div class="step-error">
-                          <strong>Error:</strong>
+                          <strong>{{ 'workflowMonitor.error' | translate }}:</strong>
                           <p>{{ step.error }}</p>
                         </div>
                       }
@@ -291,7 +292,7 @@
             @if (selectedExecution()!.inputParams) {
               <mat-expansion-panel>
                 <mat-expansion-panel-header>
-                  <mat-panel-title>{{ 'Input Parameters' }}</mat-panel-title>
+                  <mat-panel-title>{{ 'workflowMonitor.inputParameters' | translate }}</mat-panel-title>
                 </mat-expansion-panel-header>
                 <pre>{{ selectedExecution()!.inputParams | json }}</pre>
               </mat-expansion-panel>
@@ -299,7 +300,7 @@
             @if (selectedExecution()!.result) {
               <mat-expansion-panel>
                 <mat-expansion-panel-header>
-                  <mat-panel-title>{{ 'Execution Result' }}</mat-panel-title>
+                  <mat-panel-title>{{ 'workflowMonitor.executionResult' | translate }}</mat-panel-title>
                 </mat-expansion-panel-header>
                 <pre>{{ selectedExecution()!.result | json }}</pre>
               </mat-expansion-panel>
@@ -310,7 +311,7 @@
         @if (selectedExecution()!.error) {
           <mat-divider></mat-divider>
           <div class="execution-error">
-            <h4>{{ 'Error Details' }}</h4>
+            <h4>{{ 'workflowMonitor.errorDetails' | translate }}</h4>
             <p>{{ selectedExecution()!.error }}</p>
           </div>
         }

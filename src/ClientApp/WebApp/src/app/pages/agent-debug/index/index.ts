@@ -1,5 +1,5 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonFormModules, CommonListModules } from 'src/app/share/shared-modules';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -11,6 +11,7 @@ import { AdminClient } from 'src/app/services/admin/admin-client';
 import { TranslateService } from '@ngx-translate/core';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
 import { JsonPipe, DatePipe } from '@angular/common';
+import { Subject, takeUntil } from 'rxjs';
 
 interface AgentDebugSession {
   id: string;
@@ -44,8 +45,10 @@ interface AgentDebugSession {
   styleUrls: ['./index.scss'],
   standalone: true
 })
-export class AgentDebugIndex implements OnInit {
+export class AgentDebugIndex implements OnInit, OnDestroy {
   i18nKeys = I18N_KEYS;
+
+  private destroy$ = new Subject<void>();
 
   configForm!: FormGroup;
   testForm!: FormGroup;
@@ -79,6 +82,11 @@ export class AgentDebugIndex implements OnInit {
     this.loadExecutionHistory();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   private initForms(): void {
     this.configForm = this.fb.group({
       agentId: ['', Validators.required],
@@ -96,42 +104,58 @@ export class AgentDebugIndex implements OnInit {
     });
   }
 
+  private safeParseArray(jsonStr: string | null | undefined): any[] {
+    if (!jsonStr) return [];
+    try {
+      const parsed = JSON.parse(jsonStr);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
   private loadAgents(): void {
     this.isLoading.set(true);
-    this.adminClient.aIAgent.list({ pageIndex: 1, pageSize: 100 }).subscribe({
-      next: (res) => {
-        const agents = (res.data || []).map(a => ({
-          id: a.id || '',
-          name: a.name || '',
-          modelId: a.modelId || ''
-        }));
-        this.availableAgents.set(agents);
-        this.isLoading.set(false);
-      },
-      error: () => this.isLoading.set(false)
-    });
+    this.adminClient.aIAgent.list({ pageIndex: 1, pageSize: 100 })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          const agents = (res.data || []).map(a => ({
+            id: a.id || '',
+            name: a.name || '',
+            modelId: a.modelId || ''
+          }));
+          this.availableAgents.set(agents);
+          this.isLoading.set(false);
+        },
+        error: () => this.isLoading.set(false)
+      });
   }
 
   private loadTools(): void {
-    this.adminClient.mcpTool.list({ pageIndex: 1, pageSize: 100 }).subscribe({
-      next: (res) => {
-        const tools = (res.data || []).map(t => ({
-          id: t.id || '',
-          name: t.name || ''
-        }));
-        this.availableTools.set(tools);
-      }
-    });
+    this.adminClient.mcpTool.list({ pageIndex: 1, pageSize: 100 })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          const tools = (res.data || []).map(t => ({
+            id: t.id || '',
+            name: t.name || ''
+          }));
+          this.availableTools.set(tools);
+        }
+      });
   }
 
   private loadExecutionHistory(): void {
-    this.adminClient.agentExecution.list({ pageIndex: 1, pageSize: 20 }).subscribe({
-      next: (res) => {
-        const history = (res.data || []).map(e => this.mapExecutionToSession(e));
-        this.executionHistory.set(history);
-        this.dataSource.data = history;
-      }
-    });
+    this.adminClient.agentExecution.list({ pageIndex: 1, pageSize: 20 })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          const history = (res.data || []).map(e => this.mapExecutionToSession(e));
+          this.executionHistory.set(history);
+          this.dataSource.data = history;
+        }
+      });
   }
 
   private mapExecutionToSession(execution: any): AgentDebugSession {
@@ -139,8 +163,8 @@ export class AgentDebugIndex implements OnInit {
       id: execution.id,
       agentId: execution.agentId,
       agentName: execution.agentName || 'Unknown',
-      messages: JSON.parse(execution.messageHistory || '[]'),
-      toolCalls: JSON.parse(execution.toolCalls || '[]'),
+      messages: this.safeParseArray(execution.messageHistory),
+      toolCalls: this.safeParseArray(execution.toolCalls),
       status: execution.status === 'success' ? 'completed' : execution.status === 'failed' ? 'error' : 'running',
       error: execution.errorMessage,
       metrics: {
@@ -159,13 +183,15 @@ export class AgentDebugIndex implements OnInit {
     const agent = this.selectedAgent();
     if (agent) {
       // Load agent details and populate form
-      this.adminClient.aIAgent.detail(agent.id).subscribe({
-        next: (details) => {
-          this.configForm.patchValue({
-            systemPrompt: details.systemPrompt || '',
-          });
-        }
-      });
+      this.adminClient.aIAgent.detail(agent.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (details) => {
+            this.configForm.patchValue({
+              systemPrompt: details.systemPrompt || '',
+            });
+          }
+        });
     }
   }
 

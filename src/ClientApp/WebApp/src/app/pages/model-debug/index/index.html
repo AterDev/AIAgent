@@ -2,8 +2,11 @@
   <mat-card>
     <mat-card-header>
       <mat-card-title>
-        <h2>{{ 'Model Online Debug' }}</h2>
+        <h2>{{ 'modelDebug.title' | translate }}</h2>
       </mat-card-title>
+      <mat-card-subtitle>
+        <p class="demo-notice">{{ 'modelDebug.demoNotice' | translate }}</p>
+      </mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
@@ -12,7 +15,7 @@
         <div class="debug-form">
           <form [formGroup]="debugForm" (ngSubmit)="onSubmit()">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'Select Model' }}</mat-label>
+              <mat-label>{{ 'modelDebug.selectModel' | translate }}</mat-label>
               <mat-select formControlName="modelId" required>
                 @for (model of availableModels(); track model.id) {
                   <mat-option [value]="model.id">
@@ -23,24 +26,24 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'System Prompt' }}</mat-label>
+              <mat-label>{{ 'modelDebug.systemPrompt' | translate }}</mat-label>
               <textarea matInput formControlName="systemPrompt" rows="3"></textarea>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'User Prompt' }}</mat-label>
+              <mat-label>{{ 'modelDebug.userPrompt' | translate }}</mat-label>
               <textarea matInput formControlName="prompt" rows="5" required></textarea>
-              <mat-hint>{{ 'Enter your test prompt here' }}</mat-hint>
+              <mat-hint>{{ 'modelDebug.promptHint' | translate }}</mat-hint>
             </mat-form-field>
 
             <div class="parameters-row">
               <mat-form-field appearance="outline">
-                <mat-label>{{ 'Temperature' }}</mat-label>
+                <mat-label>{{ 'modelDebug.temperature' | translate }}</mat-label>
                 <input matInput type="number" formControlName="temperature" step="0.1" min="0" max="2" />
               </mat-form-field>
 
               <mat-form-field appearance="outline">
-                <mat-label>{{ 'Max Tokens' }}</mat-label>
+                <mat-label>{{ 'modelDebug.maxTokens' | translate }}</mat-label>
                 <input matInput type="number" formControlName="maxTokens" min="1" max="32000" />
               </mat-form-field>
             </div>
@@ -49,15 +52,15 @@
               <button mat-raised-button color="primary" type="submit" [disabled]="debugForm.invalid || isLoading()">
                 @if (isLoading()) {
                   <mat-spinner diameter="20"></mat-spinner>
-                  <span>{{ 'Testing...' }}</span>
+                  <span>{{ 'modelDebug.testing' | translate }}</span>
                 } @else {
                   <mat-icon>play_arrow</mat-icon>
-                  <span>{{ 'Test Model' }}</span>
+                  <span>{{ 'modelDebug.testModel' | translate }}</span>
                 }
               </button>
               <button mat-stroked-button type="button" (click)="debugForm.reset(); response.set(null); error.set(null)">
                 <mat-icon>clear</mat-icon>
-                {{ 'Clear' }}
+                {{ 'modelDebug.clear' | translate }}
               </button>
             </div>
           </form>
@@ -77,8 +80,8 @@
           @if (response()) {
             <mat-card class="response-card">
               <mat-card-header>
-                <mat-card-title>{{ 'Response' }}</mat-card-title>
-                <button mat-icon-button (click)="exportResponse()">
+                <mat-card-title>{{ 'modelDebug.response' | translate }}</mat-card-title>
+                <button mat-icon-button (click)="exportResponse()" [matTooltip]="'modelDebug.export' | translate">
                   <mat-icon>download</mat-icon>
                 </button>
               </mat-card-header>
@@ -101,15 +104,15 @@
                     </mat-chip>
                     <mat-chip>
                       <mat-icon>token</mat-icon>
-                      Prompt: {{ response()!.promptTokens }}
+                      {{ 'modelDebug.promptTokens' | translate }}: {{ response()!.promptTokens }}
                     </mat-chip>
                     <mat-chip>
                       <mat-icon>token</mat-icon>
-                      Completion: {{ response()!.completionTokens }}
+                      {{ 'modelDebug.completionTokens' | translate }}: {{ response()!.completionTokens }}
                     </mat-chip>
                     <mat-chip highlighted>
                       <mat-icon>functions</mat-icon>
-                      Total: {{ response()!.totalTokens }}
+                      {{ 'modelDebug.totalTokens' | translate }}: {{ response()!.totalTokens }}
                     </mat-chip>
                     <mat-chip>
                       <mat-icon>flag</mat-icon>
@@ -128,10 +131,10 @@
         <mat-divider></mat-divider>
         <div class="history-section">
           <div class="history-header">
-            <h3>{{ 'Test History' }}</h3>
+            <h3>{{ 'modelDebug.testHistory' | translate }}</h3>
             <button mat-stroked-button (click)="clearHistory()">
               <mat-icon>delete_sweep</mat-icon>
-              {{ 'Clear History' }}
+              {{ 'modelDebug.clearHistory' | translate }}
             </button>
           </div>
 
@@ -145,7 +148,7 @@
                   </div>
                   <p class="prompt-preview">{{ item.request.prompt.substring(0, 100) }}...</p>
                   <div class="history-item-meta">
-                    <span>{{ item.response.totalTokens }} tokens</span>
+                    <span>{{ item.response.totalTokens }} {{ 'modelDebug.tokens' | translate }}</span>
                     <span>{{ item.response.duration }}ms</span>
                   </div>
                 </mat-card-content>

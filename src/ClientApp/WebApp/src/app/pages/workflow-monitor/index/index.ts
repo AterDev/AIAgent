@@ -121,7 +121,7 @@ export class WorkflowMonitorIndex implements OnInit, OnDestroy {
     interval(5000)
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        if (this.autoRefresh()) {
+        if (this.autoRefresh() && this.runningExecutions().length > 0) {
           this.refreshRunningExecutions();
         }
       });
@@ -171,10 +171,19 @@ export class WorkflowMonitorIndex implements OnInit, OnDestroy {
       startTime: new Date(execution.createdAt),
       endTime: execution.completedAt ? new Date(execution.completedAt) : undefined,
       duration: execution.durationMs,
-      inputParams: execution.inputParameters ? JSON.parse(execution.inputParameters) : undefined,
-      result: execution.result ? JSON.parse(execution.result) : undefined,
+      inputParams: this.safeParse(execution.inputParameters),
+      result: this.safeParse(execution.result),
       error: execution.errorMessage
     };
+  }
+
+  private safeParse(jsonStr: string | null | undefined): any {
+    if (!jsonStr) return undefined;
+    try {
+      return JSON.parse(jsonStr);
+    } catch {
+      return undefined;
+    }
   }
 
   private parseStepsRecord(stepsRecordJson?: string): WorkflowStepExecution[] {
@@ -200,6 +209,11 @@ export class WorkflowMonitorIndex implements OnInit, OnDestroy {
   }
 
   private refreshRunningExecutions(): void {
+    // Only refresh if auto-refresh is on AND there are running executions
+    if (!this.autoRefresh() || this.runningExecutions().length === 0) {
+      return;
+    }
+
     this.adminClient.workflowExecution.list({ pageIndex: 1, pageSize: 20, status: 'running' }).subscribe({
       next: (res) => {
         const executions = (res.data || []).map(e => this.mapToExecutionDetail(e));
@@ -231,14 +245,13 @@ export class WorkflowMonitorIndex implements OnInit, OnDestroy {
     const ref = this.dialog.open(ConfirmDialogComponent, {
       data: {
         title: this.translate.instant('common.confirm'),
-        content: this.translate.instant('Are you sure you want to cancel this workflow execution?')
+        content: this.translate.instant('workflowMonitor.cancelNotAvailable')
       }
     });
     
     ref.afterClosed().subscribe((confirmed: boolean) => {
       if (confirmed) {
-        // TODO: Implement cancel endpoint
-        console.log('Canceling execution:', execution.id);
+        // Feature not yet implemented - backend API required
       }
     });
   }
@@ -247,14 +260,13 @@ export class WorkflowMonitorIndex implements OnInit, OnDestroy {
     const ref = this.dialog.open(ConfirmDialogComponent, {
       data: {
         title: this.translate.instant('common.confirm'),
-        content: this.translate.instant('Are you sure you want to retry this workflow?')
+        content: this.translate.instant('workflowMonitor.retryNotAvailable')
       }
     });
     
     ref.afterClosed().subscribe((confirmed: boolean) => {
       if (confirmed) {
-        // TODO: Implement retry endpoint
-        console.log('Retrying execution:', execution.id);
+        // Feature not yet implemented - backend API required
       }
     });
   }
