@@ -9,15 +9,19 @@ public class RagIngestionService(
     IDocumentParser parser,
     ITextChunker chunker,
     IVectorStore vectorStore,
-    Share.Services.ISystemConfigFacade systemConfigFacade,
     ILogger<RagIngestionService> logger
-) : IRagIngestionService
+)
 {
     public async Task<bool> IngestAsync(Guid documentId, string? contentText = null, CancellationToken cancellationToken = default)
     {
+        return await IngestAsync(documentId, userContext.TenantId, contentText, cancellationToken);
+    }
+
+    public async Task<bool> IngestAsync(Guid documentId, Guid tenantId, string? contentText = null, CancellationToken cancellationToken = default)
+    {
         await using var dbContext = await dbContextFactory.CreateDbContextAsync();
         var document = await dbContext.RagDocuments
-            .FirstOrDefaultAsync(q => q.Id == documentId && q.TenantId == userContext.TenantId, cancellationToken);
+            .FirstOrDefaultAsync(q => q.Id == documentId && q.TenantId == tenantId, cancellationToken);
 
         if (document is null)
         {
@@ -40,16 +44,6 @@ public class RagIngestionService(
             await dbContext.SaveChangesAsync(cancellationToken);
             logger.LogWarning(ex, "Parse failed for document {DocumentId}", documentId);
             return false;
-        }
-
-        var promptTemplate = await systemConfigFacade.GetValueAsync("Rag", "ParseTemplate", cancellationToken);
-        if (!string.IsNullOrWhiteSpace(promptTemplate))
-        {
-            parseResult.Text = systemConfigFacade.RenderTemplate(promptTemplate, new Dictionary<string, string>
-            {
-                ["input"] = parseResult.Text,
-            });
-            parseResult.TokenCount = Math.Max(1, parseResult.Text.Length / 4);
         }
 
         document.Status = RagDocumentStatus.Vectorizing;

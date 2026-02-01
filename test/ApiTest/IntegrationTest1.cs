@@ -14,10 +14,10 @@ public class IntegrationTest1
 
         var loginDto = new
         {
-            Email = "admin@default.com",
+            UserName = "admin",
             Password = "Perigon.2026"
         };
-        var response = await httpClient.PostAsJsonAsync("/api/systemUser/authorize", loginDto);
+        var response = await httpClient.PostAsJsonAsync("/api/systemUser/login", loginDto);
         var resData = await response.Content.ReadFromJsonAsync<AccessTokenDto>();
         await Assert.That(resData).IsNotNull();
         await Assert.That(resData!.AccessToken).IsNotNullOrEmpty();

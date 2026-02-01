@@ -21,6 +21,13 @@ export const routes: Routes = [
         ]
       },
       {
+        path: 'application-quota',
+        children: [
+          { path: '', redirectTo: '/application-quota/index', pathMatch: 'full' },
+          { path: 'index', loadComponent: () => import('./pages/application-quota/index/index').then(m => m.ApplicationQuotaIndex) },
+        ]
+      },
+      {
         path: 'ai-model-info',
         children: [
           { path: '', redirectTo: '/ai-model-info/index', pathMatch: 'full' },

@@ -23,7 +23,7 @@ public static class ModuleExtensions
     // The module services registration
     private static IHostApplicationBuilder AddModServices(this IHostApplicationBuilder builder)
     {
-        builder.Services.AddScoped<Share.Services.ISystemConfigFacade, SystemConfigFacade>();
+        builder.Services.AddScoped<SystemConfigFacade>();
         return builder;
     }
 

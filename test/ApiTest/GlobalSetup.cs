@@ -4,6 +4,7 @@
 
 using Aspire.Hosting;
 using Microsoft.Extensions.Logging;
+using Perigon.AspNetCore.Constants;
 
 [assembly: Retry(3)]
 [assembly: System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
@@ -19,6 +20,7 @@ public class GlobalHooks
     public static async Task SetUp()
     {
 
+        Environment.SetEnvironmentVariable("ASPIRE_ENVIRONMENT", "Testing");
         var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.AppHost>();
         appHost.Services.ConfigureHttpClientDefaults(clientBuilder =>
         {
@@ -37,8 +39,27 @@ public class GlobalHooks
     }
 
     [After(TestSession)]
-    public static void CleanUp()
+    public static async Task CleanUp()
     {
+        if (App != null)
+        {
+            var connectionString = await App.GetConnectionStringAsync(AppConst.Default);
+
+            var builder = new Npgsql.NpgsqlConnectionStringBuilder(connectionString)
+            {
+                Database = "postgres"
+            };
+            using var conn = new Npgsql.NpgsqlConnection(builder.ToString());
+            await conn.OpenAsync();
+
+            // 强制断开所有连接并删除库
+            var dropSql = $"DROP DATABASE IF EXISTS \"blog_sample_test\" WITH (FORCE);";
+            using var cmd = new Npgsql.NpgsqlCommand(dropSql, conn);
+            await cmd.ExecuteNonQueryAsync();
+
+            await App.StopAsync();
+            await App.DisposeAsync();
+        }
         Console.WriteLine("...and after!");
     }
 }

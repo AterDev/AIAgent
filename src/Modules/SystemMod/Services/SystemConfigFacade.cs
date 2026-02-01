@@ -9,7 +9,7 @@ public class SystemConfigFacade(
     TenantDbFactory dbContextFactory,
     IUserContext userContext,
     ILogger<SystemConfigFacade> logger
-) : ISystemConfigFacade
+)
 {
     public async Task<string?> GetValueAsync(string groupName, string key, CancellationToken cancellationToken = default)
     {

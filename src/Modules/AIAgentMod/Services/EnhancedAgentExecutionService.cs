@@ -1,5 +1,6 @@
 using Share.Services;
 using System.Text.Json;
+using SystemMod.Services;
 
 namespace AIAgentMod.Services;
 
@@ -11,7 +12,7 @@ public class EnhancedAgentExecutionService(
     IUserContext userContext,
     IModelInvokeFacade modelInvokeFacade,
     IMcpToolExecutorFacade mcpToolExecutorFacade,
-    ISystemConfigFacade systemConfigFacade,
+    SystemConfigFacade systemConfigFacade,
     ILogger<EnhancedAgentExecutionService> logger
 ) : IAgentExecutionService
 {

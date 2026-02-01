@@ -3,6 +3,7 @@ using Entity.AIAgentMod;
 using Microsoft.Agents.AI.Workflows;
 using Share.Services;
 using System.Text.Json;
+using SystemMod.Services;
 using MAFWorkflow = Microsoft.Agents.AI.Workflows.Workflow;
 using WorkflowEntity = Entity.WorkflowMod.Workflow;
 
@@ -17,7 +18,7 @@ public class WorkflowExecutor(
     IModelInvokeFacade modelInvokeFacade,
     IRagQueryFacade ragQueryFacade,
     IMcpToolExecutorFacade mcpToolExecutorFacade,
-    Share.Services.ISystemConfigFacade systemConfigFacade,
+    SystemConfigFacade systemConfigFacade,
     IAgentExecutionService agentExecutionService,
     ILogger<WorkflowExecutor> logger
 ) : IWorkflowExecutor

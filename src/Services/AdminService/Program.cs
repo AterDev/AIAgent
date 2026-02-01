@@ -32,6 +32,9 @@ builder.Services.AddManagers();
 // 模块服务
 builder.AddModules();
 
+// 添加 NATS 连接（支持 NatsRagMessagePublisher）
+builder.AddNatsClient("nats");
+
 WebApplication app = builder.Build();
 
 app.MapDefaultEndpoints();

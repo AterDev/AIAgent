@@ -97,6 +97,7 @@ export const I18N_KEYS = {
     "order": "menu.order",
     "model": "menu.model",
     "application": "menu.application",
+    "applicationQuota": "menu.applicationQuota",
     "aiModelInfo": "menu.aiModelInfo",
     "aiModelProvider": "menu.aiModelProvider",
     "knowledge": "menu.knowledge",
@@ -193,6 +194,23 @@ export const I18N_KEYS = {
     "isPublic": "ragCollection.isPublic",
     "isEnabled": "ragCollection.isEnabled",
     "tags": "ragCollection.tags"
+  },
+  "applicationQuota": {
+    "title": "applicationQuota.title",
+    "applicationId": "applicationQuota.applicationId",
+    "periodType": "applicationQuota.periodType",
+    "maxRequests": "applicationQuota.maxRequests",
+    "maxTokens": "applicationQuota.maxTokens",
+    "isEnabled": "applicationQuota.isEnabled",
+    "currentRequests": "applicationQuota.currentRequests",
+    "currentTokens": "applicationQuota.currentTokens",
+    "resetAt": "applicationQuota.resetAt",
+    "viewUsage": "applicationQuota.viewUsage",
+    "resetQuota": "applicationQuota.resetQuota",
+    "minute": "applicationQuota.minute",
+    "hour": "applicationQuota.hour",
+    "day": "applicationQuota.day",
+    "month": "applicationQuota.month"
   },
   "ragDocument": {
     "title": "ragDocument.title",

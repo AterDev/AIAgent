@@ -94,6 +94,7 @@
     "order": "订单管理",
     "model": "模型管理",
     "application": "应用管理",
+    "applicationQuota": "应用配额",
     "aiModelInfo": "AI模型配置",
     "aiModelProvider": "AI模型提供商",
     "knowledge": "知识库",
@@ -190,6 +191,23 @@
     "isPublic": "公开",
     "isEnabled": "已启用",
     "tags": "标签"
+  },
+  "applicationQuota": {
+    "title": "应用配额",
+    "applicationId": "应用ID",
+    "periodType": "周期类型",
+    "maxRequests": "最大请求数",
+    "maxTokens": "最大Token数",
+    "isEnabled": "已启用",
+    "currentRequests": "当前请求数",
+    "currentTokens": "当前Token数",
+    "resetAt": "重置时间",
+    "viewUsage": "查看使用情况",
+    "resetQuota": "重置配额",
+    "minute": "分钟",
+    "hour": "小时",
+    "day": "天",
+    "month": "月"
   },
   "ragDocument": {
     "title": "文档",

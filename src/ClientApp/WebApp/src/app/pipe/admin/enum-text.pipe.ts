@@ -58,6 +58,17 @@ export class EnumTextPipe implements PipeTransform {
         }
         break;
 
+      case 'DocumentParsingStatus':
+        switch (value) {
+          case 0: result = 'Pending'; break;
+          case 1: result = 'Parsing'; break;
+          case 2: result = 'Success'; break;
+          case 3: result = 'Failed'; break;
+          case 4: result = 'Cancelled'; break;
+          default: result = '默认'; break;
+        }
+        break;
+
       case 'RagDocumentStatus':
         switch (value) {
           case 0: result = 'Pending'; break;

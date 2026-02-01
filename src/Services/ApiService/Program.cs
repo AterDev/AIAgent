@@ -26,13 +26,14 @@ builder.Services.AddManagers();
 // Modules, auto generate by source generator
 builder.AddModules();
 
+// 添加 NATS 连接（支持 NatsRagMessagePublisher）
+builder.AddNatsClient("nats");
+
 WebApplication app = builder.Build();
 
 app.MapDefaultEndpoints();
 
 // 使用中间件（配置路由、认证等）
 app.UseMiddlewareServices();
-
-
 
 await app.RunAsync();

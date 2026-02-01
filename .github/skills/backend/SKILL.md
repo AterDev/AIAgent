@@ -44,6 +44,7 @@ src/
 - ❌ Manager 之间直接调用（通过共享服务或事件解耦）
 - ❌ Controller 绕过 Manager 直接访问 DbContext
 - ❌ Entity 包含业务逻辑（仅数据模型和验证注解）
+- ❌ 不要面向接口编程。没有多个实现类的服务，不要为其创建接口。
 
 ---
 
@@ -53,7 +54,7 @@ src/
 2. 然后处理模块层，即Manager和DTO的编写
 3. 最后处理服务层，即Controller的编写
 4. 检查项目依赖关系，检查错误，确保没有违反分层原则
-5. 没有错误，添加或修改了实体，必须通过`scripts/EFMigrations.ps1`脚本，生成迁移文件。
+5. 没有错误，添加或修改了实体，必须通过执行`scripts/EFMigrations.ps1`脚本，生成迁移文件。
 
 **要优先使用MCP工具`Perigon`，生成或创建模块/Entity/DTO/Manager/Controller等内容。**
 

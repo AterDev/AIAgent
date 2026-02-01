@@ -52,7 +52,7 @@ src/ClientApp/WebApp/
 
 ## 开发流程
 
-0. 先调用MCP 工具，从Api文档生成客户端请求服务，`outputPath`参数为前端的`src\app`目录的绝对路径,clientType为:NgHttp
+0. 先调用MCP 工具，从Api文档生成客户端请求服务，`outputPath`参数为前端的`src\ClientApp\WebApp\src\app`目录的绝对路径,不要再添加子路径了。clientType为:NgHttp
 1. 创建独立组件：目录及文件结构
 2. 配置路由和菜单
 3. 实现ts逻辑和HTML模板

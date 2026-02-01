@@ -19,7 +19,7 @@
         <ProjectReference Include="..\Perigon\Perigon.AspNetCore\Perigon.AspNetCore.csproj" IsAspireProjectResource="false" />
         <ProjectReference Include="..\Services\AdminService\AdminService.csproj" />
         <ProjectReference Include="..\Services\ApiService\ApiService.csproj" />
+        <ProjectReference Include="..\Services\FileProcessorService\FileProcessorService.csproj" />
         <ProjectReference Include="..\Services\MigrationService\MigrationService.csproj" />
     </ItemGroup>
 </Project>
-

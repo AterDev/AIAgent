@@ -20,9 +20,9 @@
 		<PackageReference Include="Aspire.NATS.Net" />
 		<PackageReference Include="Aspire.Qdrant.Client" />
 		<PackageReference Include="AWSSDK.S3" />
+		<PackageReference Include="EPPlus" />
 		<PackageReference Include="MailKit" />
 		<PackageReference Include="MiniExcel" />
-		<PackageReference Include="EPPlus" />
 		<PackageReference Include="SkiaSharp" />
 		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" />
 	</ItemGroup>
@@ -40,4 +40,3 @@
 		<ProjectReference Include="..\Perigon.AspNetCore\Perigon.AspNetCore.csproj" />
 	</ItemGroup>
 </Project>
-

@@ -28,7 +28,7 @@ export interface AIModelInfoItemDto {
   supportsResponsesApi?: boolean | null;
   /** 价格（单位: 每 1k tokens 的价格） */
   inputPrice?: number | null;
-  /** outputPrice */
+  /** 价格（单位: 每 1k tokens 的价格） */
   outputPrice?: number | null;
   /** 是否启用 */
   isEnabled?: boolean | null;

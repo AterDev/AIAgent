@@ -33,6 +33,39 @@
         }
       </mat-form-field>
 
+      <div class="d-flex flex-column gap-2">
+        <label class="font-weight-bold">Upload Document</label>
+        <input 
+          #fileInput 
+          type="file" 
+          (change)="onFileSelected($event)" 
+          accept=".pdf,.doc,.docx,.txt,.xlsx,.xls,.pptx,.ppt"
+          style="display: none"
+        />
+        <div class="d-flex gap-2">
+          <button 
+            mat-stroked-button 
+            type="button" 
+            (click)="fileInput.click()"
+            [disabled]="isUploading()">
+            Select File
+          </button>
+          <button 
+            mat-stroked-button 
+            type="button" 
+            (click)="uploadFile()"
+            [disabled]="!selectedFile || isUploading()">
+            Upload
+          </button>
+        </div>
+        @if (selectedFile) {
+          <small class="text-muted">Selected: {{ selectedFile.name }}</small>
+        }
+        @if (filePath.value) {
+          <small class="text-success">Upload Success: {{ filePath.value }}</small>
+        }
+      </div>
+
       <mat-form-field appearance="outline">
         <mat-label>{{ i18nKeys.ragDocument.contentType | translate }}</mat-label>
         <input matInput type="text" [formControl]="contentType" />
