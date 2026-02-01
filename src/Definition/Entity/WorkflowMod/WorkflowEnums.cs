@@ -4,35 +4,37 @@ using System.ComponentModel;
 
 public enum WorkflowExecutionStatus
 {
-    [Description("Pending")]
-    Pending = 0,
-
+    // Original values preserved for backward compatibility
     [Description("Running")]
-    Running = 1,
+    Running = 0,
 
     [Description("Completed")]
-    Completed = 2,
+    Completed = 1,
 
     [Description("Failed")]
-    Failed = 3,
-
-    [Description("Retrying")]
-    Retrying = 4,
-
-    [Description("Abandoned")]
-    Abandoned = 5,
+    Failed = 2,
 
     [Description("Canceled")]
-    Canceled = 6,
+    Canceled = 3,
+
+    // New statuses appended
+    [Description("Pending")]
+    Pending = 4,
+
+    [Description("Retrying")]
+    Retrying = 5,
+
+    [Description("Abandoned")]
+    Abandoned = 6,
 }
 
 public enum WorkflowExecutionMode
 {
     [Description("Normal")]
-    Normal = 1,
+    Normal = 0,
 
     [Description("Resumed")]
-    Resumed = 2
+    Resumed = 1
 }
 
 public enum StepExecutionStatus

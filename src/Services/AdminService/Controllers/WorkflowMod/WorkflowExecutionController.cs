@@ -64,6 +64,10 @@ public class WorkflowExecutionController(
     public async Task<ActionResult<WorkflowExecutionProgress>> GetProgressAsync([FromRoute] Guid id, [FromServices] IWorkflowExecutor executor)
     {
         var progress = await executor.GetProgressAsync(id);
+        if (progress is null)
+        {
+            return NotFound();
+        }
         return Ok(progress);
     }
 

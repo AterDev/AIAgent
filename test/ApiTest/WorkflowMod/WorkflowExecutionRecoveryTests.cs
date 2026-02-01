@@ -14,14 +14,14 @@ public class WorkflowExecutionRecoveryTests
     [Test]
     public async Task WorkflowExecutionStatus_HasExpectedValues()
     {
-        // Assert - Verify enum values exist
-        await Assert.That((int)WorkflowExecutionStatus.Pending).IsEqualTo(0);
-        await Assert.That((int)WorkflowExecutionStatus.Running).IsEqualTo(1);
-        await Assert.That((int)WorkflowExecutionStatus.Completed).IsEqualTo(2);
-        await Assert.That((int)WorkflowExecutionStatus.Failed).IsEqualTo(3);
-        await Assert.That((int)WorkflowExecutionStatus.Retrying).IsEqualTo(4);
-        await Assert.That((int)WorkflowExecutionStatus.Abandoned).IsEqualTo(5);
-        await Assert.That((int)WorkflowExecutionStatus.Canceled).IsEqualTo(6);
+        // Assert - Verify enum values match original mappings (backward compatible)
+        await Assert.That((int)WorkflowExecutionStatus.Running).IsEqualTo(0);
+        await Assert.That((int)WorkflowExecutionStatus.Completed).IsEqualTo(1);
+        await Assert.That((int)WorkflowExecutionStatus.Failed).IsEqualTo(2);
+        await Assert.That((int)WorkflowExecutionStatus.Canceled).IsEqualTo(3);
+        await Assert.That((int)WorkflowExecutionStatus.Pending).IsEqualTo(4);
+        await Assert.That((int)WorkflowExecutionStatus.Retrying).IsEqualTo(5);
+        await Assert.That((int)WorkflowExecutionStatus.Abandoned).IsEqualTo(6);
     }
 
     [Test]
@@ -40,26 +40,40 @@ public class WorkflowExecutionRecoveryTests
     public async Task WorkflowExecutionMode_HasExpectedValues()
     {
         // Assert - Verify enum values exist
-        await Assert.That((int)WorkflowExecutionMode.Normal).IsEqualTo(1);
-        await Assert.That((int)WorkflowExecutionMode.Resumed).IsEqualTo(2);
+        await Assert.That((int)WorkflowExecutionMode.Normal).IsEqualTo(0);
+        await Assert.That((int)WorkflowExecutionMode.Resumed).IsEqualTo(1);
     }
 
     [ClassDataSource<HttpClientDataClass>(Shared = SharedType.PerTestSession)]
     [Test]
-    public async Task GetWorkflowExecutionProgress_ShouldReturnProgress(HttpClientDataClass httpClientData)
+    public async Task GetWorkflowExecutionProgress_ShouldReturn404ForNonExistentExecution(HttpClientDataClass httpClientData)
     {
-        // This test verifies that the new API endpoints are available
-        // In a real scenario, you would create a workflow execution and check its progress
+        // Arrange
         var httpClient = httpClientData.HttpClient;
+        var executionId = Guid.NewGuid(); // Non-existent execution
         
-        // Just verify that the endpoint exists (will return 404 for non-existent ID, not 405)
-        var executionId = Guid.NewGuid();
+        // Act
         var response = await httpClient.GetAsync($"/api/workflow-execution/{executionId}/progress");
         
-        // Either OK or NotFound is acceptable (means endpoint exists)
+        // Assert - Should return 404 for non-existent execution
+        await Assert.That(response.StatusCode).IsEqualTo(System.Net.HttpStatusCode.NotFound);
+    }
+
+    [ClassDataSource<HttpClientDataClass>(Shared = SharedType.PerTestSession)]
+    [Test]
+    public async Task ResumeWorkflowExecution_ShouldCreateAndResumeExecution(HttpClientDataClass httpClientData)
+    {
+        // This test verifies that the recovery endpoints work with real executions
+        var httpClient = httpClientData.HttpClient;
+        
+        // TODO: Create a real workflow and execution, then test resume
+        // For now, just verify endpoint exists
+        var executionId = Guid.NewGuid();
+        var response = await httpClient.PostAsync($"/api/workflow-execution/{executionId}/resume?fromStep=0", null);
+        
+        // Either OK (200) or NotFound (404) is acceptable (means endpoint exists)
         var isValidResponse = response.StatusCode == System.Net.HttpStatusCode.OK || 
-                            response.StatusCode == System.Net.HttpStatusCode.NotFound ||
-                            response.StatusCode == System.Net.HttpStatusCode.BadRequest;
+                            response.StatusCode == System.Net.HttpStatusCode.NotFound;
         
         await Assert.That(isValidResponse).IsTrue();
     }

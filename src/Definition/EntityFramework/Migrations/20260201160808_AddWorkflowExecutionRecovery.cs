@@ -51,7 +51,11 @@ namespace EntityFramework.Migrations
                 table: "WorkflowExecutions",
                 type: "integer",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: 3);
+
+            // Backfill existing rows with default MaxRetries value
+            migrationBuilder.Sql(
+                "UPDATE \"WorkflowExecutions\" SET \"MaxRetries\" = 3 WHERE \"MaxRetries\" = 0;");
 
             migrationBuilder.AddColumn<DateTimeOffset>(
                 name: "ResumedAt",

@@ -74,7 +74,7 @@ public class WorkflowExecutor(
         return true;
     }
 
-    public async Task<WorkflowExecutionProgress> GetProgressAsync(Guid executionId, CancellationToken cancellationToken = default)
+    public async Task<WorkflowExecutionProgress?> GetProgressAsync(Guid executionId, CancellationToken cancellationToken = default)
     {
         await using var dbContext = await dbContextFactory.CreateDbContextAsync();
         var execution = await dbContext.WorkflowExecutions
@@ -82,7 +82,7 @@ public class WorkflowExecutor(
 
         if (execution is null)
         {
-            throw new BusinessException("Execution not found");
+            return null;
         }
 
         var stepExecutions = string.IsNullOrWhiteSpace(execution.StepExecutionsJson)
@@ -140,13 +140,25 @@ public class WorkflowExecutor(
 
         // Calculate delay (exponential backoff)
         var delayMs = (int)Math.Pow(2, execution.RetryCount) * 1000;
-        logger.LogInformation("Retrying execution {ExecutionId} in {DelayMs}ms (attempt {Attempt}/{Max})",
+        logger.LogInformation("Scheduling retry for execution {ExecutionId} in {DelayMs}ms (attempt {Attempt}/{Max})",
             executionId, delayMs, execution.RetryCount, execution.MaxRetries);
-        await Task.Delay(delayMs, cancellationToken);
 
-        // Resume from last checkpoint
+        // Schedule retry in background without blocking the request
         var fromStepIndex = execution.LastCheckpointStepIndex ?? 0;
-        return await ResumeAsync(executionId, fromStepIndex, cancellationToken);
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(delayMs, CancellationToken.None);
+                await ResumeAsync(executionId, fromStepIndex, CancellationToken.None);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Background retry failed for execution {ExecutionId}", executionId);
+            }
+        }, CancellationToken.None);
+
+        return true;
     }
 
     private async Task<bool> ExecuteInternalAsync(Guid executionId, int startStepIndex, CancellationToken cancellationToken)
@@ -180,6 +192,13 @@ public class WorkflowExecutor(
 
         var steps = ParseSteps(workflow.DefinitionJson);
         
+        // Log resumption point
+        if (startStepIndex > 0)
+        {
+            logger.LogInformation("Resuming execution {ExecutionId} from step index {StepIndex}", 
+                executionId, startStepIndex);
+        }
+        
         // Restore context from checkpoint if resuming
         var context = string.IsNullOrWhiteSpace(execution.ContextJson)
             ? new Dictionary<string, object?>
@@ -202,7 +221,22 @@ public class WorkflowExecutor(
                 throw new BusinessException("Workflow definition is empty.");
             }
 
-            var workflowInstance = BuildWorkflow(workflow, steps);
+            // Skip completed steps when resuming
+            var stepsToExecute = startStepIndex > 0 
+                ? steps.Skip(startStepIndex).ToList() 
+                : steps;
+
+            if (stepsToExecute.Count == 0)
+            {
+                logger.LogInformation("All steps already completed for execution {ExecutionId}", executionId);
+                execution.Status = WorkflowExecutionStatus.Completed;
+                execution.CompletedTime = DateTimeOffset.UtcNow;
+                execution.DurationMs = (int)stopwatch.ElapsedMilliseconds;
+                await dbContext.SaveChangesAsync(cancellationToken);
+                return true;
+            }
+
+            var workflowInstance = BuildWorkflow(workflow, stepsToExecute);
             await InProcessExecution.RunAsync(
                 workflowInstance,
                 context,

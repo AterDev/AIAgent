@@ -20,7 +20,7 @@ public interface IWorkflowExecutor
     /// <summary>
     /// 获取执行进度
     /// </summary>
-    Task<WorkflowExecutionProgress> GetProgressAsync(Guid executionId, CancellationToken cancellationToken = default);
+    Task<WorkflowExecutionProgress?> GetProgressAsync(Guid executionId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// 重试失败的执行
