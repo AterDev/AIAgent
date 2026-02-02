@@ -1,17 +1,36 @@
 using Microsoft.Extensions.Hosting;
+using NATS.Client.Core;
+using Share.Models;
+using System.Text.Json;
+using Microsoft.Extensions.Options;
+using Perigon.AspNetCore.Options;
 
 namespace KnowledgeBaseMod.Services;
 
 /// <summary>
 /// Background service for processing RAG document parsing and vectorization tasks
 /// </summary>
+/// <remarks>
+/// The service supports two modes of operation:
+/// 1. When NATS is available and MQType != None: Uses message queue for immediate processing
+/// 2. When NATS is unavailable or MQType == None: Uses polling-based processing
+/// 
+/// Design Note: INatsConnection is nullable to support graceful degradation. While NATS is registered
+/// in DI, it may fail to connect or be intentionally disabled via configuration. The nullable parameter
+/// allows the service to start and operate in polling mode rather than failing at startup.
+/// This is a deliberate design choice for resilience over fail-fast behavior.
+/// </remarks>
 public class BackgroundParsingService(
     IServiceProvider serviceProvider,
-    ILogger<BackgroundParsingService> logger
+    IOptions<ComponentOption> componentOptions,
+    ILogger<BackgroundParsingService> logger,
+    INatsConnection? natsConnection = null
 ) : BackgroundService
 {
     private readonly TimeSpan _pollInterval = TimeSpan.FromSeconds(10);
     private readonly SemaphoreSlim _processingLock = new(1, 1);
+    private const string SubjectName = "rag.ingestion";
+    private readonly ComponentOption _componentOptions = componentOptions.Value;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -39,6 +58,60 @@ public class BackgroundParsingService(
         }
 
         logger.LogInformation("BackgroundParsingService stopped");
+    }
+
+    /// <summary>
+    /// 手动将文档加入解析队列
+    /// </summary>
+    public async Task EnqueueDocumentAsync(Guid documentId, Guid tenantId, CancellationToken cancellationToken = default, Guid? collectionId = null)
+    {
+        try
+        {
+            // Fetch document details to get required fields
+            using var scope = serviceProvider.CreateScope();
+            var dbFactory = scope.ServiceProvider.GetRequiredService<TenantDbFactory>();
+            await using var dbContext = await dbFactory.CreateDbContextAsync();
+            
+            var document = await dbContext.RagDocuments
+                .FirstOrDefaultAsync(d => d.Id == documentId && d.TenantId == tenantId, cancellationToken);
+
+            if (document == null)
+            {
+                throw new BusinessException("Document not found");
+            }
+
+            var message = new RagIngestionMessage
+            {
+                DocumentId = documentId,
+                TenantId = tenantId,
+                CollectionId = collectionId ?? document.CollectionId,
+                FilePath = document.FilePath ?? string.Empty,
+                ContentType = document.ContentType ?? "text/plain",
+                DocumentName = document.Name,
+                FileName = document.FileName,
+                StorageType = document.StorageType
+            };
+
+            // Publish to NATS if available; otherwise rely on polling mechanism
+            // Check both MQType config and natsConnection since injection is optional
+            if (_componentOptions.MQType != MQType.None && natsConnection != null)
+            {
+                var json = JsonSerializer.Serialize(message);
+                var data = System.Text.Encoding.UTF8.GetBytes(json);
+
+                await natsConnection.PublishAsync(SubjectName, data, cancellationToken: cancellationToken);
+                logger.LogInformation("Enqueued document {DocumentId} for parsing via NATS", documentId);
+            }
+            else
+            {
+                logger.LogInformation("Enqueued document {DocumentId} for parsing (MQ disabled, will be processed by polling)", documentId);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to enqueue document {DocumentId}", documentId);
+            throw;
+        }
     }
 
     private async Task ProcessPendingDocumentsAsync(CancellationToken cancellationToken)

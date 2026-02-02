@@ -23,6 +23,8 @@ public class RagDocument : EntityBase
     [MaxLength(100)]
     public string ContentType { get; set; } = string.Empty;
 
+    public StorageType StorageType { get; set; }
+
     public RagDocumentStatus Status { get; set; }
 
     /// <summary>

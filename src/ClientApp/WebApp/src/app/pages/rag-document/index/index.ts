@@ -2,6 +2,7 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
@@ -26,6 +27,7 @@ export class RagDocumentIndex implements OnInit {
   private dialog = inject(MatDialog);
   private translate = inject(TranslateService);
   private adminClient = inject(AdminClient);
+  private snackBar = inject(MatSnackBar);
 
   filterDto: RagDocumentFilterDto = { pageIndex: 1, pageSize: 10 };
   dataSource = new MatTableDataSource<RagDocumentItemDto>();
@@ -87,6 +89,28 @@ export class RagDocumentIndex implements OnInit {
     ref.afterClosed().subscribe((ok: boolean) => {
       if (ok) { 
         this.adminClient.ragDocument.delete(id).subscribe(() => this.loadData()); 
+      }
+    });
+  }
+
+  triggerParse(id: string) {
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: this.translate.instant('common.confirm'),
+        content: this.translate.instant(this.i18nKeys.ragDocument.triggerParseConfirm)
+      }
+    });
+    ref.afterClosed().subscribe((ok: boolean) => {
+      if (ok) { 
+        this.adminClient.ragDocument.triggerParse(id).subscribe({
+          next: (res) => {
+            this.snackBar.open(res.message || 'Parse triggered successfully', 'Close', { duration: 3000 });
+            this.loadData();
+          },
+          error: (err) => {
+            this.snackBar.open('Failed to trigger parse: ' + err.message, 'Close', { duration: 5000 });
+          }
+        }); 
       }
     });
   }

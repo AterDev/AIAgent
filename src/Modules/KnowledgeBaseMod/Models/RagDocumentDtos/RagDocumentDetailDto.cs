@@ -18,8 +18,13 @@ public class RagDocumentDetailDto
     [MaxLength(260)]
     public string? FileName { get; set; }
 
+    [MaxLength(500)]
+    public string? FilePath { get; set; }
+
     [MaxLength(100)]
     public string? ContentType { get; set; }
+
+    public StorageType StorageType { get; set; }
 
     public RagDocumentStatus Status { get; set; }
 

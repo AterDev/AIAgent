@@ -1,3 +1,5 @@
+using Perigon.AspNetCore.Options;
+
 namespace Share.Models;
 
 /// <summary>
@@ -39,4 +41,9 @@ public class RagIngestionMessage
     /// 文件名
     /// </summary>
     public string? FileName { get; set; }
+
+    /// <summary>
+    /// 存储类型
+    /// </summary>
+    public StorageType StorageType { get; set; }
 }

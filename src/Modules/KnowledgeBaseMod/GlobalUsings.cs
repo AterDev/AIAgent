@@ -6,6 +6,7 @@ global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
 global using Perigon.AspNetCore.Abstraction;
 global using Perigon.AspNetCore.Models;
+global using Perigon.AspNetCore.Options;
 global using Perigon.AspNetCore.Utils;
 global using Share.Exceptions;
 global using Share.Implement;

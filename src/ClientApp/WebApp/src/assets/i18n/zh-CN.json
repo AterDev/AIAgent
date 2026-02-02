@@ -233,7 +233,8 @@
     "sourceUrl": "来源地址",
     "tokenCount": "Token数量",
     "roles": "角色",
-    "tags": "标签"
+    "tags": "标签",
+    "triggerParseConfirm": "确定要触发该文档的解析吗？"
   },
   "mcpTool": {
     "title": "MCP工具",
