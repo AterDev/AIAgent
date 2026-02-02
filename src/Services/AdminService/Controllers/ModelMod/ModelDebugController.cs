@@ -2,6 +2,7 @@ using ModelMod.Models.ModelDebugDtos;
 using CoreMod.Services;
 using CoreMod.Models;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace AdminService.Controllers.ModelMod;
 
@@ -59,12 +60,12 @@ public class ModelDebugController(
             // Add optional parameters to metadata
             if (request.Temperature.HasValue)
             {
-                modelRequest.Metadata["temperature"] = request.Temperature.Value.ToString();
+                modelRequest.Metadata["temperature"] = request.Temperature.Value.ToString(CultureInfo.InvariantCulture);
             }
 
             if (request.MaxTokens.HasValue)
             {
-                modelRequest.Metadata["max_tokens"] = request.MaxTokens.Value.ToString();
+                modelRequest.Metadata["max_tokens"] = request.MaxTokens.Value.ToString(CultureInfo.InvariantCulture);
             }
 
             // Call the model
@@ -99,7 +100,7 @@ public class ModelDebugController(
             stopwatch.Stop();
             _logger.LogError(ex, "Error during model debug for model: {ModelId}", request.ModelId);
 
-            return Ok(new ModelDebugResponseDto
+            var errorResponseDto = new ModelDebugResponseDto
             {
                 Content = string.Empty,
                 Model = request.ModelId,
@@ -109,7 +110,9 @@ public class ModelDebugController(
                 FinishReason = "error",
                 Duration = stopwatch.ElapsedMilliseconds,
                 ErrorMessage = ex.Message
-            });
+            };
+
+            return StatusCode(500, errorResponseDto);
         }
     }
 }
