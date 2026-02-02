@@ -79,6 +79,21 @@ export const routes: Routes = [
           { path: 'index', loadComponent: () => import('./pages/agent-execution/index/index').then(m => m.AgentExecutionIndex) },
         ]
       },
+      // AI 能力管理 - 新增调试页面
+      {
+        path: 'model-debug',
+        children: [
+          { path: '', redirectTo: '/model-debug/index', pathMatch: 'full' },
+          { path: 'index', loadComponent: () => import('./pages/model-debug/index/index').then(m => m.ModelDebugIndex) },
+        ]
+      },
+      {
+        path: 'agent-debug',
+        children: [
+          { path: '', redirectTo: '/agent-debug/index', pathMatch: 'full' },
+          { path: 'index', loadComponent: () => import('./pages/agent-debug/index/index').then(m => m.AgentDebugIndex) },
+        ]
+      },
       // WorkflowMod - 工作流管理
       {
         path: 'workflow',
@@ -92,6 +107,13 @@ export const routes: Routes = [
         children: [
           { path: '', redirectTo: '/workflow-execution/index', pathMatch: 'full' },
           { path: 'index', loadComponent: () => import('./pages/workflow-execution/index/index').then(m => m.WorkflowExecutionIndex) },
+        ]
+      },
+      {
+        path: 'workflow-monitor',
+        children: [
+          { path: '', redirectTo: '/workflow-monitor/index', pathMatch: 'full' },
+          { path: 'index', loadComponent: () => import('./pages/workflow-monitor/index/index').then(m => m.WorkflowMonitorIndex) },
         ]
       },
       // SystemMod - 系统管理
