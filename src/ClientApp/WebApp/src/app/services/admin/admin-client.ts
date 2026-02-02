@@ -21,6 +21,7 @@ import { SystemUserService } from './services/system-user.service';
 import { ToolCallRecordService } from './services/tool-call-record.service';
 import { WorkflowService } from './services/workflow.service';
 import { WorkflowExecutionService } from './services/workflow-execution.service';
+import { ModelDebugService } from './services/model-debug.service';
 @Injectable({
   providedIn: 'root'
 })
@@ -69,4 +70,6 @@ export class AdminClient {
   public workflow = inject(WorkflowService);
   /** 工作流执行管理 */
   public workflowExecution = inject(WorkflowExecutionService);
+  /** 模型调试工具 */
+  public modelDebug = inject(ModelDebugService);
 }

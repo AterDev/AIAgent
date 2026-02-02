@@ -8,7 +8,6 @@ import { MatChipsModule } from '@angular/material/chips';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 import { TranslateService } from '@ngx-translate/core';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
-import { JsonPipe } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
 
 interface ModelDebugRequest {
@@ -36,8 +35,7 @@ interface ModelDebugResponse {
     MatCardModule,
     MatProgressSpinnerModule,
     MatDividerModule,
-    MatChipsModule,
-    JsonPipe
+    MatChipsModule
   ],
   templateUrl: './index.html',
   styleUrls: ['./index.scss'],
@@ -90,7 +88,7 @@ export class ModelDebugIndex implements OnInit, OnDestroy {
           const models = (res.data || []).map(m => ({
             id: m.id || '',
             name: m.name || '',
-            provider: m.provider || ''
+            provider: m.providerId || ''
           }));
           this.availableModels.set(models);
         },
@@ -111,37 +109,27 @@ export class ModelDebugIndex implements OnInit, OnDestroy {
     this.response.set(null);
 
     const request: ModelDebugRequest = this.debugForm.value;
-    const startTime = Date.now();
 
-    // Mock API call - replace with actual API
-    // TODO: Create actual debug endpoint in backend
-    setTimeout(() => {
-      try {
-        const mockResponse: ModelDebugResponse = {
-          content: `This is a mock response for testing. Model: ${request.modelId}, Prompt: ${request.prompt.substring(0, 50)}...`,
-          model: request.modelId,
-          promptTokens: Math.floor(Math.random() * 100) + 50,
-          completionTokens: Math.floor(Math.random() * 200) + 100,
-          totalTokens: 0,
-          finishReason: 'stop',
-          duration: Date.now() - startTime
-        };
-        mockResponse.totalTokens = mockResponse.promptTokens + mockResponse.completionTokens;
+    // Call the real API
+    this.adminClient.modelDebug.debug(request)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.response.set(response);
+          this.isLoading.set(false);
 
-        this.response.set(mockResponse);
-        this.isLoading.set(false);
-
-        // Add to history
-        const currentHistory = this.history();
-        this.history.set([
-          { request, response: mockResponse, timestamp: new Date() },
-          ...currentHistory.slice(0, 9) // Keep last 10
-        ]);
-      } catch (err: any) {
-        this.isLoading.set(false);
-        this.error.set(this.translate.instant('modelDebug.errors.testFailed') + ': ' + err.message);
-      }
-    }, 1500);
+          // Add to history
+          const currentHistory = this.history();
+          this.history.set([
+            { request, response, timestamp: new Date() },
+            ...currentHistory.slice(0, 9) // Keep last 10
+          ]);
+        },
+        error: (err) => {
+          this.isLoading.set(false);
+          this.error.set(this.translate.instant('modelDebug.errors.testFailed') + ': ' + err.message);
+        }
+      });
   }
 
   clearHistory(): void {
