@@ -73,24 +73,48 @@ public class ModelDebugController(
 
             stopwatch.Stop();
 
-            // Build response DTO
+            // Check if the request was successful
+            if (!response.Success)
+            {
+                _logger.LogWarning(
+                    "Model debug failed for model: {ModelId}, Error: {ErrorMessage}",
+                    request.ModelId,
+                    response.ErrorMessage
+                );
+
+                var errorResponseDto = new ModelDebugResponseDto
+                {
+                    Content = string.Empty,
+                    Model = request.ModelId,
+                    PromptTokens = 0,
+                    CompletionTokens = 0,
+                    TotalTokens = 0,
+                    FinishReason = "error",
+                    Duration = stopwatch.ElapsedMilliseconds,
+                    ErrorMessage = response.ErrorMessage
+                };
+
+                return StatusCode(500, errorResponseDto);
+            }
+
+            // Build success response DTO
             var responseDto = new ModelDebugResponseDto
             {
                 Content = response.Content ?? string.Empty,
                 Model = request.ModelId,
-                PromptTokens = response.Usage.PromptTokens,
-                CompletionTokens = response.Usage.CompletionTokens,
-                TotalTokens = response.Usage.TotalTokens,
-                FinishReason = response.Success ? "stop" : "error",
+                PromptTokens = response.Usage?.PromptTokens ?? 0,
+                CompletionTokens = response.Usage?.CompletionTokens ?? 0,
+                TotalTokens = response.Usage?.TotalTokens ?? 0,
+                FinishReason = "stop",
                 Duration = stopwatch.ElapsedMilliseconds,
-                ErrorMessage = response.ErrorMessage
+                ErrorMessage = null
             };
 
             _logger.LogInformation(
                 "Model debug completed. Model: {ModelId}, Duration: {Duration}ms, Tokens: {TotalTokens}",
                 request.ModelId,
                 stopwatch.ElapsedMilliseconds,
-                response.Usage.TotalTokens
+                responseDto.TotalTokens
             );
 
             return Ok(responseDto);
