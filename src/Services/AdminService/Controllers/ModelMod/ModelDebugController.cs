@@ -105,6 +105,8 @@ public class ModelDebugController(
                 PromptTokens = response.Usage?.PromptTokens ?? 0,
                 CompletionTokens = response.Usage?.CompletionTokens ?? 0,
                 TotalTokens = response.Usage?.TotalTokens ?? 0,
+                // Note: ModelResponse doesn't currently expose FinishReason from the underlying IChatClient
+                // "stop" is used as a default for successful completions
                 FinishReason = "stop",
                 Duration = stopwatch.ElapsedMilliseconds,
                 ErrorMessage = null
