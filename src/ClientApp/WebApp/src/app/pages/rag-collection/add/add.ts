@@ -33,6 +33,8 @@ export class RagCollectionAdd implements OnInit {
   }
 
   ngOnInit(): void {
+
+    this.isLoading.set(false);
   }
 
   buildForm() {

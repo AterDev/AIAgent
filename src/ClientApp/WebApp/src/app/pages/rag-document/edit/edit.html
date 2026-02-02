@@ -11,7 +11,14 @@
       <form [formGroup]="form" (ngSubmit)="submit()" class="d-flex flex-column p-2 mt-2 gap-2">
       <mat-form-field appearance="outline">
         <mat-label>{{ i18nKeys.ragDocument.collectionId | translate }}</mat-label>
-        <input matInput type="text" [formControl]="collectionId" />
+        <mat-select [formControl]="collectionId">
+          @if (availableCollections().length === 0) {
+            <mat-option disabled>{{ i18nKeys.common.noData | translate }}</mat-option>
+          }
+          @for (item of availableCollections(); track item.id) {
+            <mat-option [value]="item.id">{{ item.name || item.id }}</mat-option>
+          }
+        </mat-select>
         @if (collectionId.invalid) {
           <mat-error>{{ getValidatorMessage(collectionId) }}</mat-error>
         }

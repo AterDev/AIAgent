@@ -1,15 +1,18 @@
-import { Component, Inject, OnInit, signal } from '@angular/core';
+import { Component, Inject, OnInit, signal, DestroyRef, inject } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCard, MatCardHeader, MatCardTitle, MatCardContent, MatCardActions } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateService } from '@ngx-translate/core';
+import { forkJoin, of } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
 import { CommonFormModules } from 'src/app/share/shared-modules';
 import { RagDocumentUpdateDto } from 'src/app/services/admin/models/knowledge-base-mod/rag-document-update-dto.model';
 import { RagDocumentDetailDto } from 'src/app/services/admin/models/knowledge-base-mod/rag-document-detail-dto.model';
+import { RagCollectionItemDto } from 'src/app/services/admin/models/knowledge-base-mod/rag-collection-item-dto.model';
 
 @Component({
   selector: 'app-rag-document-edit',
@@ -24,6 +27,8 @@ export class RagDocumentEdit implements OnInit {
   form!: FormGroup;
   id?: string;
   isLoading = signal(true);
+  availableCollections = signal<RagCollectionItemDto[]>([]);
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private fb: FormBuilder,
@@ -37,16 +42,22 @@ export class RagDocumentEdit implements OnInit {
   }
 
   ngOnInit() {
-    if (this.id) {
-      this.isLoading.set(true);
-      this.adminClient.ragDocument.detail(this.id).subscribe({
-        next: (res: RagDocumentDetailDto) => {
-          this.form.patchValue(res);
+    this.isLoading.set(true);
+    const collections$ = this.adminClient.ragCollection.list({ pageIndex: 1, pageSize: 100 });
+    const detail$ = this.id ? this.adminClient.ragDocument.detail(this.id) : of(null);
+
+    forkJoin({ collections: collections$, detail: detail$ })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ collections, detail }) => {
+          this.availableCollections.set(collections.data || []);
+          if (detail) {
+            this.form.patchValue(detail as RagDocumentDetailDto);
+          }
           this.isLoading.set(false);
         },
         error: () => this.isLoading.set(false)
       });
-    }
   }
 
   buildForm() {

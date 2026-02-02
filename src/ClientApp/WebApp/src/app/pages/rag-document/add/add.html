@@ -4,16 +4,23 @@
   </mat-card-header>
   <mat-card-content>
     @if (isLoading()) {
-      <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
-        <mat-spinner></mat-spinner>
-      </div>
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+      <mat-spinner></mat-spinner>
+    </div>
     } @else {
-      <form [formGroup]="form" (ngSubmit)="submit()" class="d-flex flex-column p-2 mt-2 gap-2">
+    <form [formGroup]="form" (ngSubmit)="submit()" class="d-flex flex-column p-2 mt-2 gap-2">
       <mat-form-field appearance="outline">
         <mat-label>{{ i18nKeys.ragDocument.collectionId | translate }}</mat-label>
-        <input matInput type="text" [formControl]="collectionId" />
+        <mat-select [formControl]="collectionId">
+          @if (availableCollections().length === 0) {
+            <mat-option disabled>{{ i18nKeys.common.noData | translate }}</mat-option>
+          }
+          @for (item of availableCollections(); track item.id) {
+            <mat-option [value]="item.id">{{ item.name || item.id }}</mat-option>
+          }
+        </mat-select>
         @if (collectionId.invalid) {
-          <mat-error>{{ getValidatorMessage(collectionId) }}</mat-error>
+        <mat-error>{{ getValidatorMessage(collectionId) }}</mat-error>
         }
       </mat-form-field>
 
@@ -21,7 +28,7 @@
         <mat-label>{{ i18nKeys.ragDocument.name | translate }}</mat-label>
         <input matInput type="text" [formControl]="name" />
         @if (name.invalid) {
-          <mat-error>{{ getValidatorMessage(name) }}</mat-error>
+        <mat-error>{{ getValidatorMessage(name) }}</mat-error>
         }
       </mat-form-field>
 
@@ -29,40 +36,27 @@
         <mat-label>{{ i18nKeys.ragDocument.fileName | translate }}</mat-label>
         <input matInput type="text" [formControl]="fileName" />
         @if (fileName.invalid) {
-          <mat-error>{{ getValidatorMessage(fileName) }}</mat-error>
+        <mat-error>{{ getValidatorMessage(fileName) }}</mat-error>
         }
       </mat-form-field>
 
       <div class="d-flex flex-column gap-2">
         <label class="font-weight-bold">Upload Document</label>
-        <input 
-          #fileInput 
-          type="file" 
-          (change)="onFileSelected($event)" 
-          accept=".pdf,.doc,.docx,.txt,.xlsx,.xls,.pptx,.ppt"
-          style="display: none"
-        />
+        <input #fileInput type="file" (change)="onFileSelected($event)" [accept]=" acceptFilesTypes "
+          style="display: none" />
         <div class="d-flex gap-2">
-          <button 
-            mat-stroked-button 
-            type="button" 
-            (click)="fileInput.click()"
-            [disabled]="isUploading()">
+          <button mat-stroked-button type="button" (click)="fileInput.click()" [disabled]="isUploading()">
             Select File
           </button>
-          <button 
-            mat-stroked-button 
-            type="button" 
-            (click)="uploadFile()"
-            [disabled]="!selectedFile || isUploading()">
+          <button mat-stroked-button type="button" (click)="uploadFile()" [disabled]="!selectedFile || isUploading()">
             Upload
           </button>
         </div>
         @if (selectedFile) {
-          <small class="text-muted">Selected: {{ selectedFile.name }}</small>
+        <small class="text-muted">Selected: {{ selectedFile.name }}</small>
         }
         @if (filePath.value) {
-          <small class="text-success">Upload Success: {{ filePath.value }}</small>
+        <small class="text-success">Upload Success: {{ filePath.value }}</small>
         }
       </div>
 
@@ -70,7 +64,7 @@
         <mat-label>{{ i18nKeys.ragDocument.contentType | translate }}</mat-label>
         <input matInput type="text" [formControl]="contentType" />
         @if (contentType.invalid) {
-          <mat-error>{{ getValidatorMessage(contentType) }}</mat-error>
+        <mat-error>{{ getValidatorMessage(contentType) }}</mat-error>
         }
       </mat-form-field>
 
@@ -78,13 +72,14 @@
         <mat-label>{{ i18nKeys.ragDocument.sourceUrl | translate }}</mat-label>
         <input matInput type="text" [formControl]="sourceUrl" />
         @if (sourceUrl.invalid) {
-          <mat-error>{{ getValidatorMessage(sourceUrl) }}</mat-error>
+        <mat-error>{{ getValidatorMessage(sourceUrl) }}</mat-error>
         }
       </mat-form-field>
 
       <div class="d-flex justify-content-end gap-2">
         <button mat-button type="button" (click)="close(false)">{{ i18nKeys.common.cancel | translate }}</button>
-        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">{{ i18nKeys.common.save | translate }}</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">{{ i18nKeys.common.save |
+          translate }}</button>
       </div>
 
     </form>
