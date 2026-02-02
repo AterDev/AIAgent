@@ -112,11 +112,37 @@
         ]
     },
     {
+        "name": "menu.playground",
+        "path": null,
+        "accessCode": "playground",
+        "icon": "sports_esports",
+        "sort": 4,
+        "menuType": 0,
+        "children": [
+            {
+                "name": "menu.modelDebug",
+                "path": "/model-debug",
+                "accessCode": "model-debug",
+                "icon": "psychology",
+                "sort": 0,
+                "menuType": 0
+            },
+            {
+                "name": "menu.agentDebug",
+                "path": "/agent-debug",
+                "accessCode": "agent-debug",
+                "icon": "smart_toy",
+                "sort": 1,
+                "menuType": 0
+            }
+        ]
+    },
+    {
         "name": "menu.workflow",
         "path": null,
         "accessCode": "workflow",
         "icon": "workbench",
-        "sort": 4,
+        "sort": 5,
         "menuType": 0,
         "children": [
             {

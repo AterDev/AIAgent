@@ -58,17 +58,6 @@ export class EnumTextPipe implements PipeTransform {
         }
         break;
 
-      case 'DocumentParsingStatus':
-        switch (value) {
-          case 0: result = 'Pending'; break;
-          case 1: result = 'Parsing'; break;
-          case 2: result = 'Success'; break;
-          case 3: result = 'Failed'; break;
-          case 4: result = 'Cancelled'; break;
-          default: result = '默认'; break;
-        }
-        break;
-
       case 'RagDocumentStatus':
         switch (value) {
           case 0: result = 'Pending'; break;
@@ -76,6 +65,7 @@ export class EnumTextPipe implements PipeTransform {
           case 2: result = 'Vectorizing'; break;
           case 3: result = 'Completed'; break;
           case 4: result = 'Failed'; break;
+          case 5: result = 'Cancelled'; break;
           default: result = '默认'; break;
         }
         break;
@@ -119,12 +109,35 @@ export class EnumTextPipe implements PipeTransform {
         }
         break;
 
+      case 'StepExecutionStatus':
+        switch (value) {
+          case 1: result = 'Pending'; break;
+          case 2: result = 'Running'; break;
+          case 3: result = 'Completed'; break;
+          case 4: result = 'Failed'; break;
+          case 5: result = 'Retrying'; break;
+          case 6: result = 'Skipped'; break;
+          default: result = '默认'; break;
+        }
+        break;
+
+      case 'WorkflowExecutionMode':
+        switch (value) {
+          case 0: result = 'Normal'; break;
+          case 1: result = 'Resumed'; break;
+          default: result = '默认'; break;
+        }
+        break;
+
       case 'WorkflowExecutionStatus':
         switch (value) {
           case 0: result = 'Running'; break;
           case 1: result = 'Completed'; break;
           case 2: result = 'Failed'; break;
           case 3: result = 'Canceled'; break;
+          case 4: result = 'Pending'; break;
+          case 5: result = 'Retrying'; break;
+          case 6: result = 'Abandoned'; break;
           default: result = '默认'; break;
         }
         break;

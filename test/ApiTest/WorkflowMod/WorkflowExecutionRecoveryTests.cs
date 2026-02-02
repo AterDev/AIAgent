@@ -1,8 +1,5 @@
 using ApiTest.Data;
-using WorkflowMod.Services;
-using WorkflowMod.Models;
 using Entity.WorkflowMod;
-using System.Net.Http.Json;
 
 namespace ApiTest.WorkflowMod;
 
@@ -51,10 +48,10 @@ public class WorkflowExecutionRecoveryTests
         // Arrange
         var httpClient = httpClientData.HttpClient;
         var executionId = Guid.NewGuid(); // Non-existent execution
-        
+
         // Act
         var response = await httpClient.GetAsync($"/api/workflow-execution/{executionId}/progress");
-        
+
         // Assert - Should return 404 for non-existent execution
         await Assert.That(response.StatusCode).IsEqualTo(System.Net.HttpStatusCode.NotFound);
     }
@@ -71,15 +68,15 @@ public class WorkflowExecutionRecoveryTests
         // 5. Verify execution continues from the checkpoint
         // 6. Verify completed steps are skipped
         // Such a test requires a real workflow definition and proper test fixtures.
-        
+
         var httpClient = httpClientData.HttpClient;
         var executionId = Guid.NewGuid();
         var response = await httpClient.PostAsync($"/api/workflow-execution/{executionId}/resume?fromStep=0", null);
-        
+
         // Verify endpoint exists (OK=200 for success, NotFound=404 for missing execution)
-        var isValidResponse = response.StatusCode == System.Net.HttpStatusCode.OK || 
+        var isValidResponse = response.StatusCode == System.Net.HttpStatusCode.OK ||
                             response.StatusCode == System.Net.HttpStatusCode.NotFound;
-        
+
         await Assert.That(isValidResponse).IsTrue();
     }
 }

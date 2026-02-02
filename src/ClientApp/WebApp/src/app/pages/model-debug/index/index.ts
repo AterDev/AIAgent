@@ -8,7 +8,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 import { TranslateService } from '@ngx-translate/core';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
-import { JsonPipe } from '@angular/common';
+
 import { Subject, takeUntil } from 'rxjs';
 
 interface ModelDebugRequest {
@@ -37,7 +37,6 @@ interface ModelDebugResponse {
     MatProgressSpinnerModule,
     MatDividerModule,
     MatChipsModule,
-    JsonPipe
   ],
   templateUrl: './index.html',
   styleUrls: ['./index.scss'],
@@ -54,7 +53,7 @@ export class ModelDebugIndex implements OnInit, OnDestroy {
   error = signal<string | null>(null);
   history = signal<Array<{ request: ModelDebugRequest; response: ModelDebugResponse; timestamp: Date }>>([]);
 
-  availableModels = signal<Array<{ id: string; name: string; provider: string }>>([]);
+  availableModels = signal<Array<{ id: string; name: string; providerId: string }>>([]);
 
   constructor(
     private fb: FormBuilder,
@@ -90,7 +89,7 @@ export class ModelDebugIndex implements OnInit, OnDestroy {
           const models = (res.data || []).map(m => ({
             id: m.id || '',
             name: m.name || '',
-            provider: m.provider || ''
+            providerId: m.providerId || ''
           }));
           this.availableModels.set(models);
         },

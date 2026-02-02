@@ -55,7 +55,7 @@ export class AgentDebugIndex implements OnInit, OnDestroy {
   isLoading = signal(false);
   isTesting = signal(false);
   
-  availableAgents = signal<Array<{ id: string; name: string; modelId: string }>>([]);
+  availableAgents = signal<Array<{ id: string; name: string }>>([]);
   availableTools = signal<Array<{ id: string; name: string }>>([]);
   
   currentSession = signal<AgentDebugSession | null>(null);
@@ -122,8 +122,7 @@ export class AgentDebugIndex implements OnInit, OnDestroy {
         next: (res) => {
           const agents = (res.data || []).map(a => ({
             id: a.id || '',
-            name: a.name || '',
-            modelId: a.modelId || ''
+            name: a.name || ''
           }));
           this.availableAgents.set(agents);
           this.isLoading.set(false);

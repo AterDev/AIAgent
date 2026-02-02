@@ -18,7 +18,7 @@
             <mat-select formControlName="agentId" (selectionChange)="onAgentSelected()" required>
               @for (agent of availableAgents(); track agent.id) {
                 <mat-option [value]="agent.id">
-                  {{ agent.name }} - {{ agent.modelId }}
+                  {{ agent.name }}
                 </mat-option>
               }
             </mat-select>
@@ -78,8 +78,10 @@
                 <mat-spinner diameter="20"></mat-spinner>
                 <span>{{ 'agentDebug.testing' | translate }}</span>
               } @else {
-                <mat-icon>play_circle</mat-icon>
-                <span>{{ 'agentDebug.runTest' | translate }}</span>
+                <ng-container>
+                  <mat-icon>play_circle</mat-icon>
+                  <span>{{ 'agentDebug.runTest' | translate }}</span>
+                </ng-container>
               }
             </button>
             <button mat-stroked-button type="button" (click)="clearSession()" [disabled]="!currentSession()">

@@ -19,7 +19,7 @@
               <mat-select formControlName="modelId" required>
                 @for (model of availableModels(); track model.id) {
                   <mat-option [value]="model.id">
-                    {{ model.name }} ({{ model.provider }})
+                    {{ model.name }} ({{ model.providerId }})
                   </mat-option>
                 }
               </mat-select>
@@ -54,8 +54,10 @@
                   <mat-spinner diameter="20"></mat-spinner>
                   <span>{{ 'modelDebug.testing' | translate }}</span>
                 } @else {
-                  <mat-icon>play_arrow</mat-icon>
-                  <span>{{ 'modelDebug.testModel' | translate }}</span>
+                  <ng-container>
+                    <mat-icon>play_arrow</mat-icon>
+                    <span>{{ 'modelDebug.testModel' | translate }}</span>
+                  </ng-container>
                 }
               </button>
               <button mat-stroked-button type="button" (click)="debugForm.reset(); response.set(null); error.set(null)">
