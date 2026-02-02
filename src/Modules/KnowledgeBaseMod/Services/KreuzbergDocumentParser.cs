@@ -8,7 +8,7 @@ namespace KnowledgeBaseMod.Services;
 /// </summary>
 public class KreuzbergDocumentParser(
     IHttpClientFactory httpClientFactory,
-    AWSS3Service s3Service,
+    FileStorageService fileStorageService,
     ILogger<KreuzbergDocumentParser> logger
 ) : IDocumentParser
 {
@@ -25,8 +25,37 @@ public class KreuzbergDocumentParser(
 
         byte[] fileBytes;
 
-        // Download from URL if provided
-        if (!string.IsNullOrWhiteSpace(document.SourceUrl) && 
+        // Priority 1: Load from file path if available
+        if (!string.IsNullOrWhiteSpace(document.FilePath))
+        {
+            var localPath = await fileStorageService.ResolveFilePathAsync(
+                document.FilePath,
+                document.StorageType,
+                cancellationToken
+            );
+
+            if (localPath != null)
+            {
+                try
+                {
+                    fileBytes = await File.ReadAllBytesAsync(localPath, cancellationToken);
+                }
+                finally
+                {
+                    // Clean up temp file (only for cloud storage)
+                    if (document.StorageType != StorageType.Local)
+                    {
+                        fileStorageService.CleanupTempFile(localPath);
+                    }
+                }
+            }
+            else
+            {
+                throw new BusinessException($"File not found: {document.FilePath}");
+            }
+        }
+        // Priority 2: Download from URL if provided
+        else if (!string.IsNullOrWhiteSpace(document.SourceUrl) && 
             Uri.TryCreate(document.SourceUrl, UriKind.Absolute, out var uri))
         {
             if (uri.Scheme is not ("https" or "http"))
@@ -36,23 +65,6 @@ public class KreuzbergDocumentParser(
 
             var client = httpClientFactory.CreateClient();
             fileBytes = await client.GetByteArrayAsync(uri, cancellationToken);
-        }
-        // Load from file path if available (S3 or local)
-        else if (!string.IsNullOrWhiteSpace(document.FilePath))
-        {
-            // Try S3 first, then local file system
-            if (document.FilePath.StartsWith("s3://", StringComparison.OrdinalIgnoreCase))
-            {
-                fileBytes = await GetS3FileAsync(document.FilePath, cancellationToken);
-            }
-            else if (File.Exists(document.FilePath))
-            {
-                fileBytes = await File.ReadAllBytesAsync(document.FilePath, cancellationToken);
-            }
-            else
-            {
-                throw new BusinessException($"File not found: {document.FilePath}");
-            }
         }
         else
         {
@@ -87,39 +99,6 @@ public class KreuzbergDocumentParser(
         }
     }
 
-    private async Task<byte[]> GetS3FileAsync(string s3Path, CancellationToken cancellationToken)
-    {
-        // Extract key from s3:// URL
-        var key = s3Path.Replace("s3://", "").TrimStart('/');
-        
-        var response = await s3Service.GetObjectAsync(key, cancellationToken);
-        if (response == null)
-        {
-            throw new BusinessException($"S3 object not found: {s3Path}");
-        }
-
-        using var memoryStream = new MemoryStream();
-        await response.ResponseStream.CopyToAsync(memoryStream, cancellationToken);
-        return memoryStream.ToArray();
-    }
-
-    private async Task<string> UploadToS3Async(
-        string key,
-        byte[] data,
-        CancellationToken cancellationToken)
-    {
-        using var stream = new MemoryStream(data);
-        var success = await s3Service.UploadAsync(key, stream, cancellationToken);
-        
-        if (!success)
-        {
-            throw new BusinessException($"Failed to upload to S3: {key}");
-        }
-
-        // Return the S3 URL
-        return $"s3://{s3Service.BucketName}/{key}";
-    }
-
     private static DocumentParseResult ToResult(string text, string? contentType)
     {
         return new DocumentParseResult
@@ -127,21 +106,6 @@ public class KreuzbergDocumentParser(
             Text = text,
             TokenCount = EstimateTokens(text),
             ContentType = contentType ?? "text/plain"
-        };
-    }
-
-    private static string GetExtensionFromContentType(string contentType)
-    {
-        return contentType.ToLowerInvariant() switch
-        {
-            "image/png" => ".png",
-            "image/jpeg" or "image/jpg" => ".jpg",
-            "image/gif" => ".gif",
-            "image/bmp" => ".bmp",
-            "image/tiff" => ".tiff",
-            "image/webp" => ".webp",
-            "image/svg+xml" => ".svg",
-            _ => ".bin"
         };
     }
 

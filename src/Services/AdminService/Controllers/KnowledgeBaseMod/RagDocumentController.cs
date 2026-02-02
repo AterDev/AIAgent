@@ -1,6 +1,7 @@
 using Entity.KnowledgeBaseMod;
 using KnowledgeBaseMod.Managers;
 using KnowledgeBaseMod.Models.RagDocumentDtos;
+using KnowledgeBaseMod.Services;
 
 namespace AdminService.Controllers.KnowledgeBaseMod;
 
@@ -11,7 +12,8 @@ public class RagDocumentController(
     Localizer localizer,
     IUserContext user,
     ILogger<RagDocumentController> logger,
-    RagDocumentManager manager
+    RagDocumentManager manager,
+    BackgroundParsingService backgroundParsingService
 ) : RestControllerBase<RagDocumentManager>(localizer, manager, user, logger)
 {
     [HttpPost("filter")]
@@ -43,5 +45,23 @@ public class RagDocumentController(
     public async Task<ActionResult<bool>> DeleteAsync([FromRoute] Guid id)
     {
         return await _manager.DeleteAsync([id], false);
+    }
+
+    /// <summary>
+    /// 手动触发文档解析
+    /// </summary>
+    [HttpPost("{id}/parse")]
+    public async Task<ActionResult> TriggerParseAsync([FromRoute] Guid id, CancellationToken cancellationToken = default)
+    {
+        var document = await _manager.GetAsync(id);
+        if (document == null)
+        {
+            return NotFound(new { error = "Document not found" });
+        }
+
+        // 触发后台解析
+        await backgroundParsingService.EnqueueDocumentAsync(id, _user.TenantId, cancellationToken);
+        
+        return Ok(new { message = "Document parsing triggered successfully" });
     }
 }
