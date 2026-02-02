@@ -54,4 +54,12 @@ export class RagDocumentService extends BaseService {
     const _url = `/api/RagDocument/${id}`;
     return this.request<boolean>('delete', _url);
   }
+  /**
+   * trigger parse
+   * @param id string
+   */
+  triggerParse(id: string): Observable<{ message: string }> {
+    const _url = `/api/RagDocument/${id}/parse`;
+    return this.request<{ message: string }>('post', _url);
+  }
 }

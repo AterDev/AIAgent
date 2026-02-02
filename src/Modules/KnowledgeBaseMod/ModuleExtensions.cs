@@ -30,6 +30,7 @@ public static class ModuleExtensions
         // Configure AWS S3
         builder.Services.Configure<AWSS3Option>(builder.Configuration.GetSection(AWSS3Option.ConfigPath));
         builder.Services.AddScoped<AWSS3Service>();
+        builder.Services.AddScoped<FileStorageService>();
         
         builder.Services.Configure<QdrantOptions>(builder.Configuration.GetSection("Qdrant"));
         builder.Services.PostConfigure<QdrantOptions>(options =>

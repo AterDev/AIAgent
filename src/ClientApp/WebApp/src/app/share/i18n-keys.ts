@@ -236,7 +236,8 @@ export const I18N_KEYS = {
     "sourceUrl": "ragDocument.sourceUrl",
     "tokenCount": "ragDocument.tokenCount",
     "roles": "ragDocument.roles",
-    "tags": "ragDocument.tags"
+    "tags": "ragDocument.tags",
+    "triggerParseConfirm": "ragDocument.triggerParseConfirm"
   },
   "mcpTool": {
     "title": "mcpTool.title",

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using Perigon.AspNetCore.Options;
 
 namespace SystemMod.Models.FileUploadDtos;
 
@@ -16,4 +17,9 @@ public class FileUploadRequestDto
     /// 文件分类（如：document, image, etc）
     /// </summary>
     public string Category { get; set; } = "default";
+
+    /// <summary>
+    /// 存储类型
+    /// </summary>
+    public StorageType? StorageType { get; set; }
 }

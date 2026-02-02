@@ -11,6 +11,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Perigon\Perigon.AspNetCore.SourceGeneration\Perigon.AspNetCore.SourceGeneration.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\..\Perigon\Perigon.AspNetCore\Perigon.AspNetCore.csproj" />
     <ProjectReference Include="..\EntityFramework\EntityFramework.csproj" />
   </ItemGroup>
   <ItemGroup>

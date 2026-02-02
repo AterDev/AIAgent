@@ -72,6 +72,7 @@
       <td mat-cell *matCellDef="let item">
         <button mat-icon-button class="secondary" (click)="openDetail(item.id)"><mat-icon>visibility</mat-icon></button>
         <button mat-icon-button class="primary" (click)="openEdit(item.id)"><mat-icon>edit</mat-icon></button>
+        <button mat-icon-button color="accent" (click)="triggerParse(item.id)" matTooltip="Trigger Parse"><mat-icon>refresh</mat-icon></button>
         <button mat-icon-button class="warn" (click)="deleteItem(item.id)"><mat-icon>delete</mat-icon></button>
       </td>
     </ng-container>

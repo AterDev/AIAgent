@@ -237,7 +237,8 @@
     "sourceUrl": "Source URL",
     "tokenCount": "Token Count",
     "roles": "Roles",
-    "tags": "Tags"
+    "tags": "Tags",
+    "triggerParseConfirm": "Are you sure you want to trigger parsing for this document?"
   },
   "mcpTool": {
     "title": "MCP Tool",
