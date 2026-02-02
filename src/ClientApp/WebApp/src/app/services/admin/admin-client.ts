@@ -57,7 +57,7 @@ export class AdminClient {
   public ragChunk = inject(RagChunkService);
   /** 知识库管理 */
   public ragCollection = inject(RagCollectionService);
-  /** 文档管理 */
+  /** 文档管理（仅管理，不包含处理逻辑） */
   public ragDocument = inject(RagDocumentService);
   /** 系统配置 */
   public systemConfig = inject(SystemConfigService);

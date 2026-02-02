@@ -18,4 +18,6 @@ export interface AIModelProviderDetailDto {
   updatedTime: Date;
   /** 官网地址 */
   website?: string | null;
+  /** API密钥 */
+  apiKey?: string | null;
 }

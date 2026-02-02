@@ -40,6 +40,14 @@
           <mat-error>{{ getValidatorMessage(website) }}</mat-error>
         }
       </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ i18nKeys.aiModelProvider.apiKey | translate }}</mat-label>
+        <input matInput [formControl]="apiKey" type="password" />
+        @if (apiKey.errors) {
+          <mat-error>{{ getValidatorMessage(apiKey) }}</mat-error>
+        }
+      </mat-form-field>
     </form>
   </mat-card-content>
   <mat-card-actions class="d-flex justify-content-end gap-2">

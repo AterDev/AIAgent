@@ -14,6 +14,7 @@ import { I18N_KEYS } from 'src/app/share/i18n-keys';
 import { JsonPipe, DatePipe } from '@angular/common';
 import { interval, Subject, takeUntil } from 'rxjs';
 import { ConfirmDialogComponent } from 'src/app/share/components/confirm-dialog/confirm-dialog.component';
+import { WorkflowExecutionStatus } from 'src/app/services/admin/models/entity/workflow-execution-status.model';
 
 interface WorkflowStepExecution {
   stepId: string;
@@ -77,7 +78,7 @@ export class WorkflowMonitorIndex implements OnInit, OnDestroy {
   runningDataSource = new MatTableDataSource<WorkflowExecutionDetail>();
   completedDataSource = new MatTableDataSource<WorkflowExecutionDetail>();
 
-  statusColors = {
+  statusColors: Record<string, string> = {
     running: 'accent',
     completed: 'primary',
     failed: 'warn',
@@ -136,7 +137,7 @@ export class WorkflowMonitorIndex implements OnInit, OnDestroy {
     this.isLoading.set(true);
     
     // Load running executions
-    this.adminClient.workflowExecution.list({ pageIndex: 1, pageSize: 20, status: 'running' }).subscribe({
+    this.adminClient.workflowExecution.list({ pageIndex: 1, pageSize: 20, status: WorkflowExecutionStatus.Running }).subscribe({
       next: (res) => {
         const executions = (res.data || []).map(e => this.mapToExecutionDetail(e));
         this.runningExecutions.set(executions);
@@ -214,7 +215,7 @@ export class WorkflowMonitorIndex implements OnInit, OnDestroy {
       return;
     }
 
-    this.adminClient.workflowExecution.list({ pageIndex: 1, pageSize: 20, status: 'running' }).subscribe({
+    this.adminClient.workflowExecution.list({ pageIndex: 1, pageSize: 20, status: WorkflowExecutionStatus.Running }).subscribe({
       next: (res) => {
         const executions = (res.data || []).map(e => this.mapToExecutionDetail(e));
         this.runningExecutions.set(executions);

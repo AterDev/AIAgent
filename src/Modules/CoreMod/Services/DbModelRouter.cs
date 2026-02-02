@@ -16,12 +16,11 @@ public class DbModelRouter(
         await using var dbContext = await dbContextFactory.CreateDbContextAsync();
 
         var query = from modelInfo in dbContext.AIModelInfos.AsNoTracking()
-                    join provider in dbContext.ModelProviders.AsNoTracking()
+                    join provider in dbContext.AIModelProviders.AsNoTracking()
                         on modelInfo.ProviderId equals provider.Id
                     where modelInfo.TenantId == userContext.TenantId
                         && provider.TenantId == userContext.TenantId
                         && modelInfo.IsEnabled
-                        && provider.IsEnabled
                         && modelInfo.Name == request.Model
                     select new { modelInfo, provider };
 

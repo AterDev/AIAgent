@@ -8,11 +8,8 @@ import { RagDocumentAddDto } from '../models/knowledge-base-mod/rag-document-add
 import { RagDocument } from '../models/entity/rag-document.model';
 import { RagDocumentUpdateDto } from '../models/knowledge-base-mod/rag-document-update-dto.model';
 import { RagDocumentDetailDto } from '../models/knowledge-base-mod/rag-document-detail-dto.model';
-import { RagDocumentIngestDto } from '../models/knowledge-base-mod/rag-document-ingest-dto.model';
-import { DocumentParseRequestDto } from '../models/knowledge-base-mod/document-parse-request-dto.model';
-import { DocumentParsingResultDto } from '../models/knowledge-base-mod/document-parsing-result-dto.model';
 /**
- * 文档管理
+ * 文档管理（仅管理，不包含处理逻辑）
  */
 @Injectable({ providedIn: 'root' })
 export class RagDocumentService extends BaseService {
@@ -56,39 +53,5 @@ export class RagDocumentService extends BaseService {
   delete(id: string): Observable<boolean> {
     const _url = `/api/RagDocument/${id}`;
     return this.request<boolean>('delete', _url);
-  }
-  /**
-   * 解析并向量化文档
-   * @param id string
-   * @param data RagDocumentIngestDto
-   */
-  ingest(id: string, data: RagDocumentIngestDto): Observable<boolean> {
-    const _url = `/api/RagDocument/${id}/ingest`;
-    return this.request<boolean>('post', _url, data);
-  }
-  /**
-   * 解析文档
-   * @param id string
-   * @param data DocumentParseRequestDto
-   */
-  parseDocument(id: string, data: DocumentParseRequestDto): Observable<any> {
-    const _url = `/api/RagDocument/${id}/parse`;
-    return this.request<any>('post', _url, data);
-  }
-  /**
-   * 获取解析结果
-   * @param id string
-   */
-  getParsingResults(id: string): Observable<DocumentParsingResultDto[]> {
-    const _url = `/api/RagDocument/${id}/parsing-results`;
-    return this.request<DocumentParsingResultDto[]>('get', _url);
-  }
-  /**
-   * 获取最新的解析结果
-   * @param id string
-   */
-  getLatestParsingResult(id: string): Observable<DocumentParsingResultDto> {
-    const _url = `/api/RagDocument/${id}/latest-parsing-result`;
-    return this.request<DocumentParsingResultDto>('get', _url);
   }
 }

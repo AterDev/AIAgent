@@ -43,9 +43,6 @@ public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options
     public DbSet<ApplicationModelPermission> ApplicationModelPermissions { get; set; }
 
     public DbSet<ApplicationToolPermission> ApplicationToolPermissions { get; set; }
-
-    public DbSet<ModelProvider> ModelProviders { get; set; }
-
     public DbSet<AIModelProvider> AIModelProviders { get; set; }
 
     public DbSet<AIModelInfo> AIModelInfos { get; set; }

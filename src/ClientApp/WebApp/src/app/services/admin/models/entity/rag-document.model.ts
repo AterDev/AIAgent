@@ -29,6 +29,8 @@ export interface RagDocument {
   contentType: string;
   /** status */
   status: RagDocumentStatus;
+  /** 重试次数 */
+  retryCount: number;
   /** tags */
   tags: string[];
   /** roles */

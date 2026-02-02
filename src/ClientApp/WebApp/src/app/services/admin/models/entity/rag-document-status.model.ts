@@ -9,4 +9,6 @@ export enum RagDocumentStatus {
   Completed = 3,
   /** Failed */
   Failed = 4,
+  /** Cancelled */
+  Cancelled = 5,
 }

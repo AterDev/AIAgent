@@ -25,4 +25,10 @@ public class AIModelProviderUpdateDto
     /// </summary>
     [MaxLength(500)]
     public string? Website { get; set; }
+
+    /// <summary>
+    /// API密钥
+    /// </summary>
+    [MaxLength(200)]
+    public string? ApiKey { get; set; }
 }

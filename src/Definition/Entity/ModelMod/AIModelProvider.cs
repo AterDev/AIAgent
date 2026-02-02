@@ -29,6 +29,15 @@ public class AIModelProvider : EntityBase
     public string? Website { get; set; }
 
     /// <summary>
+    /// API密钥
+    /// </summary>
+    [MaxLength(200)]
+    public string? ApiKey { get; set; }
+
+    [MaxLength(200)]
+    public required string BaseUrl { get; set; }
+
+    /// <summary>
     /// 关联的模型列表
     /// </summary>
     public ICollection<AIModelInfo> Models { get; set; } = [];
