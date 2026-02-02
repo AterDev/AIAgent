@@ -1,6 +1,6 @@
 ﻿---
 name: backend
-description: Asp.Net Core/Aspire 后端开发规范和最佳实践
+description: ASP.NET Core / EF Core / Aspire / Perigon 后端开发规范与最佳实践。用于实体/DTO/Manager/Controller、DbContext/迁移、ApiService/AdminService 等后端任务。
 ---
 
 ## 何时使用
@@ -53,10 +53,37 @@ src/
 1. 先处理定义层，即实体的定义，DbContext的处理，以及共享服务的编写
 2. 然后处理模块层，即Manager和DTO的编写
 3. 最后处理服务层，即Controller的编写
-4. 检查项目依赖关系，检查错误，确保没有违反分层原则
-5. 没有错误，添加或修改了实体，必须通过执行`scripts/EFMigrations.ps1`脚本，生成迁移文件。
+4. **执行构建验证**（必须步骤）：验证编译无错误
+5. 检查项目依赖关系，确保没有违反分层原则
+6. 没有错误，添加或修改了实体，需要执行`scripts/EFMigrations.ps1`脚本，生成迁移文件。
 
 **要优先使用MCP工具`Perigon`，生成或创建模块/Entity/DTO/Manager/Controller等内容。**
+
+---
+
+## 构建验证（每次修改后必须执行）
+
+### 验证后端服务
+```pwsh
+# 验证具体服务
+dotnet build src/Services/AdminService
+dotnet build src/Services/ApiService
+
+# 验证业务模块
+dotnet build src/Modules/AIAgentMod
+
+# 验证整个方案（推荐）
+dotnet build AIAgent.slnx
+```
+
+### 常见构建错误及解决
+1. **命名空间错误**：检查 using 指令和 GlobalUsings.cs
+2. **符号未找到**：检查依赖项引用和 NuGet 包
+3. **EF Core 错误**：执行 `dotnet ef migrations add` 生成迁移
+4. **版本冲突**：检查 Directory.Packages.props 中的包版本
+
+### 构建-修复循环
+修改代码 → 构建 → 发现错误 → 修复 → 重新构建，直到无错误
 
 MCP server config lives in [.mcp.json](.mcp.json) and [.vscode/mcp.json](.vscode/mcp.json); use configured endpoints when invoking tools.
 

@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: 全栈代码审查规范 - 质量保障、性能优化、安全检查
+description: 全栈代码审查规范（质量/性能/安全/架构/风格）。用于 Code Review、PR 审查、质量门禁、安全与性能检查等任务。
 ---
 
 ## 何时使用

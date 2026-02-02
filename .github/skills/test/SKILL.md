@@ -1,6 +1,6 @@
 ---
 name: test
-description: 编写Asp.Net Core测试代码的规范和最佳实践
+description: ASP.NET Core / Aspire / TUnit 测试规范与最佳实践。用于集成测试/ApiTest、测试用例编写、测试失败排查与验证流程。
 ---
 
 ## 何时使用

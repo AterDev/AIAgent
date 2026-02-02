@@ -1,6 +1,6 @@
 ---
 name: angular
-description: Angular 21+ standalone/Material/signal 前端开发约定
+description: Angular 21+ 前端开发规范（standalone/Material/signals）。用于 Angular 组件/页面/路由/表单、Material UI、signals 状态、i18n、前端样式与交互相关任务。
 ---
 
 ## 何时使用
@@ -52,11 +52,36 @@ src/ClientApp/WebApp/
 1. 创建独立组件：目录及文件结构
 2. 配置路由和菜单
 3. 实现ts逻辑和HTML模板
-4. 检查导入和依赖
+4. **执行构建验证**（必须步骤）：验证编译无错误
+5. 检查导入和依赖
 
 优先通过使用 MCP 工具生成组件，Perigon提供`通过razor 模板生成代码`的能力，以获取可参考的代码结构和示例。
 
 **特别注意**：生成的请求服务代码不要添加或修改，它是与接口保持一致的，包括类型定义，切勿重复定义类型。
+
+---
+
+## 构建验证（每次修改后必须执行）
+
+### 验证前端构建
+```pwsh
+cd src/ClientApp/WebApp
+npm run build
+```
+
+### 常见构建错误及解决
+1. **TypeScript 类型错误**：检查接口定义和类型注解
+2. **模块未找到**：检查 import 路径和 tsconfig.json
+3. **Angular 编译错误**：检查组件装饰器和模板语法
+4. **依赖缺失**：执行 `pnpm install`
+
+### 实时开发验证（可选）
+```pwsh
+npm run start  # 启动开发服务器，实时查看编译错误
+```
+
+### 构建-修复循环
+修改代码 → 构建 → 发现错误 → 修复 → 重新构建，直到无错误
 
 ## 组件开发
 
