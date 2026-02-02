@@ -78,9 +78,10 @@ public class FileStorageService
         CancellationToken cancellationToken = default
     )
     {
+        GetObjectResponse? response = null;
         try
         {
-            var response = await _s3Service.GetObjectAsync(objectKey, cancellationToken);
+            response = await _s3Service.GetObjectAsync(objectKey, cancellationToken);
             if (response == null)
             {
                 _logger.LogWarning("Cloud file not found: {ObjectKey}", objectKey);
@@ -103,6 +104,10 @@ public class FileStorageService
             _logger.LogError(ex, "Error downloading file from cloud storage: {ObjectKey}", objectKey);
             return null;
         }
+        finally
+        {
+            response?.Dispose();
+        }
     }
 
     /// <summary>
@@ -111,7 +116,11 @@ public class FileStorageService
     /// <param name="filePath">文件路径或对象键</param>
     /// <param name="storageType">存储类型</param>
     /// <param name="cancellationToken">取消令牌</param>
-    /// <returns>文件流</returns>
+    /// <returns>文件流。调用者负责释放返回的流资源。</returns>
+    /// <remarks>
+    /// 重要提示：调用者必须在使用完毕后释放返回的 Stream 对象。
+    /// 对于云存储，返回的流关联了底层的 GetObjectResponse，必须正确释放以避免资源泄漏。
+    /// </remarks>
     public async Task<Stream?> GetFileStreamAsync(
         string filePath,
         StorageType storageType,

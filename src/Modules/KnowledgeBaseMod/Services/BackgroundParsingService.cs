@@ -2,21 +2,35 @@ using Microsoft.Extensions.Hosting;
 using NATS.Client.Core;
 using Share.Models;
 using System.Text.Json;
+using Microsoft.Extensions.Options;
+using Perigon.AspNetCore.Options;
 
 namespace KnowledgeBaseMod.Services;
 
 /// <summary>
 /// Background service for processing RAG document parsing and vectorization tasks
 /// </summary>
+/// <remarks>
+/// The service supports two modes of operation:
+/// 1. When NATS is available and MQType != None: Uses message queue for immediate processing
+/// 2. When NATS is unavailable or MQType == None: Uses polling-based processing
+/// 
+/// Design Note: INatsConnection is nullable to support graceful degradation. While NATS is registered
+/// in DI, it may fail to connect or be intentionally disabled via configuration. The nullable parameter
+/// allows the service to start and operate in polling mode rather than failing at startup.
+/// This is a deliberate design choice for resilience over fail-fast behavior.
+/// </remarks>
 public class BackgroundParsingService(
     IServiceProvider serviceProvider,
-    INatsConnection natsConnection,
-    ILogger<BackgroundParsingService> logger
+    IOptions<ComponentOption> componentOptions,
+    ILogger<BackgroundParsingService> logger,
+    INatsConnection? natsConnection = null
 ) : BackgroundService
 {
     private readonly TimeSpan _pollInterval = TimeSpan.FromSeconds(10);
     private readonly SemaphoreSlim _processingLock = new(1, 1);
     private const string SubjectName = "rag.ingestion";
+    private readonly ComponentOption _componentOptions = componentOptions.Value;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -74,14 +88,24 @@ public class BackgroundParsingService(
                 FilePath = document.FilePath ?? string.Empty,
                 ContentType = document.ContentType ?? "text/plain",
                 DocumentName = document.Name,
-                FileName = document.FileName
+                FileName = document.FileName,
+                StorageType = document.StorageType
             };
 
-            var json = JsonSerializer.Serialize(message);
-            var data = System.Text.Encoding.UTF8.GetBytes(json);
+            // Publish to NATS if available; otherwise rely on polling mechanism
+            // Check both MQType config and natsConnection since injection is optional
+            if (_componentOptions.MQType != MQType.None && natsConnection != null)
+            {
+                var json = JsonSerializer.Serialize(message);
+                var data = System.Text.Encoding.UTF8.GetBytes(json);
 
-            await natsConnection.PublishAsync(SubjectName, data, cancellationToken: cancellationToken);
-            logger.LogInformation("Enqueued document {DocumentId} for parsing", documentId);
+                await natsConnection.PublishAsync(SubjectName, data, cancellationToken: cancellationToken);
+                logger.LogInformation("Enqueued document {DocumentId} for parsing via NATS", documentId);
+            }
+            else
+            {
+                logger.LogInformation("Enqueued document {DocumentId} for parsing (MQ disabled, will be processed by polling)", documentId);
+            }
         }
         catch (Exception ex)
         {

@@ -23,6 +23,15 @@ public class FileUploadController(
     private readonly ComponentOption _componentOptions = componentOptions.Value;
     private readonly IWebHostEnvironment _environment = environment;
 
+    // File type allowlist
+    private static readonly HashSet<string> AllowedExtensions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".pdf", ".doc", ".docx", ".txt", ".md", ".json", ".xml",
+        ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp",
+        ".xls", ".xlsx", ".csv",
+        ".zip", ".rar", ".7z"
+    };
+
     /// <summary>
     /// 上传文件到 S3 对象存储或本地存储
     /// </summary>
@@ -35,33 +44,34 @@ public class FileUploadController(
     {
         try
         {
-            // 验证文件
+            // Validate file
             if (request.File == null || request.File.Length == 0)
             {
                 return BadRequest(new { error = "No file uploaded" });
             }
 
-            // 验证和清理 Category 参数，防止目录穿越
-            var category = Path.GetFileName(request.Category?.Trim() ?? "default");
-            if (string.IsNullOrEmpty(category) || category.Contains(".."))
+            // Validate file type (extension allowlist)
+            var extension = Path.GetExtension(request.File.FileName);
+            if (string.IsNullOrEmpty(extension) || !AllowedExtensions.Contains(extension))
             {
-                category = "default";
+                return BadRequest(new { error = $"File type '{extension}' is not allowed" });
             }
 
-            // 使用请求中的 StorageType 或配置中的默认值
+            // Validate and sanitize category parameter to prevent path traversal
+            var category = SanitizeCategory(request.Category);
+
+            // Use requested StorageType or configuration default
             var storageType = request.StorageType ?? _componentOptions.StorageType;
 
-            // 生成安全的文件名
-            var fileName = Path.GetFileNameWithoutExtension(request.File.FileName);
-            var extension = Path.GetExtension(request.File.FileName);
-            var safeFileName = $"{fileName}_{Guid.NewGuid()}{extension}";
+            // Generate safe filename using only GUID and validated extension
+            var safeFileName = $"{Guid.NewGuid()}{extension}";
             
             string filePath;
             string? url = null;
 
             if (storageType == StorageType.Local)
             {
-                // 本地存储
+                // Local storage
                 var uploadPath = Path.Combine(_environment.ContentRootPath, "uploads", category, DateTime.Now.ToString("yyyy/MM/dd"));
                 Directory.CreateDirectory(uploadPath);
 
@@ -71,13 +81,13 @@ public class FileUploadController(
                     await request.File.CopyToAsync(stream, cancellationToken);
                 }
 
-                // 存储相对路径
+                // Store relative path
                 filePath = Path.Combine("uploads", category, DateTime.Now.ToString("yyyy/MM/dd"), safeFileName).Replace("\\", "/");
                 _logger.LogInformation("File uploaded to local storage: {FilePath}", filePath);
             }
             else
             {
-                // S3 存储
+                // S3 storage
                 var objectKey = $"{category}/{DateTime.Now:yyyy/MM/dd}/{safeFileName}";
 
                 using var stream = request.File.OpenReadStream();
@@ -89,7 +99,7 @@ public class FileUploadController(
                 }
 
                 filePath = objectKey;
-                url = _s3Service.GetSignedUrl(objectKey, expiresSeconds: 86400); // 24 小时有效
+                url = _s3Service.GetSignedUrl(objectKey, expiresSeconds: 86400); // 24 hour validity
                 _logger.LogInformation("File uploaded to S3: {ObjectKey}", objectKey);
             }
 
@@ -128,8 +138,20 @@ public class FileUploadController(
 
             if (actualStorageType == StorageType.Local)
             {
-                // 本地存储删除
-                var fullPath = Path.Combine(_environment.ContentRootPath, filePath);
+                // Local storage
+                // Normalize paths for case-insensitive comparison on all platforms
+                var uploadsBasePath = Path.GetFullPath(Path.Combine(_environment.ContentRootPath, "uploads"));
+                var fullPath = Path.GetFullPath(Path.Combine(_environment.ContentRootPath, filePath));
+                
+                // Security check: ensure resolved path is within uploads directory
+                // Use case-insensitive comparison to work on both case-sensitive and case-insensitive filesystems
+                if (!fullPath.StartsWith(uploadsBasePath + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) &&
+                    !fullPath.Equals(uploadsBasePath, StringComparison.OrdinalIgnoreCase))
+                {
+                    _logger.LogWarning("Attempted to delete file outside uploads directory: {FilePath}", filePath);
+                    return BadRequest(new { error = "Invalid file path" });
+                }
+                
                 if (System.IO.File.Exists(fullPath))
                 {
                     System.IO.File.Delete(fullPath);
@@ -143,7 +165,7 @@ public class FileUploadController(
             }
             else
             {
-                // S3 删除
+                // S3 storage
                 var deleteSuccess = await _s3Service.DeleteAsync(filePath, cancellationToken);
 
                 if (!deleteSuccess)
@@ -160,5 +182,23 @@ public class FileUploadController(
             _logger.LogError(ex, "Error deleting file");
             return BadRequest(new { error = ex.Message });
         }
+    }
+
+    /// <summary>
+    /// Sanitize category name to prevent path traversal attacks
+    /// </summary>
+    private static string SanitizeCategory(string? category)
+    {
+        if (string.IsNullOrWhiteSpace(category))
+        {
+            return "default";
+        }
+
+        // Path.GetFileName extracts only the final path component, neutralizing
+        // path traversal attempts (e.g., '../../../etc/passwd' becomes 'passwd')
+        category = Path.GetFileName(category.Trim());
+        
+        // Return default if result is empty
+        return string.IsNullOrEmpty(category) ? "default" : category;
     }
 }

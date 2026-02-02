@@ -59,6 +59,12 @@ public class RagDocumentController(
             return NotFound(new { error = "Document not found" });
         }
 
+        // 验证 tenantId 不为空
+        if (_user.TenantId == Guid.Empty)
+        {
+            return BadRequest(new { error = "Invalid tenant ID" });
+        }
+
         // 触发后台解析
         await backgroundParsingService.EnqueueDocumentAsync(id, _user.TenantId, cancellationToken);
         
