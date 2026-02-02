@@ -18,6 +18,9 @@ public class ComponentOption
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public MQType MQType { get; set; } = MQType.None;
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public StorageType StorageType { get; set; } = StorageType.Local;
     public bool UseCors { get; set; } = true;
     public bool IsMultiTenant { get; set; }
     public bool UseSMS { get; set; }
@@ -50,4 +53,10 @@ public enum MQType
     None,
     RabbitMQ,
     Kafka,
+}
+
+public enum StorageType
+{
+    Local,
+    AWSS3,
 }

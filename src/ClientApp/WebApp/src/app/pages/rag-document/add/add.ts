@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -6,11 +6,13 @@ import { MatCard, MatCardHeader, MatCardTitle, MatCardContent, MatCardActions } 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
 import { CommonFormModules } from 'src/app/share/shared-modules';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 import { RagDocumentAddDto } from 'src/app/services/admin/models/knowledge-base-mod/rag-document-add-dto.model';
 import { RagDocumentStatus } from 'src/app/services/admin/models/entity/rag-document-status.model';
+import { RagCollectionItemDto } from 'src/app/services/admin/models/knowledge-base-mod/rag-collection-item-dto.model';
 
 @Component({
   selector: 'app-rag-document-add',
@@ -22,24 +24,28 @@ export class RagDocumentAdd implements OnInit {
 
   i18nKeys = I18N_KEYS;
 
+  acceptFilesTypes = '.pdf,.docx,.txt,.md,.pptx,.csv,.xlsx,.json,.xml';
+
   private fb = inject(FormBuilder);
   private dialogRef = inject(MatDialogRef<RagDocumentAdd>);
   private translate = inject(TranslateService);
   private snackBar = inject(MatSnackBar);
   private adminClient = inject(AdminClient);
+  private destroyRef = inject(DestroyRef);
 
   form!: FormGroup;
   isLoading = signal(true);
+  availableCollections = signal<RagCollectionItemDto[]>([]);
   selectedFile: File | null = null;
   uploadProgress = signal(0);
   isUploading = signal(false);
 
   constructor() {
     this.buildForm();
-    this.isLoading.set(false);
   }
 
   ngOnInit(): void {
+    this.loadCollections();
   }
 
   buildForm() {
@@ -65,6 +71,21 @@ export class RagDocumentAdd implements OnInit {
   get roles() { return this.form.get('roles') as FormControl; }
   get sourceUrl() { return this.form.get('sourceUrl') as FormControl; }
   get filePath() { return this.form.get('filePath') as FormControl; }
+
+  private loadCollections(): void {
+    this.isLoading.set(true);
+    this.adminClient.ragCollection.list({ pageIndex: 1, pageSize: 100 })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.availableCollections.set(res.data || []);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.isLoading.set(false);
+        }
+      });
+  }
 
   getValidatorMessage(control: AbstractControl | null): string {
     if (!control || !control.errors) { return ''; }
