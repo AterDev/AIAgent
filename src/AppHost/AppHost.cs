@@ -73,8 +73,10 @@ var serviceGroup = builder.AddGroup("Services", "Globe");
 var migration = builder.AddProject<Projects.MigrationService>("MigrationService")
     .WithParentRelationship(serviceGroup);
 var apiService = builder.AddProject<Projects.ApiService>("ApiService").WaitForCompletion(migration)
+    .WithEnvironment("OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT", "true")
     .WithParentRelationship(serviceGroup);
 var adminService = builder.AddProject<Projects.AdminService>("AdminService").WaitForCompletion(migration)
+    .WithEnvironment("OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT", "true")
     .WithParentRelationship(serviceGroup);
 var fileProcessor = builder.AddProject<Projects.FileProcessorService>("FileProcessorService").WaitForCompletion(migration)
     .WithParentRelationship(serviceGroup);

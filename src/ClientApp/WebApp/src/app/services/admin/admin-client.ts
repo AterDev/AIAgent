@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { AgentDebugService } from './services/agent-debug.service';
 import { AgentExecutionService } from './services/agent-execution.service';
 import { AIAgentService } from './services/aiagent.service';
 import { AIModelInfoService } from './services/aimodel-info.service';
@@ -12,6 +13,7 @@ import { ConversationService } from './services/conversation.service';
 import { FileUploadService } from './services/file-upload.service';
 import { MCPServerInfoService } from './services/mcpserver-info.service';
 import { McpToolService } from './services/mcp-tool.service';
+import { ModelDebugService } from './services/model-debug.service';
 import { ModelInvocationService } from './services/model-invocation.service';
 import { RagChunkService } from './services/rag-chunk.service';
 import { RagCollectionService } from './services/rag-collection.service';
@@ -25,6 +27,8 @@ import { WorkflowExecutionService } from './services/workflow-execution.service'
   providedIn: 'root'
 })
 export class AdminClient {
+  /** AgentDebug */
+  public agentDebug = inject(AgentDebugService);
   /** Agent 执行管理 */
   public agentExecution = inject(AgentExecutionService);
   /** agent */
@@ -51,6 +55,8 @@ export class AdminClient {
   public mCPServerInfo = inject(MCPServerInfoService);
   /** MCP 工具管理 */
   public mcpTool = inject(McpToolService);
+  /** ModelDebug */
+  public modelDebug = inject(ModelDebugService);
   /** 模型调用记录管理 */
   public modelInvocation = inject(ModelInvocationService);
   /** 文档分块管理 */

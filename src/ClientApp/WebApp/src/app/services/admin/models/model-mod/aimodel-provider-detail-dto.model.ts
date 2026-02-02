@@ -20,4 +20,6 @@ export interface AIModelProviderDetailDto {
   website?: string | null;
   /** API密钥 */
   apiKey?: string | null;
+  /** API基础URL */
+  baseUrl?: string | null;
 }

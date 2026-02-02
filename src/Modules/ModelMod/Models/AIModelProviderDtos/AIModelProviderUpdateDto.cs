@@ -31,4 +31,10 @@ public class AIModelProviderUpdateDto
     /// </summary>
     [MaxLength(200)]
     public string? ApiKey { get; set; }
+
+    /// <summary>
+    /// API基础URL
+    /// </summary>
+    [MaxLength(200)]
+    public string? BaseUrl { get; set; }
 }

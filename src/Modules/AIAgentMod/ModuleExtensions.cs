@@ -14,6 +14,7 @@ public static class ModuleExtensions
         builder.Services.AddSingleton<IAgentExecutionQueue, AgentExecutionQueue>();
         // 使用增强的 Agent 执行服务，支持多轮对话和工具调用链路
         builder.Services.AddScoped<IAgentExecutionService, EnhancedAgentExecutionService>();
+        builder.Services.AddScoped<AgentDebugService>();
         // 保留旧实现作为备选
         builder.Services.AddScoped<AgentExecutionService>();
         builder.Services.AddHostedService<AgentExecutionWorker>();

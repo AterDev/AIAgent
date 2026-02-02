@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { CommonFormModules, CommonListModules } from 'src/app/share/shared-modules';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -11,13 +11,18 @@ import { AdminClient } from 'src/app/services/admin/admin-client';
 import { TranslateService } from '@ngx-translate/core';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
 import { JsonPipe, DatePipe } from '@angular/common';
+import { AuthService } from 'src/app/services/auth.service';
+import { marked } from 'marked';
+import { DomSanitizer } from '@angular/platform-browser';
+import { SecurityContext } from '@angular/core';
+import { environment } from 'src/environments/environment';
 import { Subject, takeUntil } from 'rxjs';
 
 interface AgentDebugSession {
   id: string;
   agentId: string;
   agentName: string;
-  messages: Array<{ role: string; content: string; timestamp: Date }>;
+  messages: Array<{ role: string; content: string; html: string; timestamp: Date }>;
   toolCalls: Array<{ name: string; input: any; output: any; timestamp: Date }>;
   status: 'running' | 'completed' | 'error';
   error?: string;
@@ -49,14 +54,18 @@ export class AgentDebugIndex implements OnInit, OnDestroy {
   i18nKeys = I18N_KEYS;
 
   private destroy$ = new Subject<void>();
+  private abortController: AbortController | null = null;
+  private currentRequestId: string | null = null;
 
   configForm!: FormGroup;
   testForm!: FormGroup;
   isLoading = signal(false);
   isTesting = signal(false);
+  isAdmin = signal(false);
   
   availableAgents = signal<Array<{ id: string; name: string }>>([]);
   availableTools = signal<Array<{ id: string; name: string }>>([]);
+  availableApplications = signal<Array<{ id: string; name: string }>>([]);
   
   currentSession = signal<AgentDebugSession | null>(null);
   executionHistory = signal<AgentDebugSession[]>([]);
@@ -72,29 +81,34 @@ export class AgentDebugIndex implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private adminClient: AdminClient,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private authService: AuthService,
+    private sanitizer: DomSanitizer
   ) {}
 
   ngOnInit(): void {
     this.initForms();
+    this.isAdmin.set(this.authService.isAdmin);
+    this.updateApplicationValidators();
     this.loadAgents();
     this.loadTools();
-    this.loadExecutionHistory();
+    this.loadApplications();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.abortController?.abort();
   }
 
   private initForms(): void {
     this.configForm = this.fb.group({
+      applicationId: [''],
       agentId: ['', Validators.required],
       systemPrompt: [''],
-      enabledTools: this.fb.array([]),
+      enabledTools: [[]],
       temperature: [0.7],
       maxTokens: [2000],
-      enableStreaming: [false],
       enableToolCallLogging: [true]
     });
 
@@ -102,6 +116,48 @@ export class AgentDebugIndex implements OnInit, OnDestroy {
       userMessage: ['', Validators.required],
       contextMessages: this.fb.array([])
     });
+  }
+
+  private updateApplicationValidators(): void {
+    const applicationIdControl = this.applicationId;
+    if (this.isAdmin()) {
+      applicationIdControl.clearValidators();
+    } else {
+      applicationIdControl.setValidators([Validators.required]);
+    }
+    applicationIdControl.updateValueAndValidity();
+  }
+
+  get applicationId(): FormControl {
+    return this.configForm.get('applicationId') as FormControl;
+  }
+
+  get agentId(): FormControl {
+    return this.configForm.get('agentId') as FormControl;
+  }
+
+  get systemPrompt(): FormControl {
+    return this.configForm.get('systemPrompt') as FormControl;
+  }
+
+  get enabledTools(): FormControl {
+    return this.configForm.get('enabledTools') as FormControl;
+  }
+
+  get temperature(): FormControl {
+    return this.configForm.get('temperature') as FormControl;
+  }
+
+  get maxTokens(): FormControl {
+    return this.configForm.get('maxTokens') as FormControl;
+  }
+
+  get enableToolCallLogging(): FormControl {
+    return this.configForm.get('enableToolCallLogging') as FormControl;
+  }
+
+  get userMessage(): FormControl {
+    return this.testForm.get('userMessage') as FormControl;
   }
 
   private safeParseArray(jsonStr: string | null | undefined): any[] {
@@ -145,37 +201,21 @@ export class AgentDebugIndex implements OnInit, OnDestroy {
       });
   }
 
-  private loadExecutionHistory(): void {
-    this.adminClient.agentExecution.list({ pageIndex: 1, pageSize: 20 })
+  private loadApplications(): void {
+    this.adminClient.application.list({ pageIndex: 1, pageSize: 100 })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
-          const history = (res.data || []).map(e => this.mapExecutionToSession(e));
-          this.executionHistory.set(history);
-          this.dataSource.data = history;
+          const apps = (res.data || []).map(app => ({
+            id: app.id || '',
+            name: app.name || ''
+          }));
+          this.availableApplications.set(apps);
+        },
+        error: (err) => {
+          this.errorMessage(this.translate.instant('agentDebug.errors.loadApplicationsFailed') + ': ' + err.message);
         }
       });
-  }
-
-  private mapExecutionToSession(execution: any): AgentDebugSession {
-    return {
-      id: execution.id,
-      agentId: execution.agentId,
-      agentName: execution.agentName || 'Unknown',
-      messages: this.safeParseArray(execution.messageHistory),
-      toolCalls: this.safeParseArray(execution.toolCalls),
-      status: execution.status === 'success' ? 'completed' : execution.status === 'failed' ? 'error' : 'running',
-      error: execution.errorMessage,
-      metrics: {
-        duration: execution.durationMs || 0,
-        tokenUsage: {
-          prompt: execution.promptTokens || 0,
-          completion: execution.completionTokens || 0,
-          total: execution.totalTokens || 0
-        },
-        toolCallCount: execution.toolCallCount || 0
-      }
-    };
   }
 
   onAgentSelected(): void {
@@ -200,42 +240,217 @@ export class AgentDebugIndex implements OnInit, OnDestroy {
     }
 
     this.isTesting.set(true);
-    
-    const startTime = Date.now();
-    
-    // Mock agent execution
-    setTimeout(() => {
-      const mockSession: AgentDebugSession = {
-        id: Date.now().toString(),
-        agentId: this.configForm.value.agentId,
-        agentName: this.selectedAgent()?.name || '',
-        messages: [
-          { role: 'user', content: this.testForm.value.userMessage, timestamp: new Date() },
-          { role: 'assistant', content: 'This is a mock response from the agent. In production, this would call the actual agent execution API.', timestamp: new Date() }
-        ],
-        toolCalls: [
-          { name: 'search_knowledge', input: { query: 'test' }, output: { results: [] }, timestamp: new Date() }
-        ],
-        status: 'completed',
-        metrics: {
-          duration: Date.now() - startTime,
-          tokenUsage: {
-            prompt: 150,
-            completion: 100,
-            total: 250
-          },
-          toolCallCount: 1
+    const requestId = this.generateRequestId();
+    this.currentRequestId = requestId;
+
+    const session: AgentDebugSession = {
+      id: requestId,
+      agentId: this.agentId.value,
+      agentName: this.selectedAgent()?.name || '',
+      messages: [],
+      toolCalls: [],
+      status: 'running',
+      metrics: {
+        duration: 0,
+        tokenUsage: {
+          prompt: 0,
+          completion: 0,
+          total: 0
+        },
+        toolCallCount: 0
+      }
+    };
+    this.currentSession.set(session);
+
+    const request = {
+      applicationId: this.applicationId.value || null,
+      agentId: this.agentId.value,
+      systemPrompt: this.systemPrompt.value,
+      userMessage: this.userMessage.value,
+      temperature: this.temperature.value,
+      maxTokens: this.maxTokens.value,
+      enabledTools: this.enabledTools.value || [],
+      enableToolCallLogging: this.configForm.get('enableToolCallLogging')?.value ?? true,
+      requestId
+    };
+
+    this.startStream(request);
+  }
+
+  stopRequest(): void {
+    if (!this.currentRequestId) {
+      return;
+    }
+
+    this.abortController?.abort();
+    this.abortController = null;
+
+    const token = this.authService.getAccessToken();
+    const url = `${environment.admin_daemon}/api/AgentDebug/stop/${this.currentRequestId}`;
+    fetch(url,
+      {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      })
+      .finally(() => {
+        this.isTesting.set(false);
+      });
+  }
+
+  private async startStream(request: any): Promise<void> {
+    this.abortController = new AbortController();
+    const token = this.authService.getAccessToken();
+    const url = `${environment.admin_daemon}/api/AgentDebug/stream`;
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify(request),
+        signal: this.abortController.signal
+      });
+
+      if (!response.ok || !response.body) {
+        throw new Error(await response.text());
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          break;
         }
-      };
-
-      this.currentSession.set(mockSession);
+        buffer += decoder.decode(value, { stream: true });
+        buffer = this.processSseBuffer(buffer);
+      }
+    } catch (err: any) {
+      if (err.name !== 'AbortError') {
+        this.errorMessage(this.translate.instant('agentDebug.errors.testFailed') + ': ' + err.message);
+      }
       this.isTesting.set(false);
+    }
+  }
 
-      // Add to history
-      const history = this.executionHistory();
-      this.executionHistory.set([mockSession, ...history]);
-      this.dataSource.data = [mockSession, ...history];
-    }, 2000);
+  private processSseBuffer(buffer: string): string {
+    const chunks = buffer.split('\n\n');
+    for (let i = 0; i < chunks.length - 1; i++) {
+      const chunk = chunks[i];
+      const lines = chunk.split('\n');
+      for (const line of lines) {
+        if (!line.startsWith('data:')) {
+          continue;
+        }
+        const payload = line.replace('data:', '').trim();
+        if (!payload) {
+          continue;
+        }
+        this.handleStreamEvent(payload);
+      }
+    }
+    return chunks[chunks.length - 1];
+  }
+
+  private handleStreamEvent(payload: string): void {
+    try {
+      const evt = JSON.parse(payload);
+      if (evt.type === 'message' && evt.message) {
+        this.appendMessage(evt.message.role, evt.message.content, evt.message.timestamp);
+      }
+      if (evt.type === 'tool' && evt.toolCall) {
+        this.appendToolCall(evt.toolCall);
+      }
+      if (evt.type === 'done' && evt.metrics) {
+        this.completeSession(evt.metrics);
+      }
+      if (evt.type === 'error') {
+        const errorMsg = evt.error || evt.message || this.translate.instant('agentDebug.errors.testFailed');
+        this.failSession(errorMsg);
+      }
+    } catch (err: any) {
+      this.failSession(this.translate.instant('agentDebug.errors.testFailed') + ': ' + err.message);
+    }
+  }
+
+  private appendMessage(role: string, content: string, timestamp?: string): void {
+    const session = this.currentSession();
+    if (!session) return;
+
+    const html = marked.parse(content ?? '', { async: false }) as string;
+    const sanitized = this.sanitizer.sanitize(SecurityContext.HTML, html) ?? '';
+    session.messages = [
+      ...session.messages,
+      {
+        role,
+        content,
+        html: sanitized,
+        timestamp: timestamp ? new Date(timestamp) : new Date()
+      }
+    ];
+
+    this.currentSession.set({ ...session });
+  }
+
+  private appendToolCall(toolCall: any): void {
+    const session = this.currentSession();
+    if (!session) return;
+
+    session.toolCalls = [
+      ...session.toolCalls,
+      {
+        name: toolCall.name,
+        input: toolCall.input,
+        output: toolCall.output,
+        timestamp: toolCall.timestamp ? new Date(toolCall.timestamp) : new Date()
+      }
+    ];
+
+    this.currentSession.set({ ...session });
+  }
+
+  private completeSession(metrics: any): void {
+    const session = this.currentSession();
+    if (!session) return;
+
+    session.status = 'completed';
+    session.metrics.duration = metrics.durationMs || 0;
+    session.metrics.tokenUsage = {
+      prompt: metrics.promptTokens || 0,
+      completion: metrics.completionTokens || 0,
+      total: metrics.totalTokens || 0
+    };
+    session.metrics.toolCallCount = metrics.toolCallCount || 0;
+
+    this.currentSession.set({ ...session });
+    this.isTesting.set(false);
+
+    const history = this.executionHistory();
+    this.executionHistory.set([session, ...history]);
+    this.dataSource.data = [session, ...history];
+  }
+
+  private failSession(message: string): void {
+    const session = this.currentSession();
+    if (session) {
+      session.status = 'error';
+      session.error = message;
+      this.currentSession.set({ ...session });
+    }
+    this.isTesting.set(false);
+  }
+
+  private errorMessage(message: string): void {
+    const session = this.currentSession();
+    if (session) {
+      session.error = message;
+      session.status = 'error';
+      this.currentSession.set({ ...session });
+    }
   }
 
   viewSession(session: AgentDebugSession): void {
@@ -266,5 +481,9 @@ export class AgentDebugIndex implements OnInit, OnDestroy {
     const userMessage = session.messages.find(m => m.role === 'user')?.content || '';
     this.testForm.patchValue({ userMessage });
     this.onTest();
+  }
+
+  private generateRequestId(): string {
+    return `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
   }
 }

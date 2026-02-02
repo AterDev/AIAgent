@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EntityFramework.Migrations
 {
     [DbContext(typeof(DefaultDbContext))]
-    [Migration("20260202055134_Update_AIModelProvider_Fields")]
-    partial class Update_AIModelProvider_Fields
+    [Migration("20260202063245_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -793,8 +793,9 @@ namespace EntityFramework.Migrations
                         .HasColumnType("character varying(200)");
 
                     b.Property<string>("BaseUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<DateTimeOffset>("CreatedTime")
                         .HasColumnType("timestamp with time zone");
@@ -804,9 +805,6 @@ namespace EntityFramework.Migrations
                         .HasColumnType("character varying(1000)");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsEnabled")
                         .HasColumnType("boolean");
 
                     b.Property<string>("LogoUrl")

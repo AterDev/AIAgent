@@ -27,7 +27,13 @@
 
       <mat-form-field appearance="outline">
         <mat-label>{{ i18nKeys.aiagent.modelId | translate }}</mat-label>
-        <input matInput type="text" [formControl]="modelId" />
+        <mat-select [formControl]="modelId">
+          @for (model of availableModels(); track model.id) {
+            <mat-option [value]="model.id">
+              {{ model.displayName || model.name }} @if (model.providerId) { ({{ model.providerId }}) }
+            </mat-option>
+          }
+        </mat-select>
         @if (modelId.invalid) {
           <mat-error>{{ getValidatorMessage(modelId) }}</mat-error>
         }

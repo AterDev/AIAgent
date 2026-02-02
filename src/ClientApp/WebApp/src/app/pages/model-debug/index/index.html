@@ -2,162 +2,194 @@
   <mat-card>
     <mat-card-header>
       <mat-card-title>
-        <h2>{{ 'modelDebug.title' | translate }}</h2>
+        <h2>{{ i18nKeys.modelDebug.title | translate }}</h2>
       </mat-card-title>
-      <mat-card-subtitle>
-        <p class="demo-notice">{{ 'modelDebug.demoNotice' | translate }}</p>
-      </mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
-      <div class="debug-container">
+      <div class="row g-3">
         <!-- Debug Form -->
-        <div class="debug-form">
-          <form [formGroup]="debugForm" (ngSubmit)="onSubmit()">
+        <div class="col-12 col-lg-6">
+          <form [formGroup]="debugForm" (ngSubmit)="onSubmit()" class="d-flex flex-column gap-3">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'modelDebug.selectModel' | translate }}</mat-label>
-              <mat-select formControlName="modelId" required>
+              <mat-label>{{ i18nKeys.application.title | translate }}</mat-label>
+              <mat-select [formControl]="applicationId" [required]="!isAdmin()">
+                @for (app of availableApplications(); track app.id) {
+                <mat-option [value]="app.id">
+                  {{ app.name }}
+                </mat-option>
+                }
+              </mat-select>
+              <mat-hint>
+                @if (isAdmin()) {
+                {{ i18nKeys.modelDebug.applicationOptional | translate }}
+                } @else {
+                {{ i18nKeys.modelDebug.applicationRequired | translate }}
+                }
+              </mat-hint>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>{{ i18nKeys.modelDebug.selectModel | translate }}</mat-label>
+              <mat-select [formControl]="modelId" required>
                 @for (model of availableModels(); track model.id) {
-                  <mat-option [value]="model.id">
-                    {{ model.name }} ({{ model.providerId }})
-                  </mat-option>
+                <mat-option [value]="model.id">
+                  {{ model.name }} ({{ model.providerId }})
+                </mat-option>
                 }
               </mat-select>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'modelDebug.systemPrompt' | translate }}</mat-label>
-              <textarea matInput formControlName="systemPrompt" rows="3"></textarea>
+              <mat-label>{{ i18nKeys.modelDebug.systemPrompt | translate }}</mat-label>
+              <textarea matInput [formControl]="systemPrompt" rows="3"></textarea>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'modelDebug.userPrompt' | translate }}</mat-label>
-              <textarea matInput formControlName="prompt" rows="5" required></textarea>
-              <mat-hint>{{ 'modelDebug.promptHint' | translate }}</mat-hint>
+              <mat-label>{{ i18nKeys.modelDebug.userPrompt | translate }}</mat-label>
+              <textarea matInput [formControl]="prompt" rows="5" required></textarea>
+              <mat-hint>{{ i18nKeys.modelDebug.promptHint | translate }}</mat-hint>
             </mat-form-field>
 
-            <div class="parameters-row">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'modelDebug.temperature' | translate }}</mat-label>
-                <input matInput type="number" formControlName="temperature" step="0.1" min="0" max="2" />
-              </mat-form-field>
+            <div class="row g-3">
+              <div class="col-6">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>{{ i18nKeys.modelDebug.temperature | translate }}</mat-label>
+                  <input matInput type="number" [formControl]="temperature" step="0.1" min="0" max="2" />
+                </mat-form-field>
+              </div>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'modelDebug.maxTokens' | translate }}</mat-label>
-                <input matInput type="number" formControlName="maxTokens" min="1" max="32000" />
-              </mat-form-field>
+              <div class="col-6">
+                <mat-form-field appearance="outline" class="w-100">
+                  <mat-label>{{ i18nKeys.modelDebug.maxTokens | translate }}</mat-label>
+                  <input matInput type="number" [formControl]="maxTokens" min="1" max="32000" />
+                </mat-form-field>
+              </div>
             </div>
 
-            <div class="actions">
-              <button mat-raised-button color="primary" type="submit" [disabled]="debugForm.invalid || isLoading()">
-                @if (isLoading()) {
-                  <mat-spinner diameter="20"></mat-spinner>
-                  <span>{{ 'modelDebug.testing' | translate }}</span>
+            <div class="d-flex flex-wrap gap-2">
+              <button mat-raised-button color="primary" type="submit" [disabled]="debugForm.invalid || isStreaming()">
+                @if (isStreaming()) {
+                <mat-spinner diameter="20"></mat-spinner>
+                {{ i18nKeys.modelDebug.testing | translate }}
                 } @else {
-                  <ng-container>
-                    <mat-icon>play_arrow</mat-icon>
-                    <span>{{ 'modelDebug.testModel' | translate }}</span>
-                  </ng-container>
+                <ng-container>
+                  <mat-icon>play_arrow</mat-icon>
+                  {{ i18nKeys.modelDebug.testModel | translate }}
+                </ng-container>
                 }
+              </button>
+              <button mat-stroked-button color="warn" type="button" (click)="stopRequest()" [disabled]="!isStreaming()">
+                <mat-icon>stop</mat-icon>
+                {{ i18nKeys.modelDebug.stop | translate }}
               </button>
               <button mat-stroked-button type="button" (click)="debugForm.reset(); response.set(null); error.set(null)">
                 <mat-icon>clear</mat-icon>
-                {{ 'modelDebug.clear' | translate }}
+                {{ i18nKeys.modelDebug.clear | translate }}
               </button>
             </div>
           </form>
         </div>
 
         <!-- Response Display -->
-        <div class="debug-response">
+        <div class="col-12 col-lg-6">
           @if (error()) {
-            <mat-card class="error-card">
-              <mat-card-content>
-                <mat-icon color="warn">error</mat-icon>
-                <p>{{ error() }}</p>
-              </mat-card-content>
-            </mat-card>
+          <mat-card class="error-card">
+            <mat-card-content>
+              <mat-icon color="warn">error</mat-icon>
+              <p>{{ error() }}</p>
+            </mat-card-content>
+          </mat-card>
           }
 
-          @if (response()) {
-            <mat-card class="response-card">
-              <mat-card-header>
-                <mat-card-title>{{ 'modelDebug.response' | translate }}</mat-card-title>
-                <button mat-icon-button (click)="exportResponse()" [matTooltip]="'modelDebug.export' | translate">
-                  <mat-icon>download</mat-icon>
-                </button>
-              </mat-card-header>
-              <mat-card-content>
-                <div class="response-content">
-                  <p>{{ response()!.content }}</p>
-                </div>
+          @if (response() || streamingResponse()) {
+          <mat-card class="response-card">
+            <mat-card-header>
+              <mat-card-title>{{ i18nKeys.modelDebug.response | translate }}</mat-card-title>
+              <button mat-icon-button (click)="exportResponse()" [matTooltip]="i18nKeys.modelDebug.export | translate">
+                <mat-icon>download</mat-icon>
+              </button>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="response-content">
+                <div [innerHTML]="renderedHtml()"></div>
+              </div>
 
-                <mat-divider></mat-divider>
+              <mat-divider></mat-divider>
 
-                <div class="response-metadata">
-                  <mat-chip-set>
-                    <mat-chip>
-                      <mat-icon>memory</mat-icon>
-                      {{ response()!.model }}
-                    </mat-chip>
-                    <mat-chip>
-                      <mat-icon>schedule</mat-icon>
-                      {{ response()!.duration }}ms
-                    </mat-chip>
-                    <mat-chip>
-                      <mat-icon>token</mat-icon>
-                      {{ 'modelDebug.promptTokens' | translate }}: {{ response()!.promptTokens }}
-                    </mat-chip>
-                    <mat-chip>
-                      <mat-icon>token</mat-icon>
-                      {{ 'modelDebug.completionTokens' | translate }}: {{ response()!.completionTokens }}
-                    </mat-chip>
-                    <mat-chip highlighted>
-                      <mat-icon>functions</mat-icon>
-                      {{ 'modelDebug.totalTokens' | translate }}: {{ response()!.totalTokens }}
-                    </mat-chip>
-                    <mat-chip>
-                      <mat-icon>flag</mat-icon>
-                      {{ response()!.finishReason }}
-                    </mat-chip>
-                  </mat-chip-set>
-                </div>
-              </mat-card-content>
-            </mat-card>
+              <div class="response-metadata">
+                <mat-chip-set>
+                  @if (response()) {
+                  <mat-chip>
+                    <mat-icon>memory</mat-icon>
+                    {{ response()!.model }}
+                  </mat-chip>
+                  <mat-chip>
+                    <mat-icon>schedule</mat-icon>
+                    {{ response()!.durationMs }}ms
+                  </mat-chip>
+                  <mat-chip>
+                    <mat-icon>token</mat-icon>
+                    {{ i18nKeys.modelDebug.promptTokens | translate }}: {{ response()!.promptTokens }}
+                  </mat-chip>
+                  <mat-chip>
+                    <mat-icon>token</mat-icon>
+                    {{ i18nKeys.modelDebug.completionTokens | translate }}: {{ response()!.completionTokens }}
+                  </mat-chip>
+                  <mat-chip highlighted>
+                    <mat-icon>functions</mat-icon>
+                    {{ i18nKeys.modelDebug.totalTokens | translate }}: {{ response()!.totalTokens }}
+                  </mat-chip>
+                  <mat-chip>
+                    <mat-icon>flag</mat-icon>
+                    {{ response()!.finishReason }}
+                  </mat-chip>
+                  } @else {
+                  <mat-chip>
+                    <mat-icon>schedule</mat-icon>
+                    {{ i18nKeys.modelDebug.streaming | translate }}
+                  </mat-chip>
+                  }
+                </mat-chip-set>
+              </div>
+            </mat-card-content>
+          </mat-card>
           }
         </div>
       </div>
 
       <!-- History -->
       @if (history().length > 0) {
-        <mat-divider></mat-divider>
-        <div class="history-section">
-          <div class="history-header">
-            <h3>{{ 'modelDebug.testHistory' | translate }}</h3>
-            <button mat-stroked-button (click)="clearHistory()">
-              <mat-icon>delete_sweep</mat-icon>
-              {{ 'modelDebug.clearHistory' | translate }}
-            </button>
-          </div>
-
-          <div class="history-list">
-            @for (item of history(); track item.timestamp) {
-              <mat-card class="history-item" (click)="loadFromHistory(item)">
-                <mat-card-content>
-                  <div class="history-item-header">
-                    <span class="timestamp">{{ item.timestamp | date:'short' }}</span>
-                    <span class="model">{{ item.request.modelId }}</span>
-                  </div>
-                  <p class="prompt-preview">{{ item.request.prompt.substring(0, 100) }}...</p>
-                  <div class="history-item-meta">
-                    <span>{{ item.response.totalTokens }} {{ 'modelDebug.tokens' | translate }}</span>
-                    <span>{{ item.response.duration }}ms</span>
-                  </div>
-                </mat-card-content>
-              </mat-card>
-            }
-          </div>
+      <mat-divider class="my-3"></mat-divider>
+      <div class="mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="m-0">{{ i18nKeys.modelDebug.testHistory | translate }}</h3>
+          <button mat-stroked-button (click)="clearHistory()">
+            <mat-icon>delete_sweep</mat-icon>
+            {{ i18nKeys.modelDebug.clearHistory | translate }}
+          </button>
         </div>
+
+        <div class="row g-3">
+          @for (item of history(); track item.timestamp) {
+          <div class="col-12 col-sm-6 col-lg-4">
+            <mat-card class="history-item" (click)="loadFromHistory(item)">
+              <mat-card-content>
+                <div class="history-item-header">
+                  <span class="timestamp">{{ item.timestamp | date:'short' }}</span>
+                  <span class="model">{{ item.request.modelId }}</span>
+                </div>
+                <p class="prompt-preview">{{ item.request.prompt.substring(0, 100) }}...</p>
+                <div class="history-item-meta">
+                  <span>{{ item.response.totalTokens }} {{ i18nKeys.modelDebug.tokens | translate }}</span>
+                  <span>{{ item.response.durationMs }}ms</span>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+          }
+        </div>
+      </div>
       }
     </mat-card-content>
   </mat-card>

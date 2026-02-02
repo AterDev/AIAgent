@@ -4,6 +4,8 @@
 export const I18N_KEYS = {
   "home": "home",
   "hello": "hello",
+  "applicationOptional": "applicationOptional",
+  "applicationRequired": "applicationRequired",
   "common": {
     "search": "common.search",
     "noData": "common.noData",
@@ -12,6 +14,8 @@ export const I18N_KEYS = {
     "edit": "common.edit",
     "delete": "common.delete",
     "add": "common.add",
+    "stop": "common.stop",
+    "streaming": "common.streaming",
     "save": "common.save",
     "cancel": "common.cancel",
     "confirm": "common.confirm",
@@ -22,6 +26,7 @@ export const I18N_KEYS = {
     "icon": "common.icon",
     "title": "common.title",
     "close": "common.close",
+    "loadApplicationsFailed": "common.loadApplicationsFailed",
     "confirmDelete": "common.confirmDelete",
     "deleteSuccess": "common.deleteSuccess",
     "deleteFail": "common.deleteFail",
@@ -30,6 +35,8 @@ export const I18N_KEYS = {
     "editSuccess": "common.editSuccess",
     "editFail": "common.editFail",
     "saveSuccess": "common.saveSuccess",
+    "applicationOptional": "common.applicationOptional",
+    "applicationRequired": "common.applicationRequired",
     "saveFail": "common.saveFail",
     "formInvalid": "common.formInvalid",
     "updatedTime": "common.updatedTime",
@@ -43,6 +50,7 @@ export const I18N_KEYS = {
     "email": "login.email",
     "password": "login.password",
     "login": "login.login",
+    "stop": "login.stop",
     "logout": "login.logout",
     "usernamePlaceholder": "login.usernamePlaceholder",
     "emailPlaceholder": "login.emailPlaceholder",
@@ -65,7 +73,6 @@ export const I18N_KEYS = {
   },
   "systemUser": {
     "roleId": "systemUser.roleId",
-    "none": "systemUser.none",
     "realName": "systemUser.realName",
     "email": "systemUser.email",
     "lastLoginTime": "systemUser.lastLoginTime",
@@ -164,9 +171,9 @@ export const I18N_KEYS = {
     "name": "aiModelProvider.name",
     "apiKey": "aiModelProvider.apiKey",
     "apiKeyPlaceholder": "aiModelProvider.apiKeyPlaceholder",
-    "baseUrl": "aiModelProvider.baseUrl",
     "endpoint": "aiModelProvider.endpoint",
     "isEnabled": "aiModelProvider.isEnabled",
+    "baseUrl": "aiModelProvider.baseUrl",
     "providerType": "aiModelProvider.providerType",
     "openAiCompatible": "aiModelProvider.openAiCompatible",
     "custom": "aiModelProvider.custom",
@@ -307,6 +314,8 @@ export const I18N_KEYS = {
   "modelDebug": {
     "title": "modelDebug.title",
     "demoNotice": "modelDebug.demoNotice",
+    "applicationOptional": "modelDebug.applicationOptional",
+    "applicationRequired": "modelDebug.applicationRequired",
     "selectModel": "modelDebug.selectModel",
     "systemPrompt": "modelDebug.systemPrompt",
     "userPrompt": "modelDebug.userPrompt",
@@ -315,6 +324,8 @@ export const I18N_KEYS = {
     "maxTokens": "modelDebug.maxTokens",
     "testing": "modelDebug.testing",
     "testModel": "modelDebug.testModel",
+    "stop": "modelDebug.stop",
+    "streaming": "modelDebug.streaming",
     "clear": "modelDebug.clear",
     "response": "modelDebug.response",
     "export": "modelDebug.export",
@@ -325,6 +336,7 @@ export const I18N_KEYS = {
     "clearHistory": "modelDebug.clearHistory",
     "tokens": "modelDebug.tokens",
     "errors": {
+      "loadApplicationsFailed": "modelDebug.errors.loadApplicationsFailed",
       "loadModelsFailed": "modelDebug.errors.loadModelsFailed",
       "testFailed": "modelDebug.errors.testFailed"
     }
@@ -333,6 +345,8 @@ export const I18N_KEYS = {
     "title": "agentDebug.title",
     "description": "agentDebug.description",
     "demoNotice": "agentDebug.demoNotice",
+    "applicationOptional": "agentDebug.applicationOptional",
+    "applicationRequired": "agentDebug.applicationRequired",
     "agentConfiguration": "agentDebug.agentConfiguration",
     "selectAgent": "agentDebug.selectAgent",
     "systemPromptOverride": "agentDebug.systemPromptOverride",
@@ -346,9 +360,11 @@ export const I18N_KEYS = {
     "userMessage": "agentDebug.userMessage",
     "testing": "agentDebug.testing",
     "runTest": "agentDebug.runTest",
+    "stop": "agentDebug.stop",
     "clear": "agentDebug.clear",
     "executionResult": "agentDebug.executionResult",
     "export": "agentDebug.export",
+    "error": "agentDebug.error",
     "status": {
       "label": "agentDebug.status.label",
       "running": "agentDebug.status.running",
@@ -368,7 +384,11 @@ export const I18N_KEYS = {
     "time": "agentDebug.time",
     "actions": "agentDebug.actions",
     "view": "agentDebug.view",
-    "rerun": "agentDebug.rerun"
+    "rerun": "agentDebug.rerun",
+    "errors": {
+      "loadApplicationsFailed": "agentDebug.errors.loadApplicationsFailed",
+      "testFailed": "agentDebug.errors.testFailed"
+    }
   },
   "workflowMonitor": {
     "title": "workflowMonitor.title",

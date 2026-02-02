@@ -5,12 +5,7 @@ description: Angular 21+ standalone/Material/signal 前端开发约定
 
 ## 何时使用
 
-在 src/ClientApp/WebApp 下的前端开发工作
-- 组件（Components）开发
-- 路由（Routes）配置
-- 服务（Services）和 API 调用
-- 样式和主题定制
-- 国际化（i18n）
+本技能适用于使用 Angular 框架进行前端开发的项目。
 
 ---
 
@@ -44,10 +39,11 @@ src/ClientApp/WebApp/
 ```
 
 **核心原则**：
+
 - **100% Standalone 组件**：不使用 NgModule
 - **Angular Material**：统一的 UI 组件库
 - **Signals 优先**：使用新的响应式 API
-
+- **严格的类型安全**：TypeScript 严格模式
 ---
 
 ## 开发流程
@@ -93,6 +89,10 @@ src/ClientApp/WebApp/
 - 使用 SCSS 变量和混入
 - ✗ 不要在组件中使用内联样式，而是在scss中定义。
 
+### 多语言
+
+- 禁止使用硬编码字符串，而是定义和使用i18nKeys
+- 使用 `translate` 管道进行文本翻译
 ---
 
 ### 表单管理

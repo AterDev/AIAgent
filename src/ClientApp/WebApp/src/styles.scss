@@ -60,6 +60,34 @@ mat-panel-title .mat-icon {
   vertical-align: middle;
 }
 
+// Fix Angular Material 20.1+ icon alignment issue in buttons
+// See: https://github.com/angular/components/issues/31576
+
+.mat-mdc-button-base .mat-icon {
+  vertical-align: middle;
+}
+
+// .mat-mdc-button-base {
+//   .mat-icon {
+//     min-height: fit-content;
+//     vertical-align: middle;
+//   }
+
+//   // Fix mat-spinner alignment in buttons
+//   mat-spinner {
+//     display: inline-block;
+//     vertical-align: middle;
+//   }
+// }
+
+// Fix mat-icon alignment in mat-chip
+mat-chip {
+  .mat-icon {
+    min-height: unset;
+    vertical-align: middle;
+  }
+}
+
 // Detail page styles
 .detail-label {
   width: 160px;

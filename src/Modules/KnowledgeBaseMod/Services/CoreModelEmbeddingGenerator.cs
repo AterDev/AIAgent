@@ -7,7 +7,7 @@ namespace KnowledgeBaseMod.Services;
 /// 基于 CoreMod 模型调用的真实向量生成器
 /// </summary>
 public class CoreModelEmbeddingGenerator(
-    IModelClient modelClient,
+    ExtensionsAIModelClient modelClient,
     ILogger<CoreModelEmbeddingGenerator> logger
 ) : IEmbeddingGenerator
 {
