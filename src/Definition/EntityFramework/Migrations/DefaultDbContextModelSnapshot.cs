@@ -790,8 +790,9 @@ namespace EntityFramework.Migrations
                         .HasColumnType("character varying(200)");
 
                     b.Property<string>("BaseUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<DateTimeOffset>("CreatedTime")
                         .HasColumnType("timestamp with time zone");
@@ -801,9 +802,6 @@ namespace EntityFramework.Migrations
                         .HasColumnType("character varying(1000)");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsEnabled")
                         .HasColumnType("boolean");
 
                     b.Property<string>("LogoUrl")

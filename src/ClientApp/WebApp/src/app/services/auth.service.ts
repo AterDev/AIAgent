@@ -37,6 +37,12 @@ export class AuthService {
     if (userinfo.id) {
       localStorage.setItem('userId', userinfo.id.toString());
     }
+    if (userinfo.roles) {
+      localStorage.setItem('roles', userinfo.roles);
+      this.isAdmin = this.checkIsAdmin(userinfo.roles);
+    } else {
+      this.isAdmin = false;
+    }
   }
 
   /**
@@ -56,9 +62,16 @@ export class AuthService {
       this.userName = username;
       this.id = localStorage.getItem('userId');
       this.isLogin = true;
+      const roles = localStorage.getItem('roles');
+      this.isAdmin = roles ? this.checkIsAdmin(roles) : false;
     } else {
       this.isLogin = false;
+      this.isAdmin = false;
     }
+  }
+
+  private checkIsAdmin(roles: string): boolean {
+    return roles.split(',').some(r => r.trim() === 'AdminUser' || r.trim() === 'SuperAdmin');
   }
 
   /**

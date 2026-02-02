@@ -6,7 +6,7 @@ namespace ModelMod.Services;
 public class ModelInvokeService(
     TenantDbFactory dbContextFactory,
     IUserContext userContext,
-    IModelClient modelClient,
+    ExtensionsAIModelClient modelClient,
     IUsageMeter usageMeter,
     ILogger<ModelInvokeService> logger
 ) : IModelInvokeService
@@ -38,22 +38,22 @@ public class ModelInvokeService(
             throw new BusinessException("Application not found");
         }
 
-        var modelQuery = from modelInfo in dbContext.AIModelInfos.AsNoTracking()
-                         join provider in dbContext.AIModelProviders.AsNoTracking()
-                             on modelInfo.ProviderId equals provider.Id
-                         where modelInfo.TenantId == userContext.TenantId
-                             && provider.TenantId == userContext.TenantId
-                             && modelInfo.IsEnabled
-                             && modelInfo.Name == request.Model
-                         select new { modelInfo, provider };
+        var modelQuery = dbContext.AIModelInfos
+            .AsNoTracking()
+            .Include(m => m.Provider)
+            .Where(m => m.TenantId == userContext.TenantId
+                && m.IsEnabled
+                && m.Name == request.Model
+                && m.Provider != null
+                && m.Provider.TenantId == userContext.TenantId);
 
         if (!string.IsNullOrWhiteSpace(request.Provider))
         {
-            modelQuery = modelQuery.Where(q => q.provider.Name == request.Provider);
+            modelQuery = modelQuery.Where(m => m.Provider!.Name == request.Provider);
         }
 
-        var model = await modelQuery.FirstOrDefaultAsync(cancellationToken);
-        if (model is null)
+        var modelInfo = await modelQuery.FirstOrDefaultAsync(cancellationToken);
+        if (modelInfo?.Provider is null)
         {
             throw new BusinessException("Model not found or disabled");
         }
@@ -61,7 +61,7 @@ public class ModelInvokeService(
         var allowed = await dbContext.ApplicationModelPermissions
             .AsNoTracking()
             .AnyAsync(q => q.ApplicationId == applicationId
-                && q.AIModelInfoId == model.modelInfo.Id
+                && q.AIModelInfoId == modelInfo.Id
                 && q.IsEnabled
                 && q.TenantId == userContext.TenantId, cancellationToken);
 
@@ -80,7 +80,7 @@ public class ModelInvokeService(
         var invocation = new ModelInvocation
         {
             ApplicationId = applicationId,
-            AIModelInfoId = model.modelInfo.Id,
+            AIModelInfoId = modelInfo.Id,
             Scene = request.Scene ?? string.Empty,
             PromptTokens = usage.PromptTokens,
             CompletionTokens = usage.CompletionTokens,

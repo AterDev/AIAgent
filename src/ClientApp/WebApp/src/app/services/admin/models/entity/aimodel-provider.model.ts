@@ -22,6 +22,10 @@ export interface AIModelProvider {
   description?: string | null;
   /** 官网地址 */
   website?: string | null;
+  /** API密钥 */
+  apiKey?: string | null;
+  /** baseUrl */
+  baseUrl: string;
   /** 关联的模型列表 */
   models: AIModelInfo[];
 }

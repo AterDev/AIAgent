@@ -14,4 +14,8 @@ export interface AIModelProviderItemDto {
   logoUrl?: string | null;
   /** website */
   website?: string | null;
+  /** apiKey */
+  apiKey?: string | null;
+  /** baseUrl */
+  baseUrl?: string | null;
 }

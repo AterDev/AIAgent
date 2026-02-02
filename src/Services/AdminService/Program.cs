@@ -29,6 +29,8 @@ builder
 // 业务Managers
 builder.Services.AddManagers();
 
+builder.Services.AddSingleton<AdminService.Services.DebugSessionRegistry>();
+
 // 模块服务
 builder.AddModules();
 

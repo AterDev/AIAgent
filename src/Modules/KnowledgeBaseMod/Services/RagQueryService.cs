@@ -40,19 +40,19 @@ public class RagQueryService(
     {
         if (request.CollectionId.HasValue)
         {
-            var query = from chunk in dbContext.RagChunks.AsNoTracking()
-                        join doc in dbContext.RagDocuments.AsNoTracking()
-                            on chunk.DocumentId equals doc.Id
-                        where chunk.TenantId == userContext.TenantId
-                            && doc.TenantId == userContext.TenantId
-                            && doc.CollectionId == request.CollectionId
-                            && chunk.Content.Contains(request.Query)
-                        select new RagQueryItem
-                        {
-                            DocumentId = chunk.DocumentId,
-                            Content = chunk.Content,
-                            Score = 1.0,
-                        };
+            var query = dbContext.RagChunks
+                .AsNoTracking()
+                .Where(c => c.TenantId == userContext.TenantId
+                    && c.Document != null
+                    && c.Document.TenantId == userContext.TenantId
+                    && c.Document.CollectionId == request.CollectionId
+                    && c.Content.Contains(request.Query))
+                .Select(c => new RagQueryItem
+                {
+                    DocumentId = c.DocumentId,
+                    Content = c.Content,
+                    Score = 1.0,
+                });
 
             return await query.Take(topK).ToListAsync(cancellationToken);
         }

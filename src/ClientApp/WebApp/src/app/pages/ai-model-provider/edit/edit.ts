@@ -55,7 +55,8 @@ export class AIModelProviderEdit implements OnInit {
       "description": [null, [Validators.maxLength(1000)]],
       "logoUrl": [null, [Validators.maxLength(500)]],
       "website": [null, [Validators.maxLength(500)]],
-      "apiKey": [null, [Validators.maxLength(200)]]
+      "apiKey": [null, [Validators.maxLength(200)]],
+      "baseUrl": [null, [Validators.maxLength(200)]]
     });
   }
 
@@ -64,6 +65,7 @@ export class AIModelProviderEdit implements OnInit {
   get logoUrl() { return this.form.get('logoUrl') as FormControl; }
   get website() { return this.form.get('website') as FormControl; }
   get apiKey() { return this.form.get('apiKey') as FormControl; }
+  get baseUrl() { return this.form.get('baseUrl') as FormControl; }
 
   getValidatorMessage(control: AbstractControl | null): string {
     if (!control || !control.errors) { return ''; }

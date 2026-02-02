@@ -15,24 +15,24 @@ public class DbModelRouter(
     {
         await using var dbContext = await dbContextFactory.CreateDbContextAsync();
 
-        var query = from modelInfo in dbContext.AIModelInfos.AsNoTracking()
-                    join provider in dbContext.AIModelProviders.AsNoTracking()
-                        on modelInfo.ProviderId equals provider.Id
-                    where modelInfo.TenantId == userContext.TenantId
-                        && provider.TenantId == userContext.TenantId
-                        && modelInfo.IsEnabled
-                        && modelInfo.Name == request.Model
-                    select new { modelInfo, provider };
+        // 支持通过 ID 或 Name 查询模型
+        var isGuid = Guid.TryParse(request.Model, out var modelId);
 
-        if (!string.IsNullOrWhiteSpace(request.Provider))
-        {
-            query = query.Where(q => q.provider.Name == request.Provider);
-        }
+        var modelInfo = await dbContext.AIModelInfos
+            .AsNoTracking()
+            .Include(m => m.Provider)
+            .Where(m => m.TenantId == userContext.TenantId
+                && m.IsEnabled
+                && (isGuid ? m.Id == modelId : m.Name == request.Model)
+                && m.Provider != null
+                && m.Provider.TenantId == userContext.TenantId)
+            .Where(m => string.IsNullOrWhiteSpace(request.Provider) || m.Provider!.Name == request.Provider)
+            .FirstOrDefaultAsync(cancellationToken);
 
-        var result = await query.FirstOrDefaultAsync(cancellationToken);
-        if (result is null)
+        if (modelInfo?.Provider is null)
         {
-            logger.LogWarning("Model route not found for model {Model}", request.Model);
+            logger.LogWarning("Model route not found for model {Model} (Parsed as {Type})", 
+                request.Model, isGuid ? "ID" : "Name");
             return new ModelRoute
             {
                 Provider = request.Provider ?? string.Empty,
@@ -41,9 +41,9 @@ public class DbModelRouter(
 
         return new ModelRoute
         {
-            Provider = result.provider.Name,
-            BaseUrl = result.provider.BaseUrl,
-            ApiKey = result.provider.ApiKey,
+            Provider = modelInfo.Provider.Name,
+            BaseUrl = modelInfo.Provider.BaseUrl,
+            ApiKey = modelInfo.Provider.ApiKey,
         };
     }
 }

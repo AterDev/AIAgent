@@ -10,6 +10,8 @@ import { I18N_KEYS } from 'src/app/share/i18n-keys';
 import { CommonFormModules } from 'src/app/share/shared-modules';
 import { AIAgentUpdateDto } from 'src/app/services/admin/models/aiagent-mod/aiagent-update-dto.model';
 import { AIAgentDetailDto } from 'src/app/services/admin/models/aiagent-mod/aiagent-detail-dto.model';
+import { AIModelInfoItemDto } from 'src/app/services/admin/models/model-mod/aimodel-info-item-dto.model';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-aiagent-edit',
@@ -24,6 +26,7 @@ export class AIAgentEdit implements OnInit {
   form!: FormGroup;
   id?: string;
   isLoading = signal(true);
+  availableModels = signal<AIModelInfoItemDto[]>([]);
 
   constructor(
     private fb: FormBuilder,
@@ -37,11 +40,26 @@ export class AIAgentEdit implements OnInit {
   }
 
   ngOnInit() {
+    this.loadData();
+  }
+
+  private loadData(): void {
+    const models$ = this.adminClient.aIModelInfo.list({ pageIndex: 1, pageSize: 100 });
+    
     if (this.id) {
-      this.isLoading.set(true);
-      this.adminClient.aIAgent.detail(this.id).subscribe({
-        next: (res: AIAgentDetailDto) => {
-          this.form.patchValue(res);
+      const detail$ = this.adminClient.aIAgent.detail(this.id);
+      forkJoin([models$, detail$]).subscribe({
+        next: ([modelsRes, detailRes]) => {
+          this.availableModels.set(modelsRes.data || []);
+          this.form.patchValue(detailRes);
+          this.isLoading.set(false);
+        },
+        error: () => this.isLoading.set(false)
+      });
+    } else {
+      models$.subscribe({
+        next: (res) => {
+          this.availableModels.set(res.data || []);
           this.isLoading.set(false);
         },
         error: () => this.isLoading.set(false)

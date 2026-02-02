@@ -45,6 +45,7 @@ namespace EntityFramework.Migrations
                     Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     Website = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     ApiKey = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    BaseUrl = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
@@ -142,29 +143,6 @@ namespace EntityFramework.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_McpTools", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ModelProviders",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    BaseUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
-                    ApiKey = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false),
-                    ProviderType = table.Column<int>(type: "integer", nullable: false),
-                    TimeoutSeconds = table.Column<int>(type: "integer", nullable: false),
-                    RetryCount = table.Column<int>(type: "integer", nullable: false),
-                    IsEnabled = table.Column<bool>(type: "boolean", nullable: false),
-                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ModelProviders", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -806,12 +784,6 @@ namespace EntityFramework.Migrations
                 columns: new[] { "ApplicationId", "AIModelInfoId", "Scene" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_ModelProviders_Name",
-                table: "ModelProviders",
-                column: "Name",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_QuotaUsages_ApplicationId_PeriodType_WindowStart",
                 table: "QuotaUsages",
                 columns: new[] { "ApplicationId", "PeriodType", "WindowStart" });
@@ -909,9 +881,6 @@ namespace EntityFramework.Migrations
 
             migrationBuilder.DropTable(
                 name: "ModelInvocations");
-
-            migrationBuilder.DropTable(
-                name: "ModelProviders");
 
             migrationBuilder.DropTable(
                 name: "QuotaUsages");

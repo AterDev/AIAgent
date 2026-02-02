@@ -9,6 +9,7 @@ import { AdminClient } from 'src/app/services/admin/admin-client';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
 import { CommonFormModules } from 'src/app/share/shared-modules';
 import { AIAgentAddDto } from 'src/app/services/admin/models/aiagent-mod/aiagent-add-dto.model';
+import { AIModelInfoItemDto } from 'src/app/services/admin/models/model-mod/aimodel-info-item-dto.model';
 
 @Component({
   selector: 'app-aiagent-add',
@@ -22,6 +23,7 @@ export class AIAgentAdd implements OnInit {
 
   form!: FormGroup;
   isLoading = signal(true);
+  availableModels = signal<AIModelInfoItemDto[]>([]);
 
   constructor(
     private fb: FormBuilder,
@@ -33,6 +35,19 @@ export class AIAgentAdd implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadAvailableModels();
+  }
+
+  private loadAvailableModels(): void {
+    this.adminClient.aIModelInfo.list({ pageIndex: 1, pageSize: 100 }).subscribe({
+      next: (res) => {
+        this.availableModels.set(res.data || []);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.isLoading.set(false);
+      }
+    });
   }
 
   buildForm() {

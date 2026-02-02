@@ -30,6 +30,8 @@
     "saveFail": "Save failed",
     "formInvalid": "Form invalid, please check the content!",
     "updatedTime": "Updated Time",
+      "applicationOptional": "Optional for admin",
+      "applicationRequired": "Application is required for non-admin",
     "pageNotFound": "Page Not Found",
     "unknown": "Unknown",
     "deleteConfirm": "Are you sure you want to delete?",
@@ -38,6 +40,8 @@
   "login": {
     "username": "Username",
     "email": "Email",
+      "stop": "Stop",
+      "streaming": "Streaming",
     "password": "Password",
     "login": "Login",
     "logout": "Logout",
@@ -48,6 +52,7 @@
   "systemLogs": {
     "actionUserName": "Operator Name",
     "targetName": "Target Name",
+        "loadApplicationsFailed": "Failed to load applications",
     "actionType": "Action Type",
     "startDate": "Start Date",
     "endDate": "End Date"
@@ -56,6 +61,8 @@
     "name": "Role Display Name",
     "nameValue": "Role Name (System ID)",
     "isSystem": "Is System Built-in",
+      "applicationOptional": "Optional for admin",
+      "applicationRequired": "Application is required for non-admin",
     "isSystemDesc": "Is System Built-in (Cannot be deleted)",
     "menuPermission": "Menu Permissions",
     "menuPermissionConfig": "Menu Permission Configuration"
@@ -91,7 +98,11 @@
     "customer": "Customer",
     "team": "Team",
     "product": "Product",
-    "order": "Order",
+      "rerun": "Rerun",
+      "errors": {
+        "loadApplicationsFailed": "Failed to load applications",
+        "testFailed": "Test failed"
+      }
     "model": "Model Management",
     "application": "Application",
     "applicationQuota": "Application Quota",
@@ -302,38 +313,45 @@
     "valid": "Valid"
   },
   "modelDebug": {
-    "title": "Model Online Debug",
-    "demoNotice": "⚠️ Demo/Prototype - Using mock data for demonstration",
+    "title": "Model Debug",
+    "demoNotice": "Demo version - using mock data",
+    "applicationOptional": "Optional for admin",
+    "applicationRequired": "Application is required for non-admin",
     "selectModel": "Select Model",
     "systemPrompt": "System Prompt",
     "userPrompt": "User Prompt",
-    "promptHint": "Enter your test prompt here",
+    "promptHint": "Enter the prompt you want to test",
     "temperature": "Temperature",
     "maxTokens": "Max Tokens",
     "testing": "Testing...",
     "testModel": "Test Model",
+    "stop": "Stop",
+    "streaming": "Streaming",
     "clear": "Clear",
     "response": "Response",
-    "export": "Export Response",
-    "promptTokens": "Prompt",
-    "completionTokens": "Completion",
-    "totalTokens": "Total",
+    "export": "Export",
+    "promptTokens": "Prompt Tokens",
+    "completionTokens": "Completion Tokens",
+    "totalTokens": "Total Tokens",
     "testHistory": "Test History",
     "clearHistory": "Clear History",
-    "tokens": "tokens",
+    "tokens": "Tokens",
     "errors": {
+      "loadApplicationsFailed": "Failed to load applications",
       "loadModelsFailed": "Failed to load models",
       "testFailed": "Test failed"
     }
   },
   "agentDebug": {
-    "title": "AI Agent Config & Debug",
-    "description": "Configure and test AI agents with real-time debugging capabilities",
-    "demoNotice": "⚠️ Demo/Prototype - Using mock data for demonstration",
+    "title": "Agent Debug",
+    "description": "Debug agent conversations and tool calls",
+    "demoNotice": "Demo version - using mock data",
+    "applicationOptional": "Optional for admin",
+    "applicationRequired": "Application is required for non-admin",
     "agentConfiguration": "Agent Configuration",
     "selectAgent": "Select Agent",
     "systemPromptOverride": "System Prompt Override",
-    "systemPromptHint": "Leave empty to use agent default",
+    "systemPromptHint": "Optional, override agent default system prompt",
     "advancedSettings": "Advanced Settings",
     "temperature": "Temperature",
     "maxTokens": "Max Tokens",
@@ -343,17 +361,19 @@
     "userMessage": "User Message",
     "testing": "Testing...",
     "runTest": "Run Test",
+    "stop": "Stop",
     "clear": "Clear",
     "executionResult": "Execution Result",
-    "export": "Export Session",
+    "export": "Export",
+    "error": "Error",
     "status": {
       "label": "Status",
       "running": "Running",
       "completed": "Completed",
       "error": "Error"
     },
-    "tokens": "tokens",
-    "toolCalls": "tool calls",
+    "tokens": "Tokens",
+    "toolCalls": "Tool Calls",
     "conversation": "Conversation",
     "toolCallsTitle": "Tool Calls",
     "input": "Input",
@@ -365,7 +385,11 @@
     "time": "Time",
     "actions": "Actions",
     "view": "View",
-    "rerun": "Re-run"
+    "rerun": "Rerun",
+    "errors": {
+      "loadApplicationsFailed": "Failed to load applications",
+      "testFailed": "Test failed"
+    }
   },
   "workflowMonitor": {
     "title": "Workflow Orchestration Monitor",
