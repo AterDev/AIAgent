@@ -81,6 +81,7 @@ public static class ModuleExtensions
         });
         builder.Services.AddScoped<RagIngestionService>();
         builder.Services.AddScoped<DocumentParsingResultManager>();
+        builder.Services.AddScoped<BackgroundParsingService>();
         return builder;
     }
 
