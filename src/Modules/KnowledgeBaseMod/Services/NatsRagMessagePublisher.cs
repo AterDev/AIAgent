@@ -10,7 +10,7 @@ namespace KnowledgeBaseMod.Services;
 /// <summary>
 /// 基于 NATS JetStream 的 RAG 消息发布者
 /// </summary>
-public class NatsRagMessagePublisher(INatsConnection natsConnection)
+public class NatsRagMessagePublisher(INatsConnection natsConnection, ILogger<NatsRagMessagePublisher> logger)
 {
     private const string StreamName = "RAG_PROCESSING";
     private const string SubjectName = "rag.ingestion";
@@ -80,11 +80,11 @@ public class NatsRagMessagePublisher(INatsConnection natsConnection)
 
         if (!ack.Duplicate)
         {
-            Console.WriteLine($"Published RAG ingestion message for document {message.DocumentId}");
+            logger.LogInformation("Published RAG ingestion message for document {DocumentId}", message.DocumentId);
         }
         else
         {
-            Console.WriteLine($"Duplicate message detected for document {message.DocumentId}, skipped");
+            logger.LogDebug("Duplicate message detected for document {DocumentId}, skipped", message.DocumentId);
         }
     }
 }

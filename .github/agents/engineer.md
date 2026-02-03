@@ -5,6 +5,7 @@ handoffs:
   - label: "Code Review"
     agent: reviewer
     prompt: "代码已实现并构建通过，请进行代码审查"
+    send: true
 ---
 
 ## 角色定位

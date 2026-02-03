@@ -4,7 +4,8 @@ description: 代码审查专家 - 负责质量、性能、安全审查，确保�
 handoffs:
   - label: "Back to Engineer"
     agent: engineer
-    prompt: "发现构建错误或重大问题，请修复"
+    prompt: "代码审查发现问题，请修复后重新提交"
+    send: true
 ---
 
 ## 角色定位

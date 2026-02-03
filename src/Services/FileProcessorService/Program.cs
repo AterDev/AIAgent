@@ -29,6 +29,9 @@ builder.AddNatsJetStream();
 // 注册 RAG 处理消费者
 builder.Services.AddHostedService<FileProcessorService.Workers.RagIngestionConsumer>();
 
+// 注册后台轮询服务（用于处理 Pending/Failed 状态的文档，作为兜底机制）
+builder.Services.AddHostedService<KnowledgeBaseMod.Services.BackgroundParsingService>();
+
 WebApplication app = builder.Build();
 
 app.MapDefaultEndpoints();

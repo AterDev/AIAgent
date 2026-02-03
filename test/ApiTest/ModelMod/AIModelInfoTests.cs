@@ -24,7 +24,8 @@ public class AIModelInfoTests
         {
             Name = $"TestProvider_{Guid.NewGuid().ToString().Substring(0, 8)}",
             Description = "Test AI Provider",
-            Website = "https://test.com"
+            Website = "https://test.com",
+            BaseUrl = "https://api.test.com"
         };
 
         var providerResponse = await httpClient.PostAsJsonAsync("/api/aiModelProvider", providerDto);
@@ -134,7 +135,8 @@ public class AIModelInfoTests
         {
             Name = $"OpenAI_{Guid.NewGuid().ToString().Substring(0, 8)}",
             Description = "OpenAI Provider",
-            Website = "https://openai.com"
+            Website = "https://openai.com",
+            BaseUrl = "https://api.openai.com"
         };
 
         var providerResponse = await httpClient.PostAsJsonAsync("/api/aiModelProvider", providerDto);
@@ -200,7 +202,8 @@ public class AIModelInfoTests
         {
             Name = $"Multi_{Guid.NewGuid().ToString().Substring(0, 8)}",
             Description = "Multi-Model Provider",
-            Website = "https://multi.com"
+            Website = "https://multi.com",
+            BaseUrl = "https://api.multi.com"
         };
 
         var providerResponse = await httpClient.PostAsJsonAsync("/api/aiModelProvider", providerDto);
@@ -279,7 +282,8 @@ public class AIModelInfoTests
         {
             Name = $"Enabled_{Guid.NewGuid().ToString().Substring(0, 8)}",
             Description = "Enabled Provider",
-            Website = "https://enabled.com"
+            Website = "https://enabled.com",
+            BaseUrl = "https://api.enabled.com"
         };
 
         var providerResponse = await httpClient.PostAsJsonAsync("/api/aiModelProvider", providerDto);

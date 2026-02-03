@@ -23,7 +23,8 @@ public class AIModelProviderTests
         {
             Name = $"Test Provider {Guid.NewGuid().ToString().Substring(0, 8)}",
             Description = "这是一个测试模型提供商",
-            Website = "https://openai.com"
+            Website = "https://openai.com",
+            BaseUrl = "https://api.openai.com"
         };
 
         var addResponse = await httpClient.PostAsJsonAsync("/api/aimodelprovider", addDto);
@@ -108,7 +109,8 @@ public class AIModelProviderTests
             {
                 Name = $"Provider {providerNames[i]} {Guid.NewGuid().ToString().Substring(0, 8)}",
                 Description = $"AI模型提供商: {providerNames[i]}",
-                Website = $"https://{providerNames[i].ToLower()}.com"
+                Website = $"https://{providerNames[i].ToLower()}.com",
+                BaseUrl = $"https://api.{providerNames[i].ToLower()}.com"
             };
 
             var response = await httpClient.PostAsJsonAsync("/api/aimodelprovider", addDto);

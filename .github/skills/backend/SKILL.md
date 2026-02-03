@@ -32,6 +32,14 @@ src/
 - Shared constants live in src/Definition/Share/Constants; module-specific constants stay in their module/service.
 - Extend AppConst via extension methods in Share/Constants (e.g., AppExtensions) rather than modifying base constants.
 
+
+### 多租户
+
+架构支持多租户，也支持单租户，从AppHost的`appsettings.Development.json`配置中，可以知道当前是单租户还是多租户模式。
+
+如果是单租户模式，tenantId默认为Guid.Empty。
+
+
 ### 模块依赖层次（从下到上）
 
 1. **Entity** → 定义数据模型

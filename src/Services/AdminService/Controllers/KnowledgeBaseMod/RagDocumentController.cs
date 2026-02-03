@@ -2,6 +2,7 @@ using Entity.KnowledgeBaseMod;
 using KnowledgeBaseMod.Managers;
 using KnowledgeBaseMod.Models.RagDocumentDtos;
 using KnowledgeBaseMod.Services;
+using Share.Models;
 
 namespace AdminService.Controllers.KnowledgeBaseMod;
 
@@ -13,7 +14,7 @@ public class RagDocumentController(
     IUserContext user,
     ILogger<RagDocumentController> logger,
     RagDocumentManager manager,
-    BackgroundParsingService backgroundParsingService
+    NatsRagMessagePublisher messagePublisher
 ) : RestControllerBase<RagDocumentManager>(localizer, manager, user, logger)
 {
     [HttpPost("filter")]
@@ -65,8 +66,20 @@ public class RagDocumentController(
             return BadRequest(new { error = "Invalid tenant ID" });
         }
 
-        // 触发后台解析
-        await backgroundParsingService.EnqueueDocumentAsync(id, _user.TenantId, cancellationToken);
+        // 发布消息到 NATS 队列，由 FileProcessorService 异步处理
+        var message = new RagIngestionMessage
+        {
+            DocumentId = id,
+            TenantId = _user.TenantId,
+            CollectionId = document.CollectionId,
+            FilePath = document.FilePath ?? string.Empty,
+            ContentType = document.ContentType ?? "text/plain",
+            DocumentName = document.Name ?? string.Empty,
+            FileName = document.FileName ?? string.Empty,
+            StorageType = document.StorageType
+        };
+        
+        await messagePublisher.PublishAsync(message, cancellationToken);
         
         return Ok(new { message = "Document parsing triggered successfully" });
     }
