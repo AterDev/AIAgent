@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EntityFramework.Migrations
 {
     [DbContext(typeof(DefaultDbContext))]
-    [Migration("20260202063245_Init")]
+    [Migration("20260203100703_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -580,6 +580,9 @@ namespace EntityFramework.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("StorageType")
                         .HasColumnType("integer");
 
                     b.PrimitiveCollection<List<string>>("Tags")

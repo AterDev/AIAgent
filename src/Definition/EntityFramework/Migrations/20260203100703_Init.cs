@@ -501,6 +501,7 @@ namespace EntityFramework.Migrations
                     FileName = table.Column<string>(type: "character varying(260)", maxLength: 260, nullable: false),
                     FilePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     ContentType = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    StorageType = table.Column<int>(type: "integer", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     RetryCount = table.Column<int>(type: "integer", nullable: false),
                     Tags = table.Column<List<string>>(type: "text[]", nullable: false),

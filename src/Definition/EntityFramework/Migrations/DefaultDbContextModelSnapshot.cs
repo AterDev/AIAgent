@@ -580,9 +580,7 @@ namespace EntityFramework.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("StorageType")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0);
+                        .HasColumnType("integer");
 
                     b.PrimitiveCollection<List<string>>("Tags")
                         .IsRequired()
