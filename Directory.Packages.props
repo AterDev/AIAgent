@@ -27,7 +27,8 @@
 		<PackageVersion Include="EFCore.BulkExtensions.SqlServer" Version="10.0.0" />
 		<PackageVersion Include="Microsoft.AspNetCore.Authentication.Google" Version="10.0.2" />
 		<PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.2" />
-		<PackageVersion Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="10.0.2" />
+		<PackageVersion Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount"
+			Version="10.0.2" />
 		<PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.2" />
 		<PackageVersion Include="Microsoft.AspNetCore.SpaProxy" Version="10.0.2" />
 		<PackageVersion Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.1.0" />
@@ -67,11 +68,17 @@
 		<PackageVersion Include="NATS.Client.JetStream" Version="2.7.2-preview.2" />
 		<PackageVersion Include="SkiaSharp" Version="3.119.1" />
 		<PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.1" />
+
 		<PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
 		<!-- Microsoft Agent Framework -->
 		<PackageVersion Include="Microsoft.Agents.AI.Workflows" Version="1.0.0-preview.260128.1" />
 		<PackageVersion Include="Microsoft.Extensions.AI.Abstractions" Version="10.2.0" />
 		<PackageVersion Include="Microsoft.Extensions.AI.OpenAI" Version="10.2.0-preview.1.26063.2" />
 		<PackageVersion Include="OpenAI" Version="2.8.0" />
+
+		<!-- only for test  -->
+		<PackageVersion Include="DocumentFormat.OpenXml" Version="3.2.0" />
+		<PackageVersion Include="Tesseract" Version="5.2.0" />
+		<PackageVersion Include="UglyToad.PdfPig" Version="1.7.0-custom-5" />
 	</ItemGroup>
 </Project>

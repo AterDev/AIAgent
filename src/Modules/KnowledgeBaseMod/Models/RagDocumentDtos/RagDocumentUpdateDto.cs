@@ -16,18 +16,18 @@ public class RagDocumentUpdateDto
     public string? FilePath { get; set; }
 
     [MaxLength(100)]
-    public string? ContentType { get; set; }
+    public string? FileType { get; set; }
 
-    public StorageType? StorageType { get; set; }
+    /// <summary>
+    /// 存储服务商ID
+    /// </summary>
+    public Guid? StorageProviderId { get; set; }
 
     public RagDocumentStatus? Status { get; set; }
 
     public List<string>? Tags { get; set; }
 
     public List<string>? Roles { get; set; }
-
-    [MaxLength(500)]
-    public string? SourceUrl { get; set; }
 
     public int? ChunkCount { get; set; }
 

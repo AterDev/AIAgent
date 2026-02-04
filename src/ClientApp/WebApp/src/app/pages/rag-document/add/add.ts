@@ -53,23 +53,19 @@ export class RagDocumentAdd implements OnInit {
       collectionId: [null, [Validators.required]],
       name: [null, [Validators.required, Validators.maxLength(200)]],
       fileName: [null, [Validators.maxLength(260)]],
-      contentType: [null, [Validators.maxLength(100)]],
       status: [RagDocumentStatus.Pending, [Validators.required]],
       tags: [[], []],
       roles: [[], []],
-      sourceUrl: [null, [Validators.maxLength(500)]],
-      filePath: [null, []]  // 预留文件路径字段
+      filePath: [null, []]  // 预留文件路径字段，由上传自动填充
     });
   }
 
   get collectionId() { return this.form.get('collectionId') as FormControl; }
   get name() { return this.form.get('name') as FormControl; }
   get fileName() { return this.form.get('fileName') as FormControl; }
-  get contentType() { return this.form.get('contentType') as FormControl; }
   get status() { return this.form.get('status') as FormControl; }
   get tags() { return this.form.get('tags') as FormControl; }
   get roles() { return this.form.get('roles') as FormControl; }
-  get sourceUrl() { return this.form.get('sourceUrl') as FormControl; }
   get filePath() { return this.form.get('filePath') as FormControl; }
 
   private loadCollections(): void {

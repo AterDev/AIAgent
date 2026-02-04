@@ -28,6 +28,7 @@ public class AIAgent : EntityBase
     /// <summary>
     /// Agent 的角色设定（System Prompt）
     /// </summary>
+    [MaxLength(5000)]
     public string SystemPrompt { get; set; } = string.Empty;
 
     /// <summary>

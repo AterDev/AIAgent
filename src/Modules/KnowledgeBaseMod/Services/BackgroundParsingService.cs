@@ -86,10 +86,10 @@ public class BackgroundParsingService(
                 TenantId = tenantId,
                 CollectionId = collectionId ?? document.CollectionId,
                 FilePath = document.FilePath ?? string.Empty,
-                ContentType = document.ContentType ?? "text/plain",
+                FileType = document.FileType ?? "txt",
                 DocumentName = document.Name,
                 FileName = document.FileName,
-                StorageType = document.StorageType
+                StorageProviderId = document.StorageProviderId
             };
 
             // Publish to NATS if available; otherwise rely on polling mechanism

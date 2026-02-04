@@ -125,7 +125,8 @@ export const I18N_KEYS = {
     "systemRole": "menu.systemRole",
     "systemUser": "menu.systemUser",
     "systemLogs": "menu.systemLogs",
-    "systemConfig": "menu.systemConfig"
+    "systemConfig": "menu.systemConfig",
+    "storageProvider": "menu.storageProvider"
   },
   "application": {
     "title": "application.title",
@@ -237,7 +238,22 @@ export const I18N_KEYS = {
     "tokenCount": "ragDocument.tokenCount",
     "roles": "ragDocument.roles",
     "tags": "ragDocument.tags",
-    "triggerParseConfirm": "ragDocument.triggerParseConfirm"
+    "triggerParseConfirm": "ragDocument.triggerParseConfirm",
+    "upload": {
+      "selectFile": "ragDocument.upload.selectFile",
+      "dragHint": "ragDocument.upload.dragHint",
+      "uploading": "ragDocument.upload.uploading",
+      "uploadSuccess": "ragDocument.upload.uploadSuccess",
+      "uploadFailed": "ragDocument.upload.uploadFailed",
+      "supportedFormats": "ragDocument.upload.supportedFormats",
+      "maxFileSize": "ragDocument.upload.maxFileSize"
+    },
+    "validation": {
+      "fileTypeNotSupported": "ragDocument.validation.fileTypeNotSupported",
+      "fileTooLarge": "ragDocument.validation.fileTooLarge",
+      "fileRequired": "ragDocument.validation.fileRequired",
+      "invalidFileName": "ragDocument.validation.invalidFileName"
+    }
   },
   "mcpTool": {
     "title": "mcpTool.title",
@@ -311,6 +327,19 @@ export const I18N_KEYS = {
     "isSystem": "systemConfig.isSystem",
     "groupName": "systemConfig.groupName",
     "valid": "systemConfig.valid"
+  },
+  "storageProvider": {
+    "title": "storageProvider.title",
+    "name": "storageProvider.name",
+    "isCloud": "storageProvider.isCloud",
+    "path": "storageProvider.path",
+    "endpoint": "storageProvider.endpoint",
+    "accessKeyId": "storageProvider.accessKeyId",
+    "accessKeySecret": "storageProvider.accessKeySecret",
+    "bucketName": "storageProvider.bucketName",
+    "region": "storageProvider.region",
+    "isActive": "storageProvider.isActive",
+    "activate": "storageProvider.activate"
   },
   "modelDebug": {
     "title": "modelDebug.title",

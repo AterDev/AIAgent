@@ -1,6 +1,7 @@
 global using Entity.SystemMod;
 global using EntityFramework.AppDbContext;
 global using EntityFramework.AppDbFactory;
+global using Microsoft.AspNetCore.Hosting;
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.DependencyInjection;

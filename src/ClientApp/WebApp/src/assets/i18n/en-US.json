@@ -126,7 +126,8 @@
     "systemRole": "Role",
     "systemUser": "Account",
     "systemLogs": "Logs",
-    "systemConfig": "Settings"
+    "systemConfig": "Settings",
+    "storageProvider": "Storage Provider"
   },
   "application": {
     "title": "Application",
@@ -238,7 +239,22 @@
     "tokenCount": "Token Count",
     "roles": "Roles",
     "tags": "Tags",
-    "triggerParseConfirm": "Are you sure you want to trigger parsing for this document?"
+    "triggerParseConfirm": "Are you sure you want to trigger parsing for this document?",
+    "upload": {
+      "selectFile": "Select File",
+      "dragHint": "or drag file here",
+      "uploading": "Uploading...",
+      "uploadSuccess": "Upload Successful",
+      "uploadFailed": "Upload Failed",
+      "supportedFormats": "Supported Formats",
+      "maxFileSize": "Max File Size"
+    },
+    "validation": {
+      "fileTypeNotSupported": "Unsupported file type: {0}. Supported formats: {1}",
+      "fileTooLarge": "File size exceeds limit. PDF files up to 50MB, others up to 20MB",
+      "fileRequired": "Please select a file",
+      "invalidFileName": "Invalid file name"
+    }
   },
   "mcpTool": {
     "title": "MCP Tool",
@@ -312,6 +328,19 @@
     "isSystem": "System Config",
     "groupName": "Group",
     "valid": "Valid"
+  },
+  "storageProvider": {
+    "title": "Storage Provider",
+    "name": "Name",
+    "isCloud": "Cloud Storage",
+    "path": "Local Path",
+    "endpoint": "Endpoint",
+    "accessKeyId": "Access Key ID",
+    "accessKeySecret": "Access Key Secret",
+    "bucketName": "Bucket Name",
+    "region": "Region",
+    "isActive": "Enabled",
+    "activate": "Activate"
   },
   "modelDebug": {
     "title": "Model Debug",

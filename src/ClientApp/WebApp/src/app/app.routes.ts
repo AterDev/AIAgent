@@ -118,6 +118,13 @@ export const routes: Routes = [
       },
       // SystemMod - 系统管理
       {
+        path: 'storage-provider',
+        children: [
+          { path: '', redirectTo: '/storage-provider/index', pathMatch: 'full' },
+          { path: 'index', loadComponent: () => import('./pages/storage-provider/index/index').then(m => m.StorageProviderIndex) },
+        ]
+      },
+      {
         path: 'system-config',
         children: [
           { path: '', redirectTo: '/system-config/index', pathMatch: 'full' },

@@ -1,5 +1,3 @@
-using Perigon.AspNetCore.Options;
-
 namespace Share.Models;
 
 /// <summary>
@@ -28,9 +26,15 @@ public class RagIngestionMessage
     public required string FilePath { get; set; }
 
     /// <summary>
-    /// 内容类型
+    /// 内容类型（已弃用，为向后兼容保留）
     /// </summary>
-    public required string ContentType { get; set; }
+    [Obsolete("Use FileType instead")]
+    public string? ContentType { get; set; }
+
+    /// <summary>
+    /// 文件类型（后缀，如 pdf、docx、jpg 等）
+    /// </summary>
+    public required string FileType { get; set; }
 
     /// <summary>
     /// 文档名称
@@ -43,7 +47,7 @@ public class RagIngestionMessage
     public string? FileName { get; set; }
 
     /// <summary>
-    /// 存储类型
+    /// 存储服务商ID
     /// </summary>
-    public StorageType StorageType { get; set; }
+    public required Guid StorageProviderId { get; set; }
 }

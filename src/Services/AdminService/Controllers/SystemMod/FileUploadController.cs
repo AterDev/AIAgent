@@ -1,8 +1,6 @@
 using SystemMod.Models.FileUploadDtos;
 using Share.Models;
-using Perigon.AspNetCore.Toolkit.Services;
-using Perigon.AspNetCore.Options;
-using Microsoft.Extensions.Options;
+using SystemMod.Services;
 
 namespace AdminService.Controllers.SystemMod;
 
@@ -13,27 +11,30 @@ namespace AdminService.Controllers.SystemMod;
 [Route("api/[controller]")]
 public class FileUploadController(
     ILogger<FileUploadController> logger,
-    AWSS3Service s3Service,
-    IOptions<ComponentOption> componentOptions,
-    IWebHostEnvironment environment
+    IFileStorageService fileStorageService
 ) : ControllerBase
 {
     private readonly ILogger<FileUploadController> _logger = logger;
-    private readonly AWSS3Service _s3Service = s3Service;
-    private readonly ComponentOption _componentOptions = componentOptions.Value;
-    private readonly IWebHostEnvironment _environment = environment;
+    private readonly IFileStorageService _fileStorageService = fileStorageService;
 
     // File type allowlist
     private static readonly HashSet<string> AllowedExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
-        ".pdf", ".doc", ".docx", ".txt", ".md", ".json", ".xml",
+        ".pdf", ".docx", ".txt", ".md", ".json", ".xml",
         ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp",
         ".xls", ".xlsx", ".csv",
         ".zip", ".rar", ".7z"
     };
 
+    // File size limits: PDF 50MB, others 20MB
+    private static readonly Dictionary<string, long> FileSizeLimits = new(StringComparer.OrdinalIgnoreCase)
+    {
+        { ".pdf", 50 * 1024 * 1024 },     // 50 MB for PDF
+        { "*", 20 * 1024 * 1024 }         // 20 MB for others (default)
+    };
+
     /// <summary>
-    /// 上传文件到 S3 对象存储或本地存储
+    /// 上传文件到存储服务商配置的存储位置
     /// </summary>
     [HttpPost("upload")]
     [Consumes("multipart/form-data")]
@@ -57,58 +58,36 @@ public class FileUploadController(
                 return BadRequest(new { error = $"File type '{extension}' is not allowed" });
             }
 
+            // Validate file size based on type
+            var maxSize = FileSizeLimits.TryGetValue(extension, out var size) ? size : FileSizeLimits["*"];
+            if (request.File.Length > maxSize)
+            {
+                var maxSizeMB = maxSize / (1024 * 1024);
+                var actualSizeMB = request.File.Length / (1024 * 1024);
+                return BadRequest(new { 
+                    error = $"File size ({actualSizeMB}MB) exceeds maximum limit ({maxSizeMB}MB) for {extension.TrimStart('.')} files" 
+                });
+            }
+
             // Validate and sanitize category parameter to prevent path traversal
             var category = SanitizeCategory(request.Category);
 
-            // Use requested StorageType or configuration default
-            var storageType = request.StorageType ?? _componentOptions.StorageType;
+            using var stream = request.File.OpenReadStream();
+            var result = await _fileStorageService.UploadAsync(stream, request.File.FileName, category, cancellationToken);
 
-            // Generate safe filename using only GUID and validated extension
-            var safeFileName = $"{Guid.NewGuid()}{extension}";
-            
-            string filePath;
-            string? url = null;
-
-            if (storageType == StorageType.Local)
-            {
-                // Local storage
-                var uploadPath = Path.Combine(_environment.ContentRootPath, "uploads", category, DateTime.Now.ToString("yyyy/MM/dd"));
-                Directory.CreateDirectory(uploadPath);
-
-                var fullPath = Path.Combine(uploadPath, safeFileName);
-                using (var stream = new FileStream(fullPath, FileMode.Create))
-                {
-                    await request.File.CopyToAsync(stream, cancellationToken);
-                }
-
-                // Store relative path
-                filePath = Path.Combine("uploads", category, DateTime.Now.ToString("yyyy/MM/dd"), safeFileName).Replace("\\", "/");
-                _logger.LogInformation("File uploaded to local storage: {FilePath}", filePath);
-            }
-            else
-            {
-                // S3 storage
-                var objectKey = $"{category}/{DateTime.Now:yyyy/MM/dd}/{safeFileName}";
-
-                using var stream = request.File.OpenReadStream();
-                var uploadSuccess = await _s3Service.UploadAsync(objectKey, stream, cancellationToken);
-
-                if (!uploadSuccess)
-                {
-                    return BadRequest(new { error = "Failed to upload file to storage" });
-                }
-
-                filePath = objectKey;
-                url = _s3Service.GetSignedUrl(objectKey, expiresSeconds: 86400); // 24 hour validity
-                _logger.LogInformation("File uploaded to S3: {ObjectKey}", objectKey);
-            }
+            _logger.LogInformation("File uploaded: {FilePath}, IsCloud: {IsCloud}", result.FilePath, result.IsCloud);
 
             return Ok(new UploadResult
             {
-                FilePath = filePath,
-                Url = url,
-                StorageType = storageType
+                FilePath = result.FilePath,
+                Url = result.Url,
+                StorageProviderId = result.StorageProviderId
             });
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(ex, "Storage provider not configured");
+            return BadRequest(new { error = ex.Message });
         }
         catch (Exception ex)
         {
@@ -123,7 +102,7 @@ public class FileUploadController(
     [HttpDelete("delete")]
     public async Task<ActionResult> DeleteFileAsync(
         [FromQuery] string filePath,
-        [FromQuery] StorageType? storageType = null,
+        [FromQuery] bool? isCloud = null,
         CancellationToken cancellationToken = default
     )
     {
@@ -134,48 +113,17 @@ public class FileUploadController(
                 return BadRequest(new { error = "File path is required" });
             }
 
-            var actualStorageType = storageType ?? _componentOptions.StorageType;
+            // 默认根据路径格式判断是否为云存储
+            var actualIsCloud = isCloud ?? !filePath.StartsWith("uploads/", StringComparison.OrdinalIgnoreCase);
 
-            if (actualStorageType == StorageType.Local)
+            var success = await _fileStorageService.DeleteAsync(filePath, actualIsCloud, cancellationToken);
+
+            if (!success)
             {
-                // Local storage
-                // Normalize paths for case-insensitive comparison on all platforms
-                var uploadsBasePath = Path.GetFullPath(Path.Combine(_environment.ContentRootPath, "uploads"));
-                var fullPath = Path.GetFullPath(Path.Combine(_environment.ContentRootPath, filePath));
-                
-                // Security check: ensure resolved path is within uploads directory
-                // Use case-insensitive comparison to work on both case-sensitive and case-insensitive filesystems
-                if (!fullPath.StartsWith(uploadsBasePath + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) &&
-                    !fullPath.Equals(uploadsBasePath, StringComparison.OrdinalIgnoreCase))
-                {
-                    _logger.LogWarning("Attempted to delete file outside uploads directory: {FilePath}", filePath);
-                    return BadRequest(new { error = "Invalid file path" });
-                }
-                
-                if (System.IO.File.Exists(fullPath))
-                {
-                    System.IO.File.Delete(fullPath);
-                    _logger.LogInformation("File deleted from local storage: {FilePath}", filePath);
-                    return Ok(new { message = "File deleted successfully" });
-                }
-                else
-                {
-                    return NotFound(new { error = "File not found" });
-                }
+                return NotFound(new { error = "File not found or failed to delete" });
             }
-            else
-            {
-                // S3 storage
-                var deleteSuccess = await _s3Service.DeleteAsync(filePath, cancellationToken);
 
-                if (!deleteSuccess)
-                {
-                    return NotFound(new { error = "File not found or failed to delete" });
-                }
-
-                _logger.LogInformation("File deleted from S3: {ObjectKey}", filePath);
-                return Ok(new { message = "File deleted successfully" });
-            }
+            return Ok(new { message = "File deleted successfully" });
         }
         catch (Exception ex)
         {

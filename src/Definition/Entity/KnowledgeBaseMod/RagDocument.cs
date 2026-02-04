@@ -20,10 +20,16 @@ public class RagDocument : EntityBase
     [MaxLength(500)]
     public string FilePath { get; set; } = string.Empty;
 
+    /// <summary>
+    /// 文件类型（后缀，如 pdf、docx、txt 等）
+    /// </summary>
     [MaxLength(100)]
-    public string ContentType { get; set; } = string.Empty;
+    public string FileType { get; set; } = string.Empty;
 
-    public StorageType StorageType { get; set; }
+    /// <summary>
+    /// 存储服务商ID
+    /// </summary>
+    public Guid StorageProviderId { get; set; }
 
     public RagDocumentStatus Status { get; set; }
 

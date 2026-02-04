@@ -33,6 +33,7 @@ export class SystemConfigAdd implements OnInit {
   }
 
   ngOnInit(): void {
+    this.isLoading.set(false);
   }
 
   buildForm() {

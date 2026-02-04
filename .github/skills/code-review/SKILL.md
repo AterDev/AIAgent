@@ -15,12 +15,6 @@ description: 全栈代码审查规范（质量/性能/安全/架构/风格）。
 ### 1. 代码正确性审查
 
 #### 后端审查要点
-- **实体设计**: 
-  - 是否继承 `EntityBase`？
-  - 字符串是否设置 `[MaxLength]`？
-  - decimal 是否设置精度（如 `[Column(TypeName = "decimal(18,2)")]`）？
-  - 枚举是否有 `[Description]` 注解？
-  - 外键关系是否合理？
   
 - **Manager 层**:
   - 业务逻辑是否在 Manager 中而非 Controller？
@@ -30,8 +24,6 @@ description: 全栈代码审查规范（质量/性能/安全/架构/风格）。
   
 - **Controller 层**:
   - 是否继承 `RestControllerBase`？
-  - 方法名是否遵循 RESTful 约定（`AddAsync`/`UpdateAsync`/`DeleteAsync`/`GetDetailAsync`/`FilterAsync`）？
-  - 是否返回 `ActionResult<T>`？
   - 是否避免直接访问 `DbContext`？
   - 错误处理是否使用 `Problem()` / `NotFound()`？
   - 是否避免使用 `ApiResponse` 包装器？
@@ -42,19 +34,11 @@ description: 全栈代码审查规范（质量/性能/安全/架构/风格）。
   - 事务操作是否使用 `ExecuteInTransactionAsync`？
   
 #### 前端审查要点
+
 - **组件设计**:
-  - 是否使用 standalone 组件（避免 `NgModule`）？
   - 是否使用 Angular Material 组件库？
   - 状态管理是否优先使用 signals？
   - 订阅是否正确清理（使用 `takeUntilDestroyed` 或 async pipe）？
-  
-- **服务层**:
-  - API 调用是否通过服务而非直接在组件中？
-  - 端点配置是否使用环境变量而非硬编码？
-  
-- **路由和导航**:
-  - 路由是否懒加载？
-  - 路由守卫是否正确配置（`auth.guard.ts`）？
   
 - **国际化**:
   - 字符串是否使用 i18n 而非硬编码？
@@ -71,7 +55,7 @@ description: 全栈代码审查规范（质量/性能/安全/架构/风格）。
 - **API 设计**:
   - 列表接口是否返回分页数据而非全量数据？
   - DTO 是否只包含必要字段（避免过度传输）？
-  - 是否存在冗余的 HTTP 请求？
+  - 是否存在冗余的 HTTP 请求？ 
   
 - **前端性能**:
   - 组件是否存在不必要的重绘？
@@ -94,10 +78,6 @@ description: 全栈代码审查规范（质量/性能/安全/架构/风格）。
   - 错误信息是否包含内部实现细节？
   
 ### 4. 架构和设计审查
-
-- **模块职责**:
-  - Entity/DTO/Manager/Controller 的职责是否清晰？
-  - 是否存在跨层调用（如 Controller 直接访问 DbContext）？
   
 - **依赖关系**:
   - 模块之间的依赖是否合理？
@@ -106,22 +86,12 @@ description: 全栈代码审查规范（质量/性能/安全/架构/风格）。
   
 - **代码复用**:
   - 是否有重复代码应提取为共享方法？
-  - 是否滥用继承导致紧耦合？
 
 ### 5. 代码风格和可维护性
-
-- **命名规范**:
-  - 变量、方法、类名是否语义清晰？
-  - 是否遵循 C# / TypeScript 命名约定？
   
 - **注释和文档**:
   - 复杂逻辑是否有必要的注释？
-  - 公共 API 是否有 XML 文档注释？
-  
-- **代码结构**:
-  - 是否使用 file-scoped namespace？
-  - 是否使用 primary constructors？
-  - 是否恰当使用 collection expressions？
+  - 类，属性，公共 API 是否有 XML 文档注释？
   
 - **错误处理**:
   - 异常是否正确捕获和处理？
@@ -150,7 +120,6 @@ description: 全栈代码审查规范（质量/性能/安全/架构/风格）。
   ```csharp
   // 修复后的代码示例
   ```
-- **参考**: [相关规范文档链接]
 
 ---
 
@@ -164,17 +133,8 @@ description: 全栈代码审查规范（质量/性能/安全/架构/风格）。
 
 ---
 
-## ✅ 良好实践
-
-- [值得肯定的代码实现]
-- [遵循规范的示例]
-
----
-
 ## 📚 参考资料
 
-- [Backend Skill](.github/skills/backend/SKILL.md)
-- [Angular Skill](.github/skills/angular/SKILL.md)
 - [Perigon Best Practices](https://dusi.dev/docs/Perigon/en-US/10.0/Best-Practices/Overview.html)
 
 ## 审查原则
@@ -185,10 +145,3 @@ description: 全栈代码审查规范（质量/性能/安全/架构/风格）。
 4. **引用规范**: 每个问题都应引用相关 Skill 文档或官方文档
 5. **保持客观**: 避免主观臆断，基于事实和规范进行评审
 6. **建设性反馈**: 肯定好的实践，鼓励持续改进
-
-## 禁止事项
-
-- ❌ 不要重写整个文件，仅指出需要修改的部分
-- ❌ 不要引入新的模式，遵循现有 Perigon 约定
-- ❌ 不要降低审查标准，正确性第一
-- ❌ 不要在未理解业务意图的情况下批准代码

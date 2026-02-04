@@ -17,17 +17,9 @@ public class RagDocumentAddDto
     [MaxLength(500)]
     public string? FilePath { get; set; }
 
-    [MaxLength(100)]
-    public string? ContentType { get; set; }
-
-    public StorageType? StorageType { get; set; }
-
     public RagDocumentStatus Status { get; set; }
 
     public List<string>? Tags { get; set; }
 
     public List<string>? Roles { get; set; }
-
-    [MaxLength(500)]
-    public string? SourceUrl { get; set; }
 }

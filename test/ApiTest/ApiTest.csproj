@@ -9,6 +9,8 @@
 
 	<ItemGroup>
 		<PackageReference Include="Aspire.Hosting.Testing" />
+		<PackageReference Include="DocumentFormat.OpenXml" />
+		<PackageReference Include="SkiaSharp" />
 		<PackageReference Include="TUnit" />
 	</ItemGroup>
 

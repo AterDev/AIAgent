@@ -44,9 +44,10 @@ public class RagDocumentController(
             TenantId = document.TenantId,
             CollectionId = document.CollectionId,
             FilePath = document.FilePath,
-            ContentType = document.ContentType,
+            FileType = document.FileType,
             DocumentName = document.Name,
-            FileName = document.FileName
+            FileName = document.FileName,
+            StorageProviderId = document.StorageProviderId
         };
 
         await messagePublisher.PublishAsync(message, cancellationToken);
@@ -78,7 +79,7 @@ public class RagDocumentController(
 
             // 确定文档格式
             var format = GetDocumentFormat(request.FileName);
-            document.ContentType = System.IO.Path.GetExtension(request.FileName).TrimStart('.');
+            document.FileType = System.IO.Path.GetExtension(request.FileName).TrimStart('.');
             document.FilePath = request.FilePath;
             
             // 解析文档

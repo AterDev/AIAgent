@@ -172,11 +172,19 @@
         "menuType": 0,
         "children": [
             {
+                "name": "menu.storageProvider",
+                "path": "/storage-provider",
+                "accessCode": "storage-provider",
+                "icon": "cloud_upload",
+                "sort": 0,
+                "menuType": 0
+            },
+            {
                 "name": "menu.systemConfig",
                 "path": "/system-config",
                 "accessCode": "system-config",
                 "icon": "settings",
-                "sort": 0,
+                "sort": 1,
                 "menuType": 0
             }
         ]

@@ -41,8 +41,8 @@
       </mat-form-field>
 
       <div class="d-flex flex-column gap-2">
-        <label class="font-weight-bold">Upload Document</label>
-        <input #fileInput type="file" (change)="onFileSelected($event)" [accept]=" acceptFilesTypes "
+        <label class="font-weight-bold">Document File</label>
+        <input #fileInput type="file" (change)="onFileSelected($event)" [accept]="acceptFilesTypes"
           style="display: none" />
         <div class="d-flex gap-2">
           <button mat-stroked-button type="button" (click)="fileInput.click()" [disabled]="isUploading()">
@@ -56,25 +56,9 @@
         <small class="text-muted">Selected: {{ selectedFile.name }}</small>
         }
         @if (filePath.value) {
-        <small class="text-success">Upload Success: {{ filePath.value }}</small>
+        <small class="text-success">Upload completed: {{ filePath.value }}</small>
         }
       </div>
-
-      <mat-form-field appearance="outline">
-        <mat-label>{{ i18nKeys.ragDocument.contentType | translate }}</mat-label>
-        <input matInput type="text" [formControl]="contentType" />
-        @if (contentType.invalid) {
-        <mat-error>{{ getValidatorMessage(contentType) }}</mat-error>
-        }
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>{{ i18nKeys.ragDocument.sourceUrl | translate }}</mat-label>
-        <input matInput type="text" [formControl]="sourceUrl" />
-        @if (sourceUrl.invalid) {
-        <mat-error>{{ getValidatorMessage(sourceUrl) }}</mat-error>
-        }
-      </mat-form-field>
 
       <div class="d-flex justify-content-end gap-2">
         <button mat-button type="button" (click)="close(false)">{{ i18nKeys.common.cancel | translate }}</button>

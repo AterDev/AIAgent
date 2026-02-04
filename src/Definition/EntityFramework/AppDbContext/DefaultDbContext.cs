@@ -1,4 +1,5 @@
 using Entity.AIAgentMod;
+using Entity.CoreMod;
 using Entity.KnowledgeBaseMod;
 using Entity.McpMod;
 using Entity.ModelMod;
@@ -51,6 +52,12 @@ public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options
 
     #endregion
 
+    #region CoreMod
+
+    public DbSet<AIPrompt> AIPrompts { get; set; }
+
+    #endregion
+
     #region KnowledgeBaseMod
 
     public DbSet<RagCollection> RagCollections { get; set; }
@@ -60,6 +67,8 @@ public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options
     public DbSet<RagChunk> RagChunks { get; set; }
 
     public DbSet<DocumentParsingResult> DocumentParsingResults { get; set; }
+
+    public DbSet<RagAgentConfig> RagAgentConfigs { get; set; }
 
     #endregion
 
@@ -84,6 +93,8 @@ public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options
     public DbSet<SystemConfig> SystemConfigs { get; set; }
 
     public DbSet<SystemUser> SystemUsers { get; set; }
+
+    public DbSet<StorageProvider> StorageProviders { get; set; }
 
     #endregion
 

@@ -1,0 +1,84 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ i18nKeys.common.add | translate }} {{ i18nKeys.storageProvider.title | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    @if (isLoading()) {
+      <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+        <mat-spinner></mat-spinner>
+      </div>
+    } @else {
+      <form [formGroup]="form" (ngSubmit)="submit()" class="d-flex flex-column p-2 mt-2 gap-2">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ i18nKeys.storageProvider.name | translate }}</mat-label>
+        <input matInput type="text" [formControl]="name" />
+        @if (name.invalid) {
+          <mat-error>{{ getValidatorMessage(name) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-checkbox [formControl]="isCloud">{{ i18nKeys.storageProvider.isCloud | translate }}</mat-checkbox>
+
+      @if (!isCloud.value) {
+        <mat-form-field appearance="outline">
+          <mat-label>{{ i18nKeys.storageProvider.path | translate }}</mat-label>
+          <input matInput type="text" [formControl]="path" />
+          @if (path.invalid) {
+            <mat-error>{{ getValidatorMessage(path) }}</mat-error>
+          }
+        </mat-form-field>
+      }
+
+      @if (isCloud.value) {
+        <mat-form-field appearance="outline">
+          <mat-label>{{ i18nKeys.storageProvider.endpoint | translate }}</mat-label>
+          <input matInput type="text" [formControl]="endpoint" />
+          @if (endpoint.invalid) {
+            <mat-error>{{ getValidatorMessage(endpoint) }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ i18nKeys.storageProvider.accessKeyId | translate }}</mat-label>
+          <input matInput type="text" [formControl]="accessKeyId" />
+          @if (accessKeyId.invalid) {
+            <mat-error>{{ getValidatorMessage(accessKeyId) }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ i18nKeys.storageProvider.accessKeySecret | translate }}</mat-label>
+          <input matInput type="password" [formControl]="accessKeySecret" />
+          @if (accessKeySecret.invalid) {
+            <mat-error>{{ getValidatorMessage(accessKeySecret) }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ i18nKeys.storageProvider.bucketName | translate }}</mat-label>
+          <input matInput type="text" [formControl]="bucketName" />
+          @if (bucketName.invalid) {
+            <mat-error>{{ getValidatorMessage(bucketName) }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ i18nKeys.storageProvider.region | translate }}</mat-label>
+          <input matInput type="text" [formControl]="region" />
+          @if (region.invalid) {
+            <mat-error>{{ getValidatorMessage(region) }}</mat-error>
+          }
+        </mat-form-field>
+      }
+
+      <mat-checkbox [formControl]="isActive">{{ i18nKeys.storageProvider.isActive | translate }}</mat-checkbox>
+
+      <div class="d-flex justify-content-end gap-2">
+        <button mat-button type="button" (click)="close(false)">{{ i18nKeys.common.cancel | translate }}</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">{{ i18nKeys.common.save | translate }}</button>
+      </div>
+
+    </form>
+    }
+  </mat-card-content>
+</mat-card>

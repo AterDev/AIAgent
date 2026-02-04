@@ -142,4 +142,131 @@ public class RagDocumentTests
         // 由于是排队操作，应该返回Accepted(202)
         await Assert.That(ingestResponse.StatusCode).IsEqualTo(HttpStatusCode.Accepted);
     }
+
+    /// <summary>
+    /// 测试不支持的文件类型
+    /// </summary>
+    [ClassDataSource<HttpClientDataClass>(Shared = SharedType.PerTestSession)]
+    [Test]
+    public async Task CreateDocumentWithUnsupportedFileType_ShouldFail(HttpClientDataClass httpClientData)
+    {
+        var httpClient = httpClientData.HttpClient;
+
+        // 创建知识库
+        var collectionAddDto = new RagCollectionAddDto
+        {
+            Name = $"Collection {Guid.NewGuid().ToString().Substring(0, 8)}",
+            IsEnabled = true
+        };
+
+        var collectionResponse = await httpClient.PostAsJsonAsync("/api/ragcollection", collectionAddDto);
+        var collection = await collectionResponse.Content.ReadFromJsonAsync<RagCollection>();
+        var collectionId = collection!.Id;
+
+        // 尝试创建包含不支持的文件类型的文档 (jpg)
+        var addDto = new RagDocumentAddDto
+        {
+            Name = $"Image Document {Guid.NewGuid().ToString().Substring(0, 8)}",
+            FileName = "photo.jpg",  // jpg 不支持（需要 OCR）
+            CollectionId = collectionId
+        };
+
+        var response = await httpClient.PostAsJsonAsync("/api/ragdocument", addDto);
+        // 应该返回 BadRequest 或其他错误响应
+        await Assert.That(response.IsSuccessStatusCode).IsFalse();
+    }
+
+    /// <summary>
+    /// 测试文件大小限制 - PDF 50MB
+    /// </summary>
+    [ClassDataSource<HttpClientDataClass>(Shared = SharedType.PerTestSession)]
+    [Test]
+    public async Task UploadPdfExceeding50MB_ShouldFail(HttpClientDataClass httpClientData)
+    {
+        var httpClient = httpClientData.HttpClient;
+
+        using var content = new MultipartFormDataContent();
+        
+        // 创建一个 55MB 的虚拟 PDF 文件内容
+        var largeBuffer = new byte[55 * 1024 * 1024];
+        new Random().NextBytes(largeBuffer);
+        
+        using var fileStream = new MemoryStream(largeBuffer);
+        content.Add(new StreamContent(fileStream), "file", "large_file.pdf");
+
+        var response = await httpClient.PostAsync("/api/fileupload/upload", content);
+        
+        // 应该返回 BadRequest，因为超过了 50MB 限制
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+    }
+
+    /// <summary>
+    /// 测试文件大小限制 - 其他文件 20MB
+    /// </summary>
+    [ClassDataSource<HttpClientDataClass>(Shared = SharedType.PerTestSession)]
+    [Test]
+    public async Task UploadDocxExceeding20MB_ShouldFail(HttpClientDataClass httpClientData)
+    {
+        var httpClient = httpClientData.HttpClient;
+
+        using var content = new MultipartFormDataContent();
+        
+        // 创建一个 25MB 的虚拟 DOCX 文件内容
+        var largeBuffer = new byte[25 * 1024 * 1024];
+        new Random().NextBytes(largeBuffer);
+        
+        using var fileStream = new MemoryStream(largeBuffer);
+        content.Add(new StreamContent(fileStream), "file", "large_document.docx");
+
+        var response = await httpClient.PostAsync("/api/fileupload/upload", content);
+        
+        // 应该返回 BadRequest，因为超过了 20MB 限制
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+    }
+
+    /// <summary>
+    /// 测试支持的文件类型 - PDF
+    /// </summary>
+    [ClassDataSource<HttpClientDataClass>(Shared = SharedType.PerTestSession)]
+    [Test]
+    public async Task UploadValidPdfFile_ShouldSucceed(HttpClientDataClass httpClientData)
+    {
+        var httpClient = httpClientData.HttpClient;
+
+        using var content = new MultipartFormDataContent();
+        
+        // 创建一个小的有效 PDF 文件内容
+        var pdfContent = "%PDF-1.4\n%简单的 PDF 文件内容";
+        using var fileStream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(pdfContent));
+        content.Add(new StreamContent(fileStream), "file", "test_document.pdf");
+
+        var response = await httpClient.PostAsync("/api/fileupload/upload", content);
+        
+        // 应该成功上传
+        await Assert.That(response.IsSuccessStatusCode).IsTrue();
+        
+        var result = await response.Content.ReadFromJsonAsync<dynamic>();
+        await Assert.That((object?)result).IsNotNull();
+    }
+
+    /// <summary>
+    /// 测试不支持的上传文件类型
+    /// </summary>
+    [ClassDataSource<HttpClientDataClass>(Shared = SharedType.PerTestSession)]
+    [Test]
+    public async Task UploadInvalidFileType_ShouldFail(HttpClientDataClass httpClientData)
+    {
+        var httpClient = httpClientData.HttpClient;
+
+        using var content = new MultipartFormDataContent();
+        
+        // 创建一个 .exe 文件（不允许）
+        using var fileStream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes("MZ executable"));
+        content.Add(new StreamContent(fileStream), "file", "malware.exe");
+
+        var response = await httpClient.PostAsync("/api/fileupload/upload", content);
+        
+        // 应该返回 BadRequest，因为不支持 .exe 文件
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.BadRequest);
+    }
 }

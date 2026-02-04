@@ -122,7 +122,8 @@
     "systemRole": "角色管理",
     "systemUser": "账号管理",
     "systemLogs": "系统日志",
-    "systemConfig": "系统设置"
+    "systemConfig": "系统设置",
+    "storageProvider": "存储服务商"
   },
   "application": {
     "title": "应用",
@@ -234,7 +235,22 @@
     "tokenCount": "Token数量",
     "roles": "角色",
     "tags": "标签",
-    "triggerParseConfirm": "确定要触发该文档的解析吗？"
+    "triggerParseConfirm": "确定要触发该文档的解析吗？",
+    "upload": {
+      "selectFile": "选择文件",
+      "dragHint": "或者拖拽文件到这里",
+      "uploading": "上传中...",
+      "uploadSuccess": "上传成功",
+      "uploadFailed": "上传失败",
+      "supportedFormats": "支持的格式",
+      "maxFileSize": "最大文件大小"
+    },
+    "validation": {
+      "fileTypeNotSupported": "不支持的文件类型：{0}。支持的格式：{1}",
+      "fileTooLarge": "文件大小超出限制。PDF 文件最大 50MB，其他文件最大 20MB",
+      "fileRequired": "请选择文件",
+      "invalidFileName": "文件名无效"
+    }
   },
   "mcpTool": {
     "title": "MCP工具",
@@ -308,6 +324,19 @@
     "isSystem": "系统配置",
     "groupName": "配置组",
     "valid": "有效"
+  },
+  "storageProvider": {
+    "title": "存储服务商",
+    "name": "名称",
+    "isCloud": "云存储",
+    "path": "本地路径",
+    "endpoint": "端点地址",
+    "accessKeyId": "访问密钥ID",
+    "accessKeySecret": "访问密钥密码",
+    "bucketName": "存储桶名称",
+    "region": "存储区域",
+    "isActive": "已启用",
+    "activate": "设为启用"
   },
   "modelDebug": {
     "title": "模型调试",

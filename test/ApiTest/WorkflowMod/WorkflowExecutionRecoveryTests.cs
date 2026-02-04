@@ -12,33 +12,42 @@ public class WorkflowExecutionRecoveryTests
     public async Task WorkflowExecutionStatus_HasExpectedValues()
     {
         // Assert - Verify enum values match original mappings (backward compatible)
-        await Assert.That((int)WorkflowExecutionStatus.Running).IsEqualTo(0);
-        await Assert.That((int)WorkflowExecutionStatus.Completed).IsEqualTo(1);
-        await Assert.That((int)WorkflowExecutionStatus.Failed).IsEqualTo(2);
-        await Assert.That((int)WorkflowExecutionStatus.Canceled).IsEqualTo(3);
-        await Assert.That((int)WorkflowExecutionStatus.Pending).IsEqualTo(4);
-        await Assert.That((int)WorkflowExecutionStatus.Retrying).IsEqualTo(5);
-        await Assert.That((int)WorkflowExecutionStatus.Abandoned).IsEqualTo(6);
+        var values = Enum.GetValues<WorkflowExecutionStatus>()
+            .ToDictionary(v => v, v => (int)v);
+
+        await Assert.That(values[WorkflowExecutionStatus.Running]).IsEqualTo(0);
+        await Assert.That(values[WorkflowExecutionStatus.Completed]).IsEqualTo(1);
+        await Assert.That(values[WorkflowExecutionStatus.Failed]).IsEqualTo(2);
+        await Assert.That(values[WorkflowExecutionStatus.Canceled]).IsEqualTo(3);
+        await Assert.That(values[WorkflowExecutionStatus.Pending]).IsEqualTo(4);
+        await Assert.That(values[WorkflowExecutionStatus.Retrying]).IsEqualTo(5);
+        await Assert.That(values[WorkflowExecutionStatus.Abandoned]).IsEqualTo(6);
     }
 
     [Test]
     public async Task StepExecutionStatus_HasExpectedValues()
     {
         // Assert - Verify enum values exist
-        await Assert.That((int)StepExecutionStatus.Pending).IsEqualTo(1);
-        await Assert.That((int)StepExecutionStatus.Running).IsEqualTo(2);
-        await Assert.That((int)StepExecutionStatus.Completed).IsEqualTo(3);
-        await Assert.That((int)StepExecutionStatus.Failed).IsEqualTo(4);
-        await Assert.That((int)StepExecutionStatus.Retrying).IsEqualTo(5);
-        await Assert.That((int)StepExecutionStatus.Skipped).IsEqualTo(6);
+        var values = Enum.GetValues<StepExecutionStatus>()
+            .ToDictionary(v => v, v => (int)v);
+
+        await Assert.That(values[StepExecutionStatus.Pending]).IsEqualTo(1);
+        await Assert.That(values[StepExecutionStatus.Running]).IsEqualTo(2);
+        await Assert.That(values[StepExecutionStatus.Completed]).IsEqualTo(3);
+        await Assert.That(values[StepExecutionStatus.Failed]).IsEqualTo(4);
+        await Assert.That(values[StepExecutionStatus.Retrying]).IsEqualTo(5);
+        await Assert.That(values[StepExecutionStatus.Skipped]).IsEqualTo(6);
     }
 
     [Test]
     public async Task WorkflowExecutionMode_HasExpectedValues()
     {
         // Assert - Verify enum values exist
-        await Assert.That((int)WorkflowExecutionMode.Normal).IsEqualTo(0);
-        await Assert.That((int)WorkflowExecutionMode.Resumed).IsEqualTo(1);
+        var values = Enum.GetValues<WorkflowExecutionMode>()
+            .ToDictionary(v => v, v => (int)v);
+
+        await Assert.That(values[WorkflowExecutionMode.Normal]).IsEqualTo(0);
+        await Assert.That(values[WorkflowExecutionMode.Resumed]).IsEqualTo(1);
     }
 
     [ClassDataSource<HttpClientDataClass>(Shared = SharedType.PerTestSession)]

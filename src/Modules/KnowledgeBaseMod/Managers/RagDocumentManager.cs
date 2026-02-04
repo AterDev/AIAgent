@@ -1,4 +1,5 @@
 using KnowledgeBaseMod.Models.RagDocumentDtos;
+using SystemMod.Managers;
 
 namespace KnowledgeBaseMod.Managers;
 
@@ -8,9 +9,24 @@ namespace KnowledgeBaseMod.Managers;
 public class RagDocumentManager(
     TenantDbFactory dbContextFactory,
     ILogger<RagDocumentManager> logger,
-    IUserContext userContext
+    IUserContext userContext,
+    StorageProviderManager storageProviderManager
 ) : ManagerBase<DefaultDbContext, RagDocument>(dbContextFactory, userContext, logger)
 {
+    private readonly StorageProviderManager _storageProviderManager = storageProviderManager;
+
+    /// <summary>
+    /// 支持的文档类型（文件扩展名，不含点）
+    /// </summary>
+    private static readonly HashSet<string> SupportedFileTypes = new(StringComparer.OrdinalIgnoreCase)
+    {
+        // 文本和文档格式
+        "txt", "md", "json", "xml", "csv", "log",
+        // Office 和 PDF
+        "pdf", "docx", "xlsx", "xls", "pptx",
+        // 图片格式（OCR 支持）
+        "jpg", "jpeg", "png"
+    };
     public async Task<PageList<RagDocumentItemDto>> FilterAsync(RagDocumentFilterDto filter)
     {
         Queryable = Queryable
@@ -25,6 +41,35 @@ public class RagDocumentManager(
     public async Task<RagDocument> AddAsync(RagDocumentAddDto dto)
     {
         var entity = dto.MapTo<RagDocument>();
+        
+        // 自动设置活跃的存储服务商
+        var activeProvider = await _storageProviderManager.GetActiveProviderAsync();
+        if (activeProvider == null)
+        {
+            throw new InvalidOperationException("未配置活跃的存储服务商");
+        }
+        entity.StorageProviderId = activeProvider.Id;
+        
+        // 根据文件后缀自动设置FileType及其他元数据
+        if (!string.IsNullOrEmpty(entity.FileName))
+        {
+            var extension = Path.GetExtension(entity.FileName).TrimStart('.').ToLower();
+            
+            // 验证文件类型是否支持
+            if (!SupportedFileTypes.Contains(extension))
+            {
+                throw new BusinessException(
+                    $"Unsupported file type: {extension}. " +
+                    $"Supported formats: {string.Join(", ", SupportedFileTypes.OrderBy(x => x))}");
+            }
+            
+            entity.FileType = extension;
+        }
+        else
+        {
+            throw new BusinessException("FileName is required for document creation");
+        }
+        
         await InsertAsync(entity);
         return entity;
     }

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DocumentFormat.OpenXml" />
+    <PackageReference Include="SkiaSharp" />
+    <PackageReference Include="TUnit" />
+    <PackageReference Include="UglyToad.PdfPig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Definition\Entity\Entity.csproj" />
+    <ProjectReference Include="..\..\src\Modules\KnowledgeBaseMod\KnowledgeBaseMod.csproj" />
+  </ItemGroup>
+</Project>

@@ -24,6 +24,7 @@ public static class ModuleExtensions
     private static IHostApplicationBuilder AddModServices(this IHostApplicationBuilder builder)
     {
         builder.Services.AddScoped<SystemConfigFacade>();
+        builder.Services.AddScoped<IFileStorageService, FileStorageService>();
         return builder;
     }
 

@@ -73,10 +73,10 @@ public class RagDocumentController(
             TenantId = _user.TenantId,
             CollectionId = document.CollectionId,
             FilePath = document.FilePath ?? string.Empty,
-            ContentType = document.ContentType ?? "text/plain",
+            FileType = document.FileType ?? "txt",
             DocumentName = document.Name ?? string.Empty,
             FileName = document.FileName ?? string.Empty,
-            StorageType = document.StorageType
+            StorageProviderId = document.StorageProviderId
         };
         
         await messagePublisher.PublishAsync(message, cancellationToken);

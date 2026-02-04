@@ -1,4 +1,12 @@
+using DocumentFormat.OpenXml.Packaging;
+using DText = DocumentFormat.OpenXml.Drawing.Text;
+using WText = DocumentFormat.OpenXml.Wordprocessing.Text;
 using Perigon.AspNetCore.Toolkit.Services;
+using System.Text;
+using SystemMod.Managers;
+using SystemMod.Services;
+using Tesseract;
+using UglyToad.PdfPig;
 
 namespace KnowledgeBaseMod.Services;
 
@@ -8,10 +16,12 @@ namespace KnowledgeBaseMod.Services;
 /// </summary>
 public class KreuzbergDocumentParser(
     IHttpClientFactory httpClientFactory,
-    FileStorageService fileStorageService,
+    IFileStorageService fileStorageService,
+    StorageProviderManager storageProviderManager,
     ILogger<KreuzbergDocumentParser> logger
 ) : IDocumentParser
 {
+    private readonly StorageProviderManager _storageProviderManager = storageProviderManager;
     public async Task<DocumentParseResult> ParseAsync(
         RagDocument document,
         string? rawContent,
@@ -20,33 +30,67 @@ public class KreuzbergDocumentParser(
         // If raw content is provided, parse it directly as plain text
         if (!string.IsNullOrWhiteSpace(rawContent))
         {
-            return ToResult(rawContent, document.ContentType);
+            return ToResult(rawContent, document.FileType);
         }
 
         byte[] fileBytes;
+        string? localPath = null;
 
         // Priority 1: Load from file path if available
         if (!string.IsNullOrWhiteSpace(document.FilePath))
         {
-            var localPath = await fileStorageService.ResolveFilePathAsync(
-                document.FilePath,
-                document.StorageType,
-                cancellationToken
-            );
-
-            if (localPath != null)
+            if (File.Exists(document.FilePath))
             {
-                try
+                localPath = document.FilePath;
+                fileBytes = await File.ReadAllBytesAsync(localPath, cancellationToken);
+            }
+            else if (document.StorageProviderId != Guid.Empty)
+            {
+                // 先查询提供商信息，避免重复查询
+                var provider = await _storageProviderManager.FindAsync(document.StorageProviderId);
+                if (provider == null)
                 {
-                    fileBytes = await File.ReadAllBytesAsync(localPath, cancellationToken);
+                    logger.LogWarning("Storage provider not found: {StorageProviderId}", document.StorageProviderId);
+                    throw new BusinessException($"Storage provider not found: {document.StorageProviderId}");
                 }
-                finally
+
+                localPath = await fileStorageService.DownloadFileAsync(
+                    document.StorageProviderId,
+                    document.FilePath,
+                    cancellationToken
+                );
+
+                if (localPath != null)
                 {
-                    // Clean up temp file (only for cloud storage)
-                    if (document.StorageType != StorageType.Local)
+                    try
                     {
-                        fileStorageService.CleanupTempFile(localPath);
+                        fileBytes = await File.ReadAllBytesAsync(localPath, cancellationToken);
                     }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "Failed to read file {FilePath}", localPath);
+                        throw new BusinessException($"Failed to read file: {ex.Message}");
+                    }
+                    finally
+                    {
+                        // Clean up temp file (only for cloud storage)
+                        if (provider.IsCloud)
+                        {
+                            try
+                            {
+                                fileStorageService.CleanupTempFile(localPath);
+                            }
+                            catch (Exception ex)
+                            {
+                                logger.LogWarning(ex, "Failed to cleanup temp file {TempPath}", localPath);
+                                // 不再抛出异常，避免掩盖原始错误
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    throw new BusinessException($"File not found: {document.FilePath}");
                 }
             }
             else
@@ -74,29 +118,157 @@ public class KreuzbergDocumentParser(
 
         try
         {
-            // TODO: Implement actual Kreuzberg parsing after package installation
-            // For now, return a placeholder result indicating parsing is not yet implemented
-            logger.LogWarning("Kreuzberg parser not yet fully implemented, returning placeholder for document {DocumentId}", document.Id);
-            
-            return new DocumentParseResult
-            {
-                Text = $"# Document Parsing Pending\n\nThis document will be parsed using Kreuzberg once the implementation is complete.\n\nFile: {document.FileName}\nType: {document.ContentType}\nSize: {fileBytes.Length} bytes",
-                TokenCount = EstimateTokens($"Document pending: {document.FileName}"),
-                ContentType = document.ContentType,
-                Metadata = new Dictionary<string, string>
-                {
-                    ["status"] = "pending_implementation",
-                    ["parser"] = "kreuzberg",
-                    ["file_size"] = fileBytes.Length.ToString()
-                }
-            };
+            var fileType = NormalizeFileType(document);
+            var text = ParseContent(fileType, fileBytes, localPath);
+            return ToResult(text, fileType);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Parsing failed for document {DocumentId} ({ContentType})", 
-                document.Id, document.ContentType);
+            logger.LogError(ex, "Parsing failed for document {DocumentId} ({FileType})", 
+                document.Id, document.FileType);
             throw new BusinessException($"Failed to parse document: {ex.Message}");
         }
+    }
+
+    private static string NormalizeFileType(RagDocument document)
+    {
+        if (!string.IsNullOrWhiteSpace(document.FileType))
+        {
+            return document.FileType.Trim().TrimStart('.').ToLowerInvariant();
+        }
+
+        if (!string.IsNullOrWhiteSpace(document.FileName))
+        {
+            return Path.GetExtension(document.FileName).TrimStart('.').ToLowerInvariant();
+        }
+
+        return "txt";
+    }
+
+    private static string ParseContent(string fileType, byte[] fileBytes, string? filePath)
+    {
+        return fileType switch
+        {
+            "pdf" => ParsePdf(fileBytes),
+            "docx" => ParseDocx(fileBytes),
+            "pptx" => ParsePptx(fileBytes),
+            "doc" or "ppt" => throw new BusinessException("Legacy Office formats are not supported. Please use .docx or .pptx."),
+            "jpg" or "jpeg" or "png" => ParseImageWithOcr(fileBytes, filePath),
+            _ => ParseText(fileBytes)
+        };
+    }
+
+    private static string ParseText(byte[] fileBytes)
+    {
+        return Encoding.UTF8.GetString(fileBytes);
+    }
+
+    private static string ParsePdf(byte[] fileBytes)
+    {
+        using var stream = new MemoryStream(fileBytes);
+        using var document = PdfDocument.Open(stream);
+        var builder = new StringBuilder();
+        foreach (var page in document.GetPages())
+        {
+            if (!string.IsNullOrWhiteSpace(page.Text))
+            {
+                builder.AppendLine(page.Text.Trim());
+            }
+        }
+
+        return builder.ToString();
+    }
+
+    private static string ParseDocx(byte[] fileBytes)
+    {
+        using var stream = new MemoryStream(fileBytes);
+        using var document = WordprocessingDocument.Open(stream, false);
+        var body = document.MainDocumentPart?.Document.Body;
+        if (body == null)
+        {
+            return string.Empty;
+        }
+
+        var builder = new StringBuilder();
+        foreach (var text in body.Descendants<WText>())
+        {
+            if (!string.IsNullOrWhiteSpace(text.Text))
+            {
+                builder.AppendLine(text.Text.Trim());
+            }
+        }
+
+        return builder.ToString();
+    }
+
+    private static string ParsePptx(byte[] fileBytes)
+    {
+        using var stream = new MemoryStream(fileBytes);
+        using var presentation = PresentationDocument.Open(stream, false);
+        var slideParts = presentation.PresentationPart?.SlideParts;
+        if (slideParts == null)
+        {
+            return string.Empty;
+        }
+
+        var builder = new StringBuilder();
+        foreach (var slidePart in slideParts)
+        {
+            foreach (var text in slidePart.Slide.Descendants<DText>())
+            {
+                if (!string.IsNullOrWhiteSpace(text.Text))
+                {
+                    builder.AppendLine(text.Text.Trim());
+                }
+            }
+        }
+
+        return builder.ToString();
+    }
+
+    private static string ParseImageWithOcr(byte[] fileBytes, string? filePath)
+    {
+        var tessdataPath = ResolveTessdataPath();
+        using var engine = new TesseractEngine(tessdataPath, "eng", EngineMode.Default);
+        using var pix = filePath != null && File.Exists(filePath)
+            ? Pix.LoadFromFile(filePath)
+            : Pix.LoadFromMemory(fileBytes);
+        using var page = engine.Process(pix);
+        return page.GetText() ?? string.Empty;
+    }
+
+    private static string ResolveTessdataPath()
+    {
+        var envPath = Environment.GetEnvironmentVariable("TESSDATA_PREFIX");
+        if (!string.IsNullOrWhiteSpace(envPath))
+        {
+            var normalized = envPath.Trim();
+            if (Directory.Exists(Path.Combine(normalized, "tessdata")))
+            {
+                return Path.Combine(normalized, "tessdata");
+            }
+
+            if (Directory.Exists(normalized))
+            {
+                return normalized;
+            }
+        }
+
+        var candidates = new[]
+        {
+            @"C:\\Program Files\\Tesseract-OCR\\tessdata",
+            @"C:\\Program Files (x86)\\Tesseract-OCR\\tessdata"
+        };
+
+        foreach (var candidate in candidates)
+        {
+            if (Directory.Exists(candidate))
+            {
+                return candidate;
+            }
+        }
+
+        throw new BusinessException("Tesseract data not found. Set TESSDATA_PREFIX to the tessdata folder.");
     }
 
     private static DocumentParseResult ToResult(string text, string? contentType)
