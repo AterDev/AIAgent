@@ -12,10 +12,11 @@ import { McpToolItemDto } from 'src/app/services/admin/models/mcp-mod/mcp-tool-i
 import { McpToolAdd } from '../add/add';
 import { McpToolEdit } from '../edit/edit';
 import { McpToolDetail } from '../detail/detail';
+import { EnumTextPipe } from 'src/app/pipe/admin/enum-text.pipe';
 
 @Component({
   selector: 'app-mcp-tool-index',
-  imports: [CommonListModules, CommonFormModules, MatProgressSpinnerModule],
+  imports: [CommonListModules, CommonFormModules, MatProgressSpinnerModule, EnumTextPipe],
   templateUrl: './index.html',
   standalone: true
 })

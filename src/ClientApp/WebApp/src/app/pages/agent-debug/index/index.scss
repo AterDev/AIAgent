@@ -3,12 +3,6 @@
     width: 100%;
   }
 
-  form {
-    mat-form-field {
-      width: 100%;
-    }
-  }
-
   .config-panel,
   .test-panel {
     height: 100%;
@@ -85,7 +79,12 @@
           word-break: break-word;
 
           // Markdown 样式
-          h1, h2, h3, h4, h5, h6 {
+          h1,
+          h2,
+          h3,
+          h4,
+          h5,
+          h6 {
             margin-top: 12px;
             margin-bottom: 8px;
             font-weight: 600;
@@ -151,7 +150,8 @@
           }
 
           // 列表样式
-          ul, ol {
+          ul,
+          ol {
             margin: 8px 0;
             padding-left: 20px;
 
@@ -219,12 +219,14 @@
           }
 
           // 强调样式
-          strong, b {
+          strong,
+          b {
             font-weight: 600;
             color: #212121;
           }
 
-          em, i {
+          em,
+          i {
             font-style: italic;
             color: #666;
           }

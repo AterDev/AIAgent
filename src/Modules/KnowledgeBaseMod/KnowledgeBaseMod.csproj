@@ -10,18 +10,6 @@
         <ProjectReference Include="..\..\Definition\Share\Share.csproj" />
         <ProjectReference Include="..\..\Perigon\Perigon.AspNetCore.Toolkit\Perigon.AspNetCore.Toolkit.csproj" />
         <ProjectReference Include="..\CoreMod\CoreMod.csproj" />
-        <ProjectReference Include="..\SystemMod\SystemMod.csproj" />
-    </ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="HtmlAgilityPack" />
-        <PackageReference Include="Kreuzberg" />
-        <PackageReference Include="Markdig" />
-        <PackageReference Include="DocumentFormat.OpenXml" />
-        <PackageReference Include="NATS.Client.Core" />
-        <PackageReference Include="NATS.Client.JetStream" />
-        <PackageReference Include="Newtonsoft.Json" />
-        <PackageReference Include="Tesseract" />
-        <PackageReference Include="UglyToad.PdfPig" />
     </ItemGroup>
     <ItemGroup>
         <Folder Include="Managers\" />

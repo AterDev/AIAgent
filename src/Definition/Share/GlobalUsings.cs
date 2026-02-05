@@ -5,3 +5,5 @@ global using Perigon.AspNetCore.Constants;
 global using Perigon.AspNetCore.Models;
 global using Perigon.AspNetCore.Utils;
 global using System;
+global using Entity;
+global using Entity.KnowledgeBaseMod;

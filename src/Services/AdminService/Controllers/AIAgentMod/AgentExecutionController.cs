@@ -48,7 +48,7 @@ public class AgentExecutionController(
     /// 入队执行 Agent
     /// </summary>
     [HttpPost("{id}/enqueue")]
-    public async Task<ActionResult<bool>> EnqueueAsync([FromRoute] Guid id, AgentExecuteRequestDto dto, [FromServices] IAgentExecutionQueue queue)
+    public async Task<ActionResult<bool>> EnqueueAsync([FromRoute] Guid id, AgentExecuteRequestDto dto, [FromServices] AgentExecutionQueue queue)
     {
         await queue.EnqueueAsync(new AgentExecutionTask(id, dto.ApplicationId, dto.InputJson));
         return Accepted(true);

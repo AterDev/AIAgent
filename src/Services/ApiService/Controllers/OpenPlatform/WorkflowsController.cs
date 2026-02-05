@@ -38,7 +38,7 @@ public class WorkflowsController(
     public async Task<ActionResult<object>> ExecuteAsync(
         [FromRoute] Guid id,
         WorkflowExecuteRequestDto dto,
-        [FromServices] IWorkflowQueue queue
+        [FromServices] WorkflowQueue queue
     )
     {
         var execution = await _executionManager.AddAsync(new WorkflowExecutionAddDto

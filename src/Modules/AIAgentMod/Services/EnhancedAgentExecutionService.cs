@@ -1,6 +1,6 @@
 using Share.Services;
 using System.Text.Json;
-using SystemMod.Services;
+using CoreMod.Services;
 
 namespace AIAgentMod.Services;
 
@@ -10,9 +10,9 @@ namespace AIAgentMod.Services;
 public class EnhancedAgentExecutionService(
     TenantDbFactory dbContextFactory,
     IUserContext userContext,
-    IModelInvokeFacade modelInvokeFacade,
-    IMcpToolExecutorFacade mcpToolExecutorFacade,
-    SystemConfigFacade systemConfigFacade,
+    IModelInvoker modelInvoker,
+    IMcpToolExecutor mcpToolExecutor,
+    ISystemConfigService systemConfigService,
     ILogger<EnhancedAgentExecutionService> logger
 ) : IAgentExecutionService
 {
@@ -95,7 +95,7 @@ public class EnhancedAgentExecutionService(
             );
 
             // 调用模型
-            var response = await modelInvokeFacade.ChatAsync(applicationId, new ModelInvokeRequest
+            var response = await modelInvoker.ChatAsync(applicationId, new ModelInvokeRequest
             {
                 Model = agent.ModelId,
                 Scene = agent.Name,
@@ -152,7 +152,7 @@ public class EnhancedAgentExecutionService(
 
                 try
                 {
-                    var toolResult = await mcpToolExecutorFacade.ExecuteAsync(new ToolExecutionRequest
+                    var toolResult = await mcpToolExecutor.ExecuteAsync(new ToolExecutionRequest
                     {
                         ToolName = toolCall.ToolName,
                         ArgumentsJson = toolCall.ArgumentsJson,
@@ -216,10 +216,10 @@ public class EnhancedAgentExecutionService(
         var prompt = ExtractPrompt(inputJson);
         var systemPrompt = agent.SystemPrompt;
 
-        var template = await systemConfigFacade.GetValueAsync("Agent", agent.SystemPrompt, cancellationToken);
+        var template = await systemConfigService.GetValueAsync("Agent", agent.SystemPrompt, cancellationToken);
         if (!string.IsNullOrWhiteSpace(template))
         {
-            systemPrompt = systemConfigFacade.RenderTemplate(template, new Dictionary<string, string>
+            systemPrompt = systemConfigService.RenderTemplate(template, new Dictionary<string, string>
             {
                 ["input"] = prompt,
             });

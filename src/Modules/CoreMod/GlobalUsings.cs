@@ -2,6 +2,7 @@ global using EntityFramework.AppDbFactory;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.Options;
 global using Perigon.AspNetCore.Abstraction;
 global using Perigon.AspNetCore.Utils;
 global using System;
@@ -17,3 +18,10 @@ global using Share;
 global using Share.Exceptions;
 global using CoreMod.Managers;
 global using EntityFramework.AppDbContext;
+// Import Share.Services but avoid type conflicts
+global using IDocumentParser = Share.Services.IDocumentParser;
+global using ITextChunker = Share.Services.ITextChunker;
+global using IVectorStore = Share.Services.IVectorStore;
+global using TextChunk = Share.Services.TextChunk;
+global using VectorSearchResult = Share.Services.VectorSearchResult;
+global using DocumentParseResult = Share.Services.DocumentParseResult;

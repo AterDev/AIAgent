@@ -5,6 +5,7 @@
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <NoWarn>1701;1702;1591</NoWarn>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UseSharedCompilation>false</UseSharedCompilation>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference
@@ -14,5 +15,8 @@
     />
     <ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />
     <ProjectReference Include="..\..\Modules\KnowledgeBaseMod\KnowledgeBaseMod.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Aspire.Qdrant.Client" />
   </ItemGroup>
 </Project>

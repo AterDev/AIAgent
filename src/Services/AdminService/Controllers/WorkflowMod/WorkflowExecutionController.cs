@@ -51,7 +51,7 @@ public class WorkflowExecutionController(
     /// 入队执行工作流
     /// </summary>
     [HttpPost("{id}/enqueue")]
-    public async Task<ActionResult<bool>> EnqueueAsync([FromRoute] Guid id, [FromServices] IWorkflowQueue queue)
+    public async Task<ActionResult<bool>> EnqueueAsync([FromRoute] Guid id, [FromServices] WorkflowQueue queue)
     {
         await queue.EnqueueAsync(new WorkflowTask(id));
         return Accepted(true);
@@ -61,7 +61,7 @@ public class WorkflowExecutionController(
     /// 获取执行进度
     /// </summary>
     [HttpGet("{id}/progress")]
-    public async Task<ActionResult<WorkflowExecutionProgress>> GetProgressAsync([FromRoute] Guid id, [FromServices] IWorkflowExecutor executor)
+    public async Task<ActionResult<WorkflowExecutionProgress>> GetProgressAsync([FromRoute] Guid id, [FromServices] WorkflowExecutor executor)
     {
         var progress = await executor.GetProgressAsync(id);
         if (progress is null)
@@ -75,7 +75,7 @@ public class WorkflowExecutionController(
     /// 断点续传执行
     /// </summary>
     [HttpPost("{id}/resume")]
-    public async Task<ActionResult<bool>> ResumeAsync([FromRoute] Guid id, [FromQuery] int fromStep, [FromServices] IWorkflowExecutor executor)
+    public async Task<ActionResult<bool>> ResumeAsync([FromRoute] Guid id, [FromQuery] int fromStep, [FromServices] WorkflowExecutor executor)
     {
         var result = await executor.ResumeAsync(id, fromStep);
         return Ok(result);
@@ -85,7 +85,7 @@ public class WorkflowExecutionController(
     /// 重试失败的执行
     /// </summary>
     [HttpPost("{id}/retry")]
-    public async Task<ActionResult<bool>> RetryAsync([FromRoute] Guid id, [FromServices] IWorkflowExecutor executor)
+    public async Task<ActionResult<bool>> RetryAsync([FromRoute] Guid id, [FromServices] WorkflowExecutor executor)
     {
         var result = await executor.RetryAsync(id);
         return Ok(result);
@@ -95,7 +95,7 @@ public class WorkflowExecutionController(
     /// 取消执行
     /// </summary>
     [HttpPost("{id}/cancel")]
-    public async Task<ActionResult<bool>> CancelAsync([FromRoute] Guid id, [FromServices] IWorkflowExecutor executor)
+    public async Task<ActionResult<bool>> CancelAsync([FromRoute] Guid id, [FromServices] WorkflowExecutor executor)
     {
         var result = await executor.CancelAsync(id);
         return Ok(result);

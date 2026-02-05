@@ -4,6 +4,7 @@
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <UseSharedCompilation>false</UseSharedCompilation>
   </PropertyGroup>
   <PropertyGroup>
     <DocumentationFile></DocumentationFile>

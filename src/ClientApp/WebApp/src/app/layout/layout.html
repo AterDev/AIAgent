@@ -4,9 +4,9 @@
   </div>
   <span style="display:flex;flex:1 1 auto"></span>
   <div class="d-flex align-items-center align-content-center">
-    <mat-button-toggle-group (change)="setLanguage($event.value)" value="zh-CN" aria-label="Language" class="me-2">
-      <mat-button-toggle value="zh-CN">中</mat-button-toggle>
-      <mat-button-toggle value="en-US">En</mat-button-toggle>
+    <mat-button-toggle-group (change)="setLanguage($event.value)" value="zh-CN" [attr.aria-label]="i18n.layout.language | translate" class="me-2">
+      <mat-button-toggle value="zh-CN">{{ i18n.layout.chinese | translate }}</mat-button-toggle>
+      <mat-button-toggle value="en-US">{{ i18n.layout.english | translate }}</mat-button-toggle>
     </mat-button-toggle-group>
     @if (isLogin) {
     <button [matMenuTriggerFor]="appMenu" mat-button style="flex-direction: row-reverse;">

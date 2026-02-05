@@ -1,3 +1,4 @@
+global using CoreMod.Services;
 global using Entity.WorkflowMod;
 global using EntityFramework.AppDbContext;
 global using EntityFramework.AppDbFactory;

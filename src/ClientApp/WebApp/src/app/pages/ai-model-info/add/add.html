@@ -41,7 +41,7 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
-        <mat-label>Context Length</mat-label>
+        <mat-label>{{ i18nKeys.aiModelInfo.contextLength | translate }}</mat-label>
         <input matInput type="number" [formControl]="contextLength" />
         @if (contextLength.errors) {
           <mat-error>{{ getValidatorMessage(contextLength) }}</mat-error>
@@ -49,7 +49,7 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
-        <mat-label>Max Context Tokens</mat-label>
+        <mat-label>{{ i18nKeys.aiModelInfo.maxContextTokens | translate }}</mat-label>
         <input matInput type="number" [formControl]="maxContextTokens" />
         @if (maxContextTokens.errors) {
           <mat-error>{{ getValidatorMessage(maxContextTokens) }}</mat-error>
@@ -66,7 +66,7 @@
       </div>
 
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
-        <mat-label>Input Price</mat-label>
+        <mat-label>{{ i18nKeys.aiModelInfo.inputPrice | translate }}</mat-label>
         <input matInput type="number" step="0.0001" [formControl]="inputPrice" />
         @if (inputPrice.errors) {
           <mat-error>{{ getValidatorMessage(inputPrice) }}</mat-error>
@@ -74,7 +74,7 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
-        <mat-label>Output Price</mat-label>
+        <mat-label>{{ i18nKeys.aiModelInfo.outputPrice | translate }}</mat-label>
         <input matInput type="number" step="0.0001" [formControl]="outputPrice" />
         @if (outputPrice.errors) {
           <mat-error>{{ getValidatorMessage(outputPrice) }}</mat-error>

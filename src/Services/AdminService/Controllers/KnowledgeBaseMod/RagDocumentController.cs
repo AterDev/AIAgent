@@ -1,7 +1,7 @@
 using Entity.KnowledgeBaseMod;
 using KnowledgeBaseMod.Managers;
 using KnowledgeBaseMod.Models.RagDocumentDtos;
-using KnowledgeBaseMod.Services;
+using CoreMod.Services;
 using Share.Models;
 
 namespace AdminService.Controllers.KnowledgeBaseMod;
@@ -57,13 +57,7 @@ public class RagDocumentController(
         var document = await _manager.GetAsync(id);
         if (document == null)
         {
-            return NotFound(new { error = "Document not found" });
-        }
-
-        // 验证 tenantId 不为空
-        if (_user.TenantId == Guid.Empty)
-        {
-            return BadRequest(new { error = "Invalid tenant ID" });
+            return NotFound();
         }
 
         // 发布消息到 NATS 队列，由 FileProcessorService 异步处理
@@ -81,6 +75,6 @@ public class RagDocumentController(
         
         await messagePublisher.PublishAsync(message, cancellationToken);
         
-        return Ok(new { message = "Document parsing triggered successfully" });
+        return Ok();
     }
 }

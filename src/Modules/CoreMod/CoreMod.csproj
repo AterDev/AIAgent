@@ -15,6 +15,16 @@
         <PackageReference Include="Microsoft.Extensions.AI.OpenAI" />
         <PackageReference Include="OpenAI" />
         <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+        <PackageReference Include="Aspire.Qdrant.Client" />
+        <PackageReference Include="HtmlAgilityPack" />
+        <PackageReference Include="Kreuzberg" />
+        <PackageReference Include="Markdig" />
+        <PackageReference Include="DocumentFormat.OpenXml" />
+        <PackageReference Include="NATS.Client.Core" />
+        <PackageReference Include="NATS.Client.JetStream" />
+        <PackageReference Include="Newtonsoft.Json" />
+        <PackageReference Include="Tesseract" />
+        <PackageReference Include="UglyToad.PdfPig" />
     </ItemGroup>
     <ItemGroup>
         <Folder Include="Managers\" />

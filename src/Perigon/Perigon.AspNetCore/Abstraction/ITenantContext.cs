@@ -7,6 +7,8 @@ public interface ITenantContext
     public Guid TenantId { get; set; }
 
     public string TenantType { get; set; }
+    string? DbConnectionString { get; set; }
+    string? AnalysisConnectionString { get; set; }
 
     Task<string?> GetDbConnectionStringAsync();
     Task<string?> GetAnalysisConnectionStringAsync();

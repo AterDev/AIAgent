@@ -1,3 +1,4 @@
+using CoreMod.Services;
 using McpMod.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
@@ -23,7 +24,6 @@ public static class ModuleExtensions
     {
         builder.Services.AddScoped<BuiltinToolExecutor>();
         builder.Services.AddScoped<IMcpToolExecutor, McpToolExecutor>();
-        builder.Services.AddScoped<Share.Services.IMcpToolExecutorFacade, McpToolExecutorFacade>();
         builder.Services.AddHostedService<InitMcpModService>();
         return builder;
     }

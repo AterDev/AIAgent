@@ -41,22 +41,22 @@
       </mat-form-field>
 
       <div class="d-flex flex-column gap-2">
-        <label class="font-weight-bold">Document File</label>
+        <label class="font-weight-bold">{{ i18nKeys.ragDocument.upload.documentFile | translate }}</label>
         <input #fileInput type="file" (change)="onFileSelected($event)" [accept]="acceptFilesTypes"
           style="display: none" />
         <div class="d-flex gap-2">
           <button mat-stroked-button type="button" (click)="fileInput.click()" [disabled]="isUploading()">
-            Select File
+            {{ i18nKeys.ragDocument.upload.selectFileButton | translate }}
           </button>
           <button mat-stroked-button type="button" (click)="uploadFile()" [disabled]="!selectedFile || isUploading()">
-            Upload
+            {{ i18nKeys.ragDocument.upload.uploadButton | translate }}
           </button>
         </div>
         @if (selectedFile) {
-        <small class="text-muted">Selected: {{ selectedFile.name }}</small>
+        <small class="text-muted">{{ i18nKeys.ragDocument.upload.selectedLabel | translate }}{{ selectedFile.name }}</small>
         }
         @if (filePath.value) {
-        <small class="text-success">Upload completed: {{ filePath.value }}</small>
+        <small class="text-success">{{ i18nKeys.ragDocument.upload.uploadCompletedLabel | translate }}{{ filePath.value }}</small>
         }
       </div>
 

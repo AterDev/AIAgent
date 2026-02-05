@@ -1,4 +1,4 @@
-using Share.Services;
+using CoreMod.Services;
 
 namespace ApiService.Controllers.OpenPlatform;
 
@@ -8,10 +8,10 @@ namespace ApiService.Controllers.OpenPlatform;
 [ApiController]
 [Route("api/v1/rag/search")]
 public class RagSearchController(
-    IRagQueryFacade ragQueryFacade,
+    IRagQueryService ragQueryService,
     IUserContext user,
     ILogger<RagSearchController> logger
-) : OpenApiControllerBase<IRagQueryFacade>(ragQueryFacade, user, logger)
+) : OpenApiControllerBase<IRagQueryService>(ragQueryService, user, logger)
 {
     [HttpPost]
     public async Task<ActionResult<RagQueryResult>> SearchAsync(RagQueryRequest request, CancellationToken cancellationToken)

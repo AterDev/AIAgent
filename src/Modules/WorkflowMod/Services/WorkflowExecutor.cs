@@ -1,9 +1,8 @@
-using AIAgentMod.Services;
 using Entity.AIAgentMod;
 using Microsoft.Agents.AI.Workflows;
 using Share.Services;
 using System.Text.Json;
-using SystemMod.Services;
+using CoreMod.Services;
 using MAFWorkflow = Microsoft.Agents.AI.Workflows.Workflow;
 using WorkflowEntity = Entity.WorkflowMod.Workflow;
 
@@ -15,13 +14,13 @@ namespace WorkflowMod.Services;
 public class WorkflowExecutor(
     TenantDbFactory dbContextFactory,
     IUserContext userContext,
-    IModelInvokeFacade modelInvokeFacade,
-    IRagQueryFacade ragQueryFacade,
-    IMcpToolExecutorFacade mcpToolExecutorFacade,
-    SystemConfigFacade systemConfigFacade,
+    IModelInvoker modelInvoker,
+    IRagQueryService ragQueryService,
+    IMcpToolExecutor mcpToolExecutor,
+    ISystemConfigService systemConfigService,
     IAgentExecutionService agentExecutionService,
     ILogger<WorkflowExecutor> logger
-) : IWorkflowExecutor
+)
 {
     public async Task<bool> ExecuteAsync(Guid executionId, CancellationToken cancellationToken = default)
     {
@@ -284,10 +283,10 @@ public class WorkflowExecutor(
         var prompt = step.Prompt ?? string.Empty;
         if (!string.IsNullOrWhiteSpace(step.PromptTemplateKey))
         {
-            var template = await systemConfigFacade.GetValueAsync("Workflow", step.PromptTemplateKey, cancellationToken);
+            var template = await systemConfigService.GetValueAsync("Workflow", step.PromptTemplateKey, cancellationToken);
             if (!string.IsNullOrWhiteSpace(template))
             {
-                prompt = systemConfigFacade.RenderTemplate(template, new Dictionary<string, string>
+                prompt = systemConfigService.RenderTemplate(template, new Dictionary<string, string>
                 {
                     ["input"] = prompt,
                 });
@@ -304,7 +303,7 @@ public class WorkflowExecutor(
                 : [],
         };
 
-        var response = await modelInvokeFacade.ChatAsync(step.ApplicationId.Value, request, cancellationToken);
+        var response = await modelInvoker.ChatAsync(step.ApplicationId.Value, request, cancellationToken);
         context[step.Name] = response.Content;
     }
 
@@ -315,7 +314,7 @@ public class WorkflowExecutor(
             throw new BusinessException("Tool step missing tool name");
         }
 
-        var request = new Share.Services.ToolExecutionRequest
+        var request = new ToolExecutionRequest
         {
             ToolName = step.ToolName,
             ArgumentsJson = step.ArgumentsJson,
@@ -323,7 +322,7 @@ public class WorkflowExecutor(
             AgentId = step.AgentId,
         };
 
-        var result = await mcpToolExecutorFacade.ExecuteAsync(request, cancellationToken);
+        var result = await mcpToolExecutor.ExecuteAsync(request, cancellationToken);
         context[step.Name] = result.OutputJson;
     }
 
@@ -334,7 +333,7 @@ public class WorkflowExecutor(
             throw new BusinessException("RAG step missing query");
         }
 
-        var result = await ragQueryFacade.QueryAsync(new Share.Services.RagQueryRequest
+        var result = await ragQueryService.QueryAsync(new RagQueryRequest
         {
             Query = step.Query,
             CollectionId = step.CollectionId,

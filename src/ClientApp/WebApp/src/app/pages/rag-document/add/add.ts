@@ -96,6 +96,9 @@ export class RagDocumentAdd implements OnInit {
     if (file) {
       this.selectedFile = file;
       this.fileName.setValue(file.name);
+      // 自动从文件名中提取名称（移除扩展名）
+      const nameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+      this.name.setValue(nameWithoutExt);
     }
   }
 

@@ -5,11 +5,11 @@
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <NoWarn>1701;1702;1591</NoWarn>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UseSharedCompilation>false</UseSharedCompilation>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Perigon\Perigon.AspNetCore.SourceGeneration\Perigon.AspNetCore.SourceGeneration.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />
-    <ProjectReference Include="..\..\Modules\CoreMod\CoreMod.csproj" />
+    <ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />    <ProjectReference Include="...\Definition\Share\Share.csproj" />    <ProjectReference Include="..\..\Modules\CoreMod\CoreMod.csproj" />
     <ProjectReference Include="..\..\Modules\ModelMod\ModelMod.csproj" />
     <ProjectReference Include="..\..\Modules\KnowledgeBaseMod\KnowledgeBaseMod.csproj" />
     <ProjectReference Include="..\..\Modules\McpMod\McpMod.csproj" />

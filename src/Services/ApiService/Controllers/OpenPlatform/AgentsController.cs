@@ -38,7 +38,7 @@ public class AgentsController(
     public async Task<ActionResult<object>> ExecuteAsync(
         [FromRoute] Guid id,
         AgentExecuteRequestDto dto,
-        [FromServices] IAgentExecutionQueue queue
+        [FromServices] AgentExecutionQueue queue
     )
     {
         var execution = await _executionManager.AddAsync(new AgentExecutionAddDto

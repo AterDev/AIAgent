@@ -16,22 +16,24 @@ description: 全栈代码审查规范（质量/性能/安全/架构/风格）。
 
 #### 后端审查要点
   
+- **Share层**
+  - 只包含通用的逻辑算法等，不涉及任何业务数据的操作
+  - 封装通用的第三方库的调用，如缓存/邮件/消息队列等
+
 - **Manager 层**:
   - 业务逻辑是否在 Manager 中而非 Controller？
   - 是否继承 `ManagerBase<T>` 或 `ManagerBase`？
   - 是否避免了 Manager 之间的直接调用？
   - 异常处理是否抛出 `BusinessException`？
+  - 查询是否使用 `Select` 投影而非 `Include` 加载整个导航属性？
+  - 批量操作是否使用 `EFCore.BulkExtensions`？
+  - 事务操作是否使用 `ExecuteInTransactionAsync`？
   
 - **Controller 层**:
   - 是否继承 `RestControllerBase`？
   - 是否避免直接访问 `DbContext`？
   - 错误处理是否使用 `Problem()` / `NotFound()`？
   - 是否避免使用 `ApiResponse` 包装器？
-  
-- **数据访问**:
-  - 查询是否使用 `Select` 投影而非 `Include` 加载整个导航属性？
-  - 批量操作是否使用 `EFCore.BulkExtensions`？
-  - 事务操作是否使用 `ExecuteInTransactionAsync`？
   
 #### 前端审查要点
 
@@ -80,7 +82,7 @@ description: 全栈代码审查规范（质量/性能/安全/架构/风格）。
 ### 4. 架构和设计审查
   
 - **依赖关系**:
-  - 模块之间的依赖是否合理？
+  - 模块之间是否存在依赖?(CoreMod 除外)
   - 是否存在循环依赖？
   - Manager 之间是否存在不必要的直接调用？
   

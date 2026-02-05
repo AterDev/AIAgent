@@ -1,13 +1,15 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
+using Share;
+using Share.Implement;
 using System.Security.Claims;
 
 namespace ApiService.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ExternalAuthController(ILogger<ExternalAuthController> logger) : ControllerBase
+public class ExternalAuthController(ILogger<ExternalAuthController> logger, Localizer localizer) : RestControllerBase(localizer)
 {
     /// <summary>
     /// Microsft login
@@ -68,7 +70,7 @@ public class ExternalAuthController(ILogger<ExternalAuthController> logger) : Co
         if (!result.Succeeded)
         {
             logger.LogWarning("External authentication failed for type: {type}", type);
-            return BadRequest("ExternalAuthenticationFailed");
+            return Problem(detail: Localizer.ExternalAuthenticationFailed);
         }
 
         // 提取用户信息

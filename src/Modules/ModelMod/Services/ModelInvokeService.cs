@@ -9,7 +9,7 @@ public class ModelInvokeService(
     ExtensionsAIModelClient modelClient,
     IUsageMeter usageMeter,
     ILogger<ModelInvokeService> logger
-) : IModelInvokeService
+)
 {
     public Task<ModelResponse> ChatAsync(Guid applicationId, ModelRequest request, CancellationToken cancellationToken = default)
     {

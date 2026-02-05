@@ -1,3 +1,4 @@
+global using CoreMod.Services;
 global using Entity.AIAgentMod;
 global using EntityFramework.AppDbContext;
 global using EntityFramework.AppDbFactory;

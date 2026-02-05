@@ -9,10 +9,11 @@ import { CommonFormModules, CommonListModules } from 'src/app/share/shared-modul
 import { WorkflowExecutionFilterDto } from 'src/app/services/admin/models/workflow-mod/workflow-execution-filter-dto.model';
 import { WorkflowExecutionItemDto } from 'src/app/services/admin/models/workflow-mod/workflow-execution-item-dto.model';
 import { WorkflowExecutionDetail } from '../detail/detail';
+import { EnumTextPipe } from 'src/app/pipe/admin/enum-text.pipe';
 
 @Component({
   selector: 'app-workflow-execution-index',
-  imports: [CommonListModules, CommonFormModules, MatProgressSpinnerModule],
+  imports: [CommonListModules, CommonFormModules, MatProgressSpinnerModule, EnumTextPipe],
   templateUrl: './index.html',
   standalone: true
 })

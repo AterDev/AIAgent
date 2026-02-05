@@ -42,5 +42,6 @@ public class AIAgent : EntityBase
     public bool Enable { get; set; }
 
     public bool IsTemplate { get; set; }
+
     public Guid? UserId { get; set; }
 }

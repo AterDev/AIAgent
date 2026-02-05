@@ -1,8 +1,6 @@
-using KnowledgeBaseMod.Models.RagQueryDtos;
-using KnowledgeBaseMod.Services;
-using McpMod.Models.ToolExecutionDtos;
 using System.Data;
 using System.Text.Json;
+using Share.Services;
 
 namespace McpMod.Services;
 
@@ -63,6 +61,7 @@ public class BuiltinToolExecutor(
             CollectionId = collectionId,
         }, cancellationToken);
 
+        // 直接返回 CoreMod.Services 中的 RagQueryResult
         return Success(result);
     }
 

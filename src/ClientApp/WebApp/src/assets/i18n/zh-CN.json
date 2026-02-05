@@ -87,6 +87,11 @@
     "retryCount": "密码重试次数"
   },
   "language": "语言",
+  "layout": {
+    "language": "语言",
+    "english": "英文",
+    "chinese": "中文"
+  },
   "validation": {
     "required": "此字段是必填项",
     "minlength": "最小长度是 {{requiredLength}}",
@@ -172,6 +177,8 @@
     "endpoint": "端点地址",
     "isEnabled": "已启用",
     "baseUrl": "基础网址",
+    "logoUrl": "Logo URL",
+    "website": "网站",
     "providerType": "提供商类型",
     "openAiCompatible": "OpenAI兼容",
     "custom": "自定义",
@@ -190,6 +197,9 @@
     "providerId": "提供商",
     "supportsTools": "支持工具",
     "description": "描述",
+    "contextLength": "上下文长度",
+    "inputPrice": "输入价格",
+    "outputPrice": "输出价格",
     "maxContextTokens": "最大上下文Token",
     "supportsChat": "支持对话",
     "supportsEmbedding": "支持向量化",
@@ -237,13 +247,19 @@
     "tags": "标签",
     "triggerParseConfirm": "确定要触发该文档的解析吗？",
     "upload": {
+      "documentFile": "文档文件",
       "selectFile": "选择文件",
+      "selectFileButton": "选择文件",
+      "uploadButton": "上传",
+      "selectedLabel": "已选择：",
+      "uploadCompletedLabel": "上传完成：",
       "dragHint": "或者拖拽文件到这里",
       "uploading": "上传中...",
       "uploadSuccess": "上传成功",
       "uploadFailed": "上传失败",
       "supportedFormats": "支持的格式",
-      "maxFileSize": "最大文件大小"
+      "maxFileSize": "最大文件大小",
+      "triggerParseButton": "触发解析"
     },
     "validation": {
       "fileTypeNotSupported": "不支持的文件类型：{0}。支持的格式：{1}",

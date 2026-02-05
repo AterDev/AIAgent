@@ -6,7 +6,8 @@ public static class Extensions
         this DbContext db,
         Guid id,
         TUpdateDto dto,
-        bool updateUpdatedTime = true
+        bool updateUpdatedTime = true,
+        CancellationToken cancellationToken = default
     )
         where TEntity : class, IEntityBase
         where TUpdateDto : class
@@ -63,6 +64,6 @@ public static class Extensions
                     genericSetProperty.Invoke(updater, [propLambda, DateTimeOffset.UtcNow]);
                 }
             }
-        });
+        }, cancellationToken);
     }
 }

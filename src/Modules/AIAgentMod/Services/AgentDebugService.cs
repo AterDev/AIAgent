@@ -3,17 +3,16 @@ using CoreMod.Models;
 using CoreMod.Services;
 using Share.Services;
 using System.Text.Json;
-using SystemMod.Services;
 
 namespace AIAgentMod.Services;
 
 public class AgentDebugService(
     TenantDbFactory dbContextFactory,
     IUserContext userContext,
-    IModelInvokeFacade modelInvokeFacade,
+    IModelInvoker modelInvoker,
     ExtensionsAIModelClient modelClient,
-    IMcpToolExecutorFacade mcpToolExecutorFacade,
-    SystemConfigFacade systemConfigFacade,
+    IMcpToolExecutor mcpToolExecutor,
+    ISystemConfigService systemConfigService,
     ILogger<AgentDebugService> logger
 )
 {
@@ -201,7 +200,7 @@ public class AgentDebugService(
                 ToolExecutionResult toolResult;
                 try
                 {
-                    toolResult = await mcpToolExecutorFacade.ExecuteAsync(new ToolExecutionRequest
+                    toolResult = await mcpToolExecutor.ExecuteAsync(new ToolExecutionRequest
                     {
                         ToolName = toolCall.ToolName,
                         ArgumentsJson = toolCall.ArgumentsJson,
@@ -322,7 +321,7 @@ public class AgentDebugService(
                 {
                     Success = false,
                     ErrorMessage = $"Model or provider not found for: {agent.ModelId}",
-                    Usage = new Share.Services.UsageStats()
+                    Usage = new UsageStats()
                 };
             }
 
@@ -341,7 +340,7 @@ public class AgentDebugService(
                 Success = response.Success,
                 Content = response.Content,
                 ErrorMessage = response.ErrorMessage,
-                Usage = new Share.Services.UsageStats
+                Usage = new UsageStats
                 {
                     PromptTokens = response.Usage.PromptTokens,
                     CompletionTokens = response.Usage.CompletionTokens,
@@ -350,7 +349,7 @@ public class AgentDebugService(
             };
         }
 
-        return await modelInvokeFacade.ChatAsync(applicationId.Value, invokeRequest, cancellationToken);
+        return await modelInvoker.ChatAsync(applicationId.Value, invokeRequest, cancellationToken);
     }
 
     private async Task<(List<ModelInvokeMessage> messages, string promptText)> BuildMessagesAsync(
@@ -362,10 +361,10 @@ public class AgentDebugService(
         var prompt = userMessage ?? string.Empty;
         var systemPrompt = systemPromptOverride ?? agent.SystemPrompt;
 
-        var template = await systemConfigFacade.GetValueAsync("Agent", agent.SystemPrompt, cancellationToken);
+        var template = await systemConfigService.GetValueAsync("Agent", agent.SystemPrompt, cancellationToken);
         if (!string.IsNullOrWhiteSpace(template))
         {
-            systemPrompt = systemConfigFacade.RenderTemplate(template, new Dictionary<string, string>
+            systemPrompt = systemConfigService.RenderTemplate(template, new Dictionary<string, string>
             {
                 ["input"] = prompt,
             });

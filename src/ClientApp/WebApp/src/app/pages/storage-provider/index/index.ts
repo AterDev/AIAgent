@@ -92,6 +92,6 @@ export class StorageProviderIndex implements OnInit {
   }
 
   activateItem(id: string) {
-    this.adminClient.storageProvider.activate(id).subscribe(() => this.loadData());
+    this.adminClient.storageProvider.setActive(id).subscribe(() => this.loadData());
   }
 }

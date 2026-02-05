@@ -1,4 +1,5 @@
 using AdminService.Services;
+using CoreMod.Models;
 using ModelMod.Models.ModelDebugDtos;
 using ModelMod.Services;
 using System.Diagnostics;
@@ -35,7 +36,7 @@ public class ModelDebugController(
         Response.ContentType = "text/event-stream";
 
         var buffer = new StringBuilder();
-        var usage = new Share.Services.UsageStats();
+        var usage = new UsageStats();
         var stopwatch = Stopwatch.StartNew();
 
         try
@@ -61,7 +62,7 @@ public class ModelDebugController(
 
                 if (chunk.Usage != null)
                 {
-                    usage = new Share.Services.UsageStats
+                    usage = new UsageStats
                     {
                         PromptTokens = chunk.Usage.PromptTokens,
                         CompletionTokens = chunk.Usage.CompletionTokens,

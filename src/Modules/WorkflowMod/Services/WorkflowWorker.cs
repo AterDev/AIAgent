@@ -4,7 +4,7 @@ namespace WorkflowMod.Services;
 
 public class WorkflowWorker(
     IServiceProvider serviceProvider,
-    IWorkflowQueue queue,
+    WorkflowQueue queue,
     ILogger<WorkflowWorker> logger
 ) : BackgroundService
 {
@@ -25,7 +25,7 @@ public class WorkflowWorker(
             try
             {
                 using var scope = serviceProvider.CreateScope();
-                var executor = scope.ServiceProvider.GetRequiredService<IWorkflowExecutor>();
+                var executor = scope.ServiceProvider.GetRequiredService<WorkflowExecutor>();
                 await executor.ExecuteAsync(task.WorkflowExecutionId, stoppingToken);
             }
             catch (Exception ex)

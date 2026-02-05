@@ -24,8 +24,47 @@ public static class ModuleExtensions
         // ExtensionsAIModelClient: 支持 OpenAI、DeepSeek、Azure OpenAI 等所有 OpenAI 协议兼容的服务
         builder.Services.AddScoped<ExtensionsAIModelClient>();
         
-        builder.Services.AddScoped<IModelRouter, DbModelRouter>();
+        // 模型路由 - CoreMod 内部使用
+        builder.Services.AddScoped<DbModelRouter>();
         builder.Services.AddSingleton<IUsageMeter, DefaultUsageMeter>();
+        
+        // Add Qdrant Client via Aspire integration
+        builder.AddQdrantClient("qdrant");
+        
+        // 注册 NATS 消息发布者
+        builder.Services.AddScoped<NatsRagMessagePublisher>();
+        
+        // RAG 文档解析服务
+        // Use Kreuzberg-based parser for all formats
+        builder.Services.AddScoped<IDocumentParser, KreuzbergDocumentParser>();
+        // Keep simple parser as fallback option
+        builder.Services.AddScoped<SimpleDocumentParser>();
+        
+        // 文本分块服务
+        builder.Services.AddScoped<ITextChunker, DefaultTextChunker>();
+        
+        // 向量嵌入生成服务 - CoreMod 内部使用
+        // Use real model embedding generation
+        builder.Services.AddScoped<CoreModelEmbeddingGenerator>();
+        // Keep hash-based generator as fallback
+        builder.Services.AddScoped<HashEmbeddingGenerator>();
+        
+        // 向量存储服务
+        builder.Services.AddScoped<QdrantService>();
+        builder.Services.AddScoped<NullVectorStore>();
+        builder.Services.AddScoped<IVectorStore>(sp =>
+        {
+            // Always use QdrantService when Aspire client is configured
+            return sp.GetRequiredService<QdrantService>();
+        });
+        
+        // RAG 摄取服务 - CoreMod 内部使用
+        builder.Services.AddScoped<RagIngestionService>();
+        builder.Services.AddScoped<DocumentChunkingService>();
+        builder.Services.AddScoped<RagIngestionQueue>();
+        builder.Services.AddHostedService<RagIngestionWorker>();
+        builder.Services.AddHostedService<BackgroundParsingService>();
+        
         return builder;
     }
 

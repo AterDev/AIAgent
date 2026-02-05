@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using ModelMod.Services;
 using ModelMod.Managers;
 using System.ComponentModel;
+using CoreMod.Services;
 
 namespace ModelMod;
 
@@ -22,12 +23,12 @@ public static class ModuleExtensions
     // The module services registration
     private static IHostApplicationBuilder AddModServices(this IHostApplicationBuilder builder)
     {
-        builder.Services.AddScoped<IModelInvokeService, ModelInvokeService>();
-        builder.Services.AddScoped<Share.Services.IModelInvokeFacade, ModelInvokeFacade>();
+        builder.Services.AddScoped<ModelInvokeService>();
+        builder.Services.AddScoped<IModelInvoker, ModelInvoker>();
         builder.Services.AddScoped<ModelDebugService>();
         builder.Services.AddScoped<AIModelProviderManager>();
         builder.Services.AddScoped<AIModelInfoManager>();
-        builder.Services.AddScoped<IQuotaLimitingService, QuotaLimitingService>();
+        builder.Services.AddScoped<QuotaLimitingService>();
         return builder;
     }
 

@@ -9,10 +9,11 @@ import { CommonFormModules, CommonListModules } from 'src/app/share/shared-modul
 import { AgentExecutionFilterDto } from 'src/app/services/admin/models/aiagent-mod/agent-execution-filter-dto.model';
 import { AgentExecutionItemDto } from 'src/app/services/admin/models/aiagent-mod/agent-execution-item-dto.model';
 import { AgentExecutionDetail } from '../detail/detail';
+import { EnumTextPipe } from 'src/app/pipe/admin/enum-text.pipe';
 
 @Component({
   selector: 'app-agent-execution-index',
-  imports: [CommonListModules, CommonFormModules, MatProgressSpinnerModule],
+  imports: [CommonListModules, CommonFormModules, MatProgressSpinnerModule, EnumTextPipe],
   templateUrl: './index.html',
   standalone: true
 })

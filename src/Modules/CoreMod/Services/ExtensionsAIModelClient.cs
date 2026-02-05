@@ -10,7 +10,7 @@ namespace CoreMod.Services;
 /// 使用 Microsoft.Extensions.AI 统一规范，通过 OpenAI SDK 的 OpenAIClientOptions 配置自定义 BaseUrl
 /// </summary>
 public class ExtensionsAIModelClient(
-    IModelRouter modelRouter,
+    DbModelRouter modelRouter,
     ILogger<ExtensionsAIModelClient> logger
 )
 {

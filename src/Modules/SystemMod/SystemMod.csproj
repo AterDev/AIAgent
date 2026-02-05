@@ -11,6 +11,7 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\Definition\Share\Share.csproj" />
+        <ProjectReference Include="..\..\Modules\CoreMod\CoreMod.csproj" />
         <ProjectReference Include="..\..\Perigon\Perigon.AspNetCore.Toolkit\Perigon.AspNetCore.Toolkit.csproj" />
     </ItemGroup>
     <ItemGroup>

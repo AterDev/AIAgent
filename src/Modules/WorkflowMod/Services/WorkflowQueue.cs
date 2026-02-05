@@ -1,6 +1,6 @@
 namespace WorkflowMod.Services;
 
-public class WorkflowQueue(IEntityTaskQueue<WorkflowTask> queue) : IWorkflowQueue
+public class WorkflowQueue(IEntityTaskQueue<WorkflowTask> queue)
 {
     public ValueTask EnqueueAsync(WorkflowTask task)
     {

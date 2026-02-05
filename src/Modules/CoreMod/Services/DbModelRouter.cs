@@ -9,7 +9,7 @@ public class DbModelRouter(
     TenantDbFactory dbContextFactory,
     IUserContext userContext,
     ILogger<DbModelRouter> logger
-) : IModelRouter
+)
 {
     public async Task<ModelRoute> ResolveAsync(ModelRequest request, CancellationToken cancellationToken = default)
     {

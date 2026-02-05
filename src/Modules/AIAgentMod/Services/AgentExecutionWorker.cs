@@ -5,7 +5,7 @@ namespace AIAgentMod.Services;
 
 public class AgentExecutionWorker(
     IServiceProvider serviceProvider,
-    IAgentExecutionQueue queue,
+    AgentExecutionQueue queue,
     ILogger<AgentExecutionWorker> logger
 ) : BackgroundService
 {

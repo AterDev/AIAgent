@@ -1,5 +1,6 @@
-using SystemMod.Models.FileUploadDtos;
 using Share.Models;
+using Share.Services;
+using SystemMod.Models.FileUploadDtos;
 using SystemMod.Services;
 
 namespace AdminService.Controllers.SystemMod;
@@ -7,12 +8,11 @@ namespace AdminService.Controllers.SystemMod;
 /// <summary>
 /// 文件上传管理
 /// </summary>
-[ApiController]
-[Route("api/[controller]")]
 public class FileUploadController(
+    Localizer localizer,
     ILogger<FileUploadController> logger,
     IFileStorageService fileStorageService
-) : ControllerBase
+) : RestControllerBase(localizer)
 {
     private readonly ILogger<FileUploadController> _logger = logger;
     private readonly IFileStorageService _fileStorageService = fileStorageService;
@@ -48,25 +48,21 @@ public class FileUploadController(
             // Validate file
             if (request.File == null || request.File.Length == 0)
             {
-                return BadRequest(new { error = "No file uploaded" });
+                return BadRequest(Localizer.NoFileUploaded);
             }
 
             // Validate file type (extension allowlist)
             var extension = Path.GetExtension(request.File.FileName);
             if (string.IsNullOrEmpty(extension) || !AllowedExtensions.Contains(extension))
             {
-                return BadRequest(new { error = $"File type '{extension}' is not allowed" });
+                return BadRequest(Localizer.FileTypeNotAllowed, extension);
             }
 
             // Validate file size based on type
             var maxSize = FileSizeLimits.TryGetValue(extension, out var size) ? size : FileSizeLimits["*"];
             if (request.File.Length > maxSize)
             {
-                var maxSizeMB = maxSize / (1024 * 1024);
-                var actualSizeMB = request.File.Length / (1024 * 1024);
-                return BadRequest(new { 
-                    error = $"File size ({actualSizeMB}MB) exceeds maximum limit ({maxSizeMB}MB) for {extension.TrimStart('.')} files" 
-                });
+                return BadRequest(Localizer.FileSizeExceededLimit);
             }
 
             // Validate and sanitize category parameter to prevent path traversal
@@ -87,12 +83,12 @@ public class FileUploadController(
         catch (InvalidOperationException ex)
         {
             _logger.LogWarning(ex, "Storage provider not configured");
-            return BadRequest(new { error = ex.Message });
+            return Problem(detail: Localizer.NoActiveStorageProviderConfigured);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error uploading file");
-            return BadRequest(new { error = ex.Message });
+            return Problem(detail: Localizer.BadRequest);
         }
     }
 
@@ -110,7 +106,7 @@ public class FileUploadController(
         {
             if (string.IsNullOrEmpty(filePath))
             {
-                return BadRequest(new { error = "File path is required" });
+                return BadRequest(Localizer.FilePathRequired);
             }
 
             // 默认根据路径格式判断是否为云存储
@@ -120,15 +116,15 @@ public class FileUploadController(
 
             if (!success)
             {
-                return NotFound(new { error = "File not found or failed to delete" });
+                return NotFound();
             }
 
-            return Ok(new { message = "File deleted successfully" });
+            return Ok();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deleting file");
-            return BadRequest(new { error = ex.Message });
+            return Problem(detail: Localizer.BadRequest);
         }
     }
 
@@ -145,7 +141,7 @@ public class FileUploadController(
         // Path.GetFileName extracts only the final path component, neutralizing
         // path traversal attempts (e.g., '../../../etc/passwd' becomes 'passwd')
         category = Path.GetFileName(category.Trim());
-        
+
         // Return default if result is empty
         return string.IsNullOrEmpty(category) ? "default" : category;
     }

@@ -22,8 +22,8 @@ public static class ModuleExtensions
     private static IHostApplicationBuilder AddModServices(this IHostApplicationBuilder builder)
     {
         builder.Services.AddSingleton<IEntityTaskQueue<WorkflowTask>>(new EntityTaskQueue<WorkflowTask>());
-        builder.Services.AddSingleton<IWorkflowQueue, WorkflowQueue>();
-        builder.Services.AddScoped<IWorkflowExecutor, WorkflowExecutor>();
+        builder.Services.AddSingleton<WorkflowQueue>();
+        builder.Services.AddScoped<WorkflowExecutor>();
         builder.Services.AddHostedService<WorkflowWorker>();
         return builder;
     }

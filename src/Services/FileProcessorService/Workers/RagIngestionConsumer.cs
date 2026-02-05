@@ -3,7 +3,7 @@ using NATS.Client.JetStream;
 using NATS.Client.JetStream.Models;
 using Share.Models;
 using System.Text.Json;
-using KnowledgeBaseMod.Services;
+using CoreMod.Services;
 
 namespace FileProcessorService.Workers;
 

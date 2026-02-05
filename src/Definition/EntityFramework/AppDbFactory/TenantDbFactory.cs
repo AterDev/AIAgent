@@ -1,5 +1,6 @@
 using EntityFramework.AppDbContext;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Perigon.AspNetCore.Constants;
 
@@ -12,7 +13,7 @@ namespace EntityFramework.AppDbFactory;
 /// <param name="cache"></param>
 /// <param name="configuration"></param>
 public class TenantDbFactory(
-    ITenantContext tenantContext,
+    IServiceScopeFactory serviceScopeFactory,
     IConfiguration configuration,
     IOptions<ComponentOption> options
 )
@@ -22,6 +23,9 @@ public class TenantDbFactory(
     public async Task<DefaultDbContext> CreateDbContextAsync()
     {
         var builder = new DbContextOptionsBuilder<DefaultDbContext>();
+
+        using var scope = serviceScopeFactory.CreateScope();
+        var tenantContext = scope.ServiceProvider.GetRequiredService<ITenantContext>();
         Guid tenantId = tenantContext.TenantId;
 
         var connectionStrings = configuration.GetConnectionString(AppConst.Default);
@@ -46,13 +50,15 @@ public class TenantDbFactory(
     public async Task<AnalysisDbContext> CreateAnalysisDbContextAsync()
     {
         var builder = new DbContextOptionsBuilder<AnalysisDbContext>();
+        using var scope = serviceScopeFactory.CreateScope();
+        var tenantContext = scope.ServiceProvider.GetRequiredService<ITenantContext>();
         Guid tenantId = tenantContext.TenantId;
         var connectionStrings = configuration.GetConnectionString(AppConst.Analysis);
         if (IsMultiTenant && tenantContext.TenantType == TenantType
             .Independent
             .ToString())
         {
-            connectionStrings = await tenantContext.GetDbConnectionStringAsync();
+            connectionStrings = await tenantContext.GetAnalysisConnectionStringAsync();
         }
         switch (options?.Value.Database)
         {

@@ -49,13 +49,7 @@
         {{ i18nKeys.applicationQuota.periodType | translate }}
       </th>
       <td mat-cell *matCellDef="let item">
-        @switch (item.periodType) {
-          @case (0) { {{ i18nKeys.applicationQuota.minute | translate }} }
-          @case (1) { {{ i18nKeys.applicationQuota.hour | translate }} }
-          @case (2) { {{ i18nKeys.applicationQuota.day | translate }} }
-          @case (3) { {{ i18nKeys.applicationQuota.month | translate }} }
-          @default { {{ item.periodType }} }
-        }
+        {{ item.periodType | enumText:'QuotaPeriodType' }}
       </td>
     </ng-container>
 

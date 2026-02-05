@@ -1,4 +1,3 @@
-using Entity;
 using EntityFramework.AppDbContext;
 using Microsoft.AspNetCore.Http;
 using Perigon.AspNetCore.Services;
@@ -10,9 +9,14 @@ public class TenantContext : ITenantContext
 {
     public Guid TenantId { get; set; }
     public string TenantType { get; set; }
+
+    public string? DbConnectionString { get; set; }
+    public string? AnalysisConnectionString { get; set; }
+
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly CacheService _cache;
     private readonly DefaultDbContext _dbContext;
+
 
     public TenantContext(
         IHttpContextAccessor httpContextAccessor,

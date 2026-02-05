@@ -1,3 +1,4 @@
+using CoreMod.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 using System.ComponentModel;
@@ -23,7 +24,7 @@ public static class ModuleExtensions
     // The module services registration
     private static IHostApplicationBuilder AddModServices(this IHostApplicationBuilder builder)
     {
-        builder.Services.AddScoped<SystemConfigFacade>();
+        builder.Services.AddScoped<ISystemConfigService, SystemConfigService>();
         builder.Services.AddScoped<IFileStorageService, FileStorageService>();
         return builder;
     }

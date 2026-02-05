@@ -237,4 +237,35 @@
     <value>External authentication failed</value>
     <comment>Third-party authentication failed (Microsoft/Google, etc.)</comment>
   </data>
+  <data name="NoActiveStorageProviderConfigured" xml:space="preserve">
+    <value>No active storage provider configured</value>
+    <comment>No active storage provider configured when uploading files</comment>
+  </data>
+  <data name="IncompleteCloudStorageConfiguration" xml:space="preserve">
+    <value>Incomplete cloud storage configuration</value>
+    <comment>S3 cloud storage configuration is missing required parameters</comment>
+  </data>
+  <data name="FileNotFound" xml:space="preserve">
+    <value>File not found</value>
+    <comment>The specified file does not exist</comment>
+  </data>
+  <data name="NoFileUploaded" xml:space="preserve">
+    <value>No file uploaded</value>
+    <comment>No file provided when uploading</comment>
+  </data>
+  <data name="FileTypeNotAllowed" xml:space="preserve">
+    <value>File type not allowed: {0}</value>
+    <comment>The uploaded file type is not in the allowlist</comment>
+  </data>
+  <data name="FileSizeExceededLimit" xml:space="preserve">
+    <value>File size exceeded the maximum limit</value>
+    <comment>The uploaded file size exceeds the limit</comment>
+  </data>
+  <data name="FilePathRequired" xml:space="preserve">
+    <value>File path is required</value>
+    <comment>File path was not provided when deleting a file</comment>
+  </data>
+  <data name="LocalStoragePathNotConfigured" xml:space="preserve">
+    <value>Local Storage Path Not Configured</value>
+  </data>
 </root>

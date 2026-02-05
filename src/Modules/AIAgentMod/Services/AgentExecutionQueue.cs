@@ -1,6 +1,6 @@
 namespace AIAgentMod.Services;
 
-public class AgentExecutionQueue(IEntityTaskQueue<AgentExecutionTask> queue) : IAgentExecutionQueue
+public class AgentExecutionQueue(IEntityTaskQueue<AgentExecutionTask> queue)
 {
     public ValueTask EnqueueAsync(AgentExecutionTask task)
     {

@@ -90,6 +90,11 @@ export const I18N_KEYS = {
     "retryCount": "systemUser.retryCount"
   },
   "language": "language",
+  "layout": {
+    "language": "layout.language",
+    "english": "layout.english",
+    "chinese": "layout.chinese"
+  },
   "validation": {
     "required": "validation.required",
     "minlength": "validation.minlength",
@@ -175,6 +180,8 @@ export const I18N_KEYS = {
     "endpoint": "aiModelProvider.endpoint",
     "isEnabled": "aiModelProvider.isEnabled",
     "baseUrl": "aiModelProvider.baseUrl",
+    "logoUrl": "aiModelProvider.logoUrl",
+    "website": "aiModelProvider.website",
     "providerType": "aiModelProvider.providerType",
     "openAiCompatible": "aiModelProvider.openAiCompatible",
     "custom": "aiModelProvider.custom",
@@ -193,6 +200,9 @@ export const I18N_KEYS = {
     "providerId": "aiModelInfo.providerId",
     "supportsTools": "aiModelInfo.supportsTools",
     "description": "aiModelInfo.description",
+    "contextLength": "aiModelInfo.contextLength",
+    "inputPrice": "aiModelInfo.inputPrice",
+    "outputPrice": "aiModelInfo.outputPrice",
     "maxContextTokens": "aiModelInfo.maxContextTokens",
     "supportsChat": "aiModelInfo.supportsChat",
     "supportsEmbedding": "aiModelInfo.supportsEmbedding",
@@ -240,13 +250,19 @@ export const I18N_KEYS = {
     "tags": "ragDocument.tags",
     "triggerParseConfirm": "ragDocument.triggerParseConfirm",
     "upload": {
+      "documentFile": "ragDocument.upload.documentFile",
       "selectFile": "ragDocument.upload.selectFile",
+      "selectFileButton": "ragDocument.upload.selectFileButton",
+      "uploadButton": "ragDocument.upload.uploadButton",
+      "selectedLabel": "ragDocument.upload.selectedLabel",
+      "uploadCompletedLabel": "ragDocument.upload.uploadCompletedLabel",
       "dragHint": "ragDocument.upload.dragHint",
       "uploading": "ragDocument.upload.uploading",
       "uploadSuccess": "ragDocument.upload.uploadSuccess",
       "uploadFailed": "ragDocument.upload.uploadFailed",
       "supportedFormats": "ragDocument.upload.supportedFormats",
-      "maxFileSize": "ragDocument.upload.maxFileSize"
+      "maxFileSize": "ragDocument.upload.maxFileSize",
+      "triggerParseButton": "ragDocument.upload.triggerParseButton"
     },
     "validation": {
       "fileTypeNotSupported": "ragDocument.validation.fileTypeNotSupported",

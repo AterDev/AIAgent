@@ -237,4 +237,35 @@
     <value>外部身份验证失败</value>
     <comment>Microsoft/Google等第三方认证失败</comment>
   </data>
+  <data name="NoActiveStorageProviderConfigured" xml:space="preserve">
+    <value>未配置活跃的存储服务商</value>
+    <comment>文件上传时未配置活跃的存储服务商</comment>
+  </data>
+  <data name="IncompleteCloudStorageConfiguration" xml:space="preserve">
+    <value>云存储服务商配置不完整</value>
+    <comment>S3云存储配置缺少必要参数</comment>
+  </data>
+  <data name="FileNotFound" xml:space="preserve">
+    <value>文件未找到</value>
+    <comment>指定的文件不存在</comment>
+  </data>
+  <data name="NoFileUploaded" xml:space="preserve">
+    <value>未上传文件</value>
+    <comment>文件上传时未提供文件</comment>
+  </data>
+  <data name="FileTypeNotAllowed" xml:space="preserve">
+    <value>不允许的文件类型: {0}</value>
+    <comment>上传的文件类型不在允许列表中</comment>
+  </data>
+  <data name="FileSizeExceededLimit" xml:space="preserve">
+    <value>文件大小超过上限</value>
+    <comment>上传的文件大小超过限制</comment>
+  </data>
+  <data name="FilePathRequired" xml:space="preserve">
+    <value>文件路径为必需项</value>
+    <comment>删除文件时未提供文件路径</comment>
+  </data>
+  <data name="LocalStoragePathNotConfigured" xml:space="preserve">
+    <value>LocalStoragePath 未配置</value>
+  </data>
 </root>

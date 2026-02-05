@@ -9,7 +9,12 @@
 
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>{{ i18nKeys.ragDocument.collectionId | translate }}</mat-label>
-          <input matInput [(ngModel)]="filterDto.collectionId" [placeholder]="i18nKeys.ragDocument.collectionId | translate" />
+          <mat-select [(ngModel)]="filterDto.collectionId">
+            <mat-option [value]="null">{{ i18nKeys.common.all | translate }}</mat-option>
+            @for (item of availableCollections(); track item.id) {
+              <mat-option [value]="item.id">{{ item.name }}</mat-option>
+            }
+          </mat-select>
         </mat-form-field>
 
         <button mat-flat-button color="primary" (click)="filter()">{{ i18nKeys.common.search | translate }}</button>
@@ -43,7 +48,7 @@
         {{ i18nKeys.ragDocument.collectionId | translate }}
       </th>
       <td mat-cell *matCellDef="let item">
-        {{ item.collectionId }}
+        {{ getCollectionName(item.collectionId) }}
       </td>
     </ng-container>
 
@@ -52,7 +57,7 @@
         {{ i18nKeys.ragDocument.status | translate }}
       </th>
       <td mat-cell *matCellDef="let item">
-        {{ item.status }}
+        {{ item.status | enumText:'RagDocumentStatus' }}
       </td>
     </ng-container>
 
@@ -72,8 +77,8 @@
       <td mat-cell *matCellDef="let item">
         <button mat-icon-button class="secondary" (click)="openDetail(item.id)"><mat-icon>visibility</mat-icon></button>
         <button mat-icon-button class="primary" (click)="openEdit(item.id)"><mat-icon>edit</mat-icon></button>
-        <button mat-icon-button color="accent" (click)="triggerParse(item.id)" matTooltip="Trigger Parse"><mat-icon>refresh</mat-icon></button>
-        <button mat-icon-button class="warn" (click)="deleteItem(item.id)"><mat-icon>delete</mat-icon></button>
+        <button mat-icon-button color="accent" (click)="triggerParse(item.id)" [matTooltip]="i18nKeys.ragDocument.upload.triggerParseButton | translate"><mat-icon>refresh</mat-icon></button>
+        <button mat-icon-button class="accent" (click)="deleteItem(item.id)"><mat-icon>delete</mat-icon></button>
       </td>
     </ng-container>
 

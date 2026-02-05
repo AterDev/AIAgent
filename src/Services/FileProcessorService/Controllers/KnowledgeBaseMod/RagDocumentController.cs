@@ -2,7 +2,7 @@ using Entity.KnowledgeBaseMod;
 using KnowledgeBaseMod.Managers;
 using KnowledgeBaseMod.Models.RagDocumentDtos;
 using KnowledgeBaseMod.Models.DocumentParsingDtos;
-using KnowledgeBaseMod.Services;
+using CoreMod.Services;
 using Share.Services;
 using Share.Models;
 
@@ -74,7 +74,7 @@ public class RagDocumentController(
             // 验证文件路径存在
             if (!System.IO.File.Exists(request.FilePath))
             {
-                return BadRequest(new { error = "File not found at specified path" });
+                return Problem(detail: Localizer.FileNotFound);
             }
 
             // 确定文档格式
@@ -93,7 +93,7 @@ public class RagDocumentController(
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error parsing document {DocumentId}", id);
-            return BadRequest(new { error = ex.Message });
+            return Problem(detail: Localizer.BadRequest);
         }
     }
 

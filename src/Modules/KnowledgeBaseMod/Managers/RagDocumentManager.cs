@@ -1,5 +1,5 @@
 using KnowledgeBaseMod.Models.RagDocumentDtos;
-using SystemMod.Managers;
+using Share.Services;
 
 namespace KnowledgeBaseMod.Managers;
 
@@ -10,10 +10,10 @@ public class RagDocumentManager(
     TenantDbFactory dbContextFactory,
     ILogger<RagDocumentManager> logger,
     IUserContext userContext,
-    StorageProviderManager storageProviderManager
+    IStorageProviderQuery storageProviderQuery
 ) : ManagerBase<DefaultDbContext, RagDocument>(dbContextFactory, userContext, logger)
 {
-    private readonly StorageProviderManager _storageProviderManager = storageProviderManager;
+    private readonly IStorageProviderQuery _storageProviderQuery = storageProviderQuery;
 
     /// <summary>
     /// 支持的文档类型（文件扩展名，不含点）
@@ -43,10 +43,10 @@ public class RagDocumentManager(
         var entity = dto.MapTo<RagDocument>();
         
         // 自动设置活跃的存储服务商
-        var activeProvider = await _storageProviderManager.GetActiveProviderAsync();
+        var activeProvider = await _storageProviderQuery.GetActiveProviderAsync();
         if (activeProvider == null)
         {
-            throw new InvalidOperationException("未配置活跃的存储服务商");
+            throw new BusinessException(Localizer.NoActiveStorageProviderConfigured);
         }
         entity.StorageProviderId = activeProvider.Id;
         

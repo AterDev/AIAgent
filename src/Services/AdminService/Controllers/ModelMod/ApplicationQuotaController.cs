@@ -11,10 +11,10 @@ public class ApplicationQuotaController(
     IUserContext user,
     ILogger<ApplicationQuotaController> logger,
     ApplicationQuotaManager manager,
-    IQuotaLimitingService quotaLimitingService
+    QuotaLimitingService quotaLimitingService
 ) : RestControllerBase<ApplicationQuotaManager>(localizer, manager, user, logger)
 {
-    private readonly IQuotaLimitingService _quotaLimitingService = quotaLimitingService;
+    private readonly QuotaLimitingService _quotaLimitingService = quotaLimitingService;
 
     [HttpPost("filter")]
     public async Task<ActionResult<PageList<ApplicationQuotaItemDto>>> ListAsync(ApplicationQuotaFilterDto filter)

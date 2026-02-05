@@ -5,7 +5,7 @@ namespace CoreMod.Services;
 /// <summary>
 /// 默认模型路由（占位）
 /// </summary>
-public class DefaultModelRouter : IModelRouter
+public class DefaultModelRouter
 {
     public Task<ModelRoute> ResolveAsync(ModelRequest request, CancellationToken cancellationToken = default)
     {

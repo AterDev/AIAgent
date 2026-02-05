@@ -1,4 +1,4 @@
-using KnowledgeBaseMod.Models.RagQueryDtos;
+using Share.Services;
 
 namespace KnowledgeBaseMod.Services;
 

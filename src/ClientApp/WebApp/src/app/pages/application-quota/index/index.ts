@@ -9,10 +9,11 @@ import { I18N_KEYS } from 'src/app/share/i18n-keys';
 import { ConfirmDialogComponent } from 'src/app/share/components/confirm-dialog/confirm-dialog.component';
 import { ApplicationQuotaFilterDto } from 'src/app/services/admin/models/model-mod/application-quota-filter-dto.model';
 import { ApplicationQuotaItemDto } from 'src/app/services/admin/models/model-mod/application-quota-item-dto.model';
+import { EnumTextPipe } from 'src/app/pipe/admin/enum-text.pipe';
 
 @Component({
   selector: 'app-application-quota-index',
-  imports: [CommonListModules, CommonFormModules, MatProgressSpinnerModule],
+  imports: [CommonListModules, CommonFormModules, MatProgressSpinnerModule, EnumTextPipe],
   templateUrl: './index.html',
   standalone: true
 })

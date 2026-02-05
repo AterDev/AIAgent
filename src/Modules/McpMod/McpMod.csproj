@@ -8,8 +8,8 @@
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\Definition\Share\Share.csproj" />
-        <ProjectReference Include="..\..\Modules\KnowledgeBaseMod\KnowledgeBaseMod.csproj" />
         <ProjectReference Include="..\..\Perigon\Perigon.AspNetCore.Toolkit\Perigon.AspNetCore.Toolkit.csproj" />
+        <ProjectReference Include="..\CoreMod\CoreMod.csproj" />
     </ItemGroup>
     <ItemGroup>
         <Folder Include="Managers\" />

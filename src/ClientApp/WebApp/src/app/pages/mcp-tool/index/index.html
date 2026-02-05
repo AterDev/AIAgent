@@ -40,7 +40,7 @@
         {{ i18nKeys.mcpTool.toolType | translate }}
       </th>
       <td mat-cell *matCellDef="let item">
-        {{ item.toolType }}
+        {{ item.toolType | enumText:'McpToolType' }}
       </td>
     </ng-container>
 

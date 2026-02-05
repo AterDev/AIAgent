@@ -21,7 +21,7 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
-        <mat-label>Logo URL</mat-label>
+        <mat-label>{{ i18nKeys.aiModelProvider.logoUrl | translate }}</mat-label>
         <input matInput [formControl]="logoUrl" />
         @if (logoUrl.errors) {
           <mat-error>{{ getValidatorMessage(logoUrl) }}</mat-error>
@@ -29,7 +29,7 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
-        <mat-label>Website</mat-label>
+        <mat-label>{{ i18nKeys.aiModelProvider.website | translate }}</mat-label>
         <input matInput [formControl]="website" />
         @if (website.errors) {
           <mat-error>{{ getValidatorMessage(website) }}</mat-error>

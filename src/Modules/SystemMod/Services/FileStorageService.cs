@@ -35,7 +35,7 @@ public class FileStorageService(
         var provider = await GetActiveProviderAsync();
         if (provider == null)
         {
-            throw new InvalidOperationException("未配置活跃的存储服务商");
+            throw new BusinessException(Localizer.NoActiveStorageProviderConfigured);
         }
 
         var extension = Path.GetExtension(fileName);
@@ -112,7 +112,7 @@ public class FileStorageService(
             string.IsNullOrEmpty(provider.AccessKeyId) ||
             string.IsNullOrEmpty(provider.AccessKeySecret))
         {
-            throw new InvalidOperationException("云存储服务商配置不完整");
+            throw new BusinessException(Localizer.IncompleteCloudStorageConfiguration);
         }
 
         return new AmazonS3Client(
@@ -166,8 +166,14 @@ public class FileStorageService(
         string datePath,
         CancellationToken cancellationToken)
     {
-        var basePath = provider.Path ?? Path.Combine(_environment.ContentRootPath, "uploads");
-        var uploadPath = Path.Combine(basePath, category, datePath);
+
+        if (provider.Path == null)
+        {
+            _logger.LogWarning("Local storage path not configured: {StorageProviderId}", provider.Id);
+            throw new BusinessException(Localizer.LocalStoragePathNotConfigured);
+        }
+
+        var uploadPath = Path.Combine(provider.Path, category, datePath);
         Directory.CreateDirectory(uploadPath);
 
         var fullPath = Path.Combine(uploadPath, safeFileName);
@@ -253,24 +259,18 @@ public class FileStorageService(
         // 本地存储：直接返回文件路径
         if (!provider.IsCloud)
         {
-            var uploadsBasePath = Path.GetFullPath(Path.Combine(_environment.ContentRootPath, "uploads"));
-            var fullPath = Path.GetFullPath(Path.Combine(_environment.ContentRootPath, objectKey));
-
-            // 安全检查：确保文件路径在uploads目录下
-            if (!fullPath.StartsWith(uploadsBasePath + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) &&
-                !fullPath.Equals(uploadsBasePath, StringComparison.OrdinalIgnoreCase))
+            if (provider.Path == null)
             {
-                _logger.LogWarning("文件路径不在uploads目录下: {FilePath}", objectKey);
+                _logger.LogWarning("Local storage path not configured: {StorageProviderId}", storageProviderId);
                 return null;
             }
+            var fullPath = Path.GetFullPath(Path.Combine(provider.Path, objectKey));
 
             if (File.Exists(fullPath))
             {
-                _logger.LogInformation("本地文件已存在: {FilePath}", fullPath);
                 return fullPath;
             }
-
-            _logger.LogWarning("本地文件不存在: {FilePath}", fullPath);
+            _logger.LogWarning("File not exist: {FilePath}", fullPath);
             return null;
         }
 

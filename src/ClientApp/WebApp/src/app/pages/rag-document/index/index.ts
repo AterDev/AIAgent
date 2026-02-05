@@ -10,13 +10,15 @@ import { CommonFormModules, CommonListModules } from 'src/app/share/shared-modul
 import { ConfirmDialogComponent } from 'src/app/share/components/confirm-dialog/confirm-dialog.component';
 import { RagDocumentFilterDto } from 'src/app/services/admin/models/knowledge-base-mod/rag-document-filter-dto.model';
 import { RagDocumentItemDto } from 'src/app/services/admin/models/knowledge-base-mod/rag-document-item-dto.model';
+import { RagCollectionItemDto } from 'src/app/services/admin/models/knowledge-base-mod/rag-collection-item-dto.model';
 import { RagDocumentAdd } from '../add/add';
 import { RagDocumentEdit } from '../edit/edit';
 import { RagDocumentDetail } from '../detail/detail';
+import { EnumTextPipe } from 'src/app/pipe/admin/enum-text.pipe';
 
 @Component({
   selector: 'app-rag-document-index',
-  imports: [CommonListModules, CommonFormModules, MatProgressSpinnerModule],
+  imports: [CommonListModules, CommonFormModules, MatProgressSpinnerModule, EnumTextPipe],
   templateUrl: './index.html',
   standalone: true
 })
@@ -34,12 +36,23 @@ export class RagDocumentIndex implements OnInit {
   displayedColumns = ["name", "collectionId", "status", "chunkCount", "actions"];
 
   isLoading = signal(true);
+  availableCollections = signal<RagCollectionItemDto[]>([]);
 
   total = 0;
   pageSize = 10;
 
   ngOnInit(): void {
+    this.loadCollections();
     this.loadData();
+  }
+
+  loadCollections(): void {
+    this.adminClient.ragCollection.list({ pageIndex: 1, pageSize: 100 }).subscribe({
+      next: (res: any) => {
+        this.availableCollections.set(res.data || []);
+      },
+      error: () => {}
+    });
   }
 
   loadData(): void {
@@ -113,5 +126,11 @@ export class RagDocumentIndex implements OnInit {
         }); 
       }
     });
+  }
+
+  getCollectionName(collectionId: string | null): string {
+    if (!collectionId) return '';
+    const collection = this.availableCollections().find(c => c.id === collectionId);
+    return collection?.name || collectionId;
   }
 }

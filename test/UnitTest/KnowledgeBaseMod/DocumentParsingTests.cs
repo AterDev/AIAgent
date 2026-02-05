@@ -3,14 +3,13 @@ using D = DocumentFormat.OpenXml.Drawing;
 using P = DocumentFormat.OpenXml.Presentation;
 using W = DocumentFormat.OpenXml.Wordprocessing;
 using Entity.KnowledgeBaseMod;
-using KnowledgeBaseMod.Services;
+using Share.Services;
+using CoreMod.Services;
 using Microsoft.Extensions.Logging.Abstractions;
 using SkiaSharp;
 using UglyToad.PdfPig;
 using System.Net.Http;
 using System.Text;
-using SystemMod.Managers;
-using SystemMod.Services;
 
 namespace UnitTest.KnowledgeBaseMod;
 
@@ -105,7 +104,7 @@ public class DocumentParsingTests
         var parser = new KreuzbergDocumentParser(
             HttpClientFactory,
             FileStorageService,
-            (StorageProviderManager)null!,
+            new NullStorageProviderQuery(),
             NullLogger<KreuzbergDocumentParser>.Instance);
 
         var document = new RagDocument
@@ -320,5 +319,14 @@ public class DocumentParsingTests
         public void CleanupTempFile(string tempFilePath)
         {
         }
+    }
+
+    private sealed class NullStorageProviderQuery : IStorageProviderQuery
+    {
+        public Task<StorageProviderInfo?> GetProviderAsync(Guid storageProviderId, CancellationToken cancellationToken = default)
+            => Task.FromResult<StorageProviderInfo?>(null);
+
+        public Task<StorageProviderInfo?> GetActiveProviderAsync(CancellationToken cancellationToken = default)
+            => Task.FromResult<StorageProviderInfo?>(null);
     }
 }

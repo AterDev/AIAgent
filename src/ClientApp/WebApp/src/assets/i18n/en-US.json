@@ -87,6 +87,11 @@
     "retryCount": "Retry Count"
   },
   "language": "Language",
+  "layout": {
+    "language": "Language",
+    "english": "English",
+    "chinese": "Chinese"
+  },
   "validation": {
     "required": "This field is required",
     "minlength": "The minimum length is {{requiredLength}}",
@@ -176,6 +181,8 @@
     "endpoint": "Endpoint",
     "isEnabled": "Enabled",
     "baseUrl": "Base URL",
+    "logoUrl": "Logo URL",
+    "website": "Website",
     "providerType": "Provider Type",
     "openAiCompatible": "OpenAI Compatible",
     "custom": "Custom",
@@ -194,6 +201,9 @@
     "providerId": "Provider",
     "supportsTools": "Supports Tools",
     "description": "Description",
+    "contextLength": "Context Length",
+    "inputPrice": "Input Price",
+    "outputPrice": "Output Price",
     "maxContextTokens": "Max Context Tokens",
     "supportsChat": "Supports Chat",
     "supportsEmbedding": "Supports Embedding",
@@ -241,13 +251,19 @@
     "tags": "Tags",
     "triggerParseConfirm": "Are you sure you want to trigger parsing for this document?",
     "upload": {
+      "documentFile": "Document File",
       "selectFile": "Select File",
+      "selectFileButton": "Select File",
+      "uploadButton": "Upload",
+      "selectedLabel": "Selected: ",
+      "uploadCompletedLabel": "Upload completed: ",
       "dragHint": "or drag file here",
       "uploading": "Uploading...",
       "uploadSuccess": "Upload Successful",
       "uploadFailed": "Upload Failed",
       "supportedFormats": "Supported Formats",
-      "maxFileSize": "Max File Size"
+      "maxFileSize": "Max File Size",
+      "triggerParseButton": "Trigger Parse"
     },
     "validation": {
       "fileTypeNotSupported": "Unsupported file type: {0}. Supported formats: {1}",

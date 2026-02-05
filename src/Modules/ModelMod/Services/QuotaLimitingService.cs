@@ -3,39 +3,13 @@ using ModelMod.Models.ApplicationQuotaDtos;
 namespace ModelMod.Services;
 
 /// <summary>
-/// 配额限流服务接口
-/// </summary>
-public interface IQuotaLimitingService
-{
-    /// <summary>
-    /// 检查是否超出配额
-    /// </summary>
-    Task<bool> CheckQuotaAsync(Guid applicationId, int estimatedTokens, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// 消耗配额
-    /// </summary>
-    Task<QuotaConsumeResultDto> ConsumeAsync(Guid applicationId, int actualTokens, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// 获取配额使用情况
-    /// </summary>
-    Task<QuotaUsageDto> GetUsageAsync(Guid applicationId, QuotaPeriodType periodType, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// 重置配额
-    /// </summary>
-    Task<bool> ResetQuotaAsync(Guid applicationId, QuotaPeriodType periodType, CancellationToken cancellationToken = default);
-}
-
-/// <summary>
-/// 配额限流服务实现
+/// 配额限流服务
 /// </summary>
 public class QuotaLimitingService(
     TenantDbFactory dbContextFactory,
     IDistributedCache cache,
     ILogger<QuotaLimitingService> logger
-) : IQuotaLimitingService
+)
 {
     private const string QuotaKeyFormat = "quota:{0}:{1}:{2}";
 

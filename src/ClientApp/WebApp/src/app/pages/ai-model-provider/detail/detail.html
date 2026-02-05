@@ -18,7 +18,7 @@
         <span style="white-space:pre-wrap">{{ model.description }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong style="width:160px;display:inline-block;">Logo URL:</strong>
+        <strong style="width:160px;display:inline-block;">{{ i18nKeys.aiModelProvider.logoUrl | translate }}:</strong>
         @if (model.logoUrl) {
           <a [href]="model.logoUrl" target="_blank">{{ model.logoUrl }}</a>
         } @else {
@@ -26,7 +26,7 @@
         }
       </mat-list-item>
       <mat-list-item>
-        <strong style="width:160px;display:inline-block;">Website:</strong>
+        <strong style="width:160px;display:inline-block;">{{ i18nKeys.aiModelProvider.website | translate }}:</strong>
         @if (model.website) {
           <a [href]="model.website" target="_blank">{{ model.website }}</a>
         } @else {

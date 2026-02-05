@@ -1,13 +1,13 @@
 ﻿---
 name: backend
-description: ASP.NET Core / EF Core / Aspire / Perigon 后端开发规范与最佳实践。用于实体/DTO/Manager/Controller、DbContext/迁移、ApiService/AdminService 等后端任务。
+description: ASP.NET Core / EF Core / Aspire 后端开发规范与最佳实践。
 ---
 
 ## 何时使用
 
-在编写后端项目时，如Aspire/Asp.Net Core WebAPI及其他与后端相关的内容。
+任何涉及到后端逻辑的实现。
 
-## Perigon分层结构
+## 项目结构层级
 
 ```sh
 src/
@@ -30,26 +30,48 @@ src/
 ### Share共享项目
 
 - Shared constants live in src/Definition/Share/Constants; module-specific constants stay in their module/service.
-- Extend AppConst via extension methods in Share/Constants (e.g., AppExtensions) rather than modifying base constants.
+- 只包含通用的逻辑算法等，不涉及任何业务数据的操作
+- 封装通用的第三方库的调用，如缓存/邮件/消息队列等
+- 包含多语言文件，源代码生成器会自动生成常量到`Localizer.cs`，在多语言实现时，一定要使用Localizer的常量，避免硬编码字符串。
+
+### Modules 
+
+包含根据业务拆分的模块项目，每个模块包含 Manager（业务逻辑）和 Models（DTO 定义）。模块内可以有自己的 Services（可选），但要避免跨模块直接调用 Manager，应该通过共享服务或事件解耦。
+
+- 模块主要是通过继承 ManagerBase<T> 来实现业务逻辑，所有Manager都要继承 ManagerBase<T> 或 ManagerBase
+- 在模块中业务验证错误，抛出 `BusinessException`
+
+模块之间不能相互依赖，除了`CoreMod`块可以被所有模块依赖外，其他模块只能依赖`Share`和`ServiceDefaults`。
+
+### Services
+
+包含具体的 API 服务项目，通过调用 Manager 来执行业务逻辑。
+
+如果Controller没有绑定特定的Manager，则继承`RestControllerBase`的其他基类。
+
+在Controller层，做用户输入验证和权限验证，不做业务验证，返回 `Problem()` / `NotFound()` 等 HTTP 错误响应。
+
+### 返回值
+- **成功**：`ActionResult<T>` 或直接返回类型
+- **错误**：使用 `Problem()` 或 `NotFound()`，直接使用多语言常量作为错误消息，而不要new一个对象或使用字符串硬编码。
+- **参数绑定**：有歧义时使用显式特性 `[FromBody]` / `[FromQuery]` / `[FromRoute]`
 
 
-### 多租户
+**后台任务服务**
 
-架构支持多租户，也支持单租户，从AppHost的`appsettings.Development.json`配置中，可以知道当前是单租户还是多租户模式。
+- 不直接使用`DbContext`，也不要直接调用Manager，而是通过`DbContextFactory`创建DbContext实例，来执行业务逻辑。
+- 优先复用`IEntityTaskQueue`或`IBackgroundTask`来实现队列
 
-如果是单租户模式，tenantId默认为Guid.Empty。
-
-
-### 模块依赖层次（从下到上）
+### 项目依赖层次（从下到上）
 
 1. **Entity** → 定义数据模型
 2. **EntityFramework** → 配置 DbContext，依赖 Entity
 3. **Share + ServiceDefaults** → 共享工具和服务注册，依赖 EntityFramework
-4. **Modules** → 业务逻辑和 DTO，依赖 Entity 和 Share
+4. **Modules** → 模块的业务逻辑实现和DTO，依赖 Entity 和 Share
 5. **Services** → API 控制器，依赖 Modules
 
 **禁止**：
-- ❌ Manager 之间直接调用（通过共享服务或事件解耦）
+- ❌ Manager之间直接调用
 - ❌ Controller 绕过 Manager 直接访问 DbContext
 - ❌ Entity 包含业务逻辑（仅数据模型和验证注解）
 - ❌ 不要面向接口编程。没有多个实现类的服务，不要为其创建接口。
@@ -58,12 +80,11 @@ src/
 
 ## 开发流程
 
-1. 先处理定义层，即实体的定义，DbContext的处理，以及共享服务的编写
-2. 然后处理模块层，即Manager和DTO的编写
-3. 最后处理服务层，即Controller的编写
+1. 定义层，即实体的定义，DbContext的处理，以及共享服务的编写(封装以便简化和复用)
+2. 模块层，即Manager和DTO的生成和编写
+3. 服务层，即Controller的生成和编写
 4. **执行构建验证**（必须步骤）：验证编译无错误
-5. 检查项目依赖关系，确保没有违反分层原则
-6. 没有错误，添加或修改了实体，需要执行`scripts/EFMigrations.ps1`脚本，生成迁移文件。
+6. 判断是否要在执行迁移，如果添加或修改了实体，则执行`scripts/EFMigrations.ps1`脚本。
 
 **要优先使用MCP工具`Perigon`，生成或创建模块/Entity/DTO/Manager/Controller等内容。**
 
@@ -71,24 +92,7 @@ src/
 
 ## 构建验证（每次修改后必须执行）
 
-### 验证后端服务
-```pwsh
-# 验证具体服务
-dotnet build src/Services/AdminService
-dotnet build src/Services/ApiService
-
-# 验证业务模块
-dotnet build src/Modules/AIAgentMod
-
-# 验证整个方案（推荐）
-dotnet build AIAgent.slnx
-```
-
-### 常见构建错误及解决
-1. **命名空间错误**：检查 using 指令和 GlobalUsings.cs
-2. **符号未找到**：检查依赖项引用和 NuGet 包
-3. **EF Core 错误**：执行 `dotnet ef migrations add` 生成迁移
-4. **版本冲突**：检查 Directory.Packages.props 中的包版本
+通过`dotnet build`，构建对应的服务项目，如`ApiService`或`AdminService`，验证编译无错误。
 
 ### 构建-修复循环
 修改代码 → 构建 → 发现错误 → 修复 → 重新构建，直到无错误
@@ -97,68 +101,34 @@ MCP server config lives in [.mcp.json](.mcp.json) and [.vscode/mcp.json](.vscode
 
 ---
 
-## 开发规范
+## 约定与规范
 
-### 错误处理
-- 业务错误：抛出 `BusinessException`
-- 第三方服务调用：保留在`Share/Services`中
+解决方案使用全局命名空间和中央包管理
 
----
+### 代码复用
 
-### DTO（数据传输对象）
+尽可能的将逻辑算法与业务实现(数据访问)分离，如果逻辑算法只在一个模块使用，则放在模块内的Services目录下，如果多个模块使用，则放在Share层，并且要封装通用的第三方库的调用，如缓存/邮件/消息队列等。
 
-通过MCP工具生成Dto，然后以此为模板再根据实际需求调整。
+业务实体的类型转换，可直接在实体中实现。
 
-### Manager
+### 多租户
 
-通过MCP工具生成Manager，然后以此为模板再根据实际需求调整。
-
-如果Manager没有绑定特定的实体，则继承`ManagerBase.cs`的其他基类。
-
-EF Core 查询，要使用方法调用，而不是使用 LINQ 查询语法。
+架构支持多租户，也支持单租户，从AppHost的`appsettings.Development.json`配置中，可以知道当前是单租户还是多租户模式。如果是单租户模式，tenantId默认为Guid.Empty。
 
 ###  对象映射
 
 优先使用`Perigon.AspNetCore.Utils.Extensions` 中的扩展方法`Merge/MapTo`进行映射。
 
-### 控制器（Controllers）
+### Aspire集成 
 
-通过MCP工具生成Controller，然后以此为模板再根据实际需求调整。
-
-如果Controller没有绑定特定的Manager，则继承`RestControllerBase`的其他基类。
-
-✗ **避免**：
-- 直接访问 DbContext
-- 实现业务逻辑
-- ApiResponse 包装器（使用标准响应）
-
-### 返回值
-- **成功**：`ActionResult<T>` 直接返回模型
-- **错误**：使用 `Problem()` 或 `NotFound()`
-- **参数绑定**：有歧义时使用显式特性 `[FromBody]` / `[FromQuery]` / `[FromRoute]`
-
-### Aspire / AppHost
-
-可参考微软官方文档以实现相关的需求。
-优先使用Aspire生态提供的功能和中间件。
+AppHost为Aspire项目.
+优先使用Aspire生态提供的功能和中间件，可通过MCP工具搜索微软官方文档了解如何使用。
 
 ---
 
 ## 代码约定
 
-### C# 14 语言特性
 - 使用文件作用域命名空间
-- 使用主构造函数
+- 使用主构造函数，并将依赖注入到构造函数参数中，减少属性注入和字段注入
 - 使用集合表达式
-
-### 异步编程
-- **全程异步**：使用 `async/await`
-- **传递 Token**：从 Controller 向 Manager/数据访问传递 `CancellationToken`
-
-### 依赖注入
-- 使用构造函数注入（Constructor Injection）
-- ✗ 避免服务定位器模式
-
-### 验证和业务规则
-- **API 边界**：验证输入参数
-- **业务逻辑**：验证规则保留在 Manager 中
+- 优先使用异步编程，并传递 `CancellationToken`

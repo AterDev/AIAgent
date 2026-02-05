@@ -25,12 +25,14 @@ builder.AddNatsClient("nats");
 // 添加 NATS JetStream 上下文服务（官方集成方式）
 builder.AddNatsJetStream();
 
+// 添加 Qdrant 客户端（通过 Aspire 集成）
+builder.AddQdrantClient("qdrant");
 
 // 注册 RAG 处理消费者
 builder.Services.AddHostedService<FileProcessorService.Workers.RagIngestionConsumer>();
 
 // 注册后台轮询服务（用于处理 Pending/Failed 状态的文档，作为兜底机制）
-builder.Services.AddHostedService<KnowledgeBaseMod.Services.BackgroundParsingService>();
+builder.Services.AddHostedService<CoreMod.Services.BackgroundParsingService>();
 
 WebApplication app = builder.Build();
 
