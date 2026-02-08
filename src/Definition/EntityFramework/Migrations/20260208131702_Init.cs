@@ -13,6 +13,28 @@ namespace EntityFramework.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "A2ARemoteAgents",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
+                    AgentUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    AuthType = table.Column<int>(type: "integer", nullable: false),
+                    AuthValue = table.Column<string>(type: "text", nullable: true),
+                    Skills = table.Column<List<string>>(type: "text[]", nullable: true),
+                    IsEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_A2ARemoteAgents", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AIAgents",
                 columns: table => new
                 {
@@ -20,7 +42,7 @@ namespace EntityFramework.Migrations
                     Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     ModelId = table.Column<string>(type: "text", nullable: false),
-                    SystemPrompt = table.Column<string>(type: "text", nullable: false),
+                    SystemPrompt = table.Column<string>(type: "character varying(5000)", maxLength: 5000, nullable: false),
                     Tools = table.Column<List<string>>(type: "text[]", nullable: false),
                     Enable = table.Column<bool>(type: "boolean", nullable: false),
                     IsTemplate = table.Column<bool>(type: "boolean", nullable: false),
@@ -54,6 +76,25 @@ namespace EntityFramework.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AIModelProviders", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AIPrompts",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    Content = table.Column<string>(type: "character varying(5000)", maxLength: 5000, nullable: false),
+                    GroupName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AIPrompts", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -163,6 +204,30 @@ namespace EntityFramework.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_RagCollections", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StorageProviders",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false),
+                    IsCloud = table.Column<bool>(type: "boolean", nullable: false),
+                    Path = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    Endpoint = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    AccessKeyId = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    AccessKeySecret = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    BucketName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    Region = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StorageProviders", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -500,8 +565,8 @@ namespace EntityFramework.Migrations
                     Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     FileName = table.Column<string>(type: "character varying(260)", maxLength: 260, nullable: false),
                     FilePath = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
-                    ContentType = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    StorageType = table.Column<int>(type: "integer", nullable: false),
+                    FileType = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    StorageProviderId = table.Column<Guid>(type: "uuid", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     RetryCount = table.Column<int>(type: "integer", nullable: false),
                     Tags = table.Column<List<string>>(type: "text[]", nullable: false),
@@ -630,6 +695,36 @@ namespace EntityFramework.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RagAgentConfigs",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Key = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Value = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    AIModelInfoId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    AIPromptId = table.Column<Guid>(type: "uuid", nullable: true),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RagAgentConfigs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RagAgentConfigs_AIModelInfos_AIModelInfoId",
+                        column: x => x.AIModelInfoId,
+                        principalTable: "AIModelInfos",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_RagAgentConfigs_AIPrompts_AIPromptId",
+                        column: x => x.AIPromptId,
+                        principalTable: "AIPrompts",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "DocumentParsingResults",
                 columns: table => new
                 {
@@ -688,6 +783,17 @@ namespace EntityFramework.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_A2ARemoteAgents_AgentUrl_TenantId",
+                table: "A2ARemoteAgents",
+                columns: new[] { "AgentUrl", "TenantId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_A2ARemoteAgents_Name",
+                table: "A2ARemoteAgents",
+                column: "Name");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AgentExecutions_AgentId_Status",
                 table: "AgentExecutions",
                 columns: new[] { "AgentId", "Status" });
@@ -706,6 +812,22 @@ namespace EntityFramework.Migrations
                 name: "IX_AIModelInfos_ProviderId_Name",
                 table: "AIModelInfos",
                 columns: new[] { "ProviderId", "Name" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AIPrompts_GroupName",
+                table: "AIPrompts",
+                column: "GroupName");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AIPrompts_Name",
+                table: "AIPrompts",
+                column: "Name");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AIPrompts_Name_GroupName",
+                table: "AIPrompts",
+                columns: new[] { "Name", "GroupName" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -790,6 +912,22 @@ namespace EntityFramework.Migrations
                 columns: new[] { "ApplicationId", "PeriodType", "WindowStart" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_RagAgentConfigs_AIModelInfoId",
+                table: "RagAgentConfigs",
+                column: "AIModelInfoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RagAgentConfigs_AIPromptId",
+                table: "RagAgentConfigs",
+                column: "AIPromptId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RagAgentConfigs_Key",
+                table: "RagAgentConfigs",
+                column: "Key",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RagChunks_DocumentId_ChunkIndex",
                 table: "RagChunks",
                 columns: new[] { "DocumentId", "ChunkIndex" },
@@ -804,6 +942,17 @@ namespace EntityFramework.Migrations
                 name: "IX_RagDocuments_CollectionId_Name",
                 table: "RagDocuments",
                 columns: new[] { "CollectionId", "Name" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StorageProviders_IsActive",
+                table: "StorageProviders",
+                column: "IsActive");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StorageProviders_Name",
+                table: "StorageProviders",
+                column: "Name",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_SystemConfigs_GroupName_Key",
@@ -860,6 +1009,9 @@ namespace EntityFramework.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "A2ARemoteAgents");
+
+            migrationBuilder.DropTable(
                 name: "AgentExecutions");
 
             migrationBuilder.DropTable(
@@ -887,7 +1039,13 @@ namespace EntityFramework.Migrations
                 name: "QuotaUsages");
 
             migrationBuilder.DropTable(
+                name: "RagAgentConfigs");
+
+            migrationBuilder.DropTable(
                 name: "RagChunks");
+
+            migrationBuilder.DropTable(
+                name: "StorageProviders");
 
             migrationBuilder.DropTable(
                 name: "SystemConfigs");
@@ -917,10 +1075,13 @@ namespace EntityFramework.Migrations
                 name: "Conversations");
 
             migrationBuilder.DropTable(
+                name: "Applications");
+
+            migrationBuilder.DropTable(
                 name: "AIModelInfos");
 
             migrationBuilder.DropTable(
-                name: "Applications");
+                name: "AIPrompts");
 
             migrationBuilder.DropTable(
                 name: "RagDocuments");

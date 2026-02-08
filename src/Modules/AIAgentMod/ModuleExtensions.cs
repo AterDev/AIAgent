@@ -10,11 +10,18 @@ public static class ModuleExtensions
     /// </summary>
     public static IHostApplicationBuilder AddAIAgentMod(this IHostApplicationBuilder builder)
     {
+        builder.Services.AddHttpClient("A2A")
+            .ConfigurePrimaryHttpMessageHandler(() => new System.Net.Http.SocketsHttpHandler
+            {
+                PooledConnectionLifetime = TimeSpan.FromMinutes(10),
+            })
+            .SetHandlerLifetime(TimeSpan.FromMinutes(10));
         builder.Services.AddSingleton<IEntityTaskQueue<AgentExecutionTask>>(new EntityTaskQueue<AgentExecutionTask>());
         builder.Services.AddSingleton<AgentExecutionQueue>();
         // 使用增强的 Agent 执行服务，支持多轮对话和工具调用链路
         builder.Services.AddScoped<IAgentExecutionService, EnhancedAgentExecutionService>();
         builder.Services.AddScoped<AgentDebugService>();
+        builder.Services.AddScoped<A2AClientService>();
         // 保留旧实现作为备选
         builder.Services.AddScoped<AgentExecutionService>();
         builder.Services.AddHostedService<AgentExecutionWorker>();

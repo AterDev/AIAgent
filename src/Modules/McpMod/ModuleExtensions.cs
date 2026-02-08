@@ -22,8 +22,15 @@ public static class ModuleExtensions
     // The module services registration
     private static IHostApplicationBuilder AddModServices(this IHostApplicationBuilder builder)
     {
+        builder.Services.AddHttpClient("McpTransport")
+            .ConfigurePrimaryHttpMessageHandler(() => new System.Net.Http.SocketsHttpHandler
+            {
+                PooledConnectionLifetime = TimeSpan.FromMinutes(10),
+            })
+            .SetHandlerLifetime(TimeSpan.FromMinutes(10));
         builder.Services.AddScoped<BuiltinToolExecutor>();
         builder.Services.AddScoped<IMcpToolExecutor, McpToolExecutor>();
+        builder.Services.AddSingleton<McpClientProvider>();
         builder.Services.AddHostedService<InitMcpModService>();
         return builder;
     }

@@ -1,6 +1,7 @@
 ---
 name: reviewer
 description: 代码审查专家 - 负责质量、性能、安全审查，确保代码符合标准
+model: GPT-5.2-Codex (copilot)
 handoffs:
   - label: "Back to Engineer"
     agent: engineer

@@ -1,7 +1,9 @@
 using DocumentFormat.OpenXml.Packaging;
 using DText = DocumentFormat.OpenXml.Drawing.Text;
 using WText = DocumentFormat.OpenXml.Wordprocessing.Text;
+using OfficeOpenXml;
 using Perigon.AspNetCore.Toolkit.Services;
+using System.Linq;
 using System.Text;
 using Tesseract;
 using UglyToad.PdfPig;
@@ -152,7 +154,9 @@ public class KreuzbergDocumentParser(
             "pdf" => ParsePdf(fileBytes),
             "docx" => ParseDocx(fileBytes),
             "pptx" => ParsePptx(fileBytes),
-            "doc" or "ppt" => throw new BusinessException("Legacy Office formats are not supported. Please use .docx or .pptx."),
+            "xlsx" => ParseExcel(fileBytes),
+            "csv" => ParseCsv(fileBytes),
+            "doc" or "ppt" or "xls" => throw new BusinessException("Legacy Office formats (.doc/.ppt/.xls) are not supported. Please use .docx/.pptx/.xlsx."),
             "jpg" or "jpeg" or "png" => ParseImageWithOcr(fileBytes, filePath),
             _ => ParseText(fileBytes)
         };
@@ -235,6 +239,123 @@ public class KreuzbergDocumentParser(
             : Pix.LoadFromMemory(fileBytes);
         using var page = engine.Process(pix);
         return page.GetText() ?? string.Empty;
+    }
+
+    private static string ParseExcel(byte[] fileBytes)
+    {
+        ExcelPackage.License.SetNonCommercialOrganization("AIAgent");
+        using var stream = new MemoryStream(fileBytes);
+        using var package = new ExcelPackage(stream);
+        var builder = new StringBuilder();
+
+        foreach (var worksheet in package.Workbook.Worksheets)
+        {
+            if (worksheet.Dimension == null)
+            {
+                continue;
+            }
+
+            builder.AppendLine($"## {worksheet.Name}");
+            builder.AppendLine();
+
+            var startRow = worksheet.Dimension.Start.Row;
+            var endRow = worksheet.Dimension.End.Row;
+            var startCol = worksheet.Dimension.Start.Column;
+            var endCol = worksheet.Dimension.End.Column;
+
+            for (var row = startRow; row <= endRow; row++)
+            {
+                var cells = new List<string>();
+                for (var col = startCol; col <= endCol; col++)
+                {
+                    var value = worksheet.Cells[row, col].Text ?? string.Empty;
+                    cells.Add(value);
+                }
+
+                var line = string.Join(" | ", cells);
+                if (!string.IsNullOrWhiteSpace(line.Replace("|", "").Trim()))
+                {
+                    builder.AppendLine(line);
+                }
+            }
+
+            builder.AppendLine();
+        }
+
+        return builder.ToString();
+    }
+
+    private static string ParseCsv(byte[] fileBytes)
+    {
+        var text = Encoding.UTF8.GetString(fileBytes);
+        var builder = new StringBuilder();
+
+        var row = new List<string>();
+        var cell = new StringBuilder();
+        var inQuotes = false;
+
+        for (var i = 0; i < text.Length; i++)
+        {
+            var c = text[i];
+            if (c == '"')
+            {
+                if (inQuotes && i + 1 < text.Length && text[i + 1] == '"')
+                {
+                    cell.Append('"');
+                    i++;
+                }
+                else
+                {
+                    inQuotes = !inQuotes;
+                }
+
+                continue;
+            }
+
+            if (!inQuotes && c == ',')
+            {
+                row.Add(cell.ToString());
+                cell.Clear();
+                continue;
+            }
+
+            if (!inQuotes && (c == '\n' || c == '\r'))
+            {
+                if (c == '\r' && i + 1 < text.Length && text[i + 1] == '\n')
+                {
+                    i++;
+                }
+
+                row.Add(cell.ToString());
+                cell.Clear();
+
+                if (RowHasContent(row))
+                {
+                    builder.AppendLine(string.Join(" | ", row));
+                }
+
+                row.Clear();
+                continue;
+            }
+
+            cell.Append(c);
+        }
+
+        if (cell.Length > 0 || row.Count > 0)
+        {
+            row.Add(cell.ToString());
+            if (RowHasContent(row))
+            {
+                builder.AppendLine(string.Join(" | ", row));
+            }
+        }
+
+        return builder.ToString();
+    }
+
+    private static bool RowHasContent(List<string> row)
+    {
+        return row.Any(cell => !string.IsNullOrWhiteSpace(cell));
     }
 
     private static string ResolveTessdataPath()

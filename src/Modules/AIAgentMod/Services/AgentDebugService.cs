@@ -89,6 +89,9 @@ public class AgentDebugService(
         var metrics = new AgentDebugMetrics();
         var enabledTools = request.EnabledTools.Count > 0 ? request.EnabledTools : agent.Tools;
 
+        // Load tool definitions for structured function calling
+        var toolDefinitions = await ToolCallParser.LoadToolDefinitionsAsync(dbContext, enabledTools, cancellationToken);
+
         var (initialMessages, promptText) = await BuildMessagesAsync(agent, request.SystemPrompt, request.UserMessage, cancellationToken);
         messages.AddRange(initialMessages);
 
@@ -111,7 +114,7 @@ public class AgentDebugService(
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var response = await InvokeModelAsync(effectiveApplicationId, agent, messages, promptText, request, iteration, cancellationToken);
+            var response = await InvokeModelAsync(effectiveApplicationId, agent, messages, promptText, toolDefinitions, request, iteration, cancellationToken);
             if (!response.Success)
             {
                 await onEvent(new AgentDebugStreamEvent
@@ -142,7 +145,9 @@ public class AgentDebugService(
                 }
             });
 
-            var toolCalls = ParseToolCalls(assistantContent);
+            var toolCalls = response.ToolCalls.Count > 0
+                ? response.ToolCalls
+                : ToolCallParser.ParseFromContent(assistantContent);
             if (toolCalls.Count == 0)
             {
                 stopwatch.Stop();
@@ -160,7 +165,7 @@ public class AgentDebugService(
 
             foreach (var toolCall in toolCalls)
             {
-                if (enabledTools.Count > 0 && !enabledTools.Contains(toolCall.ToolName, StringComparer.OrdinalIgnoreCase))
+                if (enabledTools.Count > 0 && !enabledTools.Contains(toolCall.Name, StringComparer.OrdinalIgnoreCase))
                 {
                     var denied = new ToolExecutionResult
                     {
@@ -170,7 +175,7 @@ public class AgentDebugService(
 
                     toolResults.Add(new
                     {
-                        tool = toolCall.ToolName,
+                        tool = toolCall.Name,
                         arguments = toolCall.ArgumentsJson,
                         result = denied
                     });
@@ -181,7 +186,7 @@ public class AgentDebugService(
                         RequestId = requestId,
                         ToolCall = new AgentDebugToolCall
                         {
-                            Name = toolCall.ToolName,
+                            Name = toolCall.Name,
                             Input = toolCall.ArgumentsJson,
                             Output = denied,
                             Timestamp = DateTimeOffset.UtcNow,
@@ -191,7 +196,8 @@ public class AgentDebugService(
                     messages.Add(new ModelInvokeMessage
                     {
                         Role = "tool",
-                        Content = JsonSerializer.Serialize(denied)
+                        Content = JsonSerializer.Serialize(denied),
+                        ToolCallId = toolCall.Id,
                     });
 
                     continue;
@@ -202,7 +208,7 @@ public class AgentDebugService(
                 {
                     toolResult = await mcpToolExecutor.ExecuteAsync(new ToolExecutionRequest
                     {
-                        ToolName = toolCall.ToolName,
+                        ToolName = toolCall.Name,
                         ArgumentsJson = toolCall.ArgumentsJson,
                         ApplicationId = effectiveApplicationId,
                         AgentId = agent.Id,
@@ -210,7 +216,7 @@ public class AgentDebugService(
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "Tool execution failed: {ToolName}", toolCall.ToolName);
+                    logger.LogError(ex, "Tool execution failed: {ToolName}", toolCall.Name);
                     toolResult = new ToolExecutionResult
                     {
                         Success = false,
@@ -220,7 +226,7 @@ public class AgentDebugService(
 
                 toolResults.Add(new
                 {
-                    tool = toolCall.ToolName,
+                    tool = toolCall.Name,
                     arguments = toolCall.ArgumentsJson,
                     result = toolResult
                 });
@@ -233,7 +239,7 @@ public class AgentDebugService(
                         RequestId = requestId,
                         ToolCall = new AgentDebugToolCall
                         {
-                            Name = toolCall.ToolName,
+                            Name = toolCall.Name,
                             Input = toolCall.ArgumentsJson,
                             Output = toolResult,
                             Timestamp = DateTimeOffset.UtcNow,
@@ -244,7 +250,8 @@ public class AgentDebugService(
                 messages.Add(new ModelInvokeMessage
                 {
                     Role = "tool",
-                    Content = JsonSerializer.Serialize(toolResult)
+                    Content = JsonSerializer.Serialize(toolResult),
+                    ToolCallId = toolCall.Id,
                 });
             }
         }
@@ -269,6 +276,7 @@ public class AgentDebugService(
         AIAgent agent,
         List<ModelInvokeMessage> messages,
         string promptText,
+        List<ModelToolDefinition> toolDefinitions,
         AgentDebugRequest request,
         int iteration,
         CancellationToken cancellationToken)
@@ -294,6 +302,7 @@ public class AgentDebugService(
             Model = agent.ModelId,
             Scene = agent.Name,
             Messages = messages,
+            ToolDefinitions = toolDefinitions,
             Metadata = metadata,
         };
 
@@ -330,7 +339,8 @@ public class AgentDebugService(
                 Model = modelInfo.Name,  // 使用模型名称而不是 ID
                 Provider = modelInfo.Provider.Name,  // 设置 Provider
                 Scene = invokeRequest.Scene,
-                Messages = invokeRequest.Messages.Select(m => new ModelMessage { Role = m.Role, Content = m.Content }).ToList(),
+                Messages = invokeRequest.Messages.Select(m => new ModelMessage { Role = m.Role, Content = m.Content, ToolCallId = m.ToolCallId }).ToList(),
+                ToolDefinitions = toolDefinitions,
                 Metadata = invokeRequest.Metadata,
             };
 
@@ -339,6 +349,7 @@ public class AgentDebugService(
             {
                 Success = response.Success,
                 Content = response.Content,
+                ToolCalls = response.ToolCalls,
                 ErrorMessage = response.ErrorMessage,
                 Usage = new UsageStats
                 {
@@ -384,64 +395,4 @@ public class AgentDebugService(
         return (messages, prompt);
     }
 
-    private static List<ToolCallPayload> ParseToolCalls(string? content)
-    {
-        var toolCalls = new List<ToolCallPayload>();
-
-        if (string.IsNullOrWhiteSpace(content))
-        {
-            return toolCalls;
-        }
-
-        try
-        {
-            using var doc = JsonDocument.Parse(content);
-            var root = doc.RootElement;
-
-            if (root.ValueKind == JsonValueKind.Object)
-            {
-                if (root.TryGetProperty("tool", out var tool) || root.TryGetProperty("toolName", out tool))
-                {
-                    var name = tool.GetString();
-                    if (!string.IsNullOrWhiteSpace(name))
-                    {
-                        var arguments = root.TryGetProperty("arguments", out var args)
-                            ? args.GetRawText()
-                            : null;
-                        toolCalls.Add(new ToolCallPayload(name, arguments));
-                    }
-                }
-
-                if (root.TryGetProperty("tool_calls", out var toolCallsArray) && toolCallsArray.ValueKind == JsonValueKind.Array)
-                {
-                    foreach (var toolCallElement in toolCallsArray.EnumerateArray())
-                    {
-                        if (toolCallElement.ValueKind == JsonValueKind.Object)
-                        {
-                            var name = toolCallElement.TryGetProperty("name", out var nameElement)
-                                ? nameElement.GetString()
-                                : null;
-
-                            var args = toolCallElement.TryGetProperty("arguments", out var argsElement)
-                                ? argsElement.GetRawText()
-                                : null;
-
-                            if (!string.IsNullOrWhiteSpace(name))
-                            {
-                                toolCalls.Add(new ToolCallPayload(name, args));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        catch (JsonException)
-        {
-            return [];
-        }
-
-        return toolCalls;
-    }
-
-    private sealed record ToolCallPayload(string ToolName, string? ArgumentsJson);
 }

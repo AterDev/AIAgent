@@ -28,22 +28,23 @@ public class QdrantService(
 
         try
         {
-            var points = chunks.Select(chunk =>
+            var points = new List<PointStruct>(chunks.Count);
+            foreach (var chunk in chunks)
             {
-                var vector = embeddingGenerator.Generate(chunk.Content, _options.VectorSize);
-                return new PointStruct
+                var vector = await embeddingGenerator.GenerateAsync(chunk.Content, _options.VectorSize, cancellationToken);
+                points.Add(new PointStruct
                 {
                     Id = new PointId { Uuid = chunk.Id.ToString() },
-                    Vectors = vector,  // 直接赋值 float[] 数组，不要用 Vectors.Data
-                    Payload =           // 使用字典初始化器语法
+                    Vectors = vector,
+                    Payload =
                     {
                         ["tenantId"] = userContext.TenantId.ToString(),
                         ["documentId"] = document.Id.ToString(),
                         ["collectionId"] = document.CollectionId.ToString(),
                         ["chunkId"] = chunk.Id.ToString(),
                     },
-                };
-            }).ToList();
+                });
+            }
 
             await client.UpsertAsync(
                 collectionName: _options.CollectionName,
@@ -68,7 +69,7 @@ public class QdrantService(
 
         try
         {
-            var vector = embeddingGenerator.Generate(query, _options.VectorSize);
+            var vector = await embeddingGenerator.GenerateAsync(query, _options.VectorSize, cancellationToken);
             var filter = BuildFilter(collectionId);
 
             // 转换 float[] 为 ReadOnlyMemory<float>

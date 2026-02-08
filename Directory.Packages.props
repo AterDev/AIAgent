@@ -74,7 +74,9 @@
 		<PackageVersion Include="Microsoft.Agents.AI.Workflows" Version="1.0.0-preview.260128.1" />
 		<PackageVersion Include="Microsoft.Extensions.AI.Abstractions" Version="10.2.0" />
 		<PackageVersion Include="Microsoft.Extensions.AI.OpenAI" Version="10.2.0-preview.1.26063.2" />
+		<PackageVersion Include="ModelContextProtocol" Version="0.8.0-preview.1" />
 		<PackageVersion Include="OpenAI" Version="2.8.0" />
+		<PackageVersion Include="SharpA2A.Core" Version="0.2.2-preview.1" />
 
 		<!-- only for test  -->
 		<PackageVersion Include="DocumentFormat.OpenXml" Version="3.2.0" />

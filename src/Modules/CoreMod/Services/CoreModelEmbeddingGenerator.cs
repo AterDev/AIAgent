@@ -1,5 +1,3 @@
-using CoreMod.Services;
-
 namespace CoreMod.Services;
 
 /// <summary>
@@ -13,22 +11,7 @@ public class CoreModelEmbeddingGenerator(
     private const string DefaultEmbeddingModel = "text-embedding-3-small";
     private const int DefaultVectorSize = 1536;
 
-    public float[] Generate(string text, int size)
-    {
-        // 同步包装异步调用
-        try
-        {
-            return GenerateAsync(text, size, CancellationToken.None).GetAwaiter().GetResult();
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to generate embedding for text: {Text}", text.Length > 100 ? text[..100] + "..." : text);
-            // 返回零向量作为降级方案
-            return Enumerable.Repeat(0f, size > 0 ? size : DefaultVectorSize).ToArray();
-        }
-    }
-
-    private async Task<float[]> GenerateAsync(string text, int size, CancellationToken cancellationToken)
+    public async Task<float[]> GenerateAsync(string text, int size, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(text))
         {

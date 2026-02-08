@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EntityFramework.Migrations
 {
     [DbContext(typeof(DefaultDbContext))]
-    [Migration("20260204061140_Init")]
+    [Migration("20260208131702_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -25,6 +25,61 @@ namespace EntityFramework.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Entity.AIAgentMod.A2ARemoteAgent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AgentUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("AuthType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("AuthValue")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.PrimitiveCollection<List<string>>("Skills")
+                        .HasColumnType("text[]");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name");
+
+                    b.HasIndex("AgentUrl", "TenantId")
+                        .IsUnique();
+
+                    b.ToTable("A2ARemoteAgents");
+                });
 
             modelBuilder.Entity("Entity.AIAgentMod.AIAgent", b =>
                 {
@@ -60,7 +115,8 @@ namespace EntityFramework.Migrations
 
                     b.Property<string>("SystemPrompt")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
@@ -378,6 +434,55 @@ namespace EntityFramework.Migrations
                     b.ToTable("TokenUsageRecords");
                 });
 
+            modelBuilder.Entity("Entity.CoreMod.AIPrompt", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)");
+
+                    b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("GroupName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupName");
+
+                    b.HasIndex("Name");
+
+                    b.HasIndex("Name", "GroupName")
+                        .IsUnique();
+
+                    b.ToTable("AIPrompts");
+                });
+
             modelBuilder.Entity("Entity.KnowledgeBaseMod.DocumentParsingResult", b =>
                 {
                     b.Property<Guid>("Id")
@@ -435,6 +540,56 @@ namespace EntityFramework.Migrations
                     b.HasIndex("RagDocumentId");
 
                     b.ToTable("DocumentParsingResults");
+                });
+
+            modelBuilder.Entity("Entity.KnowledgeBaseMod.RagAgentConfig", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AIModelInfoId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AIPromptId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AIModelInfoId");
+
+                    b.HasIndex("AIPromptId");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.ToTable("RagAgentConfigs");
                 });
 
             modelBuilder.Entity("Entity.KnowledgeBaseMod.RagChunk", b =>
@@ -538,11 +693,6 @@ namespace EntityFramework.Migrations
                     b.Property<Guid>("CollectionId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
                     b.Property<DateTimeOffset>("CreatedTime")
                         .HasColumnType("timestamp with time zone");
 
@@ -559,6 +709,11 @@ namespace EntityFramework.Migrations
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
+
+                    b.Property<string>("FileType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -582,8 +737,8 @@ namespace EntityFramework.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
-                    b.Property<int>("StorageType")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("StorageProviderId")
+                        .HasColumnType("uuid");
 
                     b.PrimitiveCollection<List<string>>("Tags")
                         .IsRequired()
@@ -1107,6 +1262,69 @@ namespace EntityFramework.Migrations
                     b.ToTable("QuotaUsages");
                 });
 
+            modelBuilder.Entity("Entity.SystemMod.StorageProvider", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AccessKeyId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("AccessKeySecret")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("BucketName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Endpoint")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsCloud")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<string>("Path")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Region")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("StorageProviders");
+                });
+
             modelBuilder.Entity("Entity.SystemMod.SystemConfig", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1438,6 +1656,21 @@ namespace EntityFramework.Migrations
                         .IsRequired();
 
                     b.Navigation("RagDocument");
+                });
+
+            modelBuilder.Entity("Entity.KnowledgeBaseMod.RagAgentConfig", b =>
+                {
+                    b.HasOne("Entity.ModelMod.AIModelInfo", "AIModelInfo")
+                        .WithMany()
+                        .HasForeignKey("AIModelInfoId");
+
+                    b.HasOne("Entity.CoreMod.AIPrompt", "AIPrompt")
+                        .WithMany()
+                        .HasForeignKey("AIPromptId");
+
+                    b.Navigation("AIModelInfo");
+
+                    b.Navigation("AIPrompt");
                 });
 
             modelBuilder.Entity("Entity.KnowledgeBaseMod.RagChunk", b =>

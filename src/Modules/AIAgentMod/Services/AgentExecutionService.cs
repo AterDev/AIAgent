@@ -1,3 +1,4 @@
+using CoreMod.Models;
 using Share.Services;
 using System.Text.Json;
 using CoreMod.Services;
@@ -66,13 +67,14 @@ public class AgentExecutionService(
 
             if (response.Success)
             {
-                var toolCall = TryParseToolCall(response.Content);
-                if (toolCall is not null)
+                var toolCalls = ToolCallParser.ParseFromContent(response.Content);
+                if (toolCalls.Count > 0)
                 {
+                    var firstToolCall = toolCalls[0];
                     var toolResult = await mcpToolExecutor.ExecuteAsync(new ToolExecutionRequest
                     {
-                        ToolName = toolCall.ToolName,
-                        ArgumentsJson = toolCall.ArgumentsJson,
+                        ToolName = firstToolCall.Name,
+                        ArgumentsJson = firstToolCall.ArgumentsJson,
                         ApplicationId = applicationId,
                         AgentId = agent.Id,
                     }, cancellationToken);
@@ -161,53 +163,4 @@ public class AgentExecutionService(
         return inputJson;
     }
 
-    private static ToolCallPayload? TryParseToolCall(string? content)
-    {
-        if (string.IsNullOrWhiteSpace(content))
-        {
-            return null;
-        }
-
-        try
-        {
-            using var doc = JsonDocument.Parse(content);
-            var root = doc.RootElement;
-            if (root.ValueKind == JsonValueKind.Object)
-            {
-                if (root.TryGetProperty("tool", out var tool) || root.TryGetProperty("toolName", out tool))
-                {
-                    var name = tool.GetString();
-                    if (!string.IsNullOrWhiteSpace(name))
-                    {
-                        var arguments = root.TryGetProperty("arguments", out var args)
-                            ? args.GetRawText()
-                            : null;
-                        return new ToolCallPayload(name, arguments);
-                    }
-                }
-
-                if (root.TryGetProperty("tool_calls", out var toolCalls) && toolCalls.ValueKind == JsonValueKind.Array)
-                {
-                    var first = toolCalls.EnumerateArray().FirstOrDefault();
-                    if (first.ValueKind == JsonValueKind.Object && first.TryGetProperty("name", out var toolName))
-                    {
-                        var name = toolName.GetString();
-                        var args = first.TryGetProperty("arguments", out var argsElement) ? argsElement.GetRawText() : null;
-                        if (!string.IsNullOrWhiteSpace(name))
-                        {
-                            return new ToolCallPayload(name, args);
-                        }
-                    }
-                }
-            }
-        }
-        catch (JsonException)
-        {
-            return null;
-        }
-
-        return null;
-    }
-
-    private sealed record ToolCallPayload(string ToolName, string? ArgumentsJson);
 }

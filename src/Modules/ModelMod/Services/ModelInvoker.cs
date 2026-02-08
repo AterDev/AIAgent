@@ -23,8 +23,9 @@ public class ModelInvoker(
                 Provider = request.Provider,
                 Scene = request.Scene,
                 Messages = request.Messages
-                    .Select(m => new ModelMessage { Role = m.Role, Content = m.Content })
+                    .Select(m => new ModelMessage { Role = m.Role, Content = m.Content, ToolCallId = m.ToolCallId })
                     .ToList(),
+                ToolDefinitions = request.ToolDefinitions,
                 Metadata = request.Metadata,
             };
 
@@ -36,6 +37,7 @@ public class ModelInvoker(
             {
                 Success = response.Success,
                 Content = response.Content,
+                ToolCalls = response.ToolCalls,
                 Usage = new UsageStats
                 {
                     PromptTokens = response.Usage.PromptTokens,

@@ -13,7 +13,10 @@ public sealed class ModelRequest
 
     public List<ModelMessage> Messages { get; set; } = new();
 
-    public List<ToolCall> Tools { get; set; } = new();
+    /// <summary>
+    /// Tool definitions to pass to the model for function calling
+    /// </summary>
+    public List<ModelToolDefinition> ToolDefinitions { get; set; } = new();
 
     public Dictionary<string, string> Metadata { get; set; } = new();
 }

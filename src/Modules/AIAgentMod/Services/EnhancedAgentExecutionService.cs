@@ -1,11 +1,13 @@
 using Share.Services;
 using System.Text.Json;
+using CoreMod.Models;
 using CoreMod.Services;
 
 namespace AIAgentMod.Services;
 
 /// <summary>
 /// 增强的 Agent 执行引擎，支持多轮对话和工具调用链路
+/// 使用结构化 tool calling API（OpenAI function calling）而非从文本解析
 /// </summary>
 public class EnhancedAgentExecutionService(
     TenantDbFactory dbContextFactory,
@@ -41,6 +43,9 @@ public class EnhancedAgentExecutionService(
             return false;
         }
 
+        // Load tool definitions from DB
+        var toolDefinitions = await ToolCallParser.LoadToolDefinitionsAsync(dbContext, agent.Tools, cancellationToken);
+
         execution.Status = AgentExecutionStatus.Running;
         execution.ErrorMessage = null;
         execution.InputJson = inputJson ?? execution.InputJson;
@@ -49,7 +54,7 @@ public class EnhancedAgentExecutionService(
         var stopwatch = Stopwatch.StartNew();
         try
         {
-            var result = await ExecuteAgentLoopAsync(agent, applicationId, inputJson, cancellationToken);
+            var result = await ExecuteAgentLoopAsync(agent, applicationId, inputJson, toolDefinitions, cancellationToken);
             
             execution.Status = result.Success ? AgentExecutionStatus.Completed : AgentExecutionStatus.Failed;
             execution.OutputJson = JsonSerializer.Serialize(result.Context);
@@ -76,30 +81,32 @@ public class EnhancedAgentExecutionService(
         AIAgent agent,
         Guid applicationId,
         string? inputJson,
+        List<ModelToolDefinition> toolDefinitions,
         CancellationToken cancellationToken)
     {
         var messages = new List<ModelInvokeMessage>();
         var toolResults = new List<object>();
         var context = new Dictionary<string, object?>();
 
-        // 1. 构建初始消息
+        // 1. Build initial messages
         var (initialMessages, promptText) = await BuildMessagesAsync(agent, inputJson, cancellationToken);
         messages.AddRange(initialMessages);
 
-        // 2. 多轮对话循环
-        for (int iteration = 0; iteration < MaxIterations; iteration++)
+        // 2. Multi-round conversation loop
+        for (var iteration = 0; iteration < MaxIterations; iteration++)
         {
             logger.LogInformation(
                 "Agent {AgentName} iteration {Iteration}/{Max}",
                 agent.Name, iteration + 1, MaxIterations
             );
 
-            // 调用模型
+            // Call model with tool definitions
             var response = await modelInvoker.ChatAsync(applicationId, new ModelInvokeRequest
             {
                 Model = agent.ModelId,
                 Scene = agent.Name,
                 Messages = messages,
+                ToolDefinitions = toolDefinitions,
                 Metadata = new Dictionary<string, string>
                 {
                     ["prompt"] = promptText,
@@ -117,19 +124,22 @@ public class EnhancedAgentExecutionService(
                 };
             }
 
-            // 添加助手响应到消息历史
+            // Check for structured tool calls from API response first,
+            // then fall back to parsing from content text
+            var toolCalls = response.ToolCalls.Count > 0
+                ? response.ToolCalls
+                : ToolCallParser.ParseFromContent(response.Content);
+
+            // Add assistant response to message history
             messages.Add(new ModelInvokeMessage
             {
                 Role = "assistant",
-                Content = response.Content ?? string.Empty
+                Content = response.Content ?? string.Empty,
             });
 
-            // 检查是否有工具调用
-            var toolCalls = ParseToolCalls(response.Content);
-            
             if (toolCalls.Count == 0)
             {
-                // 没有工具调用，返回最终结果
+                // No tool calls, return final result
                 context["final_response"] = response.Content;
                 context["iterations"] = iteration + 1;
                 context["tool_results"] = toolResults;
@@ -141,12 +151,12 @@ public class EnhancedAgentExecutionService(
                 };
             }
 
-            // 执行所有工具调用
+            // Execute all tool calls
             foreach (var toolCall in toolCalls)
             {
                 logger.LogInformation(
                     "Executing tool {ToolName} with args: {Args}",
-                    toolCall.ToolName,
+                    toolCall.Name,
                     toolCall.ArgumentsJson
                 );
 
@@ -154,7 +164,7 @@ public class EnhancedAgentExecutionService(
                 {
                     var toolResult = await mcpToolExecutor.ExecuteAsync(new ToolExecutionRequest
                     {
-                        ToolName = toolCall.ToolName,
+                        ToolName = toolCall.Name,
                         ArgumentsJson = toolCall.ArgumentsJson,
                         ApplicationId = applicationId,
                         AgentId = agent.Id,
@@ -162,39 +172,34 @@ public class EnhancedAgentExecutionService(
 
                     toolResults.Add(new
                     {
-                        tool = toolCall.ToolName,
+                        tool = toolCall.Name,
                         arguments = toolCall.ArgumentsJson,
                         result = toolResult
                     });
 
-                    // 将工具结果添加到消息历史
+                    // Add tool result to message history with call ID for proper API format
                     messages.Add(new ModelInvokeMessage
                     {
                         Role = "tool",
-                        Content = JsonSerializer.Serialize(toolResult)
+                        Content = JsonSerializer.Serialize(toolResult),
+                        ToolCallId = toolCall.Id,
                     });
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "Tool execution failed: {ToolName}", toolCall.ToolName);
+                    logger.LogError(ex, "Tool execution failed: {ToolName}", toolCall.Name);
                     
-                    // 添加工具错误到消息历史
                     messages.Add(new ModelInvokeMessage
                     {
                         Role = "tool",
-                        Content = JsonSerializer.Serialize(new
-                        {
-                            error = ex.Message,
-                            tool = toolCall.ToolName
-                        })
+                        Content = JsonSerializer.Serialize(new { error = ex.Message, tool = toolCall.Name }),
+                        ToolCallId = toolCall.Id,
                     });
                 }
             }
-
-            // 继续下一轮迭代
         }
 
-        // 达到最大迭代次数
+        // Reached max iterations
         logger.LogWarning("Agent {AgentName} reached max iterations", agent.Name);
         context["iterations"] = MaxIterations;
         context["tool_results"] = toolResults;
@@ -270,72 +275,6 @@ public class EnhancedAgentExecutionService(
 
         return inputJson;
     }
-
-    private static List<ToolCallPayload> ParseToolCalls(string? content)
-    {
-        var toolCalls = new List<ToolCallPayload>();
-        
-        if (string.IsNullOrWhiteSpace(content))
-        {
-            return toolCalls;
-        }
-
-        try
-        {
-            using var doc = JsonDocument.Parse(content);
-            var root = doc.RootElement;
-            
-            if (root.ValueKind == JsonValueKind.Object)
-            {
-                // 单个工具调用
-                if (root.TryGetProperty("tool", out var tool) || root.TryGetProperty("toolName", out tool))
-                {
-                    var name = tool.GetString();
-                    if (!string.IsNullOrWhiteSpace(name))
-                    {
-                        var arguments = root.TryGetProperty("arguments", out var args)
-                            ? args.GetRawText()
-                            : null;
-                        toolCalls.Add(new ToolCallPayload(name, arguments));
-                    }
-                }
-
-                // OpenAI 格式的工具调用数组
-                if (root.TryGetProperty("tool_calls", out var toolCallsArray) && 
-                    toolCallsArray.ValueKind == JsonValueKind.Array)
-                {
-                    foreach (var toolCallElement in toolCallsArray.EnumerateArray())
-                    {
-                        if (toolCallElement.ValueKind == JsonValueKind.Object)
-                        {
-                            var name = toolCallElement.TryGetProperty("name", out var nameElement)
-                                ? nameElement.GetString()
-                                : null;
-                            
-                            var args = toolCallElement.TryGetProperty("arguments", out var argsElement)
-                                ? argsElement.GetRawText()
-                                : null;
-
-                            if (!string.IsNullOrWhiteSpace(name))
-                            {
-                                toolCalls.Add(new ToolCallPayload(name, args));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        catch (JsonException)
-        {
-            // 如果无法解析 JSON，可能不是工具调用
-            // 返回空列表
-            return [];
-        }
-
-        return toolCalls;
-    }
-
-    private sealed record ToolCallPayload(string ToolName, string? ArgumentsJson);
 
     private sealed record ExecutionResult
     {

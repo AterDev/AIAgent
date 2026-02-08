@@ -84,7 +84,7 @@ src/
 2. 模块层，即Manager和DTO的生成和编写
 3. 服务层，即Controller的生成和编写
 4. **执行构建验证**（必须步骤）：验证编译无错误
-6. 判断是否要在执行迁移，如果添加或修改了实体，则执行`scripts/EFMigrations.ps1`脚本。
+6. 判断是否要在执行迁移，如果添加或修改了实体，则执行`scripts/EFMigrations.ps1`脚本，永远不要手动修改迁移文件。
 
 **要优先使用MCP工具`Perigon`，生成或创建模块/Entity/DTO/Manager/Controller等内容。**
 

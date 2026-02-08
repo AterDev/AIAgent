@@ -31,6 +31,8 @@ public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options
 
     public DbSet<AgentExecution> AgentExecutions { get; set; }
 
+    public DbSet<A2ARemoteAgent> A2ARemoteAgents { get; set; }
+
     #endregion
 
     #region ModelMod

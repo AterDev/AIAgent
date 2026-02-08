@@ -7,6 +7,9 @@
         <NoWarn>1701;1702;1591</NoWarn>
     </PropertyGroup>
     <ItemGroup>
+        <PackageReference Include="ModelContextProtocol" />
+    </ItemGroup>
+    <ItemGroup>
         <ProjectReference Include="..\..\Definition\Share\Share.csproj" />
         <ProjectReference Include="..\..\Perigon\Perigon.AspNetCore.Toolkit\Perigon.AspNetCore.Toolkit.csproj" />
         <ProjectReference Include="..\CoreMod\CoreMod.csproj" />
