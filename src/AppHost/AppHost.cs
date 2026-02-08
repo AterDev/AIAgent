@@ -109,6 +109,7 @@ if (qdrant != null)
     fileProcessor.WithReference(qdrant);
 }
 
+apiService.WithReference(nats);
 adminService.WithReference(nats);
 fileProcessor.WithReference(nats).WaitFor(nats);
 # endregion

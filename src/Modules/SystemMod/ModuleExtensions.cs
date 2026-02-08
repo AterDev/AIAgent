@@ -26,6 +26,7 @@ public static class ModuleExtensions
     {
         builder.Services.AddScoped<ISystemConfigService, SystemConfigService>();
         builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+        builder.Services.AddScoped<IStorageProviderQuery, StorageProviderQueryService>();
         return builder;
     }
 

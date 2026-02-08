@@ -15,6 +15,7 @@
     />
     <ProjectReference Include="..\..\Definition\ServiceDefaults\ServiceDefaults.csproj" />
     <ProjectReference Include="..\..\Modules\KnowledgeBaseMod\KnowledgeBaseMod.csproj" />
+    <ProjectReference Include="..\..\Modules\SystemMod\SystemMod.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Aspire.Qdrant.Client" />

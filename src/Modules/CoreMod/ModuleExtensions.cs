@@ -1,6 +1,7 @@
 using CoreMod.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
+using Perigon.AspNetCore.Abstraction;
 using System.ComponentModel;
 
 namespace CoreMod;
@@ -61,7 +62,8 @@ public static class ModuleExtensions
         // RAG 摄取服务 - CoreMod 内部使用
         builder.Services.AddScoped<RagIngestionService>();
         builder.Services.AddScoped<DocumentChunkingService>();
-        builder.Services.AddScoped<RagIngestionQueue>();
+        builder.Services.AddSingleton<IEntityTaskQueue<RagIngestionTask>>(new EntityTaskQueue<RagIngestionTask>());
+        builder.Services.AddSingleton<RagIngestionQueue>();
         builder.Services.AddHostedService<RagIngestionWorker>();
         builder.Services.AddHostedService<BackgroundParsingService>();
         
