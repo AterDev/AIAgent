@@ -1,12 +1,14 @@
 using Entity;
+using EntityFramework.AppDbContext;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Perigon.AspNetCore.Abstraction;
+using Perigon.AspNetCore.Services;
 
 namespace Services.Middleware;
 
 /// <summary>
-/// Middleware to resolve and cache tenant connection strings at request start.
-/// Directly sets connection strings on ITenantContext.
+/// Middleware to resolve tenant metadata and cache it in memory.
 /// </summary>
 public class TenantResolutionMiddleware
 {
@@ -24,43 +26,52 @@ public class TenantResolutionMiddleware
 
     public async Task InvokeAsync(
         HttpContext context,
-        ITenantContext tenantContext,
-        IConfiguration configuration
+        IUserContext userContext,
+        DefaultDbContext dbContext,
+        CacheService cache
     )
     {
         try
         {
-            // 获取默认连接字符串
-            var defaultConnectionString = configuration.GetConnectionString(AppConst.Default)
-                ?? throw new InvalidOperationException("No default connection string configured");
-
-            var analysisConnectionString = configuration.GetConnectionString(AppConst.Analysis)
-                ?? defaultConnectionString;
-
-            // 如果是独立租户，异步获取其专属连接字符串
-            if (tenantContext.TenantType == TenantType.Independent.ToString())
+            if (userContext.TenantId == Guid.Empty)
             {
-                var independentConnectionString = await tenantContext.GetDbConnectionStringAsync();
-                var independentAnalysisConnectionString = await tenantContext.GetAnalysisConnectionStringAsync();
+                _logger.LogDebug("Skip tenant resolve because TenantId is empty");
+                await _next(context);
+                return;
+            }
 
-                // ✅ 直接设置到 ITenantContext
-                tenantContext.DbConnectionString = independentConnectionString;
-                tenantContext.AnalysisConnectionString = independentAnalysisConnectionString;
+            var cacheKey = $"{WebConst.TenantId}__{userContext.TenantId}";
+            var tenant = cache.GetMemory<Tenant>(cacheKey);
 
-                _logger.LogInformation(
-                    "Resolved independent tenant {TenantId} connections",
-                    tenantContext.TenantId
-                );
+            if (tenant is null)
+            {
+                tenant = await dbContext.Tenants
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(t => t.TenantId == userContext.TenantId);
+
+                if (tenant is not null)
+                {
+                    cache.SetMemory(cacheKey, tenant, TimeSpan.FromDays(1));
+                    _logger.LogInformation(
+                        "Tenant {TenantId} loaded from database and cached",
+                        userContext.TenantId
+                    );
+                }
             }
             else
             {
-                // ✅ 使用默认连接字符串
-                tenantContext.DbConnectionString = defaultConnectionString;
-                tenantContext.AnalysisConnectionString = analysisConnectionString;
+                _logger.LogDebug("Tenant {TenantId} loaded from memory cache", userContext.TenantId);
+            }
 
-                _logger.LogDebug(
-                    "Using shared database for tenant {TenantId}",
-                    tenantContext.TenantId
+            if (tenant is not null)
+            {
+                userContext.TenantType = tenant.Type.ToString();
+            }
+            else
+            {
+                _logger.LogWarning(
+                    "Tenant {TenantId} not found; fallback to default connection strings",
+                    userContext.TenantId
                 );
             }
         }

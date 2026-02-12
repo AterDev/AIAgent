@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Caching.Hybrid;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
 namespace Perigon.AspNetCore.Services;
@@ -8,11 +9,23 @@ namespace Perigon.AspNetCore.Services;
 /// </summary>
 public class CacheService(
     HybridCache cache,
+    IMemoryCache memory,
     IOptions<CacheOption> options,
     IOptions<ComponentOption> component
 )
 {
-    //public HybridCache Cache { get; init; } = cache;
+
+    public void SetMemory<T>(string key, T data, TimeSpan? timeSpan = null)
+    {
+        timeSpan ??= TimeSpan.FromHours(2);
+        memory.Set(key, data, timeSpan.Value);
+    }
+
+    public T? GetMemory<T>(string key)
+    {
+        return memory.TryGetValue<T>(key, out var value) ? value : default;
+    }
+
 
     /// <summary>
     /// 缓存存储
@@ -52,6 +65,7 @@ public class CacheService(
                 ? TimeSpan.FromMinutes(localExpiration.Value)
                 : TimeSpan.FromMinutes(cacheOption.LocalCacheExpiration),
         };
+
         await cache.SetAsync(key, data, entryOption);
     }
 

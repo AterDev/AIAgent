@@ -48,9 +48,12 @@ public abstract class ManagerBase<TDbContext, TEntity>
     )
     {
         _logger = logger;
-        _dbContext = (dbContextFactory.CreateDbContextAsync().GetAwaiter().GetResult() as TDbContext)!;
         _userContext = userContext;
         _isMultiTenant = dbContextFactory.IsMultiTenant;
+        Guid? tenantId = _isMultiTenant && _userContext.TenantId != Guid.Empty
+            ? _userContext.TenantId
+            : null;
+        _dbContext = (dbContextFactory.CreateDbContext(tenantId) as TDbContext)!;
         _dbSet = _dbContext.Set<TEntity>();
         Queryable = _dbSet.AsNoTracking().AsQueryable();
 

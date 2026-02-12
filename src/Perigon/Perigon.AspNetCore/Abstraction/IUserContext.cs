@@ -16,6 +16,8 @@ public interface IUserContext
 
     Guid TenantId { get; }
 
+    string? TenantType { get; set; }
+
     /// <summary>
     /// 用户名
     /// </summary>
