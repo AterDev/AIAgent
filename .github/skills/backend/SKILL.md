@@ -5,7 +5,7 @@ description: ASP.NET Core / EF Core / Aspire 后端开发规范与最佳实践�
 
 ## 何时使用
 
-任何涉及到后端逻辑的实现。
+任何涉及到后端逻辑和项目架构的内容。
 
 ## 项目结构层级
 
@@ -71,12 +71,11 @@ src/
 5. **Services** → API 控制器，依赖 Modules
 
 **禁止**：
+
 - ❌ Manager之间直接调用
 - ❌ Controller 绕过 Manager 直接访问 DbContext
 - ❌ Entity 包含业务逻辑（仅数据模型和验证注解）
 - ❌ 不要面向接口编程。没有多个实现类的服务，不要为其创建接口。
-
----
 
 ## 开发流程
 
@@ -88,8 +87,6 @@ src/
 
 **要优先使用MCP工具`Perigon`，生成或创建模块/Entity/DTO/Manager/Controller等内容。**
 
----
-
 ## 构建验证（每次修改后必须执行）
 
 通过`dotnet build`，构建对应的服务项目，如`ApiService`或`AdminService`，验证编译无错误。
@@ -97,9 +94,8 @@ src/
 ### 构建-修复循环
 修改代码 → 构建 → 发现错误 → 修复 → 重新构建，直到无错误
 
-MCP server config lives in [.mcp.json](.mcp.json) and [.vscode/mcp.json](.vscode/mcp.json); use configured endpoints when invoking tools.
+MCP server config lives in [.mcp.json](../../../.mcp.json) or [.vscode/mcp.json](../../../.vscode/mcp.json); use configured endpoints when invoking tools.
 
----
 
 ## 约定与规范
 
@@ -115,7 +111,7 @@ MCP server config lives in [.mcp.json](.mcp.json) and [.vscode/mcp.json](.vscode
 
 架构支持多租户，也支持单租户，从AppHost的`appsettings.Development.json`配置中，可以知道当前是单租户还是多租户模式。如果是单租户模式，tenantId默认为Guid.Empty。
 
-###  对象映射
+### 对象映射
 
 优先使用`Perigon.AspNetCore.Utils.Extensions` 中的扩展方法`Merge/MapTo`进行映射。
 
