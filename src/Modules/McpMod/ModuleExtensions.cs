@@ -1,4 +1,3 @@
-using CoreMod.Services;
 using McpMod.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
@@ -23,7 +22,7 @@ public static class ModuleExtensions
     private static IHostApplicationBuilder AddModServices(this IHostApplicationBuilder builder)
     {
         builder.Services.AddHttpClient("McpTransport")
-            .ConfigurePrimaryHttpMessageHandler(() => new System.Net.Http.SocketsHttpHandler
+            .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
             {
                 PooledConnectionLifetime = TimeSpan.FromMinutes(10),
             })

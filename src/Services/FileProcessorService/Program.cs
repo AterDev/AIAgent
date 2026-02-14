@@ -32,7 +32,7 @@ builder.AddQdrantClient("qdrant");
 builder.Services.AddHostedService<FileProcessorService.Workers.RagIngestionConsumer>();
 
 // 注册后台轮询服务（用于处理 Pending/Failed 状态的文档，作为兜底机制）
-builder.Services.AddHostedService<CoreMod.Services.BackgroundParsingService>();
+builder.Services.AddHostedService<CoreMod.Services.RagIngestion.BackgroundParsingService>();
 
 WebApplication app = builder.Build();
 

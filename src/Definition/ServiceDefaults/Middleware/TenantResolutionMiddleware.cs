@@ -1,5 +1,4 @@
 using Entity;
-using EntityFramework.AppDbContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Perigon.AspNetCore.Abstraction;

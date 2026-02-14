@@ -7,7 +7,7 @@ public class ModelInvokeService(
     TenantDbFactory dbContextFactory,
     IUserContext userContext,
     ExtensionsAIModelClient modelClient,
-    IUsageMeter usageMeter,
+    DefaultUsageMeter usageMeter,
     ILogger<ModelInvokeService> logger
 )
 {

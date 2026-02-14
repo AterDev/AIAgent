@@ -1,5 +1,4 @@
 using KnowledgeBaseMod.Models.RagDocumentDtos;
-using Share.Services;
 
 namespace KnowledgeBaseMod.Managers;
 

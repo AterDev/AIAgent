@@ -3,7 +3,7 @@ namespace WorkflowMod.Models.WorkflowDtos;
 /// <summary>
 /// 工作流 AddDto
 /// </summary>
-/// <see cref="Entity.WorkflowMod.Workflow"/>
+/// <see cref="Workflow"/>
 public class WorkflowAddDto
 {
     [MaxLength(200)]

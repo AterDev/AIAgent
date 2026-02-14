@@ -3,7 +3,7 @@ namespace WorkflowMod.Models.WorkflowExecutionDtos;
 /// <summary>
 /// 工作流执行 UpdateDto
 /// </summary>
-/// <see cref="Entity.WorkflowMod.WorkflowExecution"/>
+/// <see cref="WorkflowExecution"/>
 public class WorkflowExecutionUpdateDto
 {
     [MaxLength(4000)]

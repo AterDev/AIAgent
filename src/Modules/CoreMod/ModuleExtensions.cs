@@ -1,7 +1,12 @@
 using CoreMod.Services;
+using CoreMod.Models.RagIngestion;
+using CoreMod.Services.DocumentParsing;
+using CoreMod.Services.Embedding;
+using CoreMod.Services.ModelRouting;
+using CoreMod.Services.RagIngestion;
+using CoreMod.Services.VectorStore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
-using Perigon.AspNetCore.Abstraction;
 using System.ComponentModel;
 
 namespace CoreMod;
@@ -27,12 +32,13 @@ public static class ModuleExtensions
         
         // 模型路由 - CoreMod 内部使用
         builder.Services.AddScoped<DbModelRouter>();
-        builder.Services.AddSingleton<IUsageMeter, DefaultUsageMeter>();
+        builder.Services.AddSingleton<DefaultUsageMeter>();
         
         // Add Qdrant Client via Aspire integration
         builder.AddQdrantClient("qdrant");
         
         // 注册 NATS 消息发布者
+        builder.Services.AddSingleton<NatsJetStreamService>();
         builder.Services.AddScoped<NatsRagMessagePublisher>();
         
         // RAG 文档解析服务
@@ -42,7 +48,7 @@ public static class ModuleExtensions
         builder.Services.AddScoped<SimpleDocumentParser>();
         
         // 文本分块服务
-        builder.Services.AddScoped<ITextChunker, DefaultTextChunker>();
+        builder.Services.AddScoped<DefaultTextChunker>();
         
         // 向量嵌入生成服务 - CoreMod 内部使用
         // Use real model embedding generation
@@ -62,7 +68,7 @@ public static class ModuleExtensions
         // RAG 摄取服务 - CoreMod 内部使用
         builder.Services.AddScoped<RagIngestionService>();
         builder.Services.AddScoped<DocumentChunkingService>();
-        builder.Services.AddSingleton<IEntityTaskQueue<RagIngestionTask>>(new EntityTaskQueue<RagIngestionTask>());
+        builder.Services.AddSingleton<IEntityTaskQueue<RagDocumentIngestionTask>>(new EntityTaskQueue<RagDocumentIngestionTask>());
         builder.Services.AddSingleton<RagIngestionQueue>();
         builder.Services.AddHostedService<RagIngestionWorker>();
         builder.Services.AddHostedService<BackgroundParsingService>();

@@ -3,7 +3,7 @@ namespace AIAgentMod.Models.AgentExecutionDtos;
 /// <summary>
 /// Agent 执行 DetailDto
 /// </summary>
-/// <see cref="Entity.AIAgentMod.AgentExecution"/>
+/// <see cref="AgentExecution"/>
 public class AgentExecutionDetailDto
 {
     public Guid Id { get; set; }

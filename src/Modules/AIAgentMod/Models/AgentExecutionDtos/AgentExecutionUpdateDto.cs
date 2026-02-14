@@ -3,7 +3,7 @@ namespace AIAgentMod.Models.AgentExecutionDtos;
 /// <summary>
 /// Agent 执行 UpdateDto
 /// </summary>
-/// <see cref="Entity.AIAgentMod.AgentExecution"/>
+/// <see cref="AgentExecution"/>
 public class AgentExecutionUpdateDto
 {
     [MaxLength(4000)]

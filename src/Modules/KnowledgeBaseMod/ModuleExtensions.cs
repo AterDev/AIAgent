@@ -1,7 +1,5 @@
-using KnowledgeBaseMod.Managers;
 using KnowledgeBaseMod.Services;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Perigon.AspNetCore.Toolkit.Options;
 using Perigon.AspNetCore.Toolkit.Services;

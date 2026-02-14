@@ -2,7 +2,7 @@ namespace ModelMod.Models.ApplicationDtos;
 /// <summary>
 /// 应用定义AddDto
 /// </summary>
-/// <see cref="Entity.ModelMod.Application"/>
+/// <see cref="Application"/>
 public class ApplicationAddDto
 {
     [MaxLength(100)]

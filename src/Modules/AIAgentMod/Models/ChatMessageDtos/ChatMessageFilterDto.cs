@@ -2,7 +2,7 @@ namespace AIAgentMod.Models.ChatMessageDtos;
 /// <summary>
 /// 聊天消息FilterDto
 /// </summary>
-/// <see cref="Entity.AIAgentMod.ChatMessage"/>
+/// <see cref="ChatMessage"/>
 public class ChatMessageFilterDto : FilterBase
 {
     /// <summary>

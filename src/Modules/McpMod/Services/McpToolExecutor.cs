@@ -1,5 +1,4 @@
 using ModelContextProtocol.Protocol;
-using Share.Services;
 using System.Text.Json;
 
 namespace McpMod.Services;

@@ -2,7 +2,7 @@ namespace AIAgentMod.Models.AIAgentDtos;
 /// <summary>
 /// agentItemDto
 /// </summary>
-/// <see cref="Entity.AIAgentMod.AIAgent"/>
+/// <see cref="AIAgent"/>
 public class AIAgentItemDto
 {
     public Guid Id { get; set; }

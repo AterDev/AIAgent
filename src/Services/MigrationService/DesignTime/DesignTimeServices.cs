@@ -16,7 +16,7 @@ public class DesignTimeServices : IDesignTimeServices
             IMigrationsModelDiffer? inner = null;
 
             inner = scope.ServiceProvider.GetService<IMigrationsModelDiffer>();
-            services.AddSingleton<IMigrationsModelDiffer>(sp =>
+            services.AddSingleton(sp =>
             {
                 var proxy = MigrationsModelDifferProxy.Create<IMigrationsModelDiffer>(inner!);
                 return proxy;

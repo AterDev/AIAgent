@@ -328,7 +328,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
     )
     {
         var strategy = _dbContext.Database.CreateExecutionStrategy();
-        return await strategy.ExecuteAsync<T>(async (cancellationToken) =>
+        return await strategy.ExecuteAsync(async (cancellationToken) =>
         {
             await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
             try

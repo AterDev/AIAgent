@@ -3,7 +3,7 @@ namespace WorkflowMod.Models.WorkflowDtos;
 /// <summary>
 /// 工作流 ItemDto
 /// </summary>
-/// <see cref="Entity.WorkflowMod.Workflow"/>
+/// <see cref="Workflow"/>
 public class WorkflowItemDto
 {
     public Guid Id { get; set; }

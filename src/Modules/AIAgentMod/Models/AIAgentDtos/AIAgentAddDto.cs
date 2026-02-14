@@ -2,7 +2,7 @@ namespace AIAgentMod.Models.AIAgentDtos;
 /// <summary>
 /// agentAddDto
 /// </summary>
-/// <see cref="Entity.AIAgentMod.AIAgent"/>
+/// <see cref="AIAgent"/>
 public class AIAgentAddDto
 {
     /// <summary>

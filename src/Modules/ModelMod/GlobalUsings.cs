@@ -1,4 +1,6 @@
 global using CoreMod.Models;
+global using CoreMod.Abstraction;
+global using CoreMod.Models.ModelInvoke;
 global using CoreMod.Services;
 global using Entity.ModelMod;
 global using EntityFramework.AppDbContext;

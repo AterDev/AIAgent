@@ -1,4 +1,5 @@
 using CoreMod.Services;
+using CoreMod.Models.RagQuery;
 
 namespace ApiService.Controllers.OpenPlatform;
 

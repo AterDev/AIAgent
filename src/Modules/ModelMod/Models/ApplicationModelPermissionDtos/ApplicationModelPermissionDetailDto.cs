@@ -3,7 +3,7 @@ namespace ModelMod.Models.ApplicationModelPermissionDtos;
 /// <summary>
 /// 应用模型权限 DetailDto
 /// </summary>
-/// <see cref="Entity.ModelMod.ApplicationModelPermission"/>
+/// <see cref="ApplicationModelPermission"/>
 public class ApplicationModelPermissionDetailDto
 {
     public Guid Id { get; set; }

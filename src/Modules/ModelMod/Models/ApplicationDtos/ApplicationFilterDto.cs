@@ -2,7 +2,7 @@ namespace ModelMod.Models.ApplicationDtos;
 /// <summary>
 /// 应用定义FilterDto
 /// </summary>
-/// <see cref="Entity.ModelMod.Application"/>
+/// <see cref="Application"/>
 public class ApplicationFilterDto : FilterBase
 {
     [MaxLength(100)]

@@ -1,7 +1,6 @@
 using Share.Models;
-using Share.Services;
+using Share.Abstraction;
 using SystemMod.Models.FileUploadDtos;
-using SystemMod.Services;
 
 namespace AdminService.Controllers.SystemMod;
 

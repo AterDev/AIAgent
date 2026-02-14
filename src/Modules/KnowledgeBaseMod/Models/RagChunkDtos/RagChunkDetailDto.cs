@@ -3,7 +3,7 @@ namespace KnowledgeBaseMod.Models.RagChunkDtos;
 /// <summary>
 /// 分块 DetailDto
 /// </summary>
-/// <see cref="Entity.KnowledgeBaseMod.RagChunk"/>
+/// <see cref="RagChunk"/>
 public class RagChunkDetailDto
 {
     public Guid Id { get; set; }

@@ -1,9 +1,8 @@
-using Entity.KnowledgeBaseMod;
 namespace KnowledgeBaseMod.Models.RagAgentConfigDtos;
 /// <summary>
 /// RAG 模型配置AddDto
 /// </summary>
-/// <see cref="Entity.KnowledgeBaseMod.RagAgentConfig"/>
+/// <see cref="RagAgentConfig"/>
 public class RagAgentConfigAddDto
 {
     /// <summary>

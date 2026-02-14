@@ -2,7 +2,7 @@ namespace AIAgentMod.Models.ChatMessageDtos;
 /// <summary>
 /// 聊天消息ItemDto
 /// </summary>
-/// <see cref="Entity.AIAgentMod.ChatMessage"/>
+/// <see cref="ChatMessage"/>
 public class ChatMessageItemDto
 {
     public Guid Id { get; set; }

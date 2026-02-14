@@ -2,7 +2,7 @@ namespace AIAgentMod.Models.TokenUsageDtos;
 /// <summary>
 /// 用户Token用量信息FilterDto
 /// </summary>
-/// <see cref="Entity.AIAgentMod.TokenUsage"/>
+/// <see cref="TokenUsage"/>
 public class TokenUsageFilterDto : FilterBase
 {
     /// <summary>

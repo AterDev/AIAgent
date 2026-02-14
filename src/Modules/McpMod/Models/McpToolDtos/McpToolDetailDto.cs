@@ -3,7 +3,7 @@ namespace McpMod.Models.McpToolDtos;
 /// <summary>
 /// MCP 工具 DetailDto
 /// </summary>
-/// <see cref="Entity.McpMod.McpTool"/>
+/// <see cref="McpTool"/>
 public class McpToolDetailDto
 {
     public Guid Id { get; set; }

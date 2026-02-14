@@ -2,7 +2,7 @@ namespace AIAgentMod.Models.ConversationDtos;
 /// <summary>
 /// 对话实例DetailDto
 /// </summary>
-/// <see cref="Entity.AIAgentMod.Conversation"/>
+/// <see cref="Conversation"/>
 public class ConversationDetailDto
 {
     public Guid Id { get; set; }

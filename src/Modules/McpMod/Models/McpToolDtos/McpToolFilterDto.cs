@@ -3,7 +3,7 @@ namespace McpMod.Models.McpToolDtos;
 /// <summary>
 /// MCP 工具 FilterDto
 /// </summary>
-/// <see cref="Entity.McpMod.McpTool"/>
+/// <see cref="McpTool"/>
 public class McpToolFilterDto : FilterBase
 {
     [MaxLength(100)]

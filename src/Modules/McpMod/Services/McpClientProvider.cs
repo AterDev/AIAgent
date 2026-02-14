@@ -1,5 +1,4 @@
 using ModelContextProtocol.Client;
-using ModelContextProtocol.Protocol;
 using System.Collections.Concurrent;
 
 namespace McpMod.Services;

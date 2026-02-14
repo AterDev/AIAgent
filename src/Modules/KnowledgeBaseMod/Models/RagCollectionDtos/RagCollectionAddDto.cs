@@ -3,7 +3,7 @@ namespace KnowledgeBaseMod.Models.RagCollectionDtos;
 /// <summary>
 /// 知识库 AddDto
 /// </summary>
-/// <see cref="Entity.KnowledgeBaseMod.RagCollection"/>
+/// <see cref="RagCollection"/>
 public class RagCollectionAddDto
 {
     [MaxLength(200)]

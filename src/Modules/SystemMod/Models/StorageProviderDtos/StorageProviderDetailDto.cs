@@ -1,9 +1,8 @@
-using Entity.SystemMod;
 namespace SystemMod.Models.StorageProviderDtos;
 /// <summary>
 /// 存储服务商DetailDto
 /// </summary>
-/// <see cref="Entity.SystemMod.StorageProvider"/>
+/// <see cref="StorageProvider"/>
 public class StorageProviderDetailDto
 {
     /// <summary>

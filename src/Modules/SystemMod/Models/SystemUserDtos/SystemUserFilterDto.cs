@@ -1,9 +1,8 @@
-using Entity.SystemMod;
 namespace SystemMod.Models.SystemUserDtos;
 /// <summary>
 /// 系统用户FilterDto
 /// </summary>
-/// <see cref="Entity.SystemMod.SystemUser"/>
+/// <see cref="SystemUser"/>
 public class SystemUserFilterDto : FilterBase
 {
     /// <summary>

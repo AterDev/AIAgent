@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
-using Share;
-using Share.Implement;
 using System.Security.Claims;
 
 namespace ApiService.Controllers;

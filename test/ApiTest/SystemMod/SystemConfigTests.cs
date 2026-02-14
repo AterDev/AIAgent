@@ -2,7 +2,6 @@ using ApiTest.Data;
 using SystemMod.Models.SystemConfigDtos;
 using Entity.SystemMod;
 using Perigon.AspNetCore.Models;
-using System.Net;
 using System.Net.Http.Json;
 
 namespace ApiTest.SystemMod;

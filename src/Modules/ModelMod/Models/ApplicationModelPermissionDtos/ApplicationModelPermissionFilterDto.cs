@@ -3,7 +3,7 @@ namespace ModelMod.Models.ApplicationModelPermissionDtos;
 /// <summary>
 /// 应用模型权限 FilterDto
 /// </summary>
-/// <see cref="Entity.ModelMod.ApplicationModelPermission"/>
+/// <see cref="ApplicationModelPermission"/>
 public class ApplicationModelPermissionFilterDto : FilterBase
 {
     public Guid? ApplicationId { get; set; }

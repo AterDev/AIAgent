@@ -1,9 +1,8 @@
-using Entity.KnowledgeBaseMod;
 namespace KnowledgeBaseMod.Models.RagAgentConfigDtos;
 /// <summary>
 /// RAG 模型配置FilterDto
 /// </summary>
-/// <see cref="Entity.KnowledgeBaseMod.RagAgentConfig"/>
+/// <see cref="RagAgentConfig"/>
 public class RagAgentConfigFilterDto : FilterBase
 {
     /// <summary>

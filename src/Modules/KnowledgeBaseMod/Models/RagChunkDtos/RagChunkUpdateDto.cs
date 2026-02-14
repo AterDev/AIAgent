@@ -3,7 +3,7 @@ namespace KnowledgeBaseMod.Models.RagChunkDtos;
 /// <summary>
 /// 分块 UpdateDto
 /// </summary>
-/// <see cref="Entity.KnowledgeBaseMod.RagChunk"/>
+/// <see cref="RagChunk"/>
 public class RagChunkUpdateDto
 {
     public int? ChunkIndex { get; set; }

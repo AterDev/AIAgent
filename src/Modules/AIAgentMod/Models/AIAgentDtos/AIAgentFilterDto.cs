@@ -2,7 +2,7 @@ namespace AIAgentMod.Models.AIAgentDtos;
 /// <summary>
 /// agentFilterDto
 /// </summary>
-/// <see cref="Entity.AIAgentMod.AIAgent"/>
+/// <see cref="AIAgent"/>
 public class AIAgentFilterDto : FilterBase
 {
     /// <summary>

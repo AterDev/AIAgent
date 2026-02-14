@@ -3,7 +3,6 @@ using Share.Models.Auth;
 using SystemMod.Models.SystemUserDtos;
 using Entity.SystemMod;
 using Perigon.AspNetCore.Models;
-using System.Net;
 using System.Net.Http.Json;
 
 namespace ApiTest.SystemMod;

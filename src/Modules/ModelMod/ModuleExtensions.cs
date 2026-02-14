@@ -3,7 +3,6 @@ using Microsoft.Extensions.Hosting;
 using ModelMod.Services;
 using ModelMod.Managers;
 using System.ComponentModel;
-using CoreMod.Services;
 
 namespace ModelMod;
 

@@ -11,7 +11,7 @@ public static class ModuleExtensions
     public static IHostApplicationBuilder AddAIAgentMod(this IHostApplicationBuilder builder)
     {
         builder.Services.AddHttpClient("A2A")
-            .ConfigurePrimaryHttpMessageHandler(() => new System.Net.Http.SocketsHttpHandler
+            .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
             {
                 PooledConnectionLifetime = TimeSpan.FromMinutes(10),
             })

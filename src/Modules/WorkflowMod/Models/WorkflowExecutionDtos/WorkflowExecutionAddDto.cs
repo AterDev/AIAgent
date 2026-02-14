@@ -3,7 +3,7 @@ namespace WorkflowMod.Models.WorkflowExecutionDtos;
 /// <summary>
 /// 工作流执行 AddDto
 /// </summary>
-/// <see cref="Entity.WorkflowMod.WorkflowExecution"/>
+/// <see cref="WorkflowExecution"/>
 public class WorkflowExecutionAddDto
 {
     public Guid WorkflowId { get; set; }

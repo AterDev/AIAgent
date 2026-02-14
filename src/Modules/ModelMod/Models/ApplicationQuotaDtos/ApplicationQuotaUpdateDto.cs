@@ -3,7 +3,7 @@ namespace ModelMod.Models.ApplicationQuotaDtos;
 /// <summary>
 /// 应用配额 UpdateDto
 /// </summary>
-/// <see cref="Entity.ModelMod.ApplicationQuota"/>
+/// <see cref="ApplicationQuota"/>
 public class ApplicationQuotaUpdateDto
 {
     public QuotaPeriodType? PeriodType { get; set; }

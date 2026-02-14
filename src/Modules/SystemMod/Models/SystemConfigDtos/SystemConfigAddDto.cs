@@ -2,7 +2,7 @@ namespace SystemMod.Models.SystemConfigDtos;
 /// <summary>
 /// 系统配置AddDto
 /// </summary>
-/// <see cref="Entity.SystemMod.SystemConfig"/>
+/// <see cref="SystemConfig"/>
 public class SystemConfigAddDto
 {
     [MaxLength(100)]

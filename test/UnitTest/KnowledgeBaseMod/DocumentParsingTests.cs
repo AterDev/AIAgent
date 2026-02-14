@@ -3,12 +3,12 @@ using D = DocumentFormat.OpenXml.Drawing;
 using P = DocumentFormat.OpenXml.Presentation;
 using W = DocumentFormat.OpenXml.Wordprocessing;
 using Entity.KnowledgeBaseMod;
-using Share.Services;
+using Share.Abstraction;
+using Share.Models;
 using CoreMod.Services;
+using CoreMod.Services.DocumentParsing;
 using Microsoft.Extensions.Logging.Abstractions;
 using SkiaSharp;
-using UglyToad.PdfPig;
-using System.Net.Http;
 using System.Text;
 
 namespace UnitTest.KnowledgeBaseMod;

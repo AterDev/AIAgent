@@ -3,7 +3,7 @@ namespace KnowledgeBaseMod.Models.RagCollectionDtos;
 /// <summary>
 /// 知识库 FilterDto
 /// </summary>
-/// <see cref="Entity.KnowledgeBaseMod.RagCollection"/>
+/// <see cref="RagCollection"/>
 public class RagCollectionFilterDto : FilterBase
 {
     [MaxLength(200)]

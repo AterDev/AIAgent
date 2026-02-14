@@ -2,7 +2,7 @@ namespace AIAgentMod.Models.TokenUsageRecordDtos;
 /// <summary>
 /// 用户Token用量信息UpdateDto
 /// </summary>
-/// <see cref="Entity.AIAgentMod.TokenUsageRecord"/>
+/// <see cref="TokenUsageRecord"/>
 public class TokenUsageRecordUpdateDto
 {
     [MaxLength(200)]

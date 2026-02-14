@@ -2,7 +2,7 @@ namespace SystemMod.Models.SystemConfigDtos;
 /// <summary>
 /// 系统配置FilterDto
 /// </summary>
-/// <see cref="Entity.SystemMod.SystemConfig"/>
+/// <see cref="SystemConfig"/>
 public class SystemConfigFilterDto : FilterBase
 {
     [MaxLength(100)]

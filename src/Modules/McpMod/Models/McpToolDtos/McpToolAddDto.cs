@@ -3,7 +3,7 @@ namespace McpMod.Models.McpToolDtos;
 /// <summary>
 /// MCP 工具 AddDto
 /// </summary>
-/// <see cref="Entity.McpMod.McpTool"/>
+/// <see cref="McpTool"/>
 public class McpToolAddDto
 {
     [MaxLength(100)]

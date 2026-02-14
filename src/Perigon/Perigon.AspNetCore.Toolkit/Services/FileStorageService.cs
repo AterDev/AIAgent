@@ -1,7 +1,6 @@
 using Amazon.S3.Model;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Perigon.AspNetCore.Options;
 
 namespace Perigon.AspNetCore.Toolkit.Services;

@@ -1,9 +1,8 @@
-using Entity.SystemMod;
 namespace SystemMod.Models.SystemUserDtos;
 /// <summary>
 /// 系统用户UpdateDto
 /// </summary>
-/// <see cref="Entity.SystemMod.SystemUser"/>
+/// <see cref="SystemUser"/>
 public class SystemUserUpdateDto
 {
     /// <summary>

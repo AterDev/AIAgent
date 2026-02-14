@@ -1,5 +1,3 @@
-using Entity.KnowledgeBaseMod;
-
 namespace KnowledgeBaseMod.Managers;
 
 public class DocumentParsingResultManager(

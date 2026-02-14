@@ -3,7 +3,7 @@ namespace KnowledgeBaseMod.Models.RagCollectionDtos;
 /// <summary>
 /// 知识库 UpdateDto
 /// </summary>
-/// <see cref="Entity.KnowledgeBaseMod.RagCollection"/>
+/// <see cref="RagCollection"/>
 public class RagCollectionUpdateDto
 {
     [MaxLength(200)]

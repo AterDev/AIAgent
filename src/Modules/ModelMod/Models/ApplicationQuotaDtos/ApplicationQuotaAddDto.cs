@@ -3,7 +3,7 @@ namespace ModelMod.Models.ApplicationQuotaDtos;
 /// <summary>
 /// 应用配额 AddDto
 /// </summary>
-/// <see cref="Entity.ModelMod.ApplicationQuota"/>
+/// <see cref="ApplicationQuota"/>
 public class ApplicationQuotaAddDto
 {
     public Guid ApplicationId { get; set; }

@@ -2,7 +2,7 @@ namespace AIAgentMod.Models.MCPServerInfoDtos;
 /// <summary>
 /// McpServerDetailDto
 /// </summary>
-/// <see cref="Entity.AIAgentMod.MCPServerInfo"/>
+/// <see cref="MCPServerInfo"/>
 public class MCPServerInfoDetailDto
 {
     public Guid Id { get; set; }

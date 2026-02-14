@@ -1,9 +1,8 @@
 using NATS.Client.Core;
-using NATS.Client.JetStream;
-using NATS.Client.JetStream.Models;
 using Share.Models;
 using System.Text.Json;
 using CoreMod.Services;
+using CoreMod.Services.RagIngestion;
 
 namespace FileProcessorService.Workers;
 
@@ -11,7 +10,7 @@ namespace FileProcessorService.Workers;
 /// RAG 文档处理消费者 - 直接消费 NATS JetStream 消息
 /// </summary>
 public class RagIngestionConsumer(
-    INatsConnection natsConnection,
+    NatsJetStreamService jetStreamService,
     IServiceProvider serviceProvider,
     ILogger<RagIngestionConsumer> logger) : BackgroundService
 {
@@ -25,16 +24,28 @@ public class RagIngestionConsumer(
 
         try
         {
-            var jsContext = new NatsJSContext(natsConnection);
+            await jetStreamService.EnsureWorkQueueStreamAsync(
+                streamName: StreamName,
+                subject: SubjectName,
+                description: "RAG document ingestion processing stream",
+                cancellationToken: stoppingToken,
+                maxBytes: 1024L * 1024L * 100L,
+                maxAge: TimeSpan.FromDays(7),
+                duplicateWindow: TimeSpan.FromMinutes(5)
+            );
 
-            // 确保流已创建
-            await EnsureStreamAsync(jsContext, stoppingToken);
-
-            // 确保 Consumer 已创建
-            await EnsureConsumerAsync(jsContext, stoppingToken);
+            await jetStreamService.EnsureDurableConsumerAsync(
+                streamName: StreamName,
+                consumerName: ConsumerName,
+                filterSubject: SubjectName,
+                cancellationToken: stoppingToken,
+                maxDeliver: 3,
+                ackWait: TimeSpan.FromMinutes(5),
+                maxAckPending: 10
+            );
 
             // 开始消费消息
-            await ConsumeMessagesAsync(jsContext, stoppingToken);
+            await ConsumeMessagesAsync(stoppingToken);
         }
         catch (Exception ex)
         {
@@ -43,68 +54,9 @@ public class RagIngestionConsumer(
         }
     }
 
-    private async Task EnsureStreamAsync(NatsJSContext jsContext, CancellationToken cancellationToken)
+    private async Task ConsumeMessagesAsync(CancellationToken cancellationToken)
     {
-        try
-        {
-            await jsContext.GetStreamAsync(StreamName, cancellationToken: cancellationToken);
-            logger.LogInformation("Stream {StreamName} already exists", StreamName);
-        }
-        catch (NatsJSApiException ex) when (ex.Error?.Code == 404)
-        {
-            // 流不存在，创建它
-            var streamConfig = new StreamConfig
-            {
-                Name = StreamName,
-                Description = "RAG document ingestion processing stream",
-                Subjects = new[] { SubjectName },
-                MaxAge = TimeSpan.FromDays(7),
-                MaxBytes = 1024 * 1024 * 100, // 100 MB
-                Storage = StreamConfigStorage.File,
-                Retention = StreamConfigRetention.Workqueue, // WorkQueue 模式确保消息只被消费一次
-                Discard = StreamConfigDiscard.Old,
-                DuplicateWindow = TimeSpan.FromMinutes(5),
-            };
-
-            await jsContext.CreateStreamAsync(streamConfig, cancellationToken: cancellationToken);
-            logger.LogInformation("Created stream {StreamName}", StreamName);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Error checking/creating stream {StreamName}", StreamName);
-            throw;
-        }
-    }
-
-    private async Task EnsureConsumerAsync(NatsJSContext jsContext, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var consumer = await jsContext.GetConsumerAsync(StreamName, ConsumerName, cancellationToken: cancellationToken);
-            logger.LogInformation("Consumer {ConsumerName} already exists", ConsumerName);
-        }
-        catch (NatsJSApiException ex) when (ex.Error.Code == 404)
-        {
-            // Consumer 不存在，创建它
-            var consumerConfig = new ConsumerConfig
-            {
-                Name = ConsumerName,
-                DurableName = ConsumerName,
-                FilterSubject = SubjectName,
-                AckPolicy = ConsumerConfigAckPolicy.Explicit,
-                MaxDeliver = 3, // 最多重试 3 次
-                AckWait = TimeSpan.FromMinutes(5), // 5 分钟内必须确认
-                MaxAckPending = 10, // 最多 10 条未确认消息
-            };
-
-            await jsContext.CreateConsumerAsync(StreamName, consumerConfig, cancellationToken: cancellationToken);
-            logger.LogInformation("Created consumer {ConsumerName}", ConsumerName);
-        }
-    }
-
-    private async Task ConsumeMessagesAsync(NatsJSContext jsContext, CancellationToken cancellationToken)
-    {
-        var consumer = await jsContext.GetConsumerAsync(StreamName, ConsumerName, cancellationToken: cancellationToken);
+        var consumer = await jetStreamService.GetConsumerAsync(StreamName, ConsumerName, cancellationToken);
 
         await foreach (var msg in consumer.ConsumeAsync<NatsMemoryOwner<byte>>(cancellationToken: cancellationToken))
         {

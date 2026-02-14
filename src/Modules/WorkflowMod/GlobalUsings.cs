@@ -1,4 +1,8 @@
 global using CoreMod.Services;
+global using CoreMod.Abstraction;
+global using CoreMod.Models.ModelInvoke;
+global using CoreMod.Models.RagQuery;
+global using CoreMod.Models.ToolExecution;
 global using Entity.WorkflowMod;
 global using EntityFramework.AppDbContext;
 global using EntityFramework.AppDbFactory;

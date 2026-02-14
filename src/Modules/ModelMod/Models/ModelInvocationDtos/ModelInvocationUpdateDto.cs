@@ -3,7 +3,7 @@ namespace ModelMod.Models.ModelInvocationDtos;
 /// <summary>
 /// 调用记录 UpdateDto
 /// </summary>
-/// <see cref="Entity.ModelMod.ModelInvocation"/>
+/// <see cref="ModelInvocation"/>
 public class ModelInvocationUpdateDto
 {
     [MaxLength(100)]

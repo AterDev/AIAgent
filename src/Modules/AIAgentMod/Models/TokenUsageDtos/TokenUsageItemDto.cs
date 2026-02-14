@@ -2,7 +2,7 @@ namespace AIAgentMod.Models.TokenUsageDtos;
 /// <summary>
 /// 用户Token用量信息ItemDto
 /// </summary>
-/// <see cref="Entity.AIAgentMod.TokenUsage"/>
+/// <see cref="TokenUsage"/>
 public class TokenUsageItemDto
 {
     public Guid Id { get; set; }

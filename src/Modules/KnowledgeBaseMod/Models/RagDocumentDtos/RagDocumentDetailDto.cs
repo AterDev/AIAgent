@@ -3,7 +3,7 @@ namespace KnowledgeBaseMod.Models.RagDocumentDtos;
 /// <summary>
 /// 文档 DetailDto
 /// </summary>
-/// <see cref="Entity.KnowledgeBaseMod.RagDocument"/>
+/// <see cref="RagDocument"/>
 public class RagDocumentDetailDto
 {
     public Guid Id { get; set; }

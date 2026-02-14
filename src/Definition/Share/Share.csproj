@@ -18,6 +18,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Agents.AI.OpenAI" />
     <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" />
+    <PackageReference Include="NATS.Client.Core" />
+    <PackageReference Include="NATS.Client.JetStream" />
   </ItemGroup>
   <ItemGroup>
     <AdditionalFiles Include="**\*.resx" />

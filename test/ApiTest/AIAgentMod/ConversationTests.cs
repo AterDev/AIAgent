@@ -2,7 +2,6 @@ using ApiTest.Data;
 using AIAgentMod.Models.ConversationDtos;
 using Entity.AIAgentMod;
 using Perigon.AspNetCore.Models;
-using System.Net;
 using System.Net.Http.Json;
 
 namespace ApiTest.AIAgentMod;

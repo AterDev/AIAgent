@@ -1,5 +1,3 @@
-using Entity.KnowledgeBaseMod;
-
 namespace KnowledgeBaseMod.Models.DocumentParsingDtos;
 
 public class DocumentParsingResultDto

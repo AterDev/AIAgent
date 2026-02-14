@@ -2,7 +2,7 @@ namespace AIAgentMod.Models.ChatMessageDtos;
 /// <summary>
 /// 聊天消息AddDto
 /// </summary>
-/// <see cref="Entity.AIAgentMod.ChatMessage"/>
+/// <see cref="ChatMessage"/>
 public class ChatMessageAddDto
 {
     /// <summary>

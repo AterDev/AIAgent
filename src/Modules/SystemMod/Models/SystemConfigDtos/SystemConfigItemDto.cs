@@ -2,7 +2,7 @@ namespace SystemMod.Models.SystemConfigDtos;
 /// <summary>
 /// 系统配置ItemDto
 /// </summary>
-/// <see cref="Entity.SystemMod.SystemConfig"/>
+/// <see cref="SystemConfig"/>
 public class SystemConfigItemDto
 {
     [MaxLength(100)]

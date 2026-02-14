@@ -1,5 +1,6 @@
 ﻿// global using FileProcessorService.Extension;
 global using Microsoft.AspNetCore.Mvc;
+global using CoreMod.Abstraction;
 global using Perigon.AspNetCore.Abstraction;
 global using Perigon.AspNetCore.Utils;
 global using ServiceDefaults;

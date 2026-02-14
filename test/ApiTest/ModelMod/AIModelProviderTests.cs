@@ -2,7 +2,6 @@ using ApiTest.Data;
 using ModelMod.Models.AIModelProviderDtos;
 using Entity.ModelMod;
 using Perigon.AspNetCore.Models;
-using System.Net;
 using System.Net.Http.Json;
 
 namespace ApiTest.ModelMod;

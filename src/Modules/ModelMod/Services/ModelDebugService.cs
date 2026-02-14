@@ -6,7 +6,7 @@ public class ModelDebugService(
     TenantDbFactory dbContextFactory,
     IUserContext userContext,
     ExtensionsAIModelClient modelClient,
-    IUsageMeter usageMeter,
+    DefaultUsageMeter usageMeter,
     ILogger<ModelDebugService> logger
 )
 {

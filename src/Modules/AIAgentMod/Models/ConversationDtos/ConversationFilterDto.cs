@@ -2,7 +2,7 @@ namespace AIAgentMod.Models.ConversationDtos;
 /// <summary>
 /// 对话实例FilterDto
 /// </summary>
-/// <see cref="Entity.AIAgentMod.Conversation"/>
+/// <see cref="Conversation"/>
 public class ConversationFilterDto : FilterBase
 {
     /// <summary>

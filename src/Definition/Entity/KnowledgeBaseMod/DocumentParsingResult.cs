@@ -1,5 +1,3 @@
-using Entity;
-
 namespace Entity.KnowledgeBaseMod;
 
 /// <summary>

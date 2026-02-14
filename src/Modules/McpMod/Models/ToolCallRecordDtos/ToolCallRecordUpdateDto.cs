@@ -3,7 +3,7 @@ namespace McpMod.Models.ToolCallRecordDtos;
 /// <summary>
 /// 工具调用记录 UpdateDto
 /// </summary>
-/// <see cref="Entity.McpMod.ToolCallRecord"/>
+/// <see cref="ToolCallRecord"/>
 public class ToolCallRecordUpdateDto
 {
     [MaxLength(4000)]

@@ -3,7 +3,7 @@ namespace McpMod.Models.ToolCallRecordDtos;
 /// <summary>
 /// 工具调用记录 DetailDto
 /// </summary>
-/// <see cref="Entity.McpMod.ToolCallRecord"/>
+/// <see cref="ToolCallRecord"/>
 public class ToolCallRecordDetailDto
 {
     public Guid Id { get; set; }

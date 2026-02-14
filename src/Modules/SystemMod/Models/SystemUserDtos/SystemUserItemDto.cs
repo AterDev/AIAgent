@@ -2,7 +2,7 @@ namespace SystemMod.Models.SystemUserDtos;
 /// <summary>
 /// 系统用户ItemDto
 /// </summary>
-/// <see cref="Entity.SystemMod.SystemUser"/>
+/// <see cref="SystemUser"/>
 public class SystemUserItemDto
 {
     /// <summary>

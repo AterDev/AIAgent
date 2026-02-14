@@ -3,7 +3,7 @@ namespace ModelMod.Models.ModelInvocationDtos;
 /// <summary>
 /// 调用记录 DetailDto
 /// </summary>
-/// <see cref="Entity.ModelMod.ModelInvocation"/>
+/// <see cref="ModelInvocation"/>
 public class ModelInvocationDetailDto
 {
     public Guid Id { get; set; }

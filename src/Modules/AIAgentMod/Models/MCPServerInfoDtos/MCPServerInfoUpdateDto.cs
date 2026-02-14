@@ -2,7 +2,7 @@ namespace AIAgentMod.Models.MCPServerInfoDtos;
 /// <summary>
 /// McpServerUpdateDto
 /// </summary>
-/// <see cref="Entity.AIAgentMod.MCPServerInfo"/>
+/// <see cref="MCPServerInfo"/>
 public class MCPServerInfoUpdateDto
 {
     /// <summary>

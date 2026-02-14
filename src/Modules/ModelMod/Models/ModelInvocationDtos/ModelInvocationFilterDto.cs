@@ -3,7 +3,7 @@ namespace ModelMod.Models.ModelInvocationDtos;
 /// <summary>
 /// 调用记录 FilterDto
 /// </summary>
-/// <see cref="Entity.ModelMod.ModelInvocation"/>
+/// <see cref="ModelInvocation"/>
 public class ModelInvocationFilterDto : FilterBase
 {
     public Guid? ApplicationId { get; set; }

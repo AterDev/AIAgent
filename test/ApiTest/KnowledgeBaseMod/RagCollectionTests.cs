@@ -2,7 +2,6 @@ using ApiTest.Data;
 using KnowledgeBaseMod.Models.RagCollectionDtos;
 using Entity.KnowledgeBaseMod;
 using Perigon.AspNetCore.Models;
-using System.Net;
 using System.Net.Http.Json;
 
 namespace ApiTest.KnowledgeBaseMod;

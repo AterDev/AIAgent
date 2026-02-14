@@ -1,7 +1,6 @@
-using Share.Services;
-using EntityFramework.AppDbContext;
-
 namespace SystemMod.Services;
+using Share.Abstraction;
+using Share.Models;
 
 /// <summary>
 /// 存储提供商查询服务 - 为核心模块提供跨模块数据访问

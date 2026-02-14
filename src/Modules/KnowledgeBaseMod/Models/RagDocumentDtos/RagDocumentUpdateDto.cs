@@ -3,7 +3,7 @@ namespace KnowledgeBaseMod.Models.RagDocumentDtos;
 /// <summary>
 /// 文档 UpdateDto
 /// </summary>
-/// <see cref="Entity.KnowledgeBaseMod.RagDocument"/>
+/// <see cref="RagDocument"/>
 public class RagDocumentUpdateDto
 {
     [MaxLength(200)]

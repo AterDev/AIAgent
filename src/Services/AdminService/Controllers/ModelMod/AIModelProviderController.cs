@@ -1,5 +1,4 @@
 using ModelMod.Models.AIModelProviderDtos;
-using ModelMod.Managers;
 
 namespace AdminService.Controllers.ModelMod;
 

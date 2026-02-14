@@ -3,7 +3,7 @@ using KnowledgeBaseMod.Managers;
 using KnowledgeBaseMod.Models.RagDocumentDtos;
 using KnowledgeBaseMod.Models.DocumentParsingDtos;
 using CoreMod.Services;
-using Share.Services;
+using Share.Abstraction;
 using Share.Models;
 
 namespace FileProcessorService.Controllers.KnowledgeBaseMod;

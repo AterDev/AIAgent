@@ -3,7 +3,7 @@ namespace ModelMod.Models.ApplicationToolPermissionDtos;
 /// <summary>
 /// 应用工具权限 AddDto
 /// </summary>
-/// <see cref="Entity.ModelMod.ApplicationToolPermission"/>
+/// <see cref="ApplicationToolPermission"/>
 public class ApplicationToolPermissionAddDto
 {
     public Guid ApplicationId { get; set; }

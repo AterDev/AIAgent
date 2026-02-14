@@ -2,7 +2,7 @@ namespace AIAgentMod.Models.MCPServerInfoDtos;
 /// <summary>
 /// McpServerFilterDto
 /// </summary>
-/// <see cref="Entity.AIAgentMod.MCPServerInfo"/>
+/// <see cref="MCPServerInfo"/>
 public class MCPServerInfoFilterDto : FilterBase
 {
     /// <summary>

@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
-
 namespace ApiService.Controllers.OpenPlatform;
 
 [ApiExplorerSettings(GroupName = "v1")]

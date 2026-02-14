@@ -3,7 +3,7 @@ namespace WorkflowMod.Models.WorkflowDtos;
 /// <summary>
 /// 工作流 FilterDto
 /// </summary>
-/// <see cref="Entity.WorkflowMod.Workflow"/>
+/// <see cref="Workflow"/>
 public class WorkflowFilterDto : FilterBase
 {
     [MaxLength(200)]
