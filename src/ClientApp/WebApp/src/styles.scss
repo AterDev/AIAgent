@@ -98,3 +98,131 @@ mat-chip {
 .pre-wrap {
   white-space: pre-wrap;
 }
+
+// Global Material Mica-like mouse-follow glow (no per-page template changes needed)
+:root {
+  --mica-glow-size: 100px;
+  --mica-glow-alpha: 0.20;
+}
+
+:where(
+  button.mat-mdc-button-base:not(:disabled),
+  a.mat-mdc-button-base
+) {
+  --mica-x: 50%;
+  --mica-y: 50%;
+  position: relative;
+  border-radius: var(--mica-radius, inherit);
+}
+
+:where(
+  .mat-mdc-menu-item,
+  .mat-mdc-list-item,
+  .mat-mdc-tab-link,
+  .mat-mdc-tab
+) {
+  --mica-x: 50%;
+  --mica-y: 50%;
+  position: relative;
+  overflow: hidden;
+}
+
+:where(button.mat-mdc-button, a.mat-mdc-button) {
+  --mica-radius: var(--mdc-text-button-container-shape, 999px);
+}
+
+:where(button.mat-mdc-unelevated-button, a.mat-mdc-unelevated-button) {
+  --mica-radius: var(--mdc-filled-button-container-shape, 999px);
+}
+
+:where(button.mat-mdc-raised-button, a.mat-mdc-raised-button) {
+  --mica-radius: var(--mdc-protected-button-container-shape, 999px);
+}
+
+:where(button.mat-mdc-outlined-button, a.mat-mdc-outlined-button) {
+  --mica-radius: var(--mdc-outlined-button-container-shape, 999px);
+}
+
+:where(button.mat-mdc-icon-button, a.mat-mdc-icon-button) {
+  --mica-radius: 50%;
+}
+
+:where(
+  button.mat-mdc-button-base:not(:disabled),
+  a.mat-mdc-button-base
+) .mat-mdc-button-persistent-ripple {
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+:where(
+  button.mat-mdc-button-base:not(:disabled),
+  a.mat-mdc-button-base
+) .mat-mdc-button-persistent-ripple::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 160ms ease;
+  background: radial-gradient(
+    circle var(--mica-glow-size) at var(--mica-x) var(--mica-y),
+    rgba(255, 255, 255, var(--mica-glow-alpha)),
+    transparent 75%
+  );
+}
+
+:where(
+  button.mat-mdc-button-base:not(:disabled),
+  a.mat-mdc-button-base
+):is(:hover, :focus-visible, .mica-glow-active) .mat-mdc-button-persistent-ripple::after {
+  opacity: 1;
+}
+
+:where(
+  .mat-mdc-menu-item,
+  .mat-mdc-list-item,
+  .mat-mdc-tab-link,
+  .mat-mdc-tab
+)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 160ms ease;
+  background: radial-gradient(
+    circle var(--mica-glow-size) at var(--mica-x) var(--mica-y),
+    rgba(255, 255, 255, var(--mica-glow-alpha)),
+    transparent 75%
+  );
+}
+
+:where(
+  .mat-mdc-menu-item,
+  .mat-mdc-list-item,
+  .mat-mdc-tab-link,
+  .mat-mdc-tab
+):is(:hover, :focus-visible, .mica-glow-active)::after {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(
+    button.mat-mdc-button-base:not(:disabled),
+    a.mat-mdc-button-base
+  ) .mat-mdc-button-persistent-ripple::after {
+    transition: none;
+  }
+
+  :where(
+    .mat-mdc-menu-item,
+    .mat-mdc-list-item,
+    .mat-mdc-tab-link,
+    .mat-mdc-tab
+  )::after {
+    transition: none;
+  }
+}

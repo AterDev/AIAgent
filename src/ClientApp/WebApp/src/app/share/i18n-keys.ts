@@ -50,6 +50,7 @@ export const I18N_KEYS = {
     "email": "login.email",
     "password": "login.password",
     "login": "login.login",
+    "adminLogin": "login.adminLogin",
     "stop": "login.stop",
     "logout": "login.logout",
     "usernamePlaceholder": "login.usernamePlaceholder",

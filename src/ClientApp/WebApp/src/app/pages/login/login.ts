@@ -119,6 +119,27 @@ export class Login implements OnInit, AfterViewInit {
       });
   }
 
+  onLoginBtnMove(event: MouseEvent): void {
+    const target = event.currentTarget as HTMLElement | null;
+    if (!target) {
+      return;
+    }
+
+    const rect = target.getBoundingClientRect();
+    target.style.setProperty('--mx', `${event.clientX - rect.left}px`);
+    target.style.setProperty('--my', `${event.clientY - rect.top}px`);
+  }
+
+  onLoginBtnLeave(event: MouseEvent): void {
+    const target = event.currentTarget as HTMLElement | null;
+    if (!target) {
+      return;
+    }
+
+    target.style.setProperty('--mx', '50%');
+    target.style.setProperty('--my', '50%');
+  }
+
 
   logout(): void {
     this.authService.logout();

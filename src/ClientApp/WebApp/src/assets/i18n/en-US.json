@@ -30,8 +30,8 @@
     "saveFail": "Save failed",
     "formInvalid": "Form invalid, please check the content!",
     "updatedTime": "Updated Time",
-      "applicationOptional": "Optional for admin",
-      "applicationRequired": "Application is required for non-admin",
+    "applicationOptional": "Optional for admin",
+    "applicationRequired": "Application is required for non-admin",
     "pageNotFound": "Page Not Found",
     "unknown": "Unknown",
     "deleteConfirm": "Are you sure you want to delete?",
@@ -40,10 +40,12 @@
   "login": {
     "username": "Username",
     "email": "Email",
-      "stop": "Stop",
-      "streaming": "Streaming",
+    "stop": "Stop",
+    "streaming": "Streaming",
     "password": "Password",
     "login": "Login",
+    "adminLogin": "Admin Login",
+    "adminSubtitle": "Admin Console",
     "logout": "Logout",
     "usernamePlaceholder": "Username (4+ chars)",
     "emailPlaceholder": "Please enter a valid email address",
@@ -52,7 +54,7 @@
   "systemLogs": {
     "actionUserName": "Operator Name",
     "targetName": "Target Name",
-        "loadApplicationsFailed": "Failed to load applications",
+    "loadApplicationsFailed": "Failed to load applications",
     "actionType": "Action Type",
     "startDate": "Start Date",
     "endDate": "End Date"
@@ -61,8 +63,8 @@
     "name": "Role Display Name",
     "nameValue": "Role Name (System ID)",
     "isSystem": "Is System Built-in",
-      "applicationOptional": "Optional for admin",
-      "applicationRequired": "Application is required for non-admin",
+    "applicationOptional": "Optional for admin",
+    "applicationRequired": "Application is required for non-admin",
     "isSystemDesc": "Is System Built-in (Cannot be deleted)",
     "menuPermission": "Menu Permissions",
     "menuPermissionConfig": "Menu Permission Configuration"
@@ -103,11 +105,11 @@
     "customer": "Customer",
     "team": "Team",
     "product": "Product",
-      "rerun": "Rerun",
-      "errors": {
-        "loadApplicationsFailed": "Failed to load applications",
-        "testFailed": "Test failed"
-      }
+    "rerun": "Rerun",
+    "errors": {
+      "loadApplicationsFailed": "Failed to load applications",
+      "testFailed": "Test failed"
+    },
     "model": "Model Management",
     "application": "Application",
     "applicationQuota": "Application Quota",
