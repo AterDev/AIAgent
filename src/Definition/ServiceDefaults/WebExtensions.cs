@@ -148,6 +148,7 @@ public static class WebExtensions
             );
             c.CustomSchemaIds(type => type.FullName ?? type.Name);
             c.SchemaFilter<SwaggerSchemaFilter>();
+            c.OperationFilter<SwagerOperationFilter>();
         });
         return services;
     }
