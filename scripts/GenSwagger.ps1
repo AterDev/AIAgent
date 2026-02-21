@@ -7,9 +7,8 @@ param(
     [string]$DocumentName = "v1"
 )
 
+$location = Get-Location
 $configuration = "Debug"
-$environmentName = "Development"
-
 function Get-TargetFramework {
     param([Parameter(Mandatory = $true)][string]$CsprojPath)
 
@@ -40,32 +39,22 @@ try {
     }
 
     $targetFramework = Get-TargetFramework -CsprojPath $csprojPath
-
     $assemblyPath = Join-Path $projectDir "bin/$configuration/$targetFramework/$ServiceName.dll"
     $swaggerOutputPath = Join-Path $projectDir "swagger.json"
 
-    Push-Location $repoRoot
-    try {
-        dotnet tool restore
-        if (-not (Test-Path $assemblyPath -PathType Leaf)) {
-            throw "未找到程序集: $assemblyPath"
-        }
+    Set-Location $repoRoot
 
-        try {
-            Push-Location $projectDir
-            try {
-                dotnet tool run swagger -- tofile --output $swaggerOutputPath $assemblyPath $DocumentName
-            }
-            finally {
-                Pop-Location
-            }
-        }
+    dotnet tool restore
+    if (-not (Test-Path $assemblyPath -PathType Leaf)) {
+        throw "未找到程序集: $assemblyPath"
     }
-    finally {
-        Pop-Location
-    }
+    Set-Location $projectDir
+    dotnet tool run swagger -- tofile --output $swaggerOutputPath $assemblyPath $DocumentName
 }
 catch {
     Write-Error $_
     exit 1
+}
+finally {
+    Set-Location $location
 }

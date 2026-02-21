@@ -2,7 +2,7 @@
   "openapi": "3.0.4",
   "info": {
     "title": "dotnet-swagger",
-    "description": "Admin API 文档. 更新时间:2026-02-20 21:04:11",
+    "description": "Admin API 文档. 更新时间:2026-02-21 10:36:26",
     "version": "v1"
   },
   "paths": {
