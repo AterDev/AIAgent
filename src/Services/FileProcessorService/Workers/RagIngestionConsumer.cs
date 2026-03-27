@@ -86,7 +86,9 @@ public class RagIngestionConsumer(
             {
                 logger.LogError(ex, "Error processing message, will retry");
                 // NAK 消息，让它重新投递
-                await msg.NakAsync(delay: TimeSpan.FromSeconds(30), cancellationToken: cancellationToken);
+                await msg.NakAsync(
+                    new NATS.Client.JetStream.AckOpts { NakDelay = TimeSpan.FromSeconds(30) },
+                    cancellationToken: cancellationToken);
             }
         }
     }

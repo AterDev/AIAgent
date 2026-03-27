@@ -1,6 +1,22 @@
 <div class="aimodel-info-list-page">
   <div class="toolbar">
-    <div class="d-flex align-items-center gap-2 justify-content-end p-1">
+    <div class="d-flex align-items-center gap-2 justify-content-between p-1">
+      <div class="d-flex gap-2 align-items-center">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ i18nKeys.aiModelInfo.providerId | translate }}</mat-label>
+          <mat-select [(ngModel)]="filterDto.providerId">
+            <mat-option [value]="null">{{ i18nKeys.common.all | translate }}</mat-option>
+            @for (item of availableProviders(); track item.id) {
+              <mat-option [value]="item.id">{{ item.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-flat-button color="primary" (click)="filter()">
+          {{ i18nKeys.common.search | translate }}
+        </button>
+      </div>
+
       <button mat-flat-button color="accent" (click)="openAdd()">
         {{ i18nKeys.common.add | translate }}
       </button>

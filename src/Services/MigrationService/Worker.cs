@@ -110,8 +110,8 @@ public class Worker(
             LogoUrl = "https://www.deepseek.com/favicon.ico",
             Models =
             [
-                new AIModelInfo { Name = "deepseek-chat", DisplayName = "DeepSeek Chat (V3)", Description = "DeepSeek V3 通用对话模型", ContextLength = 65536, MaxContextTokens = 65536, SupportsChat = true, SupportsTools = true, InputPrice = 0.27m, OutputPrice = 1.10m, IsEnabled = true },
-                new AIModelInfo { Name = "deepseek-reasoner", DisplayName = "DeepSeek Reasoner (R1)", Description = "DeepSeek R1 深度推理模型", ContextLength = 65536, MaxContextTokens = 65536, SupportsChat = true, InputPrice = 0.55m, OutputPrice = 2.19m, IsEnabled = true },
+                new AIModelInfo { Name = "deepseek-chat", DisplayName = "DeepSeek Chat (V3.2)", Description = "DeepSeek 当前主力通用模型，适合对话、工具调用和日常开发任务", ContextLength = 131072, MaxContextTokens = 131072, SupportsChat = true, SupportsTools = true, InputPrice = 0.28m, OutputPrice = 0.42m, IsEnabled = true },
+                new AIModelInfo { Name = "deepseek-reasoner", DisplayName = "DeepSeek Reasoner (V3.2 Thinking)", Description = "DeepSeek 当前主力深度推理模型，适合复杂分析、编程与长链路推理", ContextLength = 131072, MaxContextTokens = 131072, SupportsChat = true, SupportsTools = true, InputPrice = 0.55m, OutputPrice = 2.19m, IsEnabled = true },
             ]
         };
 
@@ -125,13 +125,9 @@ public class Worker(
             LogoUrl = "https://openai.com/favicon.ico",
             Models =
             [
-                new AIModelInfo { Name = "gpt-4.1", DisplayName = "GPT-4.1", Description = "最新旗舰模型，适合复杂任务", ContextLength = 1047576, MaxContextTokens = 1047576, SupportsChat = true, SupportsTools = true, SupportsVision = true, SupportsResponsesApi = true, InputPrice = 2.00m, OutputPrice = 8.00m, IsEnabled = true },
-                new AIModelInfo { Name = "gpt-4.1-mini", DisplayName = "GPT-4.1 Mini", Description = "高性价比模型，适合快速任务", ContextLength = 1047576, MaxContextTokens = 1047576, SupportsChat = true, SupportsTools = true, SupportsVision = true, SupportsResponsesApi = true, InputPrice = 0.40m, OutputPrice = 1.60m, IsEnabled = true },
-                new AIModelInfo { Name = "gpt-4.1-nano", DisplayName = "GPT-4.1 Nano", Description = "最快速、最经济的模型", ContextLength = 1047576, MaxContextTokens = 1047576, SupportsChat = true, SupportsTools = true, SupportsResponsesApi = true, InputPrice = 0.10m, OutputPrice = 0.40m, IsEnabled = true },
-                new AIModelInfo { Name = "o3", DisplayName = "o3", Description = "最强推理模型，适合数学/编程/科学", ContextLength = 200000, MaxContextTokens = 200000, SupportsChat = true, SupportsTools = true, SupportsResponsesApi = true, InputPrice = 2.00m, OutputPrice = 8.00m, IsEnabled = true },
-                new AIModelInfo { Name = "o4-mini", DisplayName = "o4-mini", Description = "快速推理模型", ContextLength = 200000, MaxContextTokens = 200000, SupportsChat = true, SupportsTools = true, SupportsResponsesApi = true, InputPrice = 1.10m, OutputPrice = 4.40m, IsEnabled = true },
-                new AIModelInfo { Name = "text-embedding-3-small", DisplayName = "Embedding 3 Small", Description = "小型向量化模型，性价比高", ContextLength = 8191, MaxContextTokens = 8191, SupportsEmbedding = true, InputPrice = 0.02m, OutputPrice = 0m, IsEnabled = true },
-                new AIModelInfo { Name = "text-embedding-3-large", DisplayName = "Embedding 3 Large", Description = "大型向量化模型，精度更高", ContextLength = 8191, MaxContextTokens = 8191, SupportsEmbedding = true, InputPrice = 0.13m, OutputPrice = 0m, IsEnabled = true },
+                new AIModelInfo { Name = "gpt-5.4", DisplayName = "GPT-5.4", Description = "OpenAI 当前旗舰模型，适合高复杂度推理、编码与智能体任务", ContextLength = 400000, MaxContextTokens = 400000, SupportsChat = true, SupportsTools = true, SupportsVision = true, SupportsResponsesApi = true, InputPrice = 2.50m, OutputPrice = 15.00m, IsEnabled = true },
+                new AIModelInfo { Name = "gpt-5.4-mini", DisplayName = "GPT-5.4 Mini", Description = "OpenAI 当前主力小型模型，适合高频编码、工具调用与日常业务场景", ContextLength = 400000, MaxContextTokens = 400000, SupportsChat = true, SupportsTools = true, SupportsVision = true, SupportsResponsesApi = true, InputPrice = 0.75m, OutputPrice = 4.50m, IsEnabled = true },
+                new AIModelInfo { Name = "text-embedding-3-large", DisplayName = "Embedding 3 Large", Description = "OpenAI 主力文本向量模型，适合检索增强、聚类与语义搜索", ContextLength = 8191, MaxContextTokens = 8191, SupportsEmbedding = true, InputPrice = 0.13m, OutputPrice = 0m, IsEnabled = true },
             ]
         };
 
@@ -145,9 +141,9 @@ public class Worker(
             LogoUrl = "https://www.anthropic.com/favicon.ico",
             Models =
             [
-                new AIModelInfo { Name = "claude-sonnet-4-20250514", DisplayName = "Claude Sonnet 4", Description = "高性能模型，编程与推理能力强", ContextLength = 200000, MaxContextTokens = 200000, SupportsChat = true, SupportsTools = true, SupportsVision = true, InputPrice = 3.00m, OutputPrice = 15.00m, IsEnabled = true },
-                new AIModelInfo { Name = "claude-opus-4-20250514", DisplayName = "Claude Opus 4", Description = "最强旗舰模型，长时间自主工作能力", ContextLength = 200000, MaxContextTokens = 200000, SupportsChat = true, SupportsTools = true, SupportsVision = true, InputPrice = 15.00m, OutputPrice = 75.00m, IsEnabled = true },
-                new AIModelInfo { Name = "claude-haiku-3-5-20241022", DisplayName = "Claude 3.5 Haiku", Description = "最快速经济的模型", ContextLength = 200000, MaxContextTokens = 200000, SupportsChat = true, SupportsTools = true, SupportsVision = true, InputPrice = 0.80m, OutputPrice = 4.00m, IsEnabled = true },
+                new AIModelInfo { Name = "claude-opus-4-6", DisplayName = "Claude Opus 4.6", Description = "Anthropic 当前最强旗舰模型，适合复杂编码、长链路智能体与企业级任务", ContextLength = 1000000, MaxContextTokens = 1000000, SupportsChat = true, SupportsTools = true, SupportsVision = true, InputPrice = 5.00m, OutputPrice = 25.00m, IsEnabled = true },
+                new AIModelInfo { Name = "claude-sonnet-4-6", DisplayName = "Claude Sonnet 4.6", Description = "Anthropic 当前最主流平衡模型，适合生产场景中的编码、代理与专业工作流", ContextLength = 1000000, MaxContextTokens = 1000000, SupportsChat = true, SupportsTools = true, SupportsVision = true, InputPrice = 3.00m, OutputPrice = 15.00m, IsEnabled = true },
+                new AIModelInfo { Name = "claude-haiku-4-5", DisplayName = "Claude Haiku 4.5", Description = "Anthropic 当前最快速高性价比模型，适合高并发与低延迟场景", ContextLength = 200000, MaxContextTokens = 200000, SupportsChat = true, SupportsTools = true, SupportsVision = true, InputPrice = 1.00m, OutputPrice = 5.00m, IsEnabled = true },
             ]
         };
 
@@ -161,10 +157,9 @@ public class Worker(
             LogoUrl = "https://img.alicdn.com/imgextra/i4/O1CN01c4CIoB1Ztqqe5wDfz_!!6000000003254-73-tps-16-16.ico",
             Models =
             [
-                new AIModelInfo { Name = "qwen-max", DisplayName = "Qwen Max", Description = "通义千问超大规模模型", ContextLength = 131072, MaxContextTokens = 131072, SupportsChat = true, SupportsTools = true, InputPrice = 2.40m, OutputPrice = 9.60m, IsEnabled = true },
-                new AIModelInfo { Name = "qwen-plus", DisplayName = "Qwen Plus", Description = "通义千问增强模型，适合意图识别", ContextLength = 131072, MaxContextTokens = 131072, SupportsChat = true, SupportsTools = true, InputPrice = 0.80m, OutputPrice = 2.00m, IsEnabled = true },
-                new AIModelInfo { Name = "qwen-turbo", DisplayName = "Qwen Turbo", Description = "通义千问快速模型，性价比高", ContextLength = 131072, MaxContextTokens = 131072, SupportsChat = true, SupportsTools = true, InputPrice = 0.30m, OutputPrice = 0.60m, IsEnabled = true },
-                new AIModelInfo { Name = "text-embedding-v3", DisplayName = "通义千问 Embedding V3", Description = "通义千问文本向量化模型", ContextLength = 8192, MaxContextTokens = 8192, SupportsEmbedding = true, InputPrice = 0.07m, OutputPrice = 0m, IsEnabled = true },
+                new AIModelInfo { Name = "qwen3-max", DisplayName = "Qwen3 Max", Description = "通义千问当前旗舰模型，适合复杂推理、长链路任务与高质量生成", ContextLength = 262144, MaxContextTokens = 262144, SupportsChat = true, SupportsTools = true, InputPrice = 2.50m, OutputPrice = 10.00m, IsEnabled = true },
+                new AIModelInfo { Name = "qwen3.5-plus", DisplayName = "Qwen3.5 Plus", Description = "通义千问当前主力均衡模型，适合大多数生产场景和多模态任务", ContextLength = 1000000, MaxContextTokens = 1000000, SupportsChat = true, SupportsTools = true, SupportsVision = true, InputPrice = 0.80m, OutputPrice = 4.80m, IsEnabled = true },
+                new AIModelInfo { Name = "text-embedding-v4", DisplayName = "通义千问 Embedding V4", Description = "通义千问当前主力文本向量模型，适合语义检索与知识库场景", ContextLength = 8192, MaxContextTokens = 8192, SupportsEmbedding = true, InputPrice = 0.50m, OutputPrice = 0m, IsEnabled = true },
             ]
         };
 
@@ -178,8 +173,8 @@ public class Worker(
             LogoUrl = "https://www.gstatic.com/lamda/images/gemini_favicon_f069958c85030456e93de685481c559f160ea06b.png",
             Models =
             [
-                new AIModelInfo { Name = "gemini-2.5-pro", DisplayName = "Gemini 2.5 Pro", Description = "Google 最强模型，支持思考", ContextLength = 1048576, MaxContextTokens = 1048576, SupportsChat = true, SupportsTools = true, SupportsVision = true, InputPrice = 1.25m, OutputPrice = 10.00m, IsEnabled = true },
-                new AIModelInfo { Name = "gemini-2.5-flash", DisplayName = "Gemini 2.5 Flash", Description = "快速经济模型", ContextLength = 1048576, MaxContextTokens = 1048576, SupportsChat = true, SupportsTools = true, SupportsVision = true, InputPrice = 0.15m, OutputPrice = 0.60m, IsEnabled = true },
+                new AIModelInfo { Name = "gemini-3.1-pro-preview", DisplayName = "Gemini 3.1 Pro", Description = "Google 当前最强推理与智能体模型，适合复杂多模态与长上下文任务", ContextLength = 1000000, MaxContextTokens = 1000000, SupportsChat = true, SupportsTools = true, SupportsVision = true, InputPrice = 1.25m, OutputPrice = 10.00m, IsEnabled = true },
+                new AIModelInfo { Name = "gemini-3-flash-preview", DisplayName = "Gemini 3 Flash", Description = "Google 当前主力高速模型，兼顾推理质量、速度与成本", ContextLength = 1000000, MaxContextTokens = 1000000, SupportsChat = true, SupportsTools = true, SupportsVision = true, InputPrice = 0.50m, OutputPrice = 3.00m, IsEnabled = true },
             ]
         };
 
@@ -193,8 +188,8 @@ public class Worker(
             LogoUrl = "https://azure.microsoft.com/favicon.ico",
             Models =
             [
-                new AIModelInfo { Name = "gpt-4.1", DisplayName = "Azure GPT-4.1", Description = "Azure 托管的 GPT-4.1 模型", ContextLength = 1047576, MaxContextTokens = 1047576, SupportsChat = true, SupportsTools = true, SupportsVision = true, InputPrice = 2.00m, OutputPrice = 8.00m, IsEnabled = true },
-                new AIModelInfo { Name = "gpt-4.1-mini", DisplayName = "Azure GPT-4.1 Mini", Description = "Azure 托管的 GPT-4.1 Mini 模型", ContextLength = 1047576, MaxContextTokens = 1047576, SupportsChat = true, SupportsTools = true, SupportsVision = true, InputPrice = 0.40m, OutputPrice = 1.60m, IsEnabled = true },
+                new AIModelInfo { Name = "gpt-5.4", DisplayName = "Azure GPT-5.4", Description = "Azure 当前旗舰模型，适合企业级复杂推理、编码与多工具工作流", ContextLength = 1050000, MaxContextTokens = 1050000, SupportsChat = true, SupportsTools = true, SupportsVision = true, SupportsResponsesApi = true, InputPrice = 2.50m, OutputPrice = 15.00m, IsEnabled = true },
+                new AIModelInfo { Name = "gpt-5.4-mini", DisplayName = "Azure GPT-5.4 Mini", Description = "Azure 当前主力小型模型，适合高频业务与成本敏感场景", ContextLength = 400000, MaxContextTokens = 400000, SupportsChat = true, SupportsTools = true, SupportsVision = true, SupportsResponsesApi = true, InputPrice = 0.75m, OutputPrice = 4.50m, IsEnabled = true },
             ]
         };
 

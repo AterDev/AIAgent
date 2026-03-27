@@ -6,6 +6,7 @@ import { AdminClient } from 'src/app/services/admin/admin-client';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
 import { AIModelInfoFilterDto } from 'src/app/services/admin/models/model-mod/aimodel-info-filter-dto.model';
 import { AIModelInfoItemDto } from 'src/app/services/admin/models/model-mod/aimodel-info-item-dto.model';
+import { AIModelProviderItemDto } from 'src/app/services/admin/models/model-mod/aimodel-provider-item-dto.model';
 import { CommonListModules, CommonFormModules } from 'src/app/share/shared-modules';
 import { ConfirmDialogComponent } from 'src/app/share/components/confirm-dialog/confirm-dialog.component';
 import { AIModelInfoAdd } from '../add/add';
@@ -25,6 +26,7 @@ export class AIModelInfoIndex implements OnInit {
     dataSource = new MatTableDataSource<AIModelInfoItemDto>();
     filterDto: AIModelInfoFilterDto = { pageIndex: 1, pageSize: 10 };
     isLoading = signal(true);
+    availableProviders = signal<AIModelProviderItemDto[]>([]);
     total = 0;
     pageSize = 10;
 
@@ -35,15 +37,32 @@ export class AIModelInfoIndex implements OnInit {
     ) { }
 
     ngOnInit(): void {
+        this.loadProviders();
         this.loadData();
+    }
+
+    loadProviders(): void {
+        this.adminClient.aIModelProvider.list({ pageIndex: 1, pageSize: 100 }).subscribe({
+            next: (res: any) => {
+                this.availableProviders.set(res.data || res.items || []);
+            },
+            error: () => {
+                this.availableProviders.set([]);
+            }
+        });
     }
 
     loadData(): void {
         this.isLoading.set(true);
-        this.adminClient.aIModelInfo.list(this.filterDto as AIModelInfoFilterDto).subscribe((res: any) => {
-            this.dataSource.data = (res.data || res.items || []);
-            this.total = (res.count || res.total || this.dataSource.data.length);
-            this.isLoading.set(false);
+        this.adminClient.aIModelInfo.list(this.filterDto as AIModelInfoFilterDto).subscribe({
+            next: (res: any) => {
+                this.dataSource.data = (res.data || res.items || []);
+                this.total = (res.count || res.total || this.dataSource.data.length);
+                this.isLoading.set(false);
+            },
+            error: () => {
+                this.isLoading.set(false);
+            }
         });
     }
 
