@@ -118,6 +118,7 @@ npm run build
 
 【建议】（可选）
 - [可选的改进建议]
+
 ```
 
 **发现问题**：
@@ -139,8 +140,6 @@ npm run build
 问题：使用了旧的 *ngIf 语法
 建议：使用新的 @if 控制流语法
 
-【下一步】
-请 engineer 修复以上问题后重新提交审查。
 ```
 
-然后 **handoff 回 engineer** 进行修复。
+当有重大错误或审核未通过时 **handoff 回 engineer** 进行修复；如果仅有建议则直接反馈而不 handoff。

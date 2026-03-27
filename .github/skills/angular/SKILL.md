@@ -5,14 +5,14 @@ description: Angular 21+ 前端开发规范（standalone/Material/signals）。�
 
 ## 何时使用
 
-本技能适用于使用 Angular 框架进行前端开发的项目。
+本技能适用于使用 Angular 框架进行前端开发的任务。
 
 ## 项目结构
 
 ### 目录布局
 
 ```
-src/ClientApp/WebApp/
+src/
   ├── main.ts                    # 应用入口
   ├── app/
   │   ├── app.config.ts          # 应用配置
@@ -38,7 +38,7 @@ src/ClientApp/WebApp/
 
 <rules>
 
-- **100% Standalone 组件**：不使用 NgModule
+- **Standalone 组件**：不使用 NgModule
 - **Angular Material**：统一的 UI 组件库
 - **Signals 优先**：使用新的响应式 API
 - **严格的类型安全**：TypeScript 严格模式
@@ -49,7 +49,8 @@ src/ClientApp/WebApp/
 
 <workflow>
 
-0. 先调用MCP 工具，从Api文档生成客户端请求服务，`outputPath`参数为前端的`src\ClientApp\WebApp\src\app`目录的绝对路径,不要再添加子路径了。clientType为:NgHttp。这一步需要将`AppHost`项目启动起来之后，才能正常调用工具生成请求服务。
+0. 生成前端请求服务及类型：通过perigon 提供的命令行工具`generate request`或`perigon mcp`工具，根据后端swagger文件生成前端代码，
+`outputPath`参数为前端项目根目录下的`\src\app`目录的绝对路径(生成错了要删除)。
 1. 创建独立组件：目录及文件结构
 2. 配置路由和菜单
 3. 实现ts逻辑和HTML模板
@@ -66,15 +67,8 @@ src/ClientApp/WebApp/
 
 ### 验证前端构建
 ```pwsh
-cd src/ClientApp/WebApp
 npm run build
 ```
-
-### 常见构建错误及解决
-1. **TypeScript 类型错误**：检查接口定义和类型注解
-2. **模块未找到**：检查 import 路径和 tsconfig.json
-3. **Angular 编译错误**：检查组件装饰器和模板语法
-4. **依赖缺失**：执行 `pnpm install`
 
 ### 实时开发验证（可选）
 ```pwsh
@@ -84,13 +78,14 @@ npm run start  # 启动开发服务器，实时查看编译错误
 ### 构建-修复循环
 修改代码 → 构建 → 发现错误 → 修复 → 重新构建，直到无错误
 
-
 ## 组件开发
 
 - `enumText`管道：用于将枚举值转换为对应的文本显示。
 - `toKeyValue`管道：用于将枚举类型转换为键值对数组，以便在选项列表中使用。
 
-### 样式管理
+### UI/UX设计
+
+具备良好的交互常识和布局和审美。要考虑排版、边距，文字大小，颜色搭配，组件间距等，优先参考已定义好的`theme.scss`中的样式变量和组件样式，保持整体风格一致。
 
 **样式层级**：
 - **全局样式**：`styles.scss` - 基础样式和重置
@@ -98,10 +93,11 @@ npm run start  # 启动开发服务器，实时查看编译错误
 - **CSS 变量**：`vars.scss` - 颜色、间距等变量
 - **组件样式**：每个组件的 `.scss` 文件 - 局部样式
 
-**样式规范**：
-- ✓ 组件样式保持局部作用域
-- ✗ 避免全局样式覆盖（除非主题需要）
-- 使用 SCSS 变量和混入
+**样式规范(重要)**：
+- 先理解`theme.scss`中定义的 Material 主题和组件样式变量，优先使用这些样式。
+- 使用Angular Material提供的组件和样式类，而不是自己定义样式类和样式。
+- 关注行内元素垂直居中对齐
+- 整体页面不要出现水平滚动条(内部表格除外)，要注意组件的宽度和外层容器的宽度关系
 - ✗ 不要在组件中使用内联样式，而是在scss中定义。
 
 ### 多语言
@@ -147,10 +143,6 @@ get nameControl() {
   </mat-form-field>
 </form>
 
-<!-- ❌ 避免：formControlName 使用字符串硬编码 -->
-<form [formGroup]="form">
-  <input matInput formControlName="name" />
-</form>
 ```
 
 **组件示例（通过 getter 访问）**：
@@ -174,7 +166,6 @@ export class UserForm {
   }
 }
 ```
-
 
 ## 服务和 API
 
@@ -231,16 +222,4 @@ export class UserForm {
 **注意事项**：
 - ✓ `@for` 循环必须包含 `track` 表达式
 - ✓ Material Table 的 `*matHeaderRowDef` / `*matRowDef` 保留不变（这些是 Material 特有指令）
-- ✗ 不要在项目中使用 `*ngIf` / `*ngFor`，使用新的 `@if` / `@for` 语法
-
-**管道使用**：
-```html
-<!-- 日期和翻译管道 -->
-<span>{{ createdTime | date: 'short' }}</span>
-<h2>{{ i18nKeys.common.title | translate }}</h2>
-
-<!-- title 属性中使用管道 -->
-<button [title]="i18nKeys.common.view | translate">
-  <mat-icon>visibility</mat-icon>
-</button>
-```
+- ✗ 不要在项目中使用 `*ngIf` / `*ngFor`，应该使用 `@if` / `@for` 语法
