@@ -115,7 +115,7 @@
 
   </table>
 
-  <mat-paginator [length]="total" [pageSize]="filterDto.pageSize" (page)="pageChanged($event)"></mat-paginator>
+  <mat-paginator [length]="total" [pageIndex]="(filterDto.pageIndex ?? 1) - 1" [pageSize]="filterDto.pageSize" [pageSizeOptions]="[10, 20, 50, 100]" showFirstLastButtons (page)="pageChanged($event)"></mat-paginator>
   }
 
 </div>
