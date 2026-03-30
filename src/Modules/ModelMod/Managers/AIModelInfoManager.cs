@@ -16,7 +16,7 @@ public class AIModelInfoManager(
     /// </summary>
     public async Task<PageList<AIModelInfoItemDto>> FilterAsync(AIModelInfoFilterDto filter)
     {
-        Queryable = Queryable.WhereNotNull(providerId, q => q.ProviderId == providerId);
+        Queryable = Queryable.WhereNotNull(filter.ProviderId, q => q.ProviderId == filter.ProviderId);
         return await PageListAsync<AIModelInfoFilterDto, AIModelInfoItemDto>(filter);
     }
 
