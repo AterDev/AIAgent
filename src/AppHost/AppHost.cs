@@ -27,6 +27,7 @@ var infrastructureGroup = builder.AddGroup("Infrastructure", "Cloud");
 
 // Add NATS message queue with JetStream support
 var nats = builder.AddNats("nats", port: aspireSetting.NatsPort ?? 4222)
+    .WithImageTag("2.12-alpine")
     .WithJetStream()  // Enable JetStream for distributed streams and consumers
     .WithParentRelationship(infrastructureGroup);
 _ = aspireSetting.DatabaseType?.ToLowerInvariant() switch
@@ -58,6 +59,7 @@ if (aspireSetting.VectorStoreType?.ToLowerInvariant() == "qdrant")
 {
     qdrant = builder
         .AddQdrant("qdrant", apiKey: devPassword, httpPort: aspireSetting.QdrantPort)
+        .WithImageTag("v1.17")
         .WithDataVolume();
 }
 
