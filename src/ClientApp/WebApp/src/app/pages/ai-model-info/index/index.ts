@@ -13,6 +13,13 @@ import { AIModelInfoAdd } from '../add/add';
 import { AIModelInfoEdit } from '../edit/edit';
 import { AIModelInfoDetail } from '../detail/detail';
 
+type AIModelInfoListItem = AIModelInfoItemDto & {
+    contextLengthDisplay: string;
+    modelTypeIcon: string;
+    modelTypeLabel: string;
+    capabilityIcons: { icon: string; label: string }[];
+};
+
 @Component({
     selector: 'app-ai-model-info-index',
     imports: [CommonListModules, CommonFormModules],
@@ -23,7 +30,7 @@ export class AIModelInfoIndex implements OnInit {
     i18nKeys = I18N_KEYS;
 
     displayedColumns = ['name', 'displayName', 'contextLength', 'supportsChat', 'createdTime', 'actions'];
-    dataSource = new MatTableDataSource<AIModelInfoItemDto>();
+    dataSource = new MatTableDataSource<AIModelInfoListItem>();
     filterDto: AIModelInfoFilterDto = { pageIndex: 1, pageSize: 10 };
     isLoading = signal(true);
     availableProviders = signal<AIModelProviderItemDto[]>([]);
@@ -56,7 +63,17 @@ export class AIModelInfoIndex implements OnInit {
         this.isLoading.set(true);
         this.adminClient.aIModelInfo.list(this.filterDto as AIModelInfoFilterDto).subscribe({
             next: (res: any) => {
-                this.dataSource.data = (res.data || res.items || []);
+                const items = (res.data || res.items || []) as AIModelInfoItemDto[];
+                this.dataSource.data = items.map(item => ({
+                    ...item,
+                    contextLengthDisplay: this.formatContextLength(item.contextLength),
+                    modelTypeIcon: this.getModelTypeIcon(item),
+                    modelTypeLabel: this.getModelTypeLabel(item),
+                    capabilityIcons: [
+                        item.supportsTools ? { icon: 'build', label: this.i18nKeys.aiModelInfo.supportsTools } : null,
+                        item.supportsVision ? { icon: 'visibility', label: this.i18nKeys.aiModelInfo.supportsVision } : null
+                    ].filter((capability): capability is { icon: string; label: string } => capability !== null)
+                }));
                 this.total = (res.count || res.total || this.dataSource.data.length);
                 this.isLoading.set(false);
             },
@@ -75,6 +92,26 @@ export class AIModelInfoIndex implements OnInit {
         this.filterDto.pageIndex = e.pageIndex + 1;
         this.filterDto.pageSize = e.pageSize;
         this.loadData();
+    }
+
+    private formatContextLength(value?: number | null): string {
+        if (value === null || value === undefined) {
+            return '';
+        }
+
+        if (value > 9999) {
+            return `${Math.floor(value / 1000)}K`;
+        }
+
+        return `${value}`;
+    }
+
+    private getModelTypeIcon(item: AIModelInfoItemDto): string {
+        return item.supportsEmbedding ? 'hub' : 'chat';
+    }
+
+    private getModelTypeLabel(item: AIModelInfoItemDto): string {
+        return item.supportsEmbedding ? this.i18nKeys.aiModelInfo.modelTypeEmbedding : this.i18nKeys.aiModelInfo.modelTypeChat;
     }
 
     openAdd() {

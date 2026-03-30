@@ -159,7 +159,10 @@
     "supportsChat": "Supports Chat",
     "supportsEmbedding": "Supports Embedding",
     "supportsVision": "Supports Vision",
-    "supportsResponsesApi": "Supports Responses API"
+    "supportsResponsesApi": "Supports Responses API",
+    "capabilities": "Capabilities",
+    "modelTypeChat": "Chat Model",
+    "modelTypeEmbedding": "Embedding Model"
   },
   "modelProvider": {
     "title": "Model Provider",
@@ -210,7 +213,9 @@
     "supportsChat": "Supports Chat",
     "supportsEmbedding": "Supports Embedding",
     "supportsVision": "Supports Vision",
-    "supportsResponsesApi": "Supports Responses API"
+    "supportsResponsesApi": "Supports Responses API",
+    "modelTypeChat": "Chat Model",
+    "modelTypeEmbedding": "Embedding Model"
   },
   "ragCollection": {
     "title": "Collection",

@@ -157,7 +157,9 @@ export const I18N_KEYS = {
     "supportsChat": "modelProfile.supportsChat",
     "supportsEmbedding": "modelProfile.supportsEmbedding",
     "supportsVision": "modelProfile.supportsVision",
-    "supportsResponsesApi": "modelProfile.supportsResponsesApi"
+    "supportsResponsesApi": "modelProfile.supportsResponsesApi",
+    "modelTypeChat": "modelProfile.modelTypeChat",
+    "modelTypeEmbedding": "modelProfile.modelTypeEmbedding"
   },
   "modelProvider": {
     "title": "modelProvider.title",
@@ -208,7 +210,9 @@ export const I18N_KEYS = {
     "supportsChat": "aiModelInfo.supportsChat",
     "supportsEmbedding": "aiModelInfo.supportsEmbedding",
     "supportsVision": "aiModelInfo.supportsVision",
-    "supportsResponsesApi": "aiModelInfo.supportsResponsesApi"
+    "supportsResponsesApi": "aiModelInfo.supportsResponsesApi",
+    "modelTypeChat": "aiModelInfo.modelTypeChat",
+    "modelTypeEmbedding": "aiModelInfo.modelTypeEmbedding"
   },
   "ragCollection": {
     "title": "ragCollection.title",

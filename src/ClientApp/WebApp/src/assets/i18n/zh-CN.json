@@ -154,7 +154,10 @@
     "supportsChat": "支持对话",
     "supportsEmbedding": "支持向量化",
     "supportsVision": "支持视觉",
-    "supportsResponsesApi": "支持Responses API"
+    "supportsResponsesApi": "支持 Responses API",
+    "capabilities": "能力",
+    "modelTypeChat": "对话模型",
+    "modelTypeEmbedding": "向量化模型"
   },
   "modelProvider": {
     "title": "模型提供商",
@@ -205,7 +208,9 @@
     "supportsChat": "支持对话",
     "supportsEmbedding": "支持向量化",
     "supportsVision": "支持视觉",
-    "supportsResponsesApi": "支持Responses API"
+    "supportsResponsesApi": "支持Responses API",
+    "modelTypeChat": "对话模型",
+    "modelTypeEmbedding": "向量化模型"
   },
   "ragCollection": {
     "title": "知识库",
