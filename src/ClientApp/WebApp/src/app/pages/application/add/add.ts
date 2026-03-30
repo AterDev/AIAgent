@@ -33,6 +33,7 @@ export class ApplicationAdd implements OnInit {
   }
 
   ngOnInit(): void {
+    this.isLoading.set(false);
   }
 
   buildForm() {
