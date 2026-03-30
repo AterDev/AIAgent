@@ -50,7 +50,7 @@ public class Worker(
         });
     }
 
-    private static async Task SeedDataAsync<T>(T dbContext, CancellationToken cancellationToken)
+    private async Task SeedDataAsync<T>(T dbContext, CancellationToken cancellationToken)
         where T : DbContext
     {
         if (dbContext is not DefaultDbContext defaultDb)
@@ -63,6 +63,7 @@ public class Worker(
         {
             await SeedAdminUserAsync(defaultDb, cancellationToken);
             await SeedModelProvidersAsync(defaultDb, cancellationToken);
+            await SeedDemoApplicationAsync(defaultDb, cancellationToken);
             await SeedStorageProviderAsync(defaultDb, cancellationToken);
             await SeedDefaultKnowledgeBaseAsync(defaultDb, cancellationToken);
         });
@@ -194,6 +195,102 @@ public class Worker(
         };
 
         db.AIModelProviders.AddRange([deepSeek, openAI, anthropic, qwen, google, azure]);
+        await db.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task SeedDemoApplicationAsync(DefaultDbContext db, CancellationToken cancellationToken)
+    {
+        const string demoAppName = "Demo Open Platform App";
+
+        var deepSeekChat = await db.AIModelInfos
+            .Include(q => q.Provider)
+            .FirstOrDefaultAsync(q => q.Name == "deepseek-chat", cancellationToken);
+
+        if (deepSeekChat is null)
+        {
+            _logger.LogWarning("Skip seeding demo application because deepseek-chat model was not found.");
+            return;
+        }
+
+        var application = await db.Applications
+            .FirstOrDefaultAsync(q => q.Name == demoAppName, cancellationToken);
+
+        if (application is null)
+        {
+            var clientSecret = HashCrypto.GetRandom(40, useNum: true, useLow: true, useUpp: true);
+            var secretSalt = HashCrypto.BuildSalt();
+
+            application = new Application
+            {
+                Name = demoAppName,
+                Description = "用于第三方开放平台接入与模型调用验证的示例应用",
+                ClientId = "demo-open-platform",
+                SecretSalt = secretSalt,
+                SecretHash = HashCrypto.GeneratePwd(clientSecret, secretSalt),
+                SecretUpdatedTime = DateTimeOffset.UtcNow,
+                IsEnabled = true,
+                TenantId = deepSeekChat.TenantId,
+            };
+
+            db.Applications.Add(application);
+            await db.SaveChangesAsync(cancellationToken);
+
+            _logger.LogInformation(
+                "Seeded demo application credentials. ClientId: {ClientId}, ClientSecret: {ClientSecret}",
+                application.ClientId,
+                clientSecret
+            );
+        }
+
+        var hasPermission = await db.ApplicationModelPermissions.AnyAsync(
+            q => q.ApplicationId == application.Id && q.AIModelInfoId == deepSeekChat.Id,
+            cancellationToken
+        );
+
+        if (!hasPermission)
+        {
+            db.ApplicationModelPermissions.Add(new ApplicationModelPermission
+            {
+                ApplicationId = application.Id,
+                AIModelInfoId = deepSeekChat.Id,
+                IsEnabled = true,
+                TenantId = application.TenantId,
+            });
+        }
+
+        var existingQuotas = await db.ApplicationQuotas
+            .Where(q => q.ApplicationId == application.Id)
+            .Select(q => q.PeriodType)
+            .ToListAsync(cancellationToken);
+
+        if (!existingQuotas.Contains(QuotaPeriodType.Minute))
+        {
+            db.ApplicationQuotas.Add(new ApplicationQuota
+            {
+                ApplicationId = application.Id,
+                PeriodType = QuotaPeriodType.Minute,
+                MaxRequests = 20,
+                MaxTokens = 40_000,
+                WindowSeconds = 60,
+                IsEnabled = true,
+                TenantId = application.TenantId,
+            });
+        }
+
+        if (!existingQuotas.Contains(QuotaPeriodType.Day))
+        {
+            db.ApplicationQuotas.Add(new ApplicationQuota
+            {
+                ApplicationId = application.Id,
+                PeriodType = QuotaPeriodType.Day,
+                MaxRequests = 1_000,
+                MaxTokens = 2_000_000,
+                WindowSeconds = 86_400,
+                IsEnabled = true,
+                TenantId = application.TenantId,
+            });
+        }
+
         await db.SaveChangesAsync(cancellationToken);
     }
 

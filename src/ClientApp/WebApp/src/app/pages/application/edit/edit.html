@@ -26,20 +26,16 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline">
-        <mat-label>{{ i18nKeys.application.accessKey | translate }}</mat-label>
-        <input matInput type="text" [formControl]="accessKey" />
-        @if (accessKey.invalid) {
-          <mat-error>{{ getValidatorMessage(accessKey) }}</mat-error>
-        }
+        <mat-label>{{ i18nKeys.application.clientId | translate }}</mat-label>
+        <input matInput type="text" [value]="clientIdValue()" readonly />
       </mat-form-field>
 
-      <mat-form-field appearance="outline">
-        <mat-label>{{ i18nKeys.application.secretKey | translate }}</mat-label>
-        <input matInput type="text" [formControl]="secretKey" />
-        @if (secretKey.invalid) {
-          <mat-error>{{ getValidatorMessage(secretKey) }}</mat-error>
-        }
-      </mat-form-field>
+      <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap px-1">
+        <span class="text-muted">{{ i18nKeys.application.securelyStored | translate }}</span>
+        <button mat-stroked-button type="button" color="primary" (click)="resetSecret()">
+          {{ i18nKeys.application.regenerateSecret | translate }}
+        </button>
+      </div>
 
       <mat-checkbox [formControl]="isEnabled">{{ i18nKeys.application.isEnabled | translate }}</mat-checkbox>
       @if (isEnabled.invalid) {

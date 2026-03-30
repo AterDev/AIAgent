@@ -10,14 +10,17 @@ public class ApplicationManager(
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, Application>(dbContextFactory, userContext, logger)
 {
+    private const string ClientIdPrefix = "app_";
+
     /// <summary>
     /// Filter 应用定义 with paging
     /// </summary>
     public async Task<PageList<ApplicationItemDto>> FilterAsync(ApplicationFilterDto filter)
     {
         Queryable = Queryable
+            .Where(q => q.TenantId == _userContext.TenantId)
             .WhereNotNull(filter.Name, q => q.Name == filter.Name)
-            .WhereNotNull(filter.AccessKey, q => q.AccessKey == filter.AccessKey)
+            .WhereNotNull(filter.ClientId, q => q.ClientId == filter.ClientId)
             .WhereNotNull(filter.IsEnabled, q => q.IsEnabled == filter.IsEnabled);
 
         return await PageListAsync<ApplicationFilterDto, ApplicationItemDto>(filter);
@@ -28,12 +31,24 @@ public class ApplicationManager(
     /// </summary>
     /// <param name="dto"></param>
     /// <returns></returns>
-    public async Task<Application> AddAsync(ApplicationAddDto dto)
+    public async Task<ApplicationCredentialResultDto> AddAsync(ApplicationAddDto dto)
     {
-        var entity = dto.MapTo<Application>();
+        var clientId = await GenerateClientIdAsync();
+        var clientSecret = GenerateClientSecret();
+        var secretSalt = HashCrypto.BuildSalt();
+        var entity = new Application
+        {
+            Name = dto.Name,
+            Description = dto.Description,
+            ClientId = clientId,
+            SecretSalt = secretSalt,
+            SecretHash = HashCrypto.GeneratePwd(clientSecret, secretSalt),
+            SecretUpdatedTime = DateTimeOffset.UtcNow,
+            IsEnabled = dto.IsEnabled,
+        };
 
         await InsertAsync(entity);
-        return entity;
+        return ToCredentialResult(entity, clientSecret);
     }
 
     /// <summary>
@@ -61,9 +76,71 @@ public class ApplicationManager(
     {
         if (await HasPermissionAsync(id))
         {
-            return await FindAsync<ApplicationDetailDto>(q => q.Id == id);
+            return await FindAsync<ApplicationDetailDto>(q => q.Id == id && q.TenantId == _userContext.TenantId);
         }
         throw new BusinessException(Localizer.NoPermission);
+    }
+
+    /// <summary>
+    /// 获取列表项
+    /// </summary>
+    public async Task<ApplicationItemDto?> GetItemAsync(Guid id)
+    {
+        return await FindAsync<ApplicationItemDto>(q => q.Id == id && q.TenantId == _userContext.TenantId);
+    }
+
+    /// <summary>
+    /// 根据 Id 获取应用实体
+    /// </summary>
+    public async Task<Application?> GetEntityAsync(Guid id)
+    {
+        return await _dbSet.AsNoTracking().FirstOrDefaultAsync(q => q.Id == id && q.TenantId == _userContext.TenantId);
+    }
+
+    /// <summary>
+    /// 重置应用密钥
+    /// </summary>
+    public async Task<ApplicationCredentialResultDto> ResetSecretAsync(Guid id)
+    {
+        if (!await HasPermissionAsync(id))
+        {
+            throw new BusinessException(Localizer.NoPermission);
+        }
+
+        var entity = await _dbSet.FirstOrDefaultAsync(q => q.Id == id && q.TenantId == _userContext.TenantId)
+            ?? throw new BusinessException("Application not found");
+
+        var clientSecret = GenerateClientSecret();
+        entity.SecretSalt = HashCrypto.BuildSalt();
+        entity.SecretHash = HashCrypto.GeneratePwd(clientSecret, entity.SecretSalt);
+        entity.SecretUpdatedTime = DateTimeOffset.UtcNow;
+
+        await Db.SaveChangesAsync();
+        return ToCredentialResult(entity, clientSecret);
+    }
+
+    /// <summary>
+    /// 校验应用凭证
+    /// </summary>
+    public async Task<Application?> AuthenticateAsync(string clientId, string clientSecret)
+    {
+        if (string.IsNullOrWhiteSpace(clientId) || string.IsNullOrWhiteSpace(clientSecret))
+        {
+            return null;
+        }
+
+        var entity = await _dbSet
+            .AsNoTracking()
+            .FirstOrDefaultAsync(q => q.ClientId == clientId && q.IsEnabled);
+
+        if (entity is null)
+        {
+            return null;
+        }
+
+        return HashCrypto.Validate(clientSecret, entity.SecretSalt, entity.SecretHash)
+            ? entity
+            : null;
     }
 
     /// <summary>
@@ -101,7 +178,7 @@ public class ApplicationManager(
     public override async Task<bool> HasPermissionAsync(Guid id)
     {
         var query = _dbSet
-            .Where(q => q.Id == id);
+            .Where(q => q.Id == id && q.TenantId == _userContext.TenantId);
         return await query.AnyAsync();
     }
 
@@ -112,8 +189,37 @@ public class ApplicationManager(
             return [];
         }
         var query = _dbSet
-            .Where(q => ids.Contains(q.Id))
+            .Where(q => ids.Contains(q.Id) && q.TenantId == _userContext.TenantId)
             .Select(q => q.Id);
         return await query.ToListAsync();
+    }
+
+    private async Task<string> GenerateClientIdAsync()
+    {
+        string clientId;
+        do
+        {
+            clientId = ClientIdPrefix + HashCrypto.GetRandom(16, useNum: true, useLow: true, useUpp: false);
+        } while (await _dbSet.AnyAsync(q => q.ClientId == clientId));
+
+        return clientId;
+    }
+
+    private static string GenerateClientSecret()
+    {
+        return HashCrypto.GetRandom(40, useNum: true, useLow: true, useUpp: true);
+    }
+
+    private static ApplicationCredentialResultDto ToCredentialResult(Application entity, string clientSecret)
+    {
+        return new ApplicationCredentialResultDto
+        {
+            Id = entity.Id,
+            Name = entity.Name,
+            ClientId = entity.ClientId,
+            ClientSecret = clientSecret,
+            IsEnabled = entity.IsEnabled,
+            SecretUpdatedTime = entity.SecretUpdatedTime,
+        };
     }
 }

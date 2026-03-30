@@ -30,7 +30,7 @@
 
 ## 代码目录src
 
-* `src/Ater/Perigon.AspNetCore`: 基础类库，提供基础帮助类。
+* `src/Perigon/Perigon.AspNetCore`: 基础类库，提供基础帮助类。
 * `src/Definition/ServiceDefaults`: 是提供基础的服务注入的项目。
 * `src/Definition/Entity`: 包含所有的实体模型，按模块目录组织。
 * `src/Definition/EntityFramework`: 基于Entity Framework Core的数据库上下文
@@ -39,6 +39,8 @@
 	* `src/Modules/XXXMod/Models`: 各模块下，Dto模型定义，按实体目录组织
 * `src/Services/ApiService`: 是接口服务项目，基于ASP.NET Core Web API
 * `src/Services/AdminService`: 后台管理服务接口项目
+
+在实际编写代码时，优先复用 Perigon 目录和既有模块中已经提供好的基础类、扩展方法和生成结果，只有在现有能力无法覆盖时，再补充新的实现。
 
 ## 项目运行
 

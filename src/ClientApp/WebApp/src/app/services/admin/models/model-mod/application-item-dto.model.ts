@@ -4,8 +4,8 @@
 export interface ApplicationItemDto {
   /** name */
   name: string;
-  /** accessKey */
-  accessKey: string;
+  /** clientId */
+  clientId: string;
   /** isEnabled */
   isEnabled: boolean;
   /** id */

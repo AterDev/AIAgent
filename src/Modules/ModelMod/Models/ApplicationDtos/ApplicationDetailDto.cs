@@ -10,9 +10,9 @@ public class ApplicationDetailDto
     [MaxLength(500)]
     public string Description { get; set; } = string.Empty;
     [MaxLength(100)]
-    public string AccessKey { get; set; } = default!;
-    [MaxLength(200)]
-    public string SecretKey { get; set; } = default!;
+    public string ClientId { get; set; } = default!;
+    public bool HasSecret { get; set; } = true;
+    public DateTimeOffset SecretUpdatedTime { get; set; } = DateTimeOffset.UtcNow;
     public bool IsEnabled { get; set; } = true;
     [Key]
     public Guid Id { get; set; } = Guid.CreateVersion7();

@@ -28,11 +28,11 @@ public class ApplicationController(
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPost]
-    public async Task<ActionResult<Application>> AddAsync(ApplicationAddDto dto)
+    public async Task<ActionResult<ApplicationCredentialResultDto>> AddAsync(ApplicationAddDto dto)
     {
 
-        var entity = await _manager.AddAsync(dto);
-        return CreatedAtRoute(null, new { id = entity.Id }, entity);
+        var result = await _manager.AddAsync(dto);
+        return CreatedAtRoute(null, new { id = result.Id }, result);
     }
 
     /// <summary>
@@ -56,6 +56,15 @@ public class ApplicationController(
     public async Task<ApplicationDetailDto?> DetailAsync([FromRoute] Guid id)
     {
         return await _manager.GetAsync(id);
+    }
+
+    /// <summary>
+    /// 重置应用密钥
+    /// </summary>
+    [HttpPost("{id}/reset-secret")]
+    public async Task<ActionResult<ApplicationCredentialResultDto>> ResetSecretAsync([FromRoute] Guid id)
+    {
+        return Ok(await _manager.ResetSecretAsync(id));
     }
 
     /// <summary>

@@ -6,10 +6,12 @@ export interface ApplicationDetailDto {
   name: string;
   /** description */
   description: string;
-  /** accessKey */
-  accessKey: string;
-  /** secretKey */
-  secretKey: string;
+  /** clientId */
+  clientId: string;
+  /** hasSecret */
+  hasSecret: boolean;
+  /** secretUpdatedTime */
+  secretUpdatedTime: Date;
   /** isEnabled */
   isEnabled: boolean;
   /** id */

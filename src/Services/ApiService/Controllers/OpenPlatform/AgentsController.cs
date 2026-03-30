@@ -41,6 +41,15 @@ public class AgentsController(
         [FromServices] AgentExecutionQueue queue
     )
     {
+        var applicationId = _user.IsRole(WebConst.Application)
+            ? _user.UserId
+            : dto.ApplicationId;
+
+        if (!applicationId.HasValue || applicationId == Guid.Empty)
+        {
+            throw new BusinessException("Application is required");
+        }
+
         var execution = await _executionManager.AddAsync(new AgentExecutionAddDto
         {
             AgentId = id,
@@ -48,7 +57,7 @@ public class AgentsController(
             Status = Entity.AIAgentMod.AgentExecutionStatus.Running,
         });
 
-        await queue.EnqueueAsync(new AgentExecutionTask(execution.Id, dto.ApplicationId, dto.InputJson));
+        await queue.EnqueueAsync(new AgentExecutionTask(execution.Id, applicationId.Value, dto.InputJson));
         return Accepted(new { executionId = execution.Id });
     }
 }

@@ -29,6 +29,11 @@ public static class WebConst
     public const string User = "User";
 
     /// <summary>
+    /// 应用身份
+    /// </summary>
+    public const string Application = "Application";
+
+    /// <summary>
     /// 版本
     /// </summary>
     public const string Version = "Version";

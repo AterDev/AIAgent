@@ -4,6 +4,7 @@ namespace Entity.ModelMod;
 /// 应用定义
 /// </summary>
 [Index(nameof(Name), IsUnique = true)]
+[Index(nameof(ClientId), IsUnique = true)]
 public class Application : EntityBase
 {
     [MaxLength(100)]
@@ -13,10 +14,15 @@ public class Application : EntityBase
     public string Description { get; set; } = string.Empty;
 
     [MaxLength(100)]
-    public required string AccessKey { get; set; }
+    public required string ClientId { get; set; }
 
     [MaxLength(200)]
-    public required string SecretKey { get; set; }
+    public required string SecretHash { get; set; }
+
+    [MaxLength(100)]
+    public required string SecretSalt { get; set; }
+
+    public DateTimeOffset SecretUpdatedTime { get; set; } = DateTimeOffset.UtcNow;
 
     public bool IsEnabled { get; set; } = true;
 }

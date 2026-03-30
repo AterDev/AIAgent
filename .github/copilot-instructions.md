@@ -27,6 +27,7 @@
 - 业务逻辑在 `src/Modules`，按模块划分
 - Share共享项目在 `src/Definition/Share`
 - 服务扩展在 `src/Definition/ServiceDefaults`
+- Perigon 基础能力在 `src/Perigon`，包含基础类库、工具扩展和源生成项目
 - 文档在 `docs/`
 - 脚本在 `scripts/`
 - 测试在 `tests/`

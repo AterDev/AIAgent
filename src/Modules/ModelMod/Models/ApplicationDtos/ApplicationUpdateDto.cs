@@ -9,10 +9,6 @@ public class ApplicationUpdateDto
     public string? Name { get; set; }
     [MaxLength(500)]
     public string? Description { get; set; }
-    [MaxLength(100)]
-    public string? AccessKey { get; set; }
-    [MaxLength(200)]
-    public string? SecretKey { get; set; }
     public bool? IsEnabled { get; set; }
 
 }

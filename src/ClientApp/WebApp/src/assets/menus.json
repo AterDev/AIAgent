@@ -16,19 +16,11 @@
                 "menuType": 0
             },
             {
-                "name": "menu.applicationQuota",
-                "path": "/application-quota",
-                "accessCode": "application-quota",
-                "icon": "data_usage",
-                "sort": 1,
-                "menuType": 0
-            },
-            {
                 "name": "menu.aiModelInfo",
                 "path": "/ai-model-info",
                 "accessCode": "ai-model-info",
                 "icon": "settings_suggest",
-                "sort": 2,
+                "sort": 1,
                 "menuType": 0
             },
             {
@@ -36,7 +28,7 @@
                 "path": "/ai-model-provider",
                 "accessCode": "ai-model-provider",
                 "icon": "cloud_sync",
-                "sort": 3,
+                "sort": 2,
                 "menuType": 0
             }
         ]

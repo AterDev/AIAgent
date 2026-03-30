@@ -1,0 +1,79 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>
+      {{ i18nKeys.applicationQuota.title | translate }} · {{ data.applicationName }}
+    </mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="d-flex justify-content-end p-2">
+      <button mat-flat-button color="primary" type="button" (click)="openAdd()">
+        {{ i18nKeys.common.add | translate }}
+      </button>
+    </div>
+
+    @if (isLoading()) {
+      <div class="d-flex justify-content-center align-items-center p-4">
+        <mat-spinner></mat-spinner>
+      </div>
+    } @else {
+      <table mat-table [dataSource]="dataSource">
+        <ng-container matColumnDef="periodType">
+          <th mat-header-cell *matHeaderCellDef>{{ i18nKeys.applicationQuota.periodType | translate }}</th>
+          <td mat-cell *matCellDef="let item">{{ item.periodType | enumText:'QuotaPeriodType' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="maxRequests">
+          <th mat-header-cell *matHeaderCellDef>{{ i18nKeys.applicationQuota.maxRequests | translate }}</th>
+          <td mat-cell *matCellDef="let item">{{ item.maxRequests }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="maxTokens">
+          <th mat-header-cell *matHeaderCellDef>{{ i18nKeys.applicationQuota.maxTokens | translate }}</th>
+          <td mat-cell *matCellDef="let item">{{ item.maxTokens }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="windowSeconds">
+          <th mat-header-cell *matHeaderCellDef>{{ i18nKeys.applicationQuota.windowSeconds | translate }}</th>
+          <td mat-cell *matCellDef="let item">{{ item.windowSeconds }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="isEnabled">
+          <th mat-header-cell *matHeaderCellDef>{{ i18nKeys.applicationQuota.isEnabled | translate }}</th>
+          <td mat-cell *matCellDef="let item">
+            <mat-icon [ngClass]="item.isEnabled ? 'text-success' : 'text-muted'">
+              {{ item.isEnabled ? 'check_circle' : 'cancel' }}
+            </mat-icon>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>{{ i18nKeys.common.actions | translate }}</th>
+          <td mat-cell *matCellDef="let item">
+            <button mat-icon-button class="secondary" type="button" (click)="viewUsage(item)" [title]="i18nKeys.applicationQuota.viewUsage | translate">
+              <mat-icon>bar_chart</mat-icon>
+            </button>
+            <button mat-icon-button class="primary" type="button" (click)="openEdit(item)" [title]="i18nKeys.common.edit | translate">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button class="primary" type="button" (click)="resetQuota(item)" [title]="i18nKeys.applicationQuota.resetQuota | translate">
+              <mat-icon>refresh</mat-icon>
+            </button>
+            <button mat-icon-button class="accent" type="button" (click)="delete(item)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <mat-paginator [length]="total" [pageIndex]="(filterDto.pageIndex ?? 1) - 1" [pageSize]="filterDto.pageSize" [pageSizeOptions]="[10, 20, 50, 100]" showFirstLastButtons (page)="pageChanged($event)"></mat-paginator>
+    }
+  </mat-card-content>
+
+  <mat-card-actions class="d-flex justify-content-end gap-2">
+    <button mat-button type="button" (click)="close()">{{ i18nKeys.common.close | translate }}</button>
+  </mat-card-actions>
+</mat-card>

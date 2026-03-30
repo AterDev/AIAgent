@@ -9,9 +9,12 @@ import { CommonFormModules, CommonListModules } from 'src/app/share/shared-modul
 import { ConfirmDialogComponent } from 'src/app/share/components/confirm-dialog/confirm-dialog.component';
 import { ApplicationFilterDto } from 'src/app/services/admin/models/model-mod/application-filter-dto.model';
 import { ApplicationItemDto } from 'src/app/services/admin/models/model-mod/application-item-dto.model';
+import { ApplicationCredentialResultDto } from 'src/app/services/admin/models/model-mod/application-credential-result-dto.model';
 import { ApplicationAdd } from '../add/add';
 import { ApplicationEdit } from '../edit/edit';
 import { ApplicationDetail } from '../detail/detail';
+import { ApplicationSecretDialog } from '../secret-dialog/secret-dialog';
+import { ApplicationQuotaDialog } from '../../application-quota/dialog/dialog';
 
 @Component({
   selector: 'app-application-index',
@@ -25,7 +28,7 @@ export class ApplicationIndex implements OnInit {
 
   filterDto: ApplicationFilterDto = { pageIndex: 1, pageSize: 10 };
   dataSource = new MatTableDataSource<ApplicationItemDto>();
-  displayedColumns = [ "name", "accessKey", "isEnabled", "createdTime", "actions" ];
+  displayedColumns = [ "name", "clientId", "isEnabled", "createdTime", "actions" ];
 
   isLoading = signal(true);
 
@@ -67,7 +70,15 @@ export class ApplicationIndex implements OnInit {
 
   openAdd() {
     const ref = this.dialog.open(ApplicationAdd, { width: '800px' });
-    ref.afterClosed().subscribe((r: boolean) => { if (r) this.loadData(); });
+    ref.afterClosed().subscribe((result?: ApplicationCredentialResultDto) => {
+      if (!result) return;
+
+      this.loadData();
+      this.dialog.open(ApplicationSecretDialog, {
+        width: '720px',
+        data: result,
+      });
+    });
   }
 
   openEdit(id: string) {
@@ -77,6 +88,17 @@ export class ApplicationIndex implements OnInit {
 
   openDetail(id: string) {
     this.dialog.open(ApplicationDetail, { minWidth: '600px', data: { id } });
+  }
+
+  openQuota(item: ApplicationItemDto) {
+    this.dialog.open(ApplicationQuotaDialog, {
+      width: '960px',
+      maxWidth: '96vw',
+      data: {
+        applicationId: item.id,
+        applicationName: item.name,
+      }
+    });
   }
 
   deleteItem(id: string) {

@@ -11,17 +11,17 @@ public class ApplicationQuota : EntityBase
     [ForeignKey(nameof(ApplicationId))]
     public Application? Application { get; set; }
 
-    public QuotaPeriodType PeriodType { get; set; }
+    public QuotaPeriodType PeriodType { get; set; } = QuotaPeriodType.Month;
 
     /// <summary>
     /// 最大请求次数
     /// </summary>
-    public int MaxRequests { get; set; }
+    public int MaxRequests { get; set; } = 10_000;
 
     /// <summary>
     /// 最大 Token 数量
     /// </summary>
-    public int MaxTokens { get; set; }
+    public long MaxTokens { get; set; } = 100_000_000;
 
     /// <summary>
     /// 窗口秒数（限流窗口）

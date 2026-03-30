@@ -2,6 +2,7 @@ namespace Perigon.AspNetCore.Constants;
 
 public static class CustomClaimTypes
 {
+    public const string ApplicationId = "application_id";
     public const string TenantId = "tenant_id";
     public const string TenantType = "tenant_type";
     public const string TenantName = "tenant_name";

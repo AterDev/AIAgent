@@ -18,16 +18,20 @@
         <span style="white-space:pre-wrap">{{ model.description }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong style="width:160px;display:inline-block;">{{ i18nKeys.application.accessKey | translate }}:</strong>
-        <span>{{ model.accessKey }}</span>
+        <strong style="width:160px;display:inline-block;">{{ i18nKeys.application.clientId | translate }}:</strong>
+        <span>{{ model.clientId }}</span>
       </mat-list-item>
       <mat-list-item>
-        <strong style="width:160px;display:inline-block;">{{ i18nKeys.application.secretKey | translate }}:</strong>
-        <span>{{ model.secretKey }}</span>
+        <strong style="width:160px;display:inline-block;">{{ i18nKeys.application.secretStatus | translate }}:</strong>
+        <span>{{ (model.hasSecret ? i18nKeys.application.securelyStored : i18nKeys.application.secretNotConfigured) | translate }}</span>
       </mat-list-item>
       <mat-list-item>
         <strong style="width:160px;display:inline-block;">{{ i18nKeys.application.isEnabled | translate }}:</strong>
         <span>{{ model.isEnabled }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong style="width:160px;display:inline-block;">{{ i18nKeys.application.secretUpdatedTime | translate }}:</strong>
+        <span>{{ model.secretUpdatedTime | date:'short' }}</span>
       </mat-list-item>
       <mat-list-item>
         <strong style="width:160px;display:inline-block;">{{ i18nKeys.common.createdTime | translate }}:</strong>

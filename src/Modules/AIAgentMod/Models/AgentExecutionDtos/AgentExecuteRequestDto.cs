@@ -5,7 +5,7 @@ namespace AIAgentMod.Models.AgentExecutionDtos;
 /// </summary>
 public class AgentExecuteRequestDto
 {
-    public Guid ApplicationId { get; set; }
+    public Guid? ApplicationId { get; set; }
 
     [MaxLength(4000)]
     public string? InputJson { get; set; }

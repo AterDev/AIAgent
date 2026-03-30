@@ -6,10 +6,6 @@ export interface ApplicationAddDto {
   name: string;
   /** description */
   description: string;
-  /** accessKey */
-  accessKey: string;
-  /** secretKey */
-  secretKey: string;
   /** isEnabled */
   isEnabled: boolean;
 }

@@ -1,0 +1,51 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ i18nKeys.common.add | translate }} {{ i18nKeys.applicationQuota.title | translate }} · {{ data.applicationName }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="form" class="d-flex flex-column p-2 mt-2 gap-2">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ i18nKeys.applicationQuota.periodType | translate }}</mat-label>
+        <mat-select [formControl]="periodType">
+          <mat-option [value]="quotaPeriodType.Minute">{{ i18nKeys.applicationQuota.minute | translate }}</mat-option>
+          <mat-option [value]="quotaPeriodType.Hour">{{ i18nKeys.applicationQuota.hour | translate }}</mat-option>
+          <mat-option [value]="quotaPeriodType.Day">{{ i18nKeys.applicationQuota.day | translate }}</mat-option>
+          <mat-option [value]="quotaPeriodType.Month">{{ i18nKeys.applicationQuota.month | translate }}</mat-option>
+        </mat-select>
+        @if (periodType.errors) {
+          <mat-error>{{ getValidatorMessage(periodType) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ i18nKeys.applicationQuota.maxRequests | translate }}</mat-label>
+        <input matInput type="number" [formControl]="maxRequests" />
+        @if (maxRequests.errors) {
+          <mat-error>{{ getValidatorMessage(maxRequests) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ i18nKeys.applicationQuota.maxTokens | translate }}</mat-label>
+        <input matInput type="number" [formControl]="maxTokens" />
+        @if (maxTokens.errors) {
+          <mat-error>{{ getValidatorMessage(maxTokens) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>{{ i18nKeys.applicationQuota.windowSeconds | translate }}</mat-label>
+        <input matInput type="number" [formControl]="windowSeconds" />
+        @if (windowSeconds.errors) {
+          <mat-error>{{ getValidatorMessage(windowSeconds) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-checkbox [formControl]="isEnabled">{{ i18nKeys.applicationQuota.isEnabled | translate }}</mat-checkbox>
+    </form>
+  </mat-card-content>
+  <mat-card-actions class="d-flex justify-content-end gap-2">
+    <button mat-button type="button" (click)="close(false)">{{ i18nKeys.common.cancel | translate }}</button>
+    <button mat-flat-button color="primary" type="button" (click)="submit()" [disabled]="form.invalid">{{ i18nKeys.common.save | translate }}</button>
+  </mat-card-actions>
+</mat-card>
