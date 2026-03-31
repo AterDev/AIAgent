@@ -1,4 +1,6 @@
 using ModelMod.Models.ApplicationDtos;
+using ModelMod.Models.ApplicationApiKeyDtos;
+using Share.Exceptions;
 namespace AdminService.Controllers.ModelMod;
 
 /// <summary>
@@ -8,7 +10,8 @@ public class ApplicationController(
     Localizer localizer,
     IUserContext user,
     ILogger<ApplicationController> logger,
-    ApplicationManager manager
+    ApplicationManager manager,
+    ApiKeyAuthIndexManager apiKeyAuthIndexManager
     ) : RestControllerBase<ApplicationManager>(localizer, manager, user, logger)
 {
     /// <summary>
@@ -28,11 +31,11 @@ public class ApplicationController(
     /// <param name="dto"></param>
     /// <returns></returns>
     [HttpPost]
-    public async Task<ActionResult<ApplicationCredentialResultDto>> AddAsync(ApplicationAddDto dto)
+    public async Task<ActionResult<ApplicationDetailDto>> AddAsync(ApplicationAddDto dto)
     {
 
         var result = await _manager.AddAsync(dto);
-        return CreatedAtRoute(null, new { id = result.Id }, result);
+        return Ok(result);
     }
 
     /// <summary>
@@ -44,7 +47,14 @@ public class ApplicationController(
     [HttpPatch("{id}")]
     public async Task<bool> UpdateAsync([FromRoute] Guid id, ApplicationUpdateDto dto)
     {
-        return await _manager.EditAsync(id, dto) == 1;
+        var rows = await _manager.EditAsync(id, dto);
+        var application = await _manager.GetEntityAsync(id);
+        if (application is not null)
+        {
+            await apiKeyAuthIndexManager.SyncApplicationAsync(application);
+        }
+
+        return rows == 1;
     }
 
     /// <summary>
@@ -59,12 +69,39 @@ public class ApplicationController(
     }
 
     /// <summary>
-    /// 重置应用密钥
+    /// 获取应用 ApiKey 列表
     /// </summary>
-    [HttpPost("{id}/reset-secret")]
-    public async Task<ActionResult<ApplicationCredentialResultDto>> ResetSecretAsync([FromRoute] Guid id)
+    [HttpGet("{id}/api-keys")]
+    public async Task<ActionResult<List<ApplicationApiKeyItemDto>>> ListApiKeysAsync([FromRoute] Guid id)
     {
-        return Ok(await _manager.ResetSecretAsync(id));
+        var application = await _manager.GetEntityAsync(id)
+            ?? throw new BusinessException(Localizer.ApplicationNotFound, StatusCodes.Status404NotFound);
+
+        return Ok(await apiKeyAuthIndexManager.ListAsync(application.Id));
+    }
+
+    /// <summary>
+    /// 新增应用 ApiKey
+    /// </summary>
+    [HttpPost("{id}/api-keys")]
+    public async Task<ActionResult<ApplicationApiKeyCredentialResultDto>> AddApiKeyAsync([FromRoute] Guid id, [FromBody] ApplicationApiKeyAddDto dto)
+    {
+        var application = await _manager.GetEntityAsync(id)
+            ?? throw new BusinessException(Localizer.ApplicationNotFound, StatusCodes.Status404NotFound);
+
+        return Ok(await apiKeyAuthIndexManager.AddAsync(application, dto));
+    }
+
+    /// <summary>
+    /// 删除应用 ApiKey
+    /// </summary>
+    [HttpDelete("{id}/api-keys/{apiKeyId}")]
+    public async Task<ActionResult<bool>> DeleteApiKeyAsync([FromRoute] Guid id, [FromRoute] Guid apiKeyId)
+    {
+        var application = await _manager.GetEntityAsync(id)
+            ?? throw new BusinessException(Localizer.ApplicationNotFound, StatusCodes.Status404NotFound);
+
+        return Ok(await apiKeyAuthIndexManager.DeleteAsync(application.Id, apiKeyId));
     }
 
     /// <summary>
@@ -75,6 +112,7 @@ public class ApplicationController(
     [HttpDelete("{id}")]
     public async Task<ActionResult<bool>> DeleteAsync([FromRoute] Guid id)
     {
+        await apiKeyAuthIndexManager.DeleteByApplicationIdAsync(id);
         return await _manager.DeleteAsync([id], false);
     }
 }

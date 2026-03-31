@@ -1,13 +1,23 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Perigon.AspNetCore.Converters;
 using ServiceDefaults;
+using ServiceDefaults.Authentication;
 using ServiceDefaults.Middleware;
+using Share.Implement;
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using System.Threading.RateLimiting;
@@ -46,6 +56,7 @@ public static class WebExtensions
         IConfiguration configuration
     )
     {
+        services.AddScoped<ApiKeyService>();
         services.AddJwtAuthentication(configuration);
         services.AddThirdAuthentication(configuration);
 
@@ -246,10 +257,34 @@ public static class WebExtensions
         services
             .AddAuthentication(options =>
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = WebConst.BearerOrApiKey;
+                options.DefaultChallengeScheme = WebConst.BearerOrApiKey;
             })
-            .AddJwtBearer(cfg =>
+            .AddPolicyScheme(WebConst.BearerOrApiKey, WebConst.BearerOrApiKey, options =>
+            {
+                options.ForwardDefaultSelector = context =>
+                {
+                    var authorization = context.Request.Headers.Authorization.ToString();
+                    if (authorization.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var token = authorization["Bearer ".Length..].Trim();
+                        if (ApiKeyService.IsWellFormedApiKey(token))
+                        {
+                            return WebConst.ApiKeyScheme;
+                        }
+
+                        var handler = new JwtSecurityTokenHandler();
+                        if (handler.CanReadToken(token))
+                        {
+                            return JwtBearerDefaults.AuthenticationScheme;
+                        }
+                    }
+
+                    return JwtBearerDefaults.AuthenticationScheme;
+                };
+            })
+            .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(WebConst.ApiKeyScheme, _ => { })
+            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, cfg =>
             {
                 cfg.SaveToken = true;
                 var jwtOption = configuration.GetSection(JwtOption.ConfigPath).Get<JwtOption>();
@@ -371,6 +406,10 @@ public static class WebExtensions
             .AddPolicy(
                 WebConst.User,
                 policy => policy.RequireRole(WebConst.User, WebConst.AdminUser, WebConst.SuperAdmin)
+            )
+            .AddPolicy(
+                WebConst.OpenPlatform,
+                policy => policy.RequireRole(WebConst.User, WebConst.AdminUser, WebConst.SuperAdmin, WebConst.Application)
             );
 
         return services;

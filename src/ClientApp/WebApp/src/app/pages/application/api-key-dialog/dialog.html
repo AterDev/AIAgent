@@ -1,0 +1,52 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ data.applicationName }} · {{ i18nKeys.application.manageApiKeys | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    @if (isLoading()) {
+      <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+        <mat-spinner></mat-spinner>
+      </div>
+    } @else {
+      <div class="d-flex justify-content-end mb-2">
+        <button mat-flat-button color="primary" type="button" (click)="openAdd()">
+          {{ i18nKeys.application.addApiKey | translate }}
+        </button>
+      </div>
+
+      <table mat-table [dataSource]="dataSource">
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>{{ i18nKeys.application.apiKeyName | translate }}</th>
+          <td mat-cell *matCellDef="let item">{{ item.name }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="keyExpiresAt">
+          <th mat-header-cell *matHeaderCellDef>{{ i18nKeys.application.apiKeyExpiresAt | translate }}</th>
+          <td mat-cell *matCellDef="let item">
+            <span [ngClass]="item.isExpired ? 'text-danger' : ''">{{ item.keyExpiresAt | date:'short' }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="createdTime">
+          <th mat-header-cell *matHeaderCellDef>{{ i18nKeys.common.createdTime | translate }}</th>
+          <td mat-cell *matCellDef="let item">{{ item.createdTime | date:'short' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>{{ i18nKeys.common.actions | translate }}</th>
+          <td mat-cell *matCellDef="let item">
+            <button mat-icon-button class="accent" type="button" (click)="delete(item)" [title]="i18nKeys.common.delete | translate">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    }
+  </mat-card-content>
+  <mat-card-actions class="d-flex justify-content-end gap-2">
+    <button mat-button type="button" (click)="close()">{{ i18nKeys.common.close | translate }}</button>
+  </mat-card-actions>
+</mat-card>

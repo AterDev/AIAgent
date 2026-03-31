@@ -39,6 +39,8 @@ public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options
 
     public DbSet<Application> Applications { get; set; }
 
+    public DbSet<ApiKeyAuthIndex> ApiKeyAuthIndexes { get; set; }
+
     public DbSet<ApplicationQuota> ApplicationQuotas { get; set; }
 
     public DbSet<QuotaUsage> QuotaUsages { get; set; }

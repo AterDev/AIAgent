@@ -3,7 +3,7 @@
  */
 export interface AgentExecuteRequestDto {
   /** applicationId */
-  applicationId: string;
+  applicationId?: string | null;
   /** inputJson */
   inputJson?: string | null;
 }

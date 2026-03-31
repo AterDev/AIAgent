@@ -2,7 +2,7 @@
   "openapi": "3.0.4",
   "info": {
     "title": "dotnet-swagger",
-    "description": "Admin API 文档. 更新时间:2026-02-21 10:36:26",
+    "description": "Admin API 文档. 更新时间:2026-03-31 15:21:38",
     "version": "v1"
   },
   "paths": {
@@ -798,7 +798,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Entity.ModelMod.Application"
+                  "$ref": "#/components/schemas/ModelMod.Models.ApplicationDtos.ApplicationDetailDto"
                 }
               }
             }
@@ -890,6 +890,121 @@
             "name": "id",
             "in": "path",
             "description": "",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Application/{id}/api-keys": {
+      "get": {
+        "tags": [
+          "Application"
+        ],
+        "summary": "获取应用 ApiKey 列表",
+        "operationId": "Application_ListApiKeys",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ModelMod.Models.ApplicationApiKeyDtos.ApplicationApiKeyItemDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Application"
+        ],
+        "summary": "新增应用 ApiKey",
+        "operationId": "Application_AddApiKey",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelMod.Models.ApplicationApiKeyDtos.ApplicationApiKeyAddDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelMod.Models.ApplicationApiKeyDtos.ApplicationApiKeyCredentialResultDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Application/{id}/api-keys/{apiKeyId}": {
+      "delete": {
+        "tags": [
+          "Application"
+        ],
+        "summary": "删除应用 ApiKey",
+        "operationId": "Application_DeleteApiKey",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "apiKeyId",
+            "in": "path",
             "required": true,
             "schema": {
               "type": "string",
@@ -4545,7 +4660,8 @@
         "properties": {
           "applicationId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "nullable": true
           },
           "inputJson": {
             "maxLength": 4000,
@@ -6513,9 +6629,7 @@
       },
       "Entity.ModelMod.Application": {
         "required": [
-          "accessKey",
-          "name",
-          "secretKey"
+          "name"
         ],
         "type": "object",
         "properties": {
@@ -6545,14 +6659,6 @@
           },
           "description": {
             "maxLength": 500,
-            "type": "string"
-          },
-          "accessKey": {
-            "maxLength": 100,
-            "type": "string"
-          },
-          "secretKey": {
-            "maxLength": 200,
             "type": "string"
           },
           "isEnabled": {
@@ -6647,7 +6753,7 @@
           "maxTokens": {
             "type": "integer",
             "description": "最大 Token 数量",
-            "format": "int32"
+            "format": "int64"
           },
           "windowSeconds": {
             "type": "integer",
@@ -8862,6 +8968,90 @@
         "additionalProperties": false,
         "description": "AI模型提供商UpdateDto"
       },
+      "ModelMod.Models.ApplicationApiKeyDtos.ApplicationApiKeyAddDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "apiKeyExpiresInMonths": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "新增应用 ApiKey"
+      },
+      "ModelMod.Models.ApplicationApiKeyDtos.ApplicationApiKeyCredentialResultDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "applicationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "applicationName": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "apiKey": {
+            "maxLength": 200,
+            "type": "string"
+          },
+          "keyUpdatedTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "keyExpiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false,
+        "description": "新增应用 ApiKey 返回结果（仅创建时返回明文）"
+      },
+      "ModelMod.Models.ApplicationApiKeyDtos.ApplicationApiKeyItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "applicationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "keyUpdatedTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "keyExpiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isExpired": {
+            "type": "boolean"
+          },
+          "createdTime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false,
+        "description": "应用 ApiKey 列表项"
+      },
       "ModelMod.Models.ApplicationDtos.ApplicationAddDto": {
         "type": "object",
         "properties": {
@@ -8871,14 +9061,6 @@
           },
           "description": {
             "maxLength": 500,
-            "type": "string"
-          },
-          "accessKey": {
-            "maxLength": 100,
-            "type": "string"
-          },
-          "secretKey": {
-            "maxLength": 200,
             "type": "string"
           },
           "isEnabled": {
@@ -8897,14 +9079,6 @@
           },
           "description": {
             "maxLength": 500,
-            "type": "string"
-          },
-          "accessKey": {
-            "maxLength": 100,
-            "type": "string"
-          },
-          "secretKey": {
-            "maxLength": 200,
             "type": "string"
           },
           "isEnabled": {
@@ -8953,11 +9127,6 @@
             "type": "string",
             "nullable": true
           },
-          "accessKey": {
-            "maxLength": 100,
-            "type": "string",
-            "nullable": true
-          },
           "isEnabled": {
             "type": "boolean",
             "nullable": true
@@ -8970,10 +9139,6 @@
         "type": "object",
         "properties": {
           "name": {
-            "maxLength": 100,
-            "type": "string"
-          },
-          "accessKey": {
             "maxLength": 100,
             "type": "string"
           },
@@ -9002,16 +9167,6 @@
           },
           "description": {
             "maxLength": 500,
-            "type": "string",
-            "nullable": true
-          },
-          "accessKey": {
-            "maxLength": 100,
-            "type": "string",
-            "nullable": true
-          },
-          "secretKey": {
-            "maxLength": 200,
             "type": "string",
             "nullable": true
           },
@@ -9164,7 +9319,7 @@
           },
           "maxTokens": {
             "type": "integer",
-            "format": "int32"
+            "format": "int64"
           },
           "windowSeconds": {
             "type": "integer",
@@ -9197,7 +9352,7 @@
           },
           "maxTokens": {
             "type": "integer",
-            "format": "int32"
+            "format": "int64"
           },
           "windowSeconds": {
             "type": "integer",
@@ -9276,7 +9431,7 @@
           },
           "maxTokens": {
             "type": "integer",
-            "format": "int32"
+            "format": "int64"
           },
           "windowSeconds": {
             "type": "integer",
@@ -9302,7 +9457,7 @@
           },
           "maxTokens": {
             "type": "integer",
-            "format": "int32",
+            "format": "int64",
             "nullable": true
           },
           "windowSeconds": {
@@ -9411,7 +9566,7 @@
           },
           "maxTokens": {
             "type": "integer",
-            "format": "int32"
+            "format": "int64"
           },
           "currentRequests": {
             "type": "integer",

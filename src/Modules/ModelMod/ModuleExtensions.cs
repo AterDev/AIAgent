@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
-using ModelMod.Services;
 using ModelMod.Managers;
+using ModelMod.Services;
 using System.ComponentModel;
 
 namespace ModelMod;

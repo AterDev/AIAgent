@@ -2,14 +2,13 @@ import { Component, OnInit, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatCard, MatCardHeader, MatCardTitle, MatCardContent, MatCardActions } from '@angular/material/card';
+import { MatCard, MatCardHeader, MatCardTitle, MatCardContent } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateService } from '@ngx-translate/core';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
 import { CommonFormModules } from 'src/app/share/shared-modules';
 import { ApplicationAddDto } from 'src/app/services/admin/models/model-mod/application-add-dto.model';
-import { ApplicationCredentialResultDto } from 'src/app/services/admin/models/model-mod/application-credential-result-dto.model';
 
 @Component({
   selector: 'app-application-add',
@@ -60,7 +59,7 @@ export class ApplicationAdd implements OnInit {
   submit() {
     if (this.form.invalid) return;
     this.adminClient.application.add(this.form.value as ApplicationAddDto)
-      .subscribe((res: ApplicationCredentialResultDto) => this.dialogRef.close(res));
+      .subscribe(() => this.dialogRef.close(true));
   }
 
   close(result: boolean) { this.dialogRef.close(result); }

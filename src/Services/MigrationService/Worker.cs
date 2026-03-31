@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Share.Implement;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Entity.KnowledgeBaseMod;
@@ -217,17 +218,10 @@ public class Worker(
 
         if (application is null)
         {
-            var clientSecret = HashCrypto.GetRandom(40, useNum: true, useLow: true, useUpp: true);
-            var secretSalt = HashCrypto.BuildSalt();
-
             application = new Application
             {
                 Name = demoAppName,
                 Description = "用于第三方开放平台接入与模型调用验证的示例应用",
-                ClientId = "demo-open-platform",
-                SecretSalt = secretSalt,
-                SecretHash = HashCrypto.GeneratePwd(clientSecret, secretSalt),
-                SecretUpdatedTime = DateTimeOffset.UtcNow,
                 IsEnabled = true,
                 TenantId = deepSeekChat.TenantId,
             };
@@ -236,10 +230,22 @@ public class Worker(
             await db.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation(
-                "Seeded demo application credentials. ClientId: {ClientId}, ClientSecret: {ClientSecret}",
-                application.ClientId,
-                clientSecret
+                "Seeded demo application {ApplicationName}. Generate or reset the API key through the admin application UI when needed.",
+                application.Name
             );
+        }
+
+        var existingApiKeys = await db.ApiKeyAuthIndexes
+            .IgnoreQueryFilters()
+            .Where(q => q.ApplicationId == application.Id)
+            .ToListAsync(cancellationToken);
+
+        foreach (var apiKey in existingApiKeys)
+        {
+            apiKey.ApplicationName = application.Name;
+            apiKey.TenantId = application.TenantId;
+            apiKey.IsDeleted = false;
+            apiKey.UpdatedTime = DateTimeOffset.UtcNow;
         }
 
         var hasPermission = await db.ApplicationModelPermissions.AnyAsync(

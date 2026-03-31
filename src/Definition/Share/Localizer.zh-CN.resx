@@ -268,4 +268,19 @@
   <data name="LocalStoragePathNotConfigured" xml:space="preserve">
     <value>LocalStoragePath 未配置</value>
   </data>
+  <data name="ApplicationNotFound" xml:space="preserve">
+    <value>应用不存在</value>
+  </data>
+  <data name="InvalidApplicationApiKey" xml:space="preserve">
+    <value>无效的应用 ApiKey</value>
+  </data>
+  <data name="ApplicationApiKeyExpired" xml:space="preserve">
+    <value>应用 ApiKey 已过期</value>
+  </data>
+  <data name="InvalidApplicationApiKeyExpiryMonths" xml:space="preserve">
+    <value>ApiKey 过期时间只支持 1、3、6、12 个月</value>
+  </data>
+  <data name="ApplicationApiKeyNotFound" xml:space="preserve">
+    <value>应用 ApiKey 不存在</value>
+  </data>
 </root>

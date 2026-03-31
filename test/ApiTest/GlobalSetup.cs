@@ -45,6 +45,8 @@ public class GlobalHooks
         {
             var connectionString = await App.GetConnectionStringAsync(AppConst.Default);
 
+            var defaultConnection = new Npgsql.NpgsqlConnectionStringBuilder(connectionString);
+            var databaseName = defaultConnection.Database;
             var builder = new Npgsql.NpgsqlConnectionStringBuilder(connectionString)
             {
                 Database = "postgres"
@@ -53,7 +55,7 @@ public class GlobalHooks
             await conn.OpenAsync();
 
             // 强制断开所有连接并删除库
-            var dropSql = $"DROP DATABASE IF EXISTS \"blog_sample_test\" WITH (FORCE);";
+            var dropSql = $"DROP DATABASE IF EXISTS \"{databaseName}\" WITH (FORCE);";
             using var cmd = new Npgsql.NpgsqlCommand(dropSql, conn);
             await cmd.ExecuteNonQueryAsync();
 

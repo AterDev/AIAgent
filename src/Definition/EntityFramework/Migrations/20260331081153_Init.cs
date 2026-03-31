@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -96,14 +98,35 @@ namespace EntityFramework.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ApiKeyAuthIndexes",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ApplicationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ApplicationName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    KeyFingerprint = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    KeyHash = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    KeySalt = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    KeyUpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    KeyExpiresAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApiKeyAuthIndexes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Applications",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
-                    AccessKey = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    SecretKey = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     IsEnabled = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -425,7 +448,7 @@ namespace EntityFramework.Migrations
                     ApplicationId = table.Column<Guid>(type: "uuid", nullable: false),
                     PeriodType = table.Column<int>(type: "integer", nullable: false),
                     MaxRequests = table.Column<int>(type: "integer", nullable: false),
-                    MaxTokens = table.Column<int>(type: "integer", nullable: false),
+                    MaxTokens = table.Column<long>(type: "bigint", nullable: false),
                     WindowSeconds = table.Column<int>(type: "integer", nullable: false),
                     IsEnabled = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -829,6 +852,17 @@ namespace EntityFramework.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_ApiKeyAuthIndexes_ApplicationId",
+                table: "ApiKeyAuthIndexes",
+                column: "ApplicationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApiKeyAuthIndexes_KeyFingerprint",
+                table: "ApiKeyAuthIndexes",
+                column: "KeyFingerprint",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ApplicationModelPermissions_AIModelInfoId",
                 table: "ApplicationModelPermissions",
                 column: "AIModelInfoId");
@@ -1011,6 +1045,9 @@ namespace EntityFramework.Migrations
 
             migrationBuilder.DropTable(
                 name: "AgentExecutions");
+
+            migrationBuilder.DropTable(
+                name: "ApiKeyAuthIndexes");
 
             migrationBuilder.DropTable(
                 name: "ApplicationModelPermissions");

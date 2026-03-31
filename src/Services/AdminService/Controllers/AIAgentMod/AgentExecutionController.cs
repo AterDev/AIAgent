@@ -1,5 +1,6 @@
 using AIAgentMod.Models.AgentExecutionDtos;
 using AIAgentMod.Services;
+using Share.Exceptions;
 
 namespace AdminService.Controllers.AIAgentMod;
 
@@ -50,7 +51,12 @@ public class AgentExecutionController(
     [HttpPost("{id}/enqueue")]
     public async Task<ActionResult<bool>> EnqueueAsync([FromRoute] Guid id, AgentExecuteRequestDto dto, [FromServices] AgentExecutionQueue queue)
     {
-        await queue.EnqueueAsync(new AgentExecutionTask(id, dto.ApplicationId, dto.InputJson));
+        if (!dto.ApplicationId.HasValue || dto.ApplicationId == Guid.Empty)
+        {
+            throw new BusinessException("Application is required");
+        }
+
+        await queue.EnqueueAsync(new AgentExecutionTask(id, dto.ApplicationId.Value, dto.InputJson));
         return Accepted(true);
     }
 }

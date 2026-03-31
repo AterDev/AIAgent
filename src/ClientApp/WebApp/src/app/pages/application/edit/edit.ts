@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCard, MatCardHeader, MatCardTitle, MatCardContent, MatCardActions } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -10,9 +10,6 @@ import { I18N_KEYS } from 'src/app/share/i18n-keys';
 import { CommonFormModules } from 'src/app/share/shared-modules';
 import { ApplicationUpdateDto } from 'src/app/services/admin/models/model-mod/application-update-dto.model';
 import { ApplicationDetailDto } from 'src/app/services/admin/models/model-mod/application-detail-dto.model';
-import { ApplicationCredentialResultDto } from 'src/app/services/admin/models/model-mod/application-credential-result-dto.model';
-import { ConfirmDialogComponent } from 'src/app/share/components/confirm-dialog/confirm-dialog.component';
-import { ApplicationSecretDialog } from '../secret-dialog/secret-dialog';
 
 @Component({
   selector: 'app-application-edit',
@@ -27,12 +24,10 @@ export class ApplicationEdit implements OnInit {
   form!: FormGroup;
   id?: string;
   isLoading = signal(true);
-  clientIdValue = signal('');
 
   constructor(
     private fb: FormBuilder,
     private adminClient: AdminClient,
-    private dialog: MatDialog,
     private dialogRef: MatDialogRef<ApplicationEdit>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private translate: TranslateService
@@ -48,10 +43,9 @@ export class ApplicationEdit implements OnInit {
         next: (res: ApplicationDetailDto) => {
           this.form.patchValue({
             name: res.name,
-            description: res.description,
+            description: res.description ?? '',
             isEnabled: res.isEnabled,
           });
-          this.clientIdValue.set(res.clientId);
           this.isLoading.set(false);
         },
         error: () => this.isLoading.set(false)
@@ -82,28 +76,12 @@ export class ApplicationEdit implements OnInit {
   submit() {
     if (this.form.invalid) return;
     if (!this.id) return;
-    this.adminClient.application.update(this.id, this.form.value as ApplicationUpdateDto).subscribe(() => this.dialogRef.close(true));
-  }
-
-  resetSecret() {
-    if (!this.id) return;
-
-    this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: this.translate.instant('common.confirm'),
-        content: this.translate.instant(this.i18nKeys.application.resetSecretConfirm),
-      }
-    }).afterClosed().subscribe((ok: boolean) => {
-      if (!ok) return;
-
-      this.adminClient.application.resetSecret(this.id!)
-        .subscribe((res: ApplicationCredentialResultDto) => {
-          this.dialog.open(ApplicationSecretDialog, {
-            width: '720px',
-            data: res,
-          });
-        });
-    });
+    const dto: ApplicationUpdateDto = {
+      name: this.name.value,
+      description: this.description.value,
+      isEnabled: this.isEnabled.value,
+    };
+    this.adminClient.application.update(this.id, dto).subscribe(() => this.dialogRef.close(true));
   }
 
   close(result: boolean) { this.dialogRef.close(result); }

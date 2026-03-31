@@ -5,9 +5,11 @@ import { ApplicationFilterDto } from '../models/model-mod/application-filter-dto
 import { PageList } from '../models/perigon/page-list.model';
 import { ApplicationItemDto } from '../models/model-mod/application-item-dto.model';
 import { ApplicationAddDto } from '../models/model-mod/application-add-dto.model';
-import { ApplicationUpdateDto } from '../models/model-mod/application-update-dto.model';
 import { ApplicationDetailDto } from '../models/model-mod/application-detail-dto.model';
-import { ApplicationCredentialResultDto } from '../models/model-mod/application-credential-result-dto.model';
+import { ApplicationUpdateDto } from '../models/model-mod/application-update-dto.model';
+import { ApplicationApiKeyItemDto } from '../models/model-mod/application-api-key-item-dto.model';
+import { ApplicationApiKeyAddDto } from '../models/model-mod/application-api-key-add-dto.model';
+import { ApplicationApiKeyCredentialResultDto } from '../models/model-mod/application-api-key-credential-result-dto.model';
 /**
  * 应用定义
  */
@@ -25,9 +27,9 @@ export class ApplicationService extends BaseService {
    * Add 应用定义 ✍️
    * @param data ApplicationAddDto
    */
-  add(data: ApplicationAddDto): Observable<ApplicationCredentialResultDto> {
+  add(data: ApplicationAddDto): Observable<ApplicationDetailDto> {
     const _url = `/api/Application`;
-    return this.request<ApplicationCredentialResultDto>('post', _url, data);
+    return this.request<ApplicationDetailDto>('post', _url, data);
   }
   /**
    * Update 应用定义 ✍️
@@ -47,19 +49,37 @@ export class ApplicationService extends BaseService {
     return this.request<ApplicationDetailDto>('get', _url);
   }
   /**
-   * Reset application secret
-   * @param id
-   */
-  resetSecret(id: string): Observable<ApplicationCredentialResultDto> {
-    const _url = `/api/Application/${id}/reset-secret`;
-    return this.request<ApplicationCredentialResultDto>('post', _url);
-  }
-  /**
    * Delete 应用定义 ✍️
    * @param id
    */
   delete(id: string): Observable<boolean> {
     const _url = `/api/Application/${id}`;
+    return this.request<boolean>('delete', _url);
+  }
+  /**
+   * 获取应用 ApiKey 列表
+   * @param id string
+   */
+  listApiKeys(id: string): Observable<ApplicationApiKeyItemDto[]> {
+    const _url = `/api/Application/${id}/api-keys`;
+    return this.request<ApplicationApiKeyItemDto[]>('get', _url);
+  }
+  /**
+   * 新增应用 ApiKey
+   * @param id string
+   * @param data ApplicationApiKeyAddDto
+   */
+  addApiKey(id: string, data: ApplicationApiKeyAddDto): Observable<ApplicationApiKeyCredentialResultDto> {
+    const _url = `/api/Application/${id}/api-keys`;
+    return this.request<ApplicationApiKeyCredentialResultDto>('post', _url, data);
+  }
+  /**
+   * 删除应用 ApiKey
+   * @param id string
+   * @param apiKeyId string
+   */
+  deleteApiKey(id: string, apiKeyId: string): Observable<boolean> {
+    const _url = `/api/Application/${id}/api-keys/${apiKeyId}`;
     return this.request<boolean>('delete', _url);
   }
 }

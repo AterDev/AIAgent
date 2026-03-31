@@ -7,11 +7,6 @@
           <input matInput [(ngModel)]="filterDto.name" placeholder="{{ i18nKeys.application.name | translate }}" />
         </mat-form-field>
 
-        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-          <mat-label>{{ i18nKeys.application.clientId | translate }}</mat-label>
-          <input matInput [(ngModel)]="filterDto.clientId" />
-        </mat-form-field>
-
         <button mat-flat-button color="primary" (click)="filter()">{{ i18nKeys.common.search | translate }}</button>
       </div>
 
@@ -35,15 +30,6 @@
       </th>
       <td mat-cell *matCellDef="let item">
         {{ item.name }}
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="clientId">
-      <th mat-header-cell *matHeaderCellDef>
-        {{ i18nKeys.application.clientId | translate }}
-      </th>
-      <td mat-cell *matCellDef="let item">
-        {{ item.clientId }}
       </td>
     </ng-container>
 
@@ -73,6 +59,7 @@
       </th>
       <td mat-cell *matCellDef="let item">
         <button mat-icon-button class="secondary" (click)="openDetail(item.id)"><mat-icon>visibility</mat-icon></button>
+        <button mat-icon-button class="secondary" (click)="openApiKeys(item)" [title]="i18nKeys.application.manageApiKeys | translate"><mat-icon>key</mat-icon></button>
         <button mat-icon-button class="secondary" (click)="openQuota(item)" [title]="i18nKeys.applicationQuota.title | translate"><mat-icon>data_usage</mat-icon></button>
         <button mat-icon-button class="primary" (click)="openEdit(item.id)"><mat-icon>edit</mat-icon></button>
         <button mat-icon-button class="accent" (click)="deleteItem(item.id)"><mat-icon>delete</mat-icon></button>

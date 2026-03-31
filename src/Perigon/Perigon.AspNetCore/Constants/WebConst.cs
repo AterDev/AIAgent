@@ -34,6 +34,41 @@ public static class WebConst
     public const string Application = "Application";
 
     /// <summary>
+    /// Bearer 动态认证方案
+    /// </summary>
+    public const string BearerOrApiKey = "BearerOrApiKey";
+
+    /// <summary>
+    /// ApiKey 认证方案
+    /// </summary>
+    public const string ApiKeyScheme = "ApiKey";
+
+    /// <summary>
+    /// ApiKey 前缀
+    /// </summary>
+    public const string ApiKeyPrefix = "sk-";
+
+    /// <summary>
+    /// ApiKey 主体长度（Guid N 格式）
+    /// </summary>
+    public const int ApiKeyBodyLength = 32;
+
+    /// <summary>
+    /// ApiKey 总长度
+    /// </summary>
+    public const int ApiKeyLength = 35;
+
+    /// <summary>
+    /// 应用 ApiKey 缓存前缀
+    /// </summary>
+    public const string ApplicationApiKeyCachePrefix = "ApplicationApiKey_";
+
+    /// <summary>
+    /// 开放平台访问策略
+    /// </summary>
+    public const string OpenPlatform = "OpenPlatform";
+
+    /// <summary>
     /// 版本
     /// </summary>
     public const string Version = "Version";

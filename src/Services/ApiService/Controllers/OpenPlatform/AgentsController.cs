@@ -2,6 +2,7 @@ using AIAgentMod.Managers;
 using AIAgentMod.Models.AgentExecutionDtos;
 using AIAgentMod.Models.AIAgentDtos;
 using AIAgentMod.Services;
+using Share.Exceptions;
 
 namespace ApiService.Controllers.OpenPlatform;
 

@@ -1,6 +1,7 @@
 import { BaseService } from '../base.service';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { StorageType } from '../models/perigon/storage-type.model';
 import { UploadResult } from '../models/share/upload-result.model';
 /**
  * 文件上传管理

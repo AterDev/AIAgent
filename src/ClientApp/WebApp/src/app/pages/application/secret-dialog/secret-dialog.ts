@@ -2,7 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatCard, MatCardActions, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
-import { ApplicationCredentialResultDto } from 'src/app/services/admin/models/model-mod/application-credential-result-dto.model';
+import { ApplicationApiKeyCredentialResultDto } from 'src/app/services/admin/models/model-mod/application-api-key-credential-result-dto.model';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
 import { CommonFormModules } from 'src/app/share/shared-modules';
 import { TranslateService } from '@ngx-translate/core';
@@ -20,7 +20,7 @@ export class ApplicationSecretDialog {
     private dialogRef: MatDialogRef<ApplicationSecretDialog>,
     private snackBar: MatSnackBar,
     private translate: TranslateService,
-    @Inject(MAT_DIALOG_DATA) public data: ApplicationCredentialResultDto
+    @Inject(MAT_DIALOG_DATA) public data: ApplicationApiKeyCredentialResultDto
   ) { }
 
   async copy(value: string, messageKey: string) {

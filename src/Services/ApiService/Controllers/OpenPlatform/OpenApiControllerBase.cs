@@ -1,7 +1,7 @@
 namespace ApiService.Controllers.OpenPlatform;
 
 [ApiExplorerSettings(GroupName = "v1")]
-[Authorize(Policy = WebConst.User)]
+[Authorize(Policy = WebConst.OpenPlatform)]
 public abstract class OpenApiControllerBase<TManager>(
     TManager manager,
     IUserContext user,

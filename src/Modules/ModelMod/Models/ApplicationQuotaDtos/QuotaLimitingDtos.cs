@@ -80,7 +80,7 @@ public class QuotaUsageDto
 
     public int MaxRequests { get; set; }
 
-    public int MaxTokens { get; set; }
+    public long MaxTokens { get; set; }
 
     public int CurrentRequests { get; set; }
 

@@ -10,8 +10,6 @@ export interface ApplicationFilterDto {
   orderBy?: Record<string, boolean> | null;
   /** name */
   name?: string | null;
-  /** clientId */
-  clientId?: string | null;
   /** isEnabled */
   isEnabled?: boolean | null;
 }

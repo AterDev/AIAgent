@@ -1,0 +1,32 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ i18nKeys.application.addApiKey | translate }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="form" (ngSubmit)="submit()" class="d-flex flex-column p-2 mt-2 gap-2">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ i18nKeys.application.apiKeyName | translate }}</mat-label>
+        <input matInput type="text" [formControl]="name" />
+        @if (name.invalid) {
+          <mat-error>{{ getValidatorMessage(name) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ i18nKeys.application.apiKeyExpiresInMonths | translate }}</mat-label>
+        <mat-select [formControl]="apiKeyExpiresInMonths">
+          <mat-option [value]="1">1 Month</mat-option>
+          <mat-option [value]="3">3 Months</mat-option>
+          <mat-option [value]="6">6 Months</mat-option>
+          <mat-option [value]="12">12 Months</mat-option>
+        </mat-select>
+        <mat-hint>{{ i18nKeys.application.apiKeyExpiresInMonthsHint | translate }}</mat-hint>
+      </mat-form-field>
+
+      <div class="d-flex justify-content-end gap-2">
+        <button mat-button type="button" (click)="close()">{{ i18nKeys.common.cancel | translate }}</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">{{ i18nKeys.common.save | translate }}</button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>
