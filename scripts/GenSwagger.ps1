@@ -9,6 +9,31 @@ param(
 
 $location = Get-Location
 $configuration = "Debug"
+
+function Update-SwaggerTitle {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$SwaggerPath,
+
+        [Parameter(Mandatory = $true)]
+        [string]$Title
+    )
+
+    $swaggerContent = Get-Content -Path $SwaggerPath -Raw
+    if ([string]::IsNullOrEmpty($swaggerContent)) {
+        return
+    }
+
+    $updatedSwaggerContent = [regex]::Replace(
+        $swaggerContent,
+        '"title":\s*"[^"]+"',
+        ('"title": "{0}"' -f $Title),
+        1
+    )
+
+    Set-Content -Path $SwaggerPath -Value $updatedSwaggerContent -Encoding UTF8
+}
+
 function Get-TargetFramework {
     param([Parameter(Mandatory = $true)][string]$CsprojPath)
 
@@ -44,12 +69,15 @@ try {
 
     Set-Location $repoRoot
 
-    dotnet tool restore
+    dotnet build
     if (-not (Test-Path $assemblyPath -PathType Leaf)) {
         throw "未找到程序集: $assemblyPath"
     }
     Set-Location $projectDir
-    dotnet tool run swagger -- tofile --output $swaggerOutputPath $assemblyPath $DocumentName
+    swagger tofile --output $swaggerOutputPath $assemblyPath $DocumentName
+
+    $swaggerTitle = $ServiceName -replace 'Service$', ''
+    Update-SwaggerTitle -SwaggerPath $swaggerOutputPath -Title $swaggerTitle
 }
 catch {
     Write-Error $_

@@ -1,8 +1,0 @@
-{
-    "servers": {
-        "perigon": {
-            "type": "http",
-            "url": "http://localhost:19160/mcp/"
-        }
-    }
-}
