@@ -18,4 +18,6 @@ export interface AIAgentFilterDto {
   name?: string | null;
   /** userId */
   userId?: string | null;
+  /** applicationId */
+  applicationId?: string | null;
 }

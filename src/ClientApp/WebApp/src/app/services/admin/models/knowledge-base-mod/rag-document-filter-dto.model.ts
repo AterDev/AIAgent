@@ -12,6 +12,8 @@ export interface RagDocumentFilterDto {
   orderBy?: Record<string, boolean> | null;
   /** collectionId */
   collectionId?: string | null;
+  /** applicationId */
+  applicationId?: string | null;
   /** name */
   name?: string | null;
   /** status */

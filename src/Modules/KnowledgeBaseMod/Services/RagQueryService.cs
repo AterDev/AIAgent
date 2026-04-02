@@ -1,3 +1,5 @@
+using Perigon.AspNetCore.Constants;
+
 namespace KnowledgeBaseMod.Services;
 
 /// <summary>
@@ -43,6 +45,11 @@ public class RagQueryService(
                 .Where(c => c.TenantId == userContext.TenantId
                     && c.Document != null
                     && c.Document.TenantId == userContext.TenantId
+                    && (!_isApplicationRequest() || dbContext.ApplicationRagCollectionPermissions.Any(link =>
+                        link.TenantId == userContext.TenantId
+                        && link.IsEnabled
+                        && link.ApplicationId == userContext.UserId
+                        && link.RagCollectionId == c.Document.CollectionId))
                     && c.Document.CollectionId == request.CollectionId
                     && c.Content.Contains(request.Query))
                 .Select(c => new RagQueryItem
@@ -57,7 +64,13 @@ public class RagQueryService(
 
         var queryAll = dbContext.RagChunks
             .AsNoTracking()
-            .Where(q => q.TenantId == userContext.TenantId && q.Content.Contains(request.Query))
+            .Where(q => q.TenantId == userContext.TenantId
+                && q.Content.Contains(request.Query)
+                && (!_isApplicationRequest() || (q.Document != null && dbContext.ApplicationRagCollectionPermissions.Any(link =>
+                    link.TenantId == userContext.TenantId
+                    && link.IsEnabled
+                    && link.ApplicationId == userContext.UserId
+                    && link.RagCollectionId == q.Document.CollectionId))))
             .Select(chunk => new RagQueryItem
             {
                 DocumentId = chunk.DocumentId,
@@ -74,6 +87,37 @@ public class RagQueryService(
         int topK,
         CancellationToken cancellationToken)
     {
+        if (_isApplicationRequest())
+        {
+            if (request.CollectionId.HasValue)
+            {
+                var hasAccess = await dbContext.ApplicationRagCollectionPermissions
+                    .AsNoTracking()
+                    .AnyAsync(link => link.TenantId == userContext.TenantId
+                        && link.IsEnabled
+                        && link.ApplicationId == userContext.UserId
+                        && link.RagCollectionId == request.CollectionId.Value, cancellationToken);
+
+                if (!hasAccess)
+                {
+                    return [];
+                }
+            }
+            else
+            {
+                var hasAnyAccessibleCollection = await dbContext.ApplicationRagCollectionPermissions
+                    .AsNoTracking()
+                    .AnyAsync(link => link.TenantId == userContext.TenantId
+                        && link.IsEnabled
+                        && link.ApplicationId == userContext.UserId, cancellationToken);
+
+                if (!hasAnyAccessibleCollection)
+                {
+                    return [];
+                }
+            }
+        }
+
         var vectorHits = await vectorStore.SearchAsync(request.CollectionId, request.Query, topK, cancellationToken);
         if (vectorHits.Count == 0)
         {
@@ -83,7 +127,13 @@ public class RagQueryService(
         var chunkIds = vectorHits.Select(v => v.ChunkId).ToList();
         var chunkMap = await dbContext.RagChunks
             .AsNoTracking()
-            .Where(q => q.TenantId == userContext.TenantId && chunkIds.Contains(q.Id))
+            .Where(q => q.TenantId == userContext.TenantId
+                && chunkIds.Contains(q.Id)
+                && (!_isApplicationRequest() || (q.Document != null && dbContext.ApplicationRagCollectionPermissions.Any(link =>
+                    link.TenantId == userContext.TenantId
+                    && link.IsEnabled
+                    && link.ApplicationId == userContext.UserId
+                    && link.RagCollectionId == q.Document.CollectionId))))
             .Select(c => new { c.Id, c.DocumentId, c.Content })
             .ToDictionaryAsync(x => x.Id, cancellationToken);
 
@@ -146,5 +196,10 @@ public class RagQueryService(
             .OrderByDescending(q => q.Score)
             .Take(topK)
             .ToList();
+    }
+
+    bool _isApplicationRequest()
+    {
+        return userContext.IsRole(WebConst.Application) && userContext.UserId != Guid.Empty;
     }
 }

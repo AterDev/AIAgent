@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, inject, DestroyRef } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCard, MatCardHeader, MatCardTitle, MatCardContent, MatCardActions } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -32,6 +32,7 @@ export class RagDocumentAdd implements OnInit {
   private snackBar = inject(MatSnackBar);
   private adminClient = inject(AdminClient);
   private destroyRef = inject(DestroyRef);
+  private dialogData = inject(MAT_DIALOG_DATA, { optional: true }) as any;
 
   form!: FormGroup;
   isLoading = signal(true);
@@ -39,9 +40,16 @@ export class RagDocumentAdd implements OnInit {
   selectedFile: File | null = null;
   uploadProgress = signal(0);
   isUploading = signal(false);
+  applicationId?: string;
+  fixedCollectionId?: string;
 
   constructor() {
     this.buildForm();
+    this.applicationId = this.dialogData?.applicationId;
+    this.fixedCollectionId = this.dialogData?.collectionId;
+    if (this.fixedCollectionId) {
+      this.collectionId.setValue(this.fixedCollectionId);
+    }
   }
 
   ngOnInit(): void {
@@ -74,7 +82,8 @@ export class RagDocumentAdd implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (res) => {
-          this.availableCollections.set(res.data || []);
+            const collections = res.data || [];
+            this.availableCollections.set(this.fixedCollectionId ? collections.filter(q => q.id === this.fixedCollectionId) : collections);
           this.isLoading.set(false);
         },
         error: () => {
@@ -104,7 +113,7 @@ export class RagDocumentAdd implements OnInit {
 
   uploadFile() {
     if (!this.selectedFile) {
-      this.snackBar.open('Please select a file', '', { duration: 2000 });
+      this.snackBar.open(this.translate.instant(this.i18nKeys.ragDocument.validation.fileRequired), '', { duration: 2000 });
       return;
     }
 
@@ -116,11 +125,11 @@ export class RagDocumentAdd implements OnInit {
     this.adminClient.fileUpload.uploadFile(formData).subscribe({
       next: (result: any) => {
         this.filePath.setValue(result.filePath);
-        this.snackBar.open('File uploaded successfully', '', { duration: 2000 });
+        this.snackBar.open(this.translate.instant(this.i18nKeys.ragDocument.upload.uploadSuccess), '', { duration: 2000 });
         this.isUploading.set(false);
       },
       error: (error: any) => {
-        this.snackBar.open('File upload failed', '', { duration: 2000 });
+        this.snackBar.open(this.translate.instant(this.i18nKeys.ragDocument.upload.uploadFailed), '', { duration: 2000 });
         this.isUploading.set(false);
       }
     });
@@ -128,9 +137,14 @@ export class RagDocumentAdd implements OnInit {
 
   submit() {
     if (this.form.invalid) return;
-    this.adminClient.ragDocument.add(this.form.value as RagDocumentAddDto).subscribe({
+    const payload: RagDocumentAddDto = {
+      ...(this.form.value as RagDocumentAddDto),
+      applicationId: this.applicationId ?? null,
+    };
+
+    this.adminClient.ragDocument.add(payload).subscribe({
       next: () => this.dialogRef.close(true),
-      error: () => this.snackBar.open('Save failed', '', { duration: 2000 })
+      error: () => this.snackBar.open(this.translate.instant(this.i18nKeys.common.saveFail), '', { duration: 2000 })
     });
   }
 

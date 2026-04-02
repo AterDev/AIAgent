@@ -2,6 +2,7 @@ using AIAgentMod.Managers;
 using AIAgentMod.Models.AgentExecutionDtos;
 using AIAgentMod.Models.AIAgentDtos;
 using AIAgentMod.Services;
+using Entity.AIAgentMod;
 using Share.Exceptions;
 
 namespace ApiService.Controllers.OpenPlatform;
@@ -20,16 +21,53 @@ public class AgentsController(
 {
     private readonly AgentExecutionManager _executionManager = executionManager;
 
+    [HttpPost]
+    public async Task<ActionResult<AIAgent>> AddAsync(AIAgentAddDto dto)
+    {
+        var entity = await _manager.AddAsync(dto);
+        return CreatedAtRoute(null, new { id = entity.Id }, entity);
+    }
+
     [HttpPost("filter")]
     public async Task<ActionResult<PageList<AIAgentItemDto>>> ListAsync(AIAgentFilterDto filter)
     {
         return await _manager.FilterAsync(filter);
     }
 
+    [HttpPost("templates/filter")]
+    public async Task<ActionResult<PageList<AIAgentItemDto>>> ListTemplatesAsync(AIAgentFilterDto filter)
+    {
+        return await _manager.FilterPublicTemplatesAsync(filter);
+    }
+
     [HttpGet("{id}")]
     public async Task<AIAgentDetailDto?> DetailAsync([FromRoute] Guid id)
     {
         return await _manager.GetAsync(id);
+    }
+
+    [HttpPatch("{id}")]
+    public async Task<bool> UpdateAsync([FromRoute] Guid id, AIAgentUpdateDto dto)
+    {
+        return await _manager.EditAsync(id, dto) == 1;
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<bool>> DeleteAsync([FromRoute] Guid id)
+    {
+        return await _manager.DeleteAsync([id], false);
+    }
+
+    [HttpPost("templates/{id}/clone")]
+    public async Task<ActionResult<AIAgent>> CloneTemplateAsync([FromRoute] Guid id)
+    {
+        if (!_user.IsRole(WebConst.Application))
+        {
+            throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
+        }
+
+        var entity = await _manager.CloneTemplateAsync(id, _user.UserId);
+        return CreatedAtRoute(null, new { id = entity.Id }, entity);
     }
 
     /// <summary>
@@ -49,6 +87,11 @@ public class AgentsController(
         if (!applicationId.HasValue || applicationId == Guid.Empty)
         {
             throw new BusinessException("Application is required");
+        }
+
+        if (!await _manager.HasPermissionAsync(id))
+        {
+            throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
         }
 
         var execution = await _executionManager.AddAsync(new AgentExecutionAddDto

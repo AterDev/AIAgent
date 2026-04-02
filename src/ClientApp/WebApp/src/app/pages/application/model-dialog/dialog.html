@@ -1,0 +1,63 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>{{ data.applicationName }} · {{ i18nKeys.application.modelPermissions | translate }}</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    @if (isLoading()) {
+      <div class="d-flex justify-content-center align-items-center" style="min-height: 220px;">
+        <mat-spinner></mat-spinner>
+      </div>
+    } @else {
+      <table mat-table [dataSource]="dataSource" #table="matTable">
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>{{ i18nKeys.aiModelInfo.name | translate }}</th>
+          <td mat-cell *matCellDef="let item">{{ item.displayName || item.name }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="supportsChat">
+          <th mat-header-cell *matHeaderCellDef>{{ i18nKeys.aiModelInfo.supportsChat | translate }}</th>
+          <td mat-cell *matCellDef="let item">
+            <mat-icon [ngClass]="item.supportsChat ? 'text-success' : 'text-muted'">
+              {{ item.supportsChat ? 'check_circle' : 'cancel' }}
+            </mat-icon>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="supportsEmbedding">
+          <th mat-header-cell *matHeaderCellDef>{{ i18nKeys.aiModelInfo.supportsEmbedding | translate }}</th>
+          <td mat-cell *matCellDef="let item">
+            <mat-icon [ngClass]="item.supportsEmbedding ? 'text-success' : 'text-muted'">
+              {{ item.supportsEmbedding ? 'check_circle' : 'cancel' }}
+            </mat-icon>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="isEnabled">
+          <th mat-header-cell *matHeaderCellDef>{{ i18nKeys.aiModelInfo.isEnabled | translate }}</th>
+          <td mat-cell *matCellDef="let item">
+            <mat-icon [ngClass]="hasPermission(item.id) ? 'text-success' : 'text-muted'">
+              {{ hasPermission(item.id) ? 'toggle_on' : 'toggle_off' }}
+            </mat-icon>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>{{ i18nKeys.common.actions | translate }}</th>
+          <td mat-cell *matCellDef="let item">
+            <button mat-stroked-button color="primary" (click)="togglePermission(item)">
+              {{ hasPermission(item.id) ? (i18nKeys.application.removePermission | translate) : (i18nKeys.application.addPermission | translate) }}
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    }
+  </mat-card-content>
+
+  <mat-card-actions class="d-flex justify-content-end">
+    <button mat-button (click)="close()">{{ i18nKeys.common.close | translate }}</button>
+  </mat-card-actions>
+</mat-card>

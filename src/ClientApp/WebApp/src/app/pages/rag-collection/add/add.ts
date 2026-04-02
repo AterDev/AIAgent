@@ -1,6 +1,6 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, Inject, OnInit, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCard, MatCardHeader, MatCardTitle, MatCardContent, MatCardActions } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -22,14 +22,17 @@ export class RagCollectionAdd implements OnInit {
 
   form!: FormGroup;
   isLoading = signal(true);
+  applicationId?: string;
 
   constructor(
     private fb: FormBuilder,
     private adminClient: AdminClient,
     private dialogRef: MatDialogRef<RagCollectionAdd>,
-    private translate: TranslateService
+    private translate: TranslateService,
+    @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.buildForm();
+    this.applicationId = data?.applicationId;
   }
 
   ngOnInit(): void {
@@ -63,7 +66,14 @@ export class RagCollectionAdd implements OnInit {
 
   submit() {
     if (this.form.invalid) return;
-    this.adminClient.ragCollection.add(this.form.value as RagCollectionAddDto).subscribe(() => this.dialogRef.close(true));
+    const payload: RagCollectionAddDto = {
+      ...(this.form.value as RagCollectionAddDto),
+      applicationId: this.applicationId ?? null,
+    };
+
+    this.adminClient.ragCollection.add(payload).subscribe({
+      next: () => this.dialogRef.close(true)
+    });
   }
 
   close(result: boolean) { this.dialogRef.close(result); }

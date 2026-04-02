@@ -49,6 +49,28 @@ public class RagDocumentController(
     }
 
     /// <summary>
+    /// 手动触发文档入队解析/向量化
+    /// </summary>
+    [HttpPost("{id}/ingest")]
+    public async Task<ActionResult<bool>> IngestAsync(
+        [FromRoute] Guid id,
+        RagDocumentIngestDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        var document = await _manager.GetAsync(id);
+        if (document == null)
+        {
+            return NotFound();
+        }
+
+        _ = dto;
+        _ = cancellationToken;
+
+        await _manager.QueueIngestionAsync(id);
+        return Accepted(true);
+    }
+
+    /// <summary>
     /// 手动触发文档解析
     /// </summary>
     [HttpPost("{id}/parse")]

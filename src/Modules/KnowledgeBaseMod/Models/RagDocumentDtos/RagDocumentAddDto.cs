@@ -6,6 +6,8 @@ namespace KnowledgeBaseMod.Models.RagDocumentDtos;
 /// <see cref="RagDocument"/>
 public class RagDocumentAddDto
 {
+    public Guid? ApplicationId { get; set; }
+
     public Guid CollectionId { get; set; }
 
     [MaxLength(200)]

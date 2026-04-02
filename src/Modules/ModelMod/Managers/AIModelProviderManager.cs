@@ -38,7 +38,7 @@ public class AIModelProviderManager(
         {
             return await UpdateAsync(id, dto);
         }
-        throw new BusinessException(Localizer.NoPermission);
+        throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
     }
 
     /// <summary>
@@ -50,7 +50,7 @@ public class AIModelProviderManager(
         {
             return await FindAsync<AIModelProviderDetailDto>(q => q.Id == id);
         }
-        throw new BusinessException(Localizer.NoPermission);
+        throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
     }
 
     /// <summary>

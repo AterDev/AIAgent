@@ -39,7 +39,7 @@ public class AIModelInfoManager(
         {
             return await UpdateAsync(id, dto);
         }
-        throw new BusinessException(Localizer.NoPermission);
+        throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
     }
 
     /// <summary>
@@ -51,7 +51,7 @@ public class AIModelInfoManager(
         {
             return await FindAsync<AIModelInfoDetailDto>(q => q.Id == id);
         }
-        throw new BusinessException(Localizer.NoPermission);
+        throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
     }
 
     /// <summary>

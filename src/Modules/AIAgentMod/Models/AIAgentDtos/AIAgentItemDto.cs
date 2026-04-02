@@ -7,11 +7,13 @@ public class AIAgentItemDto
 {
     public Guid Id { get; set; }
     public DateTimeOffset CreatedTime { get; set; }
+    public Guid? ApplicationId { get; set; }
     /// <summary>
     /// is enabled
     /// </summary>
     public bool? Enable { get; set; }
     public bool? IsTemplate { get; set; }
+    public string? ModelId { get; set; }
     /// <summary>
     /// Agent 名称
     /// </summary>

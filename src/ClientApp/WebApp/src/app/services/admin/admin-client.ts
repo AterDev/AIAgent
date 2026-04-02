@@ -7,6 +7,7 @@ import { AIModelProviderService } from './services/aimodel-provider.service';
 import { ApplicationService } from './services/application.service';
 import { ApplicationModelPermissionService } from './services/application-model-permission.service';
 import { ApplicationQuotaService } from './services/application-quota.service';
+import { ApplicationRagCollectionPermissionService } from './services/application-rag-collection-permission.service';
 import { ApplicationToolPermissionService } from './services/application-tool-permission.service';
 import { ChatMessageService } from './services/chat-message.service';
 import { ConversationService } from './services/conversation.service';
@@ -44,6 +45,8 @@ export class AdminClient {
   public applicationModelPermission = inject(ApplicationModelPermissionService);
   /** 应用配额管理 */
   public applicationQuota = inject(ApplicationQuotaService);
+  /** 应用知识库关联管理 */
+  public applicationRagCollectionPermission = inject(ApplicationRagCollectionPermissionService);
   /** 应用工具权限管理 */
   public applicationToolPermission = inject(ApplicationToolPermissionService);
   /** 聊天消息 控制器 */

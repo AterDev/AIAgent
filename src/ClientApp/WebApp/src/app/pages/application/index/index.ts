@@ -14,6 +14,9 @@ import { ApplicationEdit } from '../edit/edit';
 import { ApplicationDetail } from '../detail/detail';
 import { ApplicationQuotaDialog } from '../../application-quota/dialog/dialog';
 import { ApplicationApiKeyDialog } from '../api-key-dialog/dialog';
+import { ApplicationModelPermissionDialog } from '../model-dialog/dialog';
+import { AIAgentIndex } from '../../aiagent/index/index';
+import { RagCollectionIndex } from '../../rag-collection/index/index';
 
 @Component({
   selector: 'app-application-index',
@@ -95,6 +98,39 @@ export class ApplicationIndex implements OnInit {
   openApiKeys(item: ApplicationItemDto) {
     this.dialog.open(ApplicationApiKeyDialog, {
       width: '960px',
+      maxWidth: '96vw',
+      data: {
+        applicationId: item.id,
+        applicationName: item.name,
+      }
+    });
+  }
+
+  openModels(item: ApplicationItemDto) {
+    this.dialog.open(ApplicationModelPermissionDialog, {
+      width: '1100px',
+      maxWidth: '96vw',
+      data: {
+        applicationId: item.id,
+        applicationName: item.name,
+      }
+    });
+  }
+
+  openAgents(item: ApplicationItemDto) {
+    this.dialog.open(AIAgentIndex, {
+      width: '1100px',
+      maxWidth: '96vw',
+      data: {
+        applicationId: item.id,
+        applicationName: item.name,
+      }
+    });
+  }
+
+  openKnowledge(item: ApplicationItemDto) {
+    this.dialog.open(RagCollectionIndex, {
+      width: '1100px',
       maxWidth: '96vw',
       data: {
         applicationId: item.id,

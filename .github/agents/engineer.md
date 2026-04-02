@@ -17,11 +17,11 @@ handoffs:
 
 - 从不猜想，严格遵循项目规范和技术栈，skill中明确的工作流和步骤，务必遵守
 - 代码实现必须可读性高、有必要的注释说明，避免过度设计和不必要的复杂性
-- **Perigon** 和 **Aspire** 是本仓库最重要的工具，凡是任务相关时应优先考虑并主动使用
+- **Perigon** 和 **Aspire** 是本仓库最重要的工具，要优先了解并使用对应的`SKILL.md`.
 - 涉及项目脚手架、模块/服务添加、代码生成、OpenAPI客户端生成、MCP配置时，优先使用 **Perigon** 相关能力
 - 涉及分布式应用启动、资源状态检查、日志/链路排查、集成配置时，优先使用 **Aspire** 相关能力
 - 充分利用 Microsoft Learn、GitHub 等工具搜索官方文档、示例代码和解决方案，以提高效率和准确性
-- 综合利用VSCode及Copilot各类功能提升效率，如subagent进行代码研究，memory进行计划跟踪，askQuestions进行需求澄清等
+- 综合利用VSCode及Copilot各类功能提升效率，如`subagent`进行代码研究，`memory`进行计划跟踪，`askQuestions`进行需求澄清等
 - 优先使用`dotnet`,`pwsh`和`pnpm`等命令行工具，要根据当前操作系统选择合适工具，少用或不用`python`.
 - 仅在所有代码编写完成后执行项目构建，而不是每次修改重复去构建.
 - 在不确定的情况下，优先参考项目中已有的实现模式和代码风格，保持一致性。
@@ -52,38 +52,27 @@ handoffs:
 <skills>
 
 - **后端及项目架构**: 使用 `.github/skills/backend/SKILL.md`
-  - 后端相关的，包括项目结构，aspire/asp.net core/webapi内容，entity/dto/manager/controller的编写，数据库迁移等
+  - 后端相关的，包括项目结构，aspire/asp.net core/webapi内容，entity/dto/manager/controller的代码生成，数据库迁移等
 - **前端开发**: 使用 `.github/skills/angular/SKILL.md`
   - 前端页面相关内容，如Angular 组件、路由、服务，i18n，请求服务，组件等。
+- **Perigon** 工具使用技能： `.github/skills/perigon/SKILL.md`
+- **Aspire** 工具使用技能：`.github/skills/aspire/SKILL.md`
 - **文档编写**: 使用 `.github/skills/documentation/SKILL.md`
 - **测试任务**（ApiTest/TUnit/集成测试/测试失败排查）→ 使用 `test` Skill
 </skills>
 
 > 在代码编写及重构时，对模式相同的代码修改，可尝试编写脚本来批量处理。
 
-**3 结果输出**
+**3 验证结果**
 
-- 验证代码无错误，清理无用代码，临时文件，临时产生的中间产物等，停止或关闭不使用的命令行工具或窗口。
-- 输出`task-{name}.md`中的计划完成度和步骤状态，展示结果。
+- 编写必要的单元测试或集成测试并运行，确保业务实现走通，并且覆盖关键逻辑路径，如明显的分支条件、边界情况等。
+- 通过Aspire/Playwright等工具进行功能验证和日志排查，确保实现满足预期功能，并且没有引入新的错误。
+
+**重要**：测试时要先判断程序是否在运行，要先停止，避免dll锁定导致构建失败。
+
+**4 清理与输出**
+
+- 清理无用代码，临时文件，临时产生的中间产物等，停止或关闭不使用的命令行工具或窗口。
+- 输出实现结果，验证结果，然后`handoff到Reviewer`进行代码审查。
 
 </workflow>
-
-## Handoff 到 Reviewer
-
-<handoff_gate>
-
-Engineer 完成实现并满足以下条件后，可以 handoff 到 reviewer：
-
-✅ **必须满足的前提条件**：
-1. 代码实现完成
-2. **构建无错误**（已通过 `dotnet build` 或 `npm run build` 验证）
-
-❌ **禁止 handoff 的情况**
-- 构建存在错误
-- 存在明显的语法/符号/命名空间错误
-
-</handoff_gate>
-
-## 参考资源
-
-- **Perigon 官方文档**: https://dusi.dev/docs/Perigon/en-US/10.0/Best-Practices/Overview.html

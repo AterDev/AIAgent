@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EntityFramework.Migrations
 {
     [DbContext(typeof(DefaultDbContext))]
-    [Migration("20260331081153_Init")]
-    partial class Init
+    [Migration("20260402063225_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -87,6 +87,9 @@ namespace EntityFramework.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("ApplicationId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTimeOffset>("CreatedTime")
                         .HasColumnType("timestamp with time zone");
 
@@ -132,6 +135,8 @@ namespace EntityFramework.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ApplicationId");
 
                     b.HasIndex("Name");
 
@@ -1171,6 +1176,43 @@ namespace EntityFramework.Migrations
                     b.ToTable("ApplicationQuotas");
                 });
 
+            modelBuilder.Entity("Entity.ModelMod.ApplicationRagCollectionPermission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ApplicationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("RagCollectionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RagCollectionId");
+
+                    b.HasIndex("ApplicationId", "RagCollectionId")
+                        .IsUnique();
+
+                    b.ToTable("ApplicationRagCollectionPermissions");
+                });
+
             modelBuilder.Entity("Entity.ModelMod.ApplicationToolPermission", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1797,6 +1839,25 @@ namespace EntityFramework.Migrations
                         .IsRequired();
 
                     b.Navigation("Application");
+                });
+
+            modelBuilder.Entity("Entity.ModelMod.ApplicationRagCollectionPermission", b =>
+                {
+                    b.HasOne("Entity.ModelMod.Application", "Application")
+                        .WithMany()
+                        .HasForeignKey("ApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Entity.KnowledgeBaseMod.RagCollection", "RagCollection")
+                        .WithMany()
+                        .HasForeignKey("RagCollectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Application");
+
+                    b.Navigation("RagCollection");
                 });
 
             modelBuilder.Entity("Entity.ModelMod.ApplicationToolPermission", b =>

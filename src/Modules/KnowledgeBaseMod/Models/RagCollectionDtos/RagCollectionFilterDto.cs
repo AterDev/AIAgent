@@ -12,4 +12,6 @@ public class RagCollectionFilterDto : FilterBase
     public bool? IsPublic { get; set; }
 
     public bool? IsEnabled { get; set; }
+
+    public Guid? ApplicationId { get; set; }
 }

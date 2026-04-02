@@ -68,7 +68,7 @@ public class SystemConfigManager(
             );
             return await UpdateAsync(id, dto);
         }
-        throw new BusinessException(Localizer.NoPermission);
+        throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
     }
 
 
@@ -83,7 +83,7 @@ public class SystemConfigManager(
         {
             return await FindAsync<SystemConfigDetailDto>(q => q.Id == id);
         }
-        throw new BusinessException(Localizer.NoPermission);
+        throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
     }
 
     /// <summary>

@@ -47,7 +47,7 @@ public class ConversationManager(
         {
             return await UpdateAsync(id, dto);
         }
-        throw new BusinessException(Localizer.NoPermission);
+        throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
     }
 
 
@@ -62,7 +62,7 @@ public class ConversationManager(
         {
             return await FindAsync<ConversationDetailDto>(q => q.Id == id);
         }
-        throw new BusinessException(Localizer.NoPermission);
+        throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
     }
 
     /// <summary>

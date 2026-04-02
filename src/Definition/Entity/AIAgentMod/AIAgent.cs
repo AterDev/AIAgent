@@ -6,6 +6,7 @@
 
 [Index(nameof(Name))]
 [Index(nameof(UserId))]
+[Index(nameof(ApplicationId))]
 public class AIAgent : EntityBase
 {
     /// <summary>
@@ -44,4 +45,6 @@ public class AIAgent : EntityBase
     public bool IsTemplate { get; set; }
 
     public Guid? UserId { get; set; }
+
+    public Guid? ApplicationId { get; set; }
 }

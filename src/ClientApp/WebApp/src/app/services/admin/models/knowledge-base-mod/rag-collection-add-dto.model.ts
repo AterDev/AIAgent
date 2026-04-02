@@ -2,6 +2,8 @@
  * 知识库 AddDto
  */
 export interface RagCollectionAddDto {
+  /** applicationId */
+  applicationId?: string | null;
   /** name */
   name: string;
   /** description */

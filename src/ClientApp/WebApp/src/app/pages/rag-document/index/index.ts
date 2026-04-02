@@ -1,5 +1,5 @@
 import { Component, OnInit, signal, inject } from '@angular/core';  
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -30,6 +30,7 @@ export class RagDocumentIndex implements OnInit {
   private translate = inject(TranslateService);
   private adminClient = inject(AdminClient);
   private snackBar = inject(MatSnackBar);
+  private dialogData = inject(MAT_DIALOG_DATA, { optional: true }) as any;
 
   filterDto: RagDocumentFilterDto = { pageIndex: 1, pageSize: 10 };
   dataSource = new MatTableDataSource<RagDocumentItemDto>();
@@ -40,6 +41,16 @@ export class RagDocumentIndex implements OnInit {
 
   total = 0;
   pageSize = 10;
+
+  constructor() {
+    if (this.dialogData?.applicationId) {
+      this.filterDto.applicationId = this.dialogData.applicationId;
+    }
+
+    if (this.dialogData?.collectionId) {
+      this.filterDto.collectionId = this.dialogData.collectionId;
+    }
+  }
 
   ngOnInit(): void {
     this.loadCollections();
@@ -79,12 +90,12 @@ export class RagDocumentIndex implements OnInit {
   }
 
   openAdd() {
-    const ref = this.dialog.open(RagDocumentAdd, { width: '800px' });
+    const ref = this.dialog.open(RagDocumentAdd, { width: '800px', data: { applicationId: this.dialogData?.applicationId, collectionId: this.dialogData?.collectionId } });
     ref.afterClosed().subscribe((r: boolean) => { if (r) this.loadData(); });
   }
 
   openEdit(id: string) {
-    const ref = this.dialog.open(RagDocumentEdit, { width: '800px', data: { id } });
+    const ref = this.dialog.open(RagDocumentEdit, { width: '800px', data: { id, applicationId: this.dialogData?.applicationId, collectionId: this.dialogData?.collectionId } });
     ref.afterClosed().subscribe((r: boolean) => { if (r) this.loadData(); });
   }
 

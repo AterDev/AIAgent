@@ -69,7 +69,22 @@ public class RagCollectionTests
 
         // Verify Delete
         var verifyDeleteResponse = await httpClient.GetAsync($"/api/ragcollection/{collectionId}");
-        await Assert.That(verifyDeleteResponse.StatusCode == HttpStatusCode.NotFound || verifyDeleteResponse.StatusCode == HttpStatusCode.NoContent).IsTrue();
+        await Assert.That(
+            verifyDeleteResponse.StatusCode == HttpStatusCode.NotFound
+            || verifyDeleteResponse.StatusCode == HttpStatusCode.NoContent
+            || verifyDeleteResponse.StatusCode == HttpStatusCode.Forbidden).IsTrue();
+
+        var verifyListResponse = await httpClient.PostAsJsonAsync("/api/ragcollection/filter", new RagCollectionFilterDto
+        {
+            PageIndex = 1,
+            PageSize = 20,
+            Name = updateDto.Name,
+        });
+        await Assert.That(verifyListResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
+
+        var verifyList = await verifyListResponse.Content.ReadFromJsonAsync<PageList<RagCollectionItemDto>>();
+        await Assert.That(verifyList).IsNotNull();
+        await Assert.That((verifyList!.Data ?? []).Any(q => q.Id == collectionId)).IsFalse();
     }
 
     [ClassDataSource<HttpClientDataClass>(Shared = SharedType.PerTestSession)]

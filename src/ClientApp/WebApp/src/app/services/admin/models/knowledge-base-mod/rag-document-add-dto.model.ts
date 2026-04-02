@@ -4,6 +4,8 @@ import { RagDocumentStatus } from '../entity/rag-document-status.model';
  * 文档 AddDto
  */
 export interface RagDocumentAddDto {
+  /** applicationId */
+  applicationId?: string | null;
   /** collectionId */
   collectionId: string;
   /** name */

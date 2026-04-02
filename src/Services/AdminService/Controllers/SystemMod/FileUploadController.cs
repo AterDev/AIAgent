@@ -37,6 +37,8 @@ public class FileUploadController(
     /// </summary>
     [HttpPost("upload")]
     [Consumes("multipart/form-data")]
+    [RequestSizeLimit(60 * 1024 * 1024)]
+    [RequestFormLimits(MultipartBodyLengthLimit = 60 * 1024 * 1024)]
     public async Task<ActionResult<UploadResult>> UploadFileAsync(
         [FromForm] FileUploadRequestDto request,
         CancellationToken cancellationToken = default

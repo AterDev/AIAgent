@@ -4,16 +4,16 @@
   </mat-card-header>
   <mat-card-content>
     @if (isLoading()) {
-      <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
-        <mat-spinner></mat-spinner>
-      </div>
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+      <mat-spinner></mat-spinner>
+    </div>
     } @else {
-      <form [formGroup]="form" (ngSubmit)="submit()" class="d-flex flex-column p-2 mt-2 gap-2">
+    <form [formGroup]="form" (ngSubmit)="submit()" class="d-flex flex-column p-2 mt-2 gap-2">
       <mat-form-field appearance="outline">
         <mat-label>{{ i18nKeys.aiagent.name | translate }}</mat-label>
         <input matInput type="text" [formControl]="name" />
         @if (name.invalid) {
-          <mat-error>{{ getValidatorMessage(name) }}</mat-error>
+        <mat-error>{{ getValidatorMessage(name) }}</mat-error>
         }
       </mat-form-field>
 
@@ -21,7 +21,7 @@
         <mat-label>{{ i18nKeys.aiagent.description | translate }}</mat-label>
         <textarea matInput rows="4" [formControl]="description"></textarea>
         @if (description.invalid) {
-          <mat-error>{{ getValidatorMessage(description) }}</mat-error>
+        <mat-error>{{ getValidatorMessage(description) }}</mat-error>
         }
       </mat-form-field>
 
@@ -29,13 +29,13 @@
         <mat-label>{{ i18nKeys.aiagent.modelId | translate }}</mat-label>
         <mat-select [formControl]="modelId">
           @for (model of availableModels(); track model.id) {
-            <mat-option [value]="model.id">
-              {{ model.displayName || model.name }} @if (model.providerId) { ({{ model.providerId }}) }
-            </mat-option>
+          <mat-option [value]="model.id">
+            {{ model.displayName || model.name }}
+          </mat-option>
           }
         </mat-select>
         @if (modelId.invalid) {
-          <mat-error>{{ getValidatorMessage(modelId) }}</mat-error>
+        <mat-error>{{ getValidatorMessage(modelId) }}</mat-error>
         }
       </mat-form-field>
 
@@ -43,23 +43,24 @@
         <mat-label>{{ i18nKeys.aiagent.systemPrompt | translate }}</mat-label>
         <textarea matInput rows="6" [formControl]="systemPrompt"></textarea>
         @if (systemPrompt.invalid) {
-          <mat-error>{{ getValidatorMessage(systemPrompt) }}</mat-error>
+        <mat-error>{{ getValidatorMessage(systemPrompt) }}</mat-error>
         }
       </mat-form-field>
 
       <mat-checkbox [formControl]="enable">{{ i18nKeys.aiagent.enable | translate }}</mat-checkbox>
       @if (enable.invalid) {
-        <mat-error>{{ getValidatorMessage(enable) }}</mat-error>
+      <mat-error>{{ getValidatorMessage(enable) }}</mat-error>
       }
 
       <mat-checkbox [formControl]="isTemplate">{{ i18nKeys.aiagent.isTemplate | translate }}</mat-checkbox>
       @if (isTemplate.invalid) {
-        <mat-error>{{ getValidatorMessage(isTemplate) }}</mat-error>
+      <mat-error>{{ getValidatorMessage(isTemplate) }}</mat-error>
       }
 
       <div class="d-flex justify-content-end gap-2">
         <button mat-button type="button" (click)="close(false)">{{ i18nKeys.common.cancel | translate }}</button>
-        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">{{ i18nKeys.common.save | translate }}</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">{{ i18nKeys.common.save |
+          translate }}</button>
       </div>
 
     </form>

@@ -69,7 +69,20 @@ public class AIModelProviderTests
 
         // Verify Delete
         var verifyDeleteResponse = await httpClient.GetAsync($"/api/aimodelprovider/{providerId}");
-        await Assert.That(verifyDeleteResponse.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
+        await Assert.That(
+            verifyDeleteResponse.StatusCode == HttpStatusCode.NotFound
+            || verifyDeleteResponse.StatusCode == HttpStatusCode.Forbidden).IsTrue();
+
+        var verifyListResponse = await httpClient.PostAsJsonAsync("/api/aimodelprovider/filter", new AIModelProviderFilterDto
+        {
+            PageIndex = 1,
+            PageSize = 20,
+        });
+        await Assert.That(verifyListResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
+
+        var verifyList = await verifyListResponse.Content.ReadFromJsonAsync<PageList<AIModelProviderItemDto>>();
+        await Assert.That(verifyList).IsNotNull();
+        await Assert.That((verifyList!.Data ?? []).Any(q => q.Id == providerId)).IsFalse();
     }
 
     [ClassDataSource<HttpClientDataClass>(Shared = SharedType.PerTestSession)]

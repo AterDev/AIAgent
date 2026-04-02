@@ -162,11 +162,11 @@ public class RagDocumentTests
         var collection = await collectionResponse.Content.ReadFromJsonAsync<RagCollection>();
         var collectionId = collection!.Id;
 
-        // 尝试创建包含不支持的文件类型的文档 (jpg)
+        // 尝试创建包含不支持的文件类型的文档 (.exe)
         var addDto = new RagDocumentAddDto
         {
             Name = $"Image Document {Guid.NewGuid().ToString().Substring(0, 8)}",
-            FileName = "photo.jpg",  // jpg 不支持（需要 OCR）
+            FileName = "malware.exe",
             CollectionId = collectionId
         };
 

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace EntityFramework.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -47,6 +47,7 @@ namespace EntityFramework.Migrations
                     Enable = table.Column<bool>(type: "boolean", nullable: false),
                     IsTemplate = table.Column<bool>(type: "boolean", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    ApplicationId = table.Column<Guid>(type: "uuid", nullable: true),
                     CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
@@ -578,6 +579,36 @@ namespace EntityFramework.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ApplicationRagCollectionPermissions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ApplicationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    RagCollectionId = table.Column<Guid>(type: "uuid", nullable: false),
+                    IsEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApplicationRagCollectionPermissions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ApplicationRagCollectionPermissions_Applications_Applicatio~",
+                        column: x => x.ApplicationId,
+                        principalTable: "Applications",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ApplicationRagCollectionPermissions_RagCollections_RagColle~",
+                        column: x => x.RagCollectionId,
+                        principalTable: "RagCollections",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RagDocuments",
                 columns: table => new
                 {
@@ -820,6 +851,11 @@ namespace EntityFramework.Migrations
                 columns: new[] { "AgentId", "Status" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_AIAgents_ApplicationId",
+                table: "AIAgents",
+                column: "ApplicationId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AIAgents_Name",
                 table: "AIAgents",
                 column: "Name");
@@ -878,6 +914,17 @@ namespace EntityFramework.Migrations
                 table: "ApplicationQuotas",
                 columns: new[] { "ApplicationId", "PeriodType" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationRagCollectionPermissions_ApplicationId_RagCollec~",
+                table: "ApplicationRagCollectionPermissions",
+                columns: new[] { "ApplicationId", "RagCollectionId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationRagCollectionPermissions_RagCollectionId",
+                table: "ApplicationRagCollectionPermissions",
+                column: "RagCollectionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Applications_Name",
@@ -1054,6 +1101,9 @@ namespace EntityFramework.Migrations
 
             migrationBuilder.DropTable(
                 name: "ApplicationQuotas");
+
+            migrationBuilder.DropTable(
+                name: "ApplicationRagCollectionPermissions");
 
             migrationBuilder.DropTable(
                 name: "ApplicationToolPermissions");

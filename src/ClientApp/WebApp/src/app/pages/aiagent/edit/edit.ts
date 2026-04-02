@@ -11,7 +11,7 @@ import { CommonFormModules } from 'src/app/share/shared-modules';
 import { AIAgentUpdateDto } from 'src/app/services/admin/models/aiagent-mod/aiagent-update-dto.model';
 import { AIAgentDetailDto } from 'src/app/services/admin/models/aiagent-mod/aiagent-detail-dto.model';
 import { AIModelInfoItemDto } from 'src/app/services/admin/models/model-mod/aimodel-info-item-dto.model';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
 
 @Component({
   selector: 'app-aiagent-edit',
@@ -27,6 +27,7 @@ export class AIAgentEdit implements OnInit {
   id?: string;
   isLoading = signal(true);
   availableModels = signal<AIModelInfoItemDto[]>([]);
+  applicationId?: string;
 
   constructor(
     private fb: FormBuilder,
@@ -37,6 +38,7 @@ export class AIAgentEdit implements OnInit {
   ) {
     this.buildForm();
     this.id = data?.id;
+    this.applicationId = data?.applicationId;
   }
 
   ngOnInit() {
@@ -45,21 +47,36 @@ export class AIAgentEdit implements OnInit {
 
   private loadData(): void {
     const models$ = this.adminClient.aIModelInfo.list({ pageIndex: 1, pageSize: 100 });
+    const permissions$ = this.applicationId
+      ? this.adminClient.applicationModelPermission.list({ applicationId: this.applicationId, isEnabled: true, pageIndex: 1, pageSize: 200 })
+      : of(null);
     
     if (this.id) {
       const detail$ = this.adminClient.aIAgent.detail(this.id);
-      forkJoin([models$, detail$]).subscribe({
-        next: ([modelsRes, detailRes]) => {
-          this.availableModels.set(modelsRes.data || []);
-          this.form.patchValue(detailRes);
+      forkJoin({ models: models$, permissions: permissions$, detail: detail$ }).subscribe({
+        next: ({ models, permissions, detail }) => {
+          const allModels = models.data || [];
+          if (permissions) {
+            const allowedIds = new Set((permissions.data || []).map((q: { aiModelInfoId: string }) => q.aiModelInfoId));
+            this.availableModels.set(allModels.filter(q => !!q.id && allowedIds.has(q.id)));
+          } else {
+            this.availableModels.set(allModels);
+          }
+          this.form.patchValue(detail);
           this.isLoading.set(false);
         },
         error: () => this.isLoading.set(false)
       });
     } else {
-      models$.subscribe({
-        next: (res) => {
-          this.availableModels.set(res.data || []);
+      forkJoin({ models: models$, permissions: permissions$ }).subscribe({
+        next: ({ models, permissions }) => {
+          const allModels = models.data || [];
+          if (permissions) {
+            const allowedIds = new Set((permissions.data || []).map((q: { aiModelInfoId: string }) => q.aiModelInfoId));
+            this.availableModels.set(allModels.filter(q => !!q.id && allowedIds.has(q.id)));
+          } else {
+            this.availableModels.set(allModels);
+          }
           this.isLoading.set(false);
         },
         error: () => this.isLoading.set(false)
@@ -76,7 +93,8 @@ export class AIAgentEdit implements OnInit {
       "tools": [null, []],
       "enable": [null, []],
       "isTemplate": [null, []],
-      "userId": [null, []]
+      "userId": [null, []],
+      "applicationId": [this.applicationId ?? null, []]
     });
   }
 
@@ -88,6 +106,7 @@ export class AIAgentEdit implements OnInit {
   get enable() { return this.form.get('enable') as FormControl; }
   get isTemplate() { return this.form.get('isTemplate') as FormControl; }
   get userId() { return this.form.get('userId') as FormControl; }
+  get applicationIdControl() { return this.form.get('applicationId') as FormControl; }
 
   getValidatorMessage(control: AbstractControl | null): string {
     if (!control || !control.errors) { return ''; }

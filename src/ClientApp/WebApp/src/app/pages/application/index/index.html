@@ -60,6 +60,9 @@
       <td mat-cell *matCellDef="let item">
         <button mat-icon-button class="secondary" (click)="openDetail(item.id)"><mat-icon>visibility</mat-icon></button>
         <button mat-icon-button class="secondary" (click)="openApiKeys(item)" [title]="i18nKeys.application.manageApiKeys | translate"><mat-icon>key</mat-icon></button>
+        <button mat-icon-button class="secondary" (click)="openModels(item)" [title]="i18nKeys.application.manageModels | translate"><mat-icon>tune</mat-icon></button>
+        <button mat-icon-button class="secondary" (click)="openAgents(item)" [title]="i18nKeys.application.manageAgents | translate"><mat-icon>smart_toy</mat-icon></button>
+        <button mat-icon-button class="secondary" (click)="openKnowledge(item)" [title]="i18nKeys.application.manageKnowledge | translate"><mat-icon>library_books</mat-icon></button>
         <button mat-icon-button class="secondary" (click)="openQuota(item)" [title]="i18nKeys.applicationQuota.title | translate"><mat-icon>data_usage</mat-icon></button>
         <button mat-icon-button class="primary" (click)="openEdit(item.id)"><mat-icon>edit</mat-icon></button>
         <button mat-icon-button class="accent" (click)="deleteItem(item.id)"><mat-icon>delete</mat-icon></button>

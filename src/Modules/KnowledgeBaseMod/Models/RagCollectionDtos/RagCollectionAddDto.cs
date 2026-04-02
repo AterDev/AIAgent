@@ -6,6 +6,8 @@ namespace KnowledgeBaseMod.Models.RagCollectionDtos;
 /// <see cref="RagCollection"/>
 public class RagCollectionAddDto
 {
+    public Guid? ApplicationId { get; set; }
+
     [MaxLength(200)]
     public string Name { get; set; } = default!;
 

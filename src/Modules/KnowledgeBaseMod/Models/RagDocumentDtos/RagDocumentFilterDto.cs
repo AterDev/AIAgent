@@ -8,6 +8,8 @@ public class RagDocumentFilterDto : FilterBase
 {
     public Guid? CollectionId { get; set; }
 
+    public Guid? ApplicationId { get; set; }
+
     [MaxLength(200)]
     public string? Name { get; set; }
 

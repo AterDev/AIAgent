@@ -1,5 +1,5 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { Component, OnInit, signal, inject } from '@angular/core';
+import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateService } from '@ngx-translate/core';
@@ -25,18 +25,27 @@ export class AIAgentIndex implements OnInit {
 
   filterDto: AIAgentFilterDto = { pageIndex: 1, pageSize: 10 };
   dataSource = new MatTableDataSource<AIAgentItemDto>();
-  displayedColumns = ["name", "modelId", "enable", "isTemplate", "actions"];
+  displayedColumns = ["name", "enable", "isTemplate", "actions"];
+  applicationId?: string;
+  applicationName?: string;
 
   isLoading = signal(true);
 
   total = 0;
   pageSize = 10;
+  private dialogData = inject(MAT_DIALOG_DATA, { optional: true }) as any;
 
   constructor(
     private adminClient: AdminClient,
     private dialog: MatDialog,
     private translate: TranslateService
-  ) { }
+  ) {
+    this.applicationId = this.dialogData?.applicationId;
+    this.applicationName = this.dialogData?.applicationName;
+    if (this.applicationId) {
+      this.filterDto.applicationId = this.applicationId;
+    }
+  }
 
   ngOnInit(): void {
     this.loadData();
@@ -66,7 +75,7 @@ export class AIAgentIndex implements OnInit {
   }
 
   openAdd() {
-    const ref = this.dialog.open(AIAgentAdd, { width: '800px' });
+    const ref = this.dialog.open(AIAgentAdd, { width: '800px', data: { applicationId: this.applicationId } });
     ref.afterClosed().subscribe((r: boolean) => { if (r) this.loadData(); });
   }
 

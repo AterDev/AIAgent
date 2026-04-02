@@ -18,4 +18,6 @@ export interface AIAgentAddDto {
   isTemplate: boolean;
   /** userId */
   userId?: string | null;
+  /** applicationId */
+  applicationId?: string | null;
 }

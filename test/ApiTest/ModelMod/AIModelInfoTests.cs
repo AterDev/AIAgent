@@ -95,9 +95,24 @@ public class AIModelInfoTests
         var deleteResult = await deleteResponse.Content.ReadFromJsonAsync<bool>();
         await Assert.That(deleteResult).IsTrue();
 
-        // Verify Delete (soft delete returns NoContent)
+        // Verify Delete
         var verifyDeleteResponse = await httpClient.GetAsync($"/api/aiModelInfo/{modelId}");
-        await Assert.That(verifyDeleteResponse.StatusCode == HttpStatusCode.NotFound || verifyDeleteResponse.StatusCode == HttpStatusCode.NoContent).IsTrue();
+        await Assert.That(
+            verifyDeleteResponse.StatusCode == HttpStatusCode.NotFound
+            || verifyDeleteResponse.StatusCode == HttpStatusCode.NoContent
+            || verifyDeleteResponse.StatusCode == HttpStatusCode.Forbidden).IsTrue();
+
+        var verifyListResponse = await httpClient.PostAsJsonAsync("/api/aiModelInfo/filter", new AIModelInfoFilterDto
+        {
+            ProviderId = providerId,
+            PageIndex = 1,
+            PageSize = 20,
+        });
+        await Assert.That(verifyListResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
+
+        var verifyList = await verifyListResponse.Content.ReadFromJsonAsync<PageList<AIModelInfoItemDto>>();
+        await Assert.That(verifyList).IsNotNull();
+        await Assert.That((verifyList!.Data ?? []).Any(q => q.Id == modelId)).IsFalse();
 
         // 清理提供商
         await httpClient.DeleteAsync($"/api/aiModelProvider/{providerId}");

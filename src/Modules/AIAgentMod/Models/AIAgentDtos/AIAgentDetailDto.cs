@@ -7,6 +7,7 @@ public class AIAgentDetailDto
 {
     public Guid Id { get; set; }
     public DateTimeOffset CreatedTime { get; set; }
+    public Guid? ApplicationId { get; set; }
     /// <summary>
     /// Agent 描述信息
     /// </summary>

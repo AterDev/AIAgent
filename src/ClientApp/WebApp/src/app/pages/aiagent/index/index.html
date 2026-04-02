@@ -2,20 +2,24 @@
   <div class="toolbar">
     <div class="d-flex align-items-center gap-2 justify-content-between p-1">
       <div class="d-flex gap-2 align-items-center">
+        @if (applicationName) {
+          <span class="text-muted">{{ applicationName }}</span>
+        }
+
         <mat-form-field appearance="outline" subscriptSizing="dynamic">
           <mat-label>{{ i18nKeys.aiagent.name | translate }}</mat-label>
           <input matInput [(ngModel)]="filterDto.name" [placeholder]="i18nKeys.aiagent.name | translate" />
         </mat-form-field>
         
         <mat-checkbox [(ngModel)]="filterDto.enable">{{ i18nKeys.aiagent.enable | translate }}</mat-checkbox>
-        <mat-checkbox [(ngModel)]="filterDto.isTemplate">{{ i18nKeys.aiagent.isTemplate | translate }}</mat-checkbox>
+        @if (!applicationId) {
+          <mat-checkbox [(ngModel)]="filterDto.isTemplate">{{ i18nKeys.aiagent.isTemplate | translate }}</mat-checkbox>
+        }
 
         <button mat-flat-button color="primary" (click)="filter()">{{ i18nKeys.common.search | translate }}</button>
       </div>
-      <div>
-        <button mat-flat-button color="accent" (click)="openAdd()">
-          {{ i18nKeys.common.add | translate }}
-        </button>
+      <div class="d-flex gap-2">
+        <button mat-flat-button color="accent" (click)="openAdd()">{{ i18nKeys.common.add | translate }}</button>
       </div>
     </div>
   </div>
@@ -34,16 +38,6 @@
         {{ item.name }}
       </td>
     </ng-container>
-
-    <ng-container matColumnDef="modelId">
-      <th mat-header-cell *matHeaderCellDef>
-        {{ i18nKeys.aiagent.modelId | translate }}
-      </th>
-      <td mat-cell *matCellDef="let item">
-        {{ item.modelId }}
-      </td>
-    </ng-container>
-
     <ng-container matColumnDef="enable">
       <th mat-header-cell *matHeaderCellDef>
         {{ i18nKeys.aiagent.enable | translate }}

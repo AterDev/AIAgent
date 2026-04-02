@@ -69,7 +69,21 @@ public class SystemConfigTests
 
         // Verify Delete
         var verifyDeleteResponse = await httpClient.GetAsync($"/api/systemConfig/{configId}");
-        await Assert.That(verifyDeleteResponse.StatusCode).IsEqualTo(HttpStatusCode.NotFound);
+        await Assert.That(
+            verifyDeleteResponse.StatusCode == HttpStatusCode.NotFound
+            || verifyDeleteResponse.StatusCode == HttpStatusCode.Forbidden).IsTrue();
+
+        var verifyListResponse = await httpClient.PostAsJsonAsync("/api/systemConfig/filter", new SystemConfigFilterDto
+        {
+            PageIndex = 1,
+            PageSize = 20,
+            Key = addDto.Key,
+        });
+        await Assert.That(verifyListResponse.StatusCode).IsEqualTo(HttpStatusCode.OK);
+
+        var verifyList = await verifyListResponse.Content.ReadFromJsonAsync<PageList<SystemConfigItemDto>>();
+        await Assert.That(verifyList).IsNotNull();
+        await Assert.That((verifyList!.Data ?? []).Any(q => q.Id == configId)).IsFalse();
     }
 
     [ClassDataSource<HttpClientDataClass>(Shared = SharedType.PerTestSession)]
