@@ -12,7 +12,7 @@ public class AIAgentItemDto
     /// is enabled
     /// </summary>
     public bool? Enable { get; set; }
-    public bool? IsTemplate { get; set; }
+    public bool? IsPublic { get; set; }
     public string? ModelId { get; set; }
     /// <summary>
     /// Agent 名称

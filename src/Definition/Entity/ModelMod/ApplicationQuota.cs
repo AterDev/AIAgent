@@ -9,7 +9,7 @@ public class ApplicationQuota : EntityBase
     public Guid ApplicationId { get; set; }
 
     [ForeignKey(nameof(ApplicationId))]
-    public Application? Application { get; set; }
+    public Application Application { get; set; } = null!;
 
     public QuotaPeriodType PeriodType { get; set; } = QuotaPeriodType.Month;
 

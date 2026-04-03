@@ -37,6 +37,13 @@ public class ApplicationModelPermissionController(
         return await _manager.GetAsync(id);
     }
 
+    [HttpPost("sync")]
+    public async Task<ActionResult<bool>> SyncAsync(ApplicationModelPermissionSyncDto dto)
+    {
+        await _manager.SyncAsync(dto);
+        return Ok(true);
+    }
+
     [HttpDelete("{id}")]
     public async Task<ActionResult<bool>> DeleteAsync([FromRoute] Guid id)
     {

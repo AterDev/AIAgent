@@ -9,7 +9,7 @@ public class ApplicationToolPermission : EntityBase
     public Guid ApplicationId { get; set; }
 
     [ForeignKey(nameof(ApplicationId))]
-    public Application? Application { get; set; }
+    public Application Application { get; set; } = null!;
 
     [MaxLength(100)]
     public required string ToolName { get; set; }

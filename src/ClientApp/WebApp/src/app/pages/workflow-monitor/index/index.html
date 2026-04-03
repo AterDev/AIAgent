@@ -83,7 +83,11 @@
         <table mat-table [dataSource]="runningDataSource">
           <ng-container matColumnDef="workflowName">
             <th mat-header-cell *matHeaderCellDef>{{ 'workflowMonitor.workflow' | translate }}</th>
-            <td mat-cell *matCellDef="let row">{{ row.workflowName }}</td>
+            <td mat-cell *matCellDef="let row">
+              <button mat-button type="button" class="table-primary-link" (click)="viewExecution(row)">
+                {{ row.workflowName }}
+              </button>
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="status">
@@ -121,12 +125,11 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>{{ 'workflowMonitor.actions' | translate }}</th>
             <td mat-cell *matCellDef="let row">
-              <button mat-icon-button (click)="viewExecution(row)" [matTooltip]="'workflowMonitor.viewDetails' | translate">
-                <mat-icon>visibility</mat-icon>
-              </button>
-              <button mat-icon-button (click)="cancelExecution(row)" [matTooltip]="'workflowMonitor.cancel' | translate">
-                <mat-icon color="warn">cancel</mat-icon>
-              </button>
+              <div class="table-actions">
+                <button mat-icon-button (click)="cancelExecution(row)" [matTooltip]="'workflowMonitor.cancel' | translate">
+                  <mat-icon color="warn">cancel</mat-icon>
+                </button>
+              </div>
             </td>
           </ng-container>
 
@@ -151,7 +154,11 @@
         <table mat-table [dataSource]="completedDataSource">
           <ng-container matColumnDef="workflowName">
             <th mat-header-cell *matHeaderCellDef>{{ 'workflowMonitor.workflow' | translate }}</th>
-            <td mat-cell *matCellDef="let row">{{ row.workflowName }}</td>
+            <td mat-cell *matCellDef="let row">
+              <button mat-button type="button" class="table-primary-link" (click)="viewExecution(row)">
+                {{ row.workflowName }}
+              </button>
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="status">
@@ -184,14 +191,13 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>{{ 'workflowMonitor.actions' | translate }}</th>
             <td mat-cell *matCellDef="let row">
-              <button mat-icon-button (click)="viewExecution(row)" [matTooltip]="'workflowMonitor.viewDetails' | translate">
-                <mat-icon>visibility</mat-icon>
-              </button>
+              <div class="table-actions">
               @if (row.status === 'failed') {
                 <button mat-icon-button (click)="retryExecution(row)" [matTooltip]="'workflowMonitor.retry' | translate">
                   <mat-icon>replay</mat-icon>
                 </button>
               }
+              </div>
             </td>
           </ng-container>
 

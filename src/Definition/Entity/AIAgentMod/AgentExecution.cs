@@ -20,13 +20,12 @@ public enum AgentExecutionStatus
 /// <summary>
 /// Agent 执行记录
 /// </summary>
-[Index(nameof(AgentId), nameof(Status))]
+[Index(nameof(AgentId), nameof(IsApplicationAgent), nameof(Status))]
 public class AgentExecution : EntityBase
 {
     public Guid AgentId { get; set; }
 
-    [ForeignKey(nameof(AgentId))]
-    public AIAgent? Agent { get; set; }
+    public bool IsApplicationAgent { get; set; }
 
     public AgentExecutionStatus Status { get; set; }
 

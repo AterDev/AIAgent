@@ -52,7 +52,9 @@ export class AIAgentEdit implements OnInit {
       : of(null);
     
     if (this.id) {
-      const detail$ = this.adminClient.aIAgent.detail(this.id);
+      const detail$ = this.applicationId
+        ? this.adminClient.applicationAgent.detail(this.id)
+        : this.adminClient.aIAgent.detail(this.id);
       forkJoin({ models: models$, permissions: permissions$, detail: detail$ }).subscribe({
         next: ({ models, permissions, detail }) => {
           const allModels = models.data || [];
@@ -63,6 +65,9 @@ export class AIAgentEdit implements OnInit {
             this.availableModels.set(allModels);
           }
           this.form.patchValue(detail);
+          if (this.applicationId) {
+            this.isPublic.setValue(false);
+          }
           this.isLoading.set(false);
         },
         error: () => this.isLoading.set(false)
@@ -92,8 +97,7 @@ export class AIAgentEdit implements OnInit {
       "systemPrompt": [null, []],
       "tools": [null, []],
       "enable": [null, []],
-      "isTemplate": [null, []],
-      "userId": [null, []],
+      "isPublic": [false, []],
       "applicationId": [this.applicationId ?? null, []]
     });
   }
@@ -104,8 +108,7 @@ export class AIAgentEdit implements OnInit {
   get systemPrompt() { return this.form.get('systemPrompt') as FormControl; }
   get tools() { return this.form.get('tools') as FormControl; }
   get enable() { return this.form.get('enable') as FormControl; }
-  get isTemplate() { return this.form.get('isTemplate') as FormControl; }
-  get userId() { return this.form.get('userId') as FormControl; }
+  get isPublic() { return this.form.get('isPublic') as FormControl; }
   get applicationIdControl() { return this.form.get('applicationId') as FormControl; }
 
   getValidatorMessage(control: AbstractControl | null): string {
@@ -119,7 +122,14 @@ export class AIAgentEdit implements OnInit {
   submit() {
     if (this.form.invalid) return;
     if (!this.id) return;
-    this.adminClient.aIAgent.update(this.id, this.form.value as AIAgentUpdateDto).subscribe(() => this.dialogRef.close(true));
+    const payload = this.form.getRawValue() as AIAgentUpdateDto;
+    if (this.applicationId) {
+      payload.isPublic = false;
+      this.adminClient.applicationAgent.update(this.id, payload).subscribe(() => this.dialogRef.close(true));
+      return;
+    }
+
+    this.adminClient.aIAgent.update(this.id, payload).subscribe(() => this.dialogRef.close(true));
   }
 
   close(result: boolean) { this.dialogRef.close(result); }

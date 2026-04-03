@@ -9,7 +9,7 @@ public class WorkflowExecution : EntityBase
     public Guid WorkflowId { get; set; }
 
     [ForeignKey(nameof(WorkflowId))]
-    public Workflow? Workflow { get; set; }
+    public Workflow Workflow { get; set; } = null!;
 
     public WorkflowExecutionStatus Status { get; set; }
 

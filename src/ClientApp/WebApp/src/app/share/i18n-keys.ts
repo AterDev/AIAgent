@@ -8,8 +8,10 @@ export const I18N_KEYS = {
   "applicationRequired": "applicationRequired",
   "common": {
     "search": "common.search",
+    "select": "common.select",
     "noData": "common.noData",
     "actions": "common.actions",
+    "more": "common.more",
     "view": "common.view",
     "edit": "common.edit",
     "delete": "common.delete",
@@ -327,7 +329,7 @@ export const I18N_KEYS = {
     "isEnabled": "aiagent.isEnabled",
     "tags": "aiagent.tags",
     "enable": "aiagent.enable",
-    "isTemplate": "aiagent.isTemplate",
+    "isPublic": "aiagent.isPublic",
     "tools": "aiagent.tools"
   },
   "agentExecution": {

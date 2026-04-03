@@ -23,7 +23,7 @@ export class WorkflowExecutionIndex implements OnInit {
 
   filterDto: WorkflowExecutionFilterDto = { pageIndex: 1, pageSize: 10 };
   dataSource = new MatTableDataSource<WorkflowExecutionItemDto>();
-  displayedColumns = ["workflowId", "status", "durationMs", "completedTime", "actions"];
+  displayedColumns = ["workflowId", "status", "durationMs", "completedTime"];
 
   isLoading = signal(true);
 

@@ -2,6 +2,14 @@ using System.Text.Json;
 
 namespace AIAgentMod.Services;
 
+internal sealed record AgentExecutionDefinition(
+    Guid Id,
+    string Name,
+    string ModelId,
+    string SystemPrompt,
+    List<string> Tools
+);
+
 /// <summary>
 /// Agent 执行引擎（简化）
 /// </summary>
@@ -25,9 +33,17 @@ public class AgentExecutionService(
             return false;
         }
 
-        var agent = await dbContext.AIAgents
-            .AsNoTracking()
-            .FirstOrDefaultAsync(q => q.Id == execution.AgentId && q.TenantId == userContext.TenantId, cancellationToken);
+        var agent = execution.IsApplicationAgent
+            ? await dbContext.ApplicationAgents
+                .AsNoTracking()
+                .Where(q => q.Id == execution.AgentId && q.TenantId == userContext.TenantId)
+                .Select(q => new AgentExecutionDefinition(q.Id, q.Name, q.ModelId, q.SystemPrompt, q.Tools))
+                .FirstOrDefaultAsync(cancellationToken)
+            : await dbContext.AIAgents
+                .AsNoTracking()
+                .Where(q => q.Id == execution.AgentId && q.TenantId == userContext.TenantId)
+                .Select(q => new AgentExecutionDefinition(q.Id, q.Name, q.ModelId, q.SystemPrompt, q.Tools))
+                .FirstOrDefaultAsync(cancellationToken);
 
         if (agent is null)
         {
@@ -100,7 +116,7 @@ public class AgentExecutionService(
         }
     }
 
-    private async Task<(List<ModelInvokeMessage> messages, string promptText)> BuildMessagesAsync(AIAgent agent, string? inputJson, CancellationToken cancellationToken)
+    private async Task<(List<ModelInvokeMessage> messages, string promptText)> BuildMessagesAsync(AgentExecutionDefinition agent, string? inputJson, CancellationToken cancellationToken)
     {
         var prompt = ExtractPrompt(inputJson);
         var systemPrompt = agent.SystemPrompt;

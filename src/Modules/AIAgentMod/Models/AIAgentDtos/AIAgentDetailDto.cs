@@ -17,7 +17,7 @@ public class AIAgentDetailDto
     /// is enabled
     /// </summary>
     public bool? Enable { get; set; }
-    public bool? IsTemplate { get; set; }
+    public bool? IsPublic { get; set; }
     /// <summary>
     /// Agent 所使用的大模型名称（例如 "gpt-4", "qwen-max", "custom-llm"）
     /// </summary>
@@ -37,6 +37,4 @@ public class AIAgentDetailDto
     /// </summary>
     public List<string>? Tools { get; set; }
     public DateTimeOffset UpdatedTime { get; set; }
-    public Guid? UserId { get; set; }
-
 }

@@ -9,7 +9,7 @@ public class RagDocument : EntityBase
     public Guid CollectionId { get; set; }
 
     [ForeignKey(nameof(CollectionId))]
-    public RagCollection? Collection { get; set; }
+    public RagCollection Collection { get; set; } = null!;
 
     [MaxLength(200)]
     public required string Name { get; set; }

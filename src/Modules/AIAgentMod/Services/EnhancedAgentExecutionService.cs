@@ -29,9 +29,17 @@ public class EnhancedAgentExecutionService(
             return false;
         }
 
-        var agent = await dbContext.AIAgents
-            .AsNoTracking()
-            .FirstOrDefaultAsync(q => q.Id == execution.AgentId && q.TenantId == userContext.TenantId, cancellationToken);
+        var agent = execution.IsApplicationAgent
+            ? await dbContext.ApplicationAgents
+                .AsNoTracking()
+                .Where(q => q.Id == execution.AgentId && q.TenantId == userContext.TenantId)
+                .Select(q => new AgentExecutionDefinition(q.Id, q.Name, q.ModelId, q.SystemPrompt, q.Tools))
+                .FirstOrDefaultAsync(cancellationToken)
+            : await dbContext.AIAgents
+                .AsNoTracking()
+                .Where(q => q.Id == execution.AgentId && q.TenantId == userContext.TenantId)
+                .Select(q => new AgentExecutionDefinition(q.Id, q.Name, q.ModelId, q.SystemPrompt, q.Tools))
+                .FirstOrDefaultAsync(cancellationToken);
 
         if (agent is null)
         {
@@ -76,7 +84,7 @@ public class EnhancedAgentExecutionService(
     }
 
     private async Task<ExecutionResult> ExecuteAgentLoopAsync(
-        AIAgent agent,
+        AgentExecutionDefinition agent,
         Guid applicationId,
         string? inputJson,
         List<ModelToolDefinition> toolDefinitions,
@@ -212,7 +220,7 @@ public class EnhancedAgentExecutionService(
     }
 
     private async Task<(List<ModelInvokeMessage> messages, string promptText)> BuildMessagesAsync(
-        AIAgent agent,
+        AgentExecutionDefinition agent,
         string? inputJson,
         CancellationToken cancellationToken)
     {

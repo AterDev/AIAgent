@@ -20,6 +20,7 @@ export class AIAgentDetail implements OnInit {
 
   model!: AIAgentDetailDto;
   id?: string;
+  applicationId?: string;
   isLoading = signal(true);
 
   constructor(
@@ -28,12 +29,13 @@ export class AIAgentDetail implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.id = data?.id;
+    this.applicationId = data?.applicationId;
   }
 
   ngOnInit() {
     if (this.id) {
       this.isLoading.set(true);
-      this.adminClient.aIAgent.detail(this.id).subscribe({
+      this.getAgentService().detail(this.id).subscribe({
         next: (res: AIAgentDetailDto) => {
           this.model = res;
           this.isLoading.set(false);
@@ -44,4 +46,10 @@ export class AIAgentDetail implements OnInit {
   }
 
   close() { this.dialogRef.close(); }
+
+  private getAgentService() {
+    return this.applicationId
+      ? this.adminClient.applicationAgent
+      : this.adminClient.aIAgent;
+  }
 }

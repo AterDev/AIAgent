@@ -5,8 +5,10 @@
     "applicationRequired": "非管理员必须选择应用",
   "common": {
     "search": "搜索",
+    "select": "选择",
     "noData": "暂无数据！",
     "actions": "操作",
+    "more": "更多",
     "view": "查看",
     "edit": "编辑",
     "delete": "删除",
@@ -325,7 +327,7 @@
     "isEnabled": "已启用",
     "tags": "标签",
     "enable": "已启用",
-    "isTemplate": "模板",
+    "isPublic": "公开",
     "tools": "工具"
   },
   "agentExecution": {

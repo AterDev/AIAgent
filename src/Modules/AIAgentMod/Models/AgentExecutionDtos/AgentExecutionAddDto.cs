@@ -8,6 +8,8 @@ public class AgentExecutionAddDto
 {
     public Guid AgentId { get; set; }
 
+    public bool IsApplicationAgent { get; set; }
+
     [MaxLength(4000)]
     public string? InputJson { get; set; }
 

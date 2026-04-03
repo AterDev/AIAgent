@@ -11,12 +11,12 @@ public class ApplicationRagCollectionPermission : EntityBase
     public Guid ApplicationId { get; set; }
 
     [ForeignKey(nameof(ApplicationId))]
-    public Application? Application { get; set; }
+    public Application Application { get; set; } = null!;
 
     public Guid RagCollectionId { get; set; }
 
     [ForeignKey(nameof(RagCollectionId))]
-    public RagCollection? RagCollection { get; set; }
+    public RagCollection RagCollection { get; set; } = null!;
 
     public bool IsEnabled { get; set; } = true;
 }

@@ -14,8 +14,6 @@ export interface AIAgentUpdateDto {
   tools?: string[] | null;
   /** is enabled */
   enable?: boolean | null;
-  /** isTemplate */
-  isTemplate?: boolean | null;
-  /** userId */
-  userId?: string | null;
+  /** isPublic */
+  isPublic?: boolean | null;
 }

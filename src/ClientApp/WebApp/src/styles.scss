@@ -99,6 +99,31 @@ mat-chip {
   white-space: pre-wrap;
 }
 
+.table-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.table-primary-link {
+  padding: 0 !important;
+  min-width: 0 !important;
+  height: auto !important;
+  line-height: 1.4;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.table-primary-link .mdc-button__label {
+  justify-content: flex-start;
+}
+
+.table-primary-link:hover .mdc-button__label,
+.table-primary-link:focus-visible .mdc-button__label {
+  text-decoration: underline;
+}
+
 // Global Material Mica-like mouse-follow glow (no per-page template changes needed)
 :root {
   --mica-glow-size: 100px;

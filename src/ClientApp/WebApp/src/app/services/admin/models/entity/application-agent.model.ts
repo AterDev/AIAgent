@@ -1,7 +1,7 @@
 /**
- * agent
+ * application agent
  */
-export interface AIAgent {
+export interface ApplicationAgent {
   /** id */
   id: string;
   /** createdTime */
@@ -16,7 +16,7 @@ export interface AIAgent {
   name: string;
   /** Agent 描述信息 */
   description: string;
-  /** Agent 所使用的大模型名称（例如 "gpt-4", "qwen-max", "custom-llm"） */
+  /** Agent 所使用的大模型名称 */
   modelId: string;
   /** Agent 的角色设定（System Prompt） */
   systemPrompt: string;
@@ -24,6 +24,8 @@ export interface AIAgent {
   tools: string[];
   /** is enabled */
   enable: boolean;
-  /** isPublic */
-  isPublic: boolean;
+  /** applicationId */
+  applicationId: string;
+  /** userId */
+  userId?: string | null;
 }

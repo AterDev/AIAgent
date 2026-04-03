@@ -1,5 +1,4 @@
 using AIAgentMod.Models.AIAgentDtos;
-using Perigon.AspNetCore.Constants;
 using Share.Exceptions;
 
 namespace AIAgentMod.Managers;
@@ -12,20 +11,19 @@ public class AIAgentManager(
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, AIAgent>(dbContextFactory, userContext, logger)
 {
-    private const string CacheKeyPrefix = "AIAgent:";
-    private static readonly TimeSpan CacheExpiration = TimeSpan.FromMinutes(15);
-
     /// <summary>
     /// Filter agent with paging
     /// </summary>
     public async Task<PageList<AIAgentItemDto>> FilterAsync(AIAgentFilterDto filter)
     {
-        Queryable = BuildScopedQuery(filter.ApplicationId)
+        EnsureAdminAccess();
+
+        Queryable = _dbSet
+            .Where(q => q.TenantId == _userContext.TenantId)
             .WhereNotNull(filter.Enable, q => q.Enable == filter.Enable)
-            .WhereNotNull(filter.IsTemplate, q => q.IsTemplate == filter.IsTemplate)
+            .WhereNotNull(filter.IsPublic, q => q.IsPublic == filter.IsPublic)
             .WhereNotNull(filter.Name, q => q.Name == filter.Name)
-            .WhereNotNull(filter.ModelId, q => q.ModelId == filter.ModelId)
-            .WhereNotNull(filter.UserId, q => q.UserId == filter.UserId);
+            .WhereNotNull(filter.ModelId, q => q.ModelId == filter.ModelId);
 
         return await PageListAsync<AIAgentFilterDto, AIAgentItemDto>(filter);
     }
@@ -34,7 +32,7 @@ public class AIAgentManager(
     {
         Queryable = _dbSet
             .Where(q => q.TenantId == _userContext.TenantId)
-            .Where(q => q.ApplicationId == null && q.IsTemplate)
+            .Where(q => q.IsPublic)
             .WhereNotNull(filter.Enable, q => q.Enable == filter.Enable)
             .WhereNotNull(filter.Name, q => q.Name == filter.Name)
             .WhereNotNull(filter.ModelId, q => q.ModelId == filter.ModelId);
@@ -49,50 +47,12 @@ public class AIAgentManager(
     /// <returns></returns>
     public async Task<AIAgent> AddAsync(AIAgentAddDto dto)
     {
+        EnsureAdminAccess();
+
         var entity = dto.MapTo<AIAgent>();
-        ApplyOwnership(entity, dto.ApplicationId);
+        entity.IsPublic = dto.IsPublic;
         await InsertAsync(entity);
 
-        return entity;
-    }
-
-    public async Task<AIAgent> CloneTemplateAsync(Guid templateId, Guid applicationId)
-    {
-        if (_userContext.IsRole(WebConst.Application))
-        {
-            applicationId = _userContext.UserId;
-        }
-        else if (!_userContext.IsAdmin)
-        {
-            throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
-        }
-
-        var template = await _dbSet
-            .AsNoTracking()
-            .FirstOrDefaultAsync(q => q.Id == templateId
-                && q.TenantId == _userContext.TenantId
-                && q.ApplicationId == null
-                && q.IsTemplate);
-
-        if (template is null)
-        {
-            throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
-        }
-
-        var entity = new AIAgent
-        {
-            Name = $"{template.Name}-{Guid.NewGuid().ToString()[..6]}",
-            Description = template.Description,
-            ModelId = template.ModelId,
-            SystemPrompt = template.SystemPrompt,
-            Tools = [.. template.Tools],
-            Enable = template.Enable,
-            IsTemplate = false,
-            ApplicationId = applicationId,
-            UserId = null,
-        };
-
-        await InsertAsync(entity);
         return entity;
     }
 
@@ -104,14 +64,11 @@ public class AIAgentManager(
     /// <returns></returns>
     public async Task<int> EditAsync(Guid id, AIAgentUpdateDto dto)
     {
+        EnsureAdminAccess();
+
         if (await HasPermissionAsync(id))
         {
-            if (_userContext.IsRole(WebConst.Application))
-            {
-                dto.ApplicationId = _userContext.UserId;
-                dto.UserId = null;
-            }
-
+            dto.ApplicationId = null;
             var result = await UpdateAsync(id, dto);
             return result;
         }
@@ -126,12 +83,13 @@ public class AIAgentManager(
     /// <returns></returns>
     public async Task<AIAgentDetailDto?> GetAsync(Guid id)
     {
+        EnsureAdminAccess();
+
         if (!await HasPermissionAsync(id))
         {
             throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
         }
 
-        // 从数据库查询
         var result = await FindAsync<AIAgentDetailDto>(q => q.Id == id);
         return result;
     }
@@ -144,6 +102,8 @@ public class AIAgentManager(
     /// <returns></returns>
     public async Task<bool?> DeleteAsync(List<Guid> ids, bool softDelete = true)
     {
+        EnsureAdminAccess();
+
         if (!ids.Any())
         {
             return false;
@@ -172,9 +132,10 @@ public class AIAgentManager(
 
     public override async Task<bool> HasPermissionAsync(Guid id)
     {
-        var query = BuildScopedQuery()
+        var query = _dbSet
+            .Where(q => q.TenantId == _userContext.TenantId)
             .Where(q => q.Id == id);
-        return await query.AnyAsync();
+        return _userContext.IsAdmin && await query.AnyAsync();
     }
 
     public async Task<List<Guid>> GetOwnedIdsAsync(IEnumerable<Guid> ids)
@@ -183,56 +144,20 @@ public class AIAgentManager(
         {
             return [];
         }
-        var query = BuildScopedQuery()
+        var query = _dbSet
+            .Where(q => q.TenantId == _userContext.TenantId)
             .Where(q => ids.Contains(q.Id))
             .Select(q => q.Id);
-        return await query.ToListAsync();
+        return _userContext.IsAdmin
+            ? await query.ToListAsync()
+            : [];
     }
 
-    private IQueryable<AIAgent> BuildScopedQuery(Guid? requestedApplicationId = null)
+    private void EnsureAdminAccess()
     {
-        var query = _dbSet.Where(q => q.TenantId == _userContext.TenantId);
-
-        if (_userContext.IsRole(WebConst.Application))
+        if (!_userContext.IsAdmin)
         {
-            return query.Where(q => q.ApplicationId == _userContext.UserId);
+            throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
         }
-
-        var applicationId = requestedApplicationId;
-        if (applicationId.HasValue && applicationId != Guid.Empty)
-        {
-            return query.Where(q => q.ApplicationId == applicationId);
-        }
-
-        if (_userContext.IsAdmin)
-        {
-            return query;
-        }
-
-        return query.Where(q => q.ApplicationId == null && q.UserId == _userContext.UserId);
-    }
-
-    private void ApplyOwnership(AIAgent entity, Guid? requestedApplicationId)
-    {
-        var applicationId = _userContext.IsRole(WebConst.Application)
-            ? _userContext.UserId
-            : requestedApplicationId;
-
-        if (applicationId.HasValue && applicationId != Guid.Empty)
-        {
-            entity.ApplicationId = applicationId;
-            entity.UserId = null;
-            return;
-        }
-
-        if (entity.IsTemplate && _userContext.IsAdmin)
-        {
-            entity.ApplicationId = null;
-            entity.UserId = null;
-            return;
-        }
-
-        entity.ApplicationId = null;
-        entity.UserId = _userContext.UserId;
     }
 }

@@ -32,7 +32,9 @@
         {{ i18nKeys.storageProvider.name | translate }}
       </th>
       <td mat-cell *matCellDef="let item">
-        {{ item.name }}
+        <button mat-button type="button" class="table-primary-link" (click)="openDetail(item.id)">
+          {{ item.name }}
+        </button>
       </td>
     </ng-container>
 
@@ -81,12 +83,21 @@
         {{ i18nKeys.common.actions | translate }}
       </th>
       <td mat-cell *matCellDef="let item">
-        <button mat-icon-button class="secondary" (click)="openDetail(item.id)" [title]="i18nKeys.common.view | translate"><mat-icon>visibility</mat-icon></button>
-        <button mat-icon-button class="primary" (click)="openEdit(item.id)" [title]="i18nKeys.common.edit | translate"><mat-icon>edit</mat-icon></button>
-        @if (!item.isActive) {
-          <button mat-icon-button color="primary" (click)="activateItem(item.id)" [title]="i18nKeys.storageProvider.activate | translate"><mat-icon>check</mat-icon></button>
-        }
-        <button mat-icon-button class="accent" (click)="deleteItem(item.id)" [title]="i18nKeys.common.delete | translate"><mat-icon>delete</mat-icon></button>
+        <div class="table-actions">
+          <button mat-icon-button class="primary" (click)="openEdit(item.id)" [title]="i18nKeys.common.edit | translate"><mat-icon>edit</mat-icon></button>
+          <button mat-icon-button class="accent" (click)="deleteItem(item.id)" [title]="i18nKeys.common.delete | translate"><mat-icon>delete</mat-icon></button>
+          @if (!item.isActive) {
+            <button mat-icon-button type="button" [matMenuTriggerFor]="storageProviderMoreMenu">
+              <mat-icon>more_horiz</mat-icon>
+            </button>
+            <mat-menu #storageProviderMoreMenu="matMenu">
+              <button mat-menu-item type="button" (click)="activateItem(item.id)">
+                <mat-icon>check</mat-icon>
+                <span>{{ i18nKeys.storageProvider.activate | translate }}</span>
+              </button>
+            </mat-menu>
+          }
+        </div>
       </td>
     </ng-container>
 

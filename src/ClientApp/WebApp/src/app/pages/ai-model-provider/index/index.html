@@ -18,7 +18,9 @@
         {{ i18nKeys.aiModelProvider.name | translate }}
       </th>
       <td mat-cell *matCellDef="let item">
-        {{ item.name }}
+        <button mat-button type="button" class="table-primary-link" (click)="openDetail(item.id)">
+          {{ item.name }}
+        </button>
       </td>
     </ng-container>
 
@@ -45,9 +47,10 @@
         {{ i18nKeys.common.actions | translate }}
       </th>
       <td mat-cell *matCellDef="let item">
-        <button mat-icon-button class="secondary" (click)="openDetail(item.id)"><mat-icon>visibility</mat-icon></button>
-        <button mat-icon-button class="primary" (click)="openEdit(item.id)"><mat-icon>edit</mat-icon></button>
-        <button mat-icon-button class="accent" (click)="deleteItem(item.id)"><mat-icon>delete</mat-icon></button>
+        <div class="table-actions">
+          <button mat-icon-button class="primary" (click)="openEdit(item.id)"><mat-icon>edit</mat-icon></button>
+          <button mat-icon-button class="accent" (click)="deleteItem(item.id)"><mat-icon>delete</mat-icon></button>
+        </div>
       </td>
     </ng-container>
 

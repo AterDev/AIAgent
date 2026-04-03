@@ -8,6 +8,7 @@ import { ApplicationModelPermissionAddDto } from '../models/model-mod/applicatio
 import { ApplicationModelPermission } from '../models/entity/application-model-permission.model';
 import { ApplicationModelPermissionUpdateDto } from '../models/model-mod/application-model-permission-update-dto.model';
 import { ApplicationModelPermissionDetailDto } from '../models/model-mod/application-model-permission-detail-dto.model';
+import { ApplicationModelPermissionSyncDto } from '../models/model-mod/application-model-permission-sync-dto.model';
 /**
  * 应用模型权限管理
  */
@@ -45,6 +46,14 @@ export class ApplicationModelPermissionService extends BaseService {
   detail(id: string): Observable<ApplicationModelPermissionDetailDto> {
     const _url = `/api/ApplicationModelPermission/${id}`;
     return this.request<ApplicationModelPermissionDetailDto>('get', _url);
+  }
+  /**
+   * sync
+   * @param data ApplicationModelPermissionSyncDto
+   */
+  sync(data: ApplicationModelPermissionSyncDto): Observable<boolean> {
+    const _url = `/api/ApplicationModelPermission/sync`;
+    return this.request<boolean>('post', _url, data);
   }
   /**
    * delete

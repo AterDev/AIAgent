@@ -13,7 +13,7 @@
         
         <mat-checkbox [(ngModel)]="filterDto.enable">{{ i18nKeys.aiagent.enable | translate }}</mat-checkbox>
         @if (!applicationId) {
-          <mat-checkbox [(ngModel)]="filterDto.isTemplate">{{ i18nKeys.aiagent.isTemplate | translate }}</mat-checkbox>
+          <mat-checkbox [(ngModel)]="filterDto.isPublic">{{ i18nKeys.aiagent.isPublic | translate }}</mat-checkbox>
         }
 
         <button mat-flat-button color="primary" (click)="filter()">{{ i18nKeys.common.search | translate }}</button>
@@ -35,7 +35,9 @@
         {{ i18nKeys.aiagent.name | translate }}
       </th>
       <td mat-cell *matCellDef="let item">
-        {{ item.name }}
+        <button mat-button type="button" class="table-primary-link" (click)="openDetail(item.id)">
+          {{ item.name }}
+        </button>
       </td>
     </ng-container>
     <ng-container matColumnDef="enable">
@@ -49,13 +51,13 @@
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="isTemplate">
+    <ng-container matColumnDef="isPublic">
       <th mat-header-cell *matHeaderCellDef>
-        {{ i18nKeys.aiagent.isTemplate | translate }}
+        {{ i18nKeys.aiagent.isPublic | translate }}
       </th>
       <td mat-cell *matCellDef="let item">
-        <mat-icon [color]="item.isTemplate ? 'primary' : 'warn'">
-          {{ item.isTemplate ? 'check_circle' : 'cancel' }}
+        <mat-icon [color]="item.isPublic ? 'primary' : 'warn'">
+          {{ item.isPublic ? 'check_circle' : 'cancel' }}
         </mat-icon>
       </td>
     </ng-container>
@@ -65,9 +67,10 @@
         {{ i18nKeys.common.actions | translate }}
       </th>
       <td mat-cell *matCellDef="let item">
-        <button mat-icon-button class="secondary" (click)="openDetail(item.id)"><mat-icon>visibility</mat-icon></button>
-        <button mat-icon-button class="primary" (click)="openEdit(item.id)"><mat-icon>edit</mat-icon></button>
-        <button mat-icon-button class="accent" (click)="deleteItem(item.id)"><mat-icon>delete</mat-icon></button>
+        <div class="table-actions">
+          <button mat-icon-button class="primary" (click)="openEdit(item.id)"><mat-icon>edit</mat-icon></button>
+          <button mat-icon-button class="accent" (click)="deleteItem(item.id)"><mat-icon>delete</mat-icon></button>
+        </div>
       </td>
     </ng-container>
 

@@ -1,11 +1,17 @@
-﻿namespace Entity.AIAgentMod;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Entity.ModelMod;
+
+namespace Entity.AIAgentMod;
 
 /// <summary>
-/// agent
+/// 应用侧 Agent
 /// </summary>
-
-[Index(nameof(Name), IsUnique = true)]
-public class AIAgent : EntityBase
+[Index(nameof(ApplicationId), nameof(Name), IsUnique = true)]
+[Index(nameof(ApplicationId))]
+[Index(nameof(UserId))]
+public class ApplicationAgent : EntityBase
 {
     /// <summary>
     /// Agent 名称
@@ -40,5 +46,10 @@ public class AIAgent : EntityBase
     /// </summary>
     public bool Enable { get; set; }
 
-    public bool IsPublic { get; set; }
+    public Guid ApplicationId { get; set; }
+
+    [ForeignKey(nameof(ApplicationId))]
+    public Application Application { get; set; } = null!;
+
+    public Guid? UserId { get; set; }
 }

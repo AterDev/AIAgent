@@ -23,7 +23,7 @@ export class AgentExecutionIndex implements OnInit {
 
   filterDto: AgentExecutionFilterDto = { pageIndex: 1, pageSize: 10 };
   dataSource = new MatTableDataSource<AgentExecutionItemDto>();
-  displayedColumns = ["agentId", "status", "durationMs", "completedTime", "actions"];
+  displayedColumns = ["agentId", "status", "durationMs", "completedTime"];
 
   isLoading = signal(true);
 

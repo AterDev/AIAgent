@@ -39,9 +39,7 @@ public class AIAgentUpdateDto
     /// </summary>
     public bool? Enable { get; set; }
 
-    public bool? IsTemplate { get; set; }
-
-    public Guid? UserId { get; set; }
+    public bool? IsPublic { get; set; }
 
     public Guid? ApplicationId { get; set; }
 }

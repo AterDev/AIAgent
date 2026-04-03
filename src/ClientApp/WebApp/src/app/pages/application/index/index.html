@@ -19,9 +19,9 @@
   </div>
 
   @if (isLoading()) {
-    <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
-      <mat-spinner></mat-spinner>
-    </div>
+  <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+    <mat-spinner></mat-spinner>
+  </div>
   } @else {
   <table mat-table [dataSource]="dataSource" #table="matTable">
     <ng-container matColumnDef="name">
@@ -29,7 +29,9 @@
         {{ i18nKeys.application.name | translate }}
       </th>
       <td mat-cell *matCellDef="let item">
-        {{ item.name }}
+        <button mat-button type="button" class="table-primary-link" (click)="openDetail(item.id)">
+          {{ item.name }}
+        </button>
       </td>
     </ng-container>
 
@@ -58,14 +60,37 @@
         {{ i18nKeys.common.actions | translate }}
       </th>
       <td mat-cell *matCellDef="let item">
-        <button mat-icon-button class="secondary" (click)="openDetail(item.id)"><mat-icon>visibility</mat-icon></button>
-        <button mat-icon-button class="secondary" (click)="openApiKeys(item)" [title]="i18nKeys.application.manageApiKeys | translate"><mat-icon>key</mat-icon></button>
-        <button mat-icon-button class="secondary" (click)="openModels(item)" [title]="i18nKeys.application.manageModels | translate"><mat-icon>tune</mat-icon></button>
-        <button mat-icon-button class="secondary" (click)="openAgents(item)" [title]="i18nKeys.application.manageAgents | translate"><mat-icon>smart_toy</mat-icon></button>
-        <button mat-icon-button class="secondary" (click)="openKnowledge(item)" [title]="i18nKeys.application.manageKnowledge | translate"><mat-icon>library_books</mat-icon></button>
-        <button mat-icon-button class="secondary" (click)="openQuota(item)" [title]="i18nKeys.applicationQuota.title | translate"><mat-icon>data_usage</mat-icon></button>
-        <button mat-icon-button class="primary" (click)="openEdit(item.id)"><mat-icon>edit</mat-icon></button>
-        <button mat-icon-button class="accent" (click)="deleteItem(item.id)"><mat-icon>delete</mat-icon></button>
+        <div class="table-actions">
+          <button mat-icon-button class="primary" (click)="openEdit(item.id)"
+            [title]="i18nKeys.common.edit | translate"><mat-icon>edit</mat-icon></button>
+          <button mat-icon-button class="accent" (click)="deleteItem(item.id)"
+            [title]="i18nKeys.common.delete | translate"><mat-icon>delete</mat-icon></button>
+          <button mat-icon-button type="button" [matMenuTriggerFor]="applicationMoreMenu">
+            <mat-icon>more_horiz</mat-icon>
+          </button>
+          <mat-menu #applicationMoreMenu="matMenu">
+            <button mat-menu-item type="button" (click)="openApiKeys(item)">
+              <mat-icon>key</mat-icon>
+              <span>{{ i18nKeys.application.manageApiKeys | translate }}</span>
+            </button>
+            <button mat-menu-item type="button" (click)="openModels(item)">
+              <mat-icon>tune</mat-icon>
+              <span>{{ i18nKeys.application.manageModels | translate }}</span>
+            </button>
+            <button mat-menu-item type="button" (click)="openAgents(item)">
+              <mat-icon>smart_toy</mat-icon>
+              <span>{{ i18nKeys.application.manageAgents | translate }}</span>
+            </button>
+            <button mat-menu-item type="button" (click)="openKnowledge(item)">
+              <mat-icon>library_books</mat-icon>
+              <span>{{ i18nKeys.application.manageKnowledge | translate }}</span>
+            </button>
+            <button mat-menu-item type="button" (click)="openQuota(item)">
+              <mat-icon>data_usage</mat-icon>
+              <span>{{ i18nKeys.applicationQuota.title | translate }}</span>
+            </button>
+          </mat-menu>
+        </div>
       </td>
     </ng-container>
 
@@ -74,7 +99,8 @@
 
   </table>
 
-  <mat-paginator [length]="total" [pageIndex]="(filterDto.pageIndex ?? 1) - 1" [pageSize]="filterDto.pageSize" [pageSizeOptions]="[10, 20, 50, 100]" showFirstLastButtons (page)="pageChanged($event)"></mat-paginator>
+  <mat-paginator [length]="total" [pageIndex]="(filterDto.pageIndex ?? 1) - 1" [pageSize]="filterDto.pageSize"
+    [pageSizeOptions]="[10, 20, 50, 100]" showFirstLastButtons (page)="pageChanged($event)"></mat-paginator>
   }
 
 </div>

@@ -19,6 +19,8 @@ public partial class DefaultDbContext(DbContextOptions<DefaultDbContext> options
 
     public DbSet<AIAgent> AIAgents { get; set; }
 
+    public DbSet<ApplicationAgent> ApplicationAgents { get; set; }
+
     public DbSet<TokenUsage> TokenUsages { get; set; }
 
     public DbSet<ChatMessage> ChatMessages { get; set; }

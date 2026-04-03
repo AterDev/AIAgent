@@ -8,6 +8,7 @@ public class AgentExecutionDetailDto
 {
     public Guid Id { get; set; }
     public Guid AgentId { get; set; }
+    public bool IsApplicationAgent { get; set; }
     public DateTimeOffset CreatedTime { get; set; }
     public DateTimeOffset UpdatedTime { get; set; }
     public Guid TenantId { get; set; }

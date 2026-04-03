@@ -52,9 +52,11 @@
       <mat-error>{{ getValidatorMessage(enable) }}</mat-error>
       }
 
-      <mat-checkbox [formControl]="isTemplate">{{ i18nKeys.aiagent.isTemplate | translate }}</mat-checkbox>
-      @if (isTemplate.invalid) {
-      <mat-error>{{ getValidatorMessage(isTemplate) }}</mat-error>
+      @if (!applicationId) {
+        <mat-checkbox [formControl]="isPublic">{{ i18nKeys.aiagent.isPublic | translate }}</mat-checkbox>
+        @if (isPublic.invalid) {
+        <mat-error>{{ getValidatorMessage(isPublic) }}</mat-error>
+        }
       }
 
       <div class="d-flex justify-content-end gap-2">

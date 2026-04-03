@@ -9,6 +9,7 @@ import { forkJoin } from 'rxjs';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 import { AIModelInfoItemDto } from 'src/app/services/admin/models/model-mod/aimodel-info-item-dto.model';
 import { ApplicationModelPermissionItemDto } from 'src/app/services/admin/models/model-mod/application-model-permission-item-dto.model';
+import { ApplicationModelPermissionSyncDto } from 'src/app/services/admin/models/model-mod/application-model-permission-sync-dto.model';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
 import { CommonFormModules, CommonListModules } from 'src/app/share/shared-modules';
 
@@ -25,10 +26,11 @@ export interface ApplicationModelPermissionDialogData {
 })
 export class ApplicationModelPermissionDialog implements OnInit {
   i18nKeys = I18N_KEYS;
-  displayedColumns = ['name', 'supportsChat', 'supportsEmbedding', 'isEnabled', 'actions'];
+  displayedColumns = ['selected', 'name', 'supportsChat', 'supportsEmbedding'];
   dataSource = new MatTableDataSource<AIModelInfoItemDto>();
   isLoading = signal(true);
   private permissionMap = new Map<string, ApplicationModelPermissionItemDto>();
+  private selectedModelIds = new Set<string>();
 
   constructor(
     private adminClient: AdminClient,
@@ -51,8 +53,10 @@ export class ApplicationModelPermissionDialog implements OnInit {
       next: ({ models, permissions }) => {
         this.dataSource.data = models.data || [];
         this.permissionMap.clear();
+        this.selectedModelIds.clear();
         for (const item of (permissions.data || [])) {
           this.permissionMap.set(item.aiModelInfoId, item);
+          this.selectedModelIds.add(item.aiModelInfoId);
         }
         this.isLoading.set(false);
       },
@@ -61,32 +65,34 @@ export class ApplicationModelPermissionDialog implements OnInit {
   }
 
   hasPermission(modelId: string): boolean {
-    return this.permissionMap.has(modelId);
+    return this.selectedModelIds.has(modelId);
   }
 
-  togglePermission(model: AIModelInfoItemDto): void {
-    const permission = this.permissionMap.get(model.id);
-    if (permission) {
-      this.adminClient.applicationModelPermission.delete(permission.id).subscribe({
-        next: () => {
-          this.snackBar.open(this.translate.instant('common.deleteSuccess'), undefined, { duration: 2000 });
-          this.loadData();
-        },
-        error: () => this.snackBar.open(this.translate.instant('common.deleteFail'), undefined, { duration: 2000 })
-      });
+  toggleSelection(modelId: string, checked: boolean): void {
+    if (checked) {
+      this.selectedModelIds.add(modelId);
       return;
     }
 
-    this.adminClient.applicationModelPermission.add({
+    this.selectedModelIds.delete(modelId);
+  }
+
+  submit(): void {
+    this.isLoading.set(true);
+    const payload: ApplicationModelPermissionSyncDto = {
       applicationId: this.data.applicationId,
-      aiModelInfoId: model.id,
-      isEnabled: true,
-    }).subscribe({
+      aiModelInfoIds: Array.from(this.selectedModelIds)
+    };
+
+    this.adminClient.applicationModelPermission.sync(payload).subscribe({
       next: () => {
-        this.snackBar.open(this.translate.instant('common.addSuccess'), undefined, { duration: 2000 });
-        this.loadData();
+        this.snackBar.open(this.translate.instant('common.saveSuccess'), undefined, { duration: 2000 });
+        this.dialogRef.close(true);
       },
-      error: () => this.snackBar.open(this.translate.instant('common.addFail'), undefined, { duration: 2000 })
+      error: () => {
+        this.isLoading.set(false);
+        this.snackBar.open(this.translate.instant('common.saveFail'), undefined, { duration: 2000 });
+      }
     });
   }
 

@@ -17,7 +17,7 @@ public class AIModelInfo : EntityBase
     /// 提供商引用
     /// </summary>
     [ForeignKey(nameof(ProviderId))]
-    public AIModelProvider? Provider { get; set; }
+    public AIModelProvider Provider { get; set; } = null!;
 
     /// <summary>
     /// 模型名称

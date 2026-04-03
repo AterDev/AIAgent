@@ -23,7 +23,8 @@ public class AIAgentTests
             Name = $"Test Agent {Guid.NewGuid().ToString().Substring(0, 8)}",
             Description = "这是一个测试Agent",
             ModelId = "gpt-4",
-            SystemPrompt = "你是一个有帮助的AI助手"
+            SystemPrompt = "你是一个有帮助的AI助手",
+            IsPublic = true,
         };
 
         var addResponse = await httpClient.PostAsJsonAsync("/api/aiagent", addDto);
@@ -124,7 +125,8 @@ public class AIAgentTests
                 Name = $"Batch Agent {i + 1} {Guid.NewGuid().ToString().Substring(0, 8)}",
                 Description = $"批量创建的第{i + 1}个Agent",
                 ModelId = modelIds[i],
-                SystemPrompt = "这是一个批量测试"
+                SystemPrompt = "这是一个批量测试",
+                IsPublic = i % 2 == 0,
             };
 
             var response = await httpClient.PostAsJsonAsync("/api/aiagent", addDto);

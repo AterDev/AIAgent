@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Share.Implement;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using Entity.AIAgentMod;
 using Entity.KnowledgeBaseMod;
 using Entity.ModelMod;
 
@@ -65,6 +66,7 @@ public class Worker(
             await SeedAdminUserAsync(defaultDb, cancellationToken);
             await SeedModelProvidersAsync(defaultDb, cancellationToken);
             await SeedDemoApplicationAsync(defaultDb, cancellationToken);
+            await SeedDefaultPublicAgentAsync(defaultDb, cancellationToken);
             await SeedStorageProviderAsync(defaultDb, cancellationToken);
             await SeedDefaultKnowledgeBaseAsync(defaultDb, cancellationToken);
         });
@@ -340,6 +342,52 @@ public class Worker(
         };
 
         db.RagCollections.Add(collection);
+        await db.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task SeedDefaultPublicAgentAsync(DefaultDbContext db, CancellationToken cancellationToken)
+    {
+        const string publicAgentName = "DefaultDeepSeekAgent";
+
+        var deepSeekChat = await db.AIModelInfos
+            .AsNoTracking()
+            .FirstOrDefaultAsync(q => q.Name == "deepseek-chat", cancellationToken);
+
+        if (deepSeekChat is null)
+        {
+            _logger.LogWarning("Skip seeding default public agent because deepseek-chat model was not found.");
+            return;
+        }
+
+        var existingAgent = await db.AIAgents
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(q => q.Name == publicAgentName, cancellationToken);
+
+        if (existingAgent is not null)
+        {
+            existingAgent.Description = "默认公共 Agent，用于开放平台与系统侧联调测试。";
+            existingAgent.ModelId = deepSeekChat.Name;
+            existingAgent.SystemPrompt = "你是默认测试 Agent，请用简洁、可靠的方式回答用户问题。";
+            existingAgent.Enable = true;
+            existingAgent.IsPublic = true;
+            existingAgent.IsDeleted = false;
+            existingAgent.TenantId = deepSeekChat.TenantId;
+            existingAgent.UpdatedTime = DateTimeOffset.UtcNow;
+            await db.SaveChangesAsync(cancellationToken);
+            return;
+        }
+
+        db.AIAgents.Add(new AIAgent
+        {
+            Name = publicAgentName,
+            Description = "默认公共 Agent，用于开放平台与系统侧联调测试。",
+            ModelId = deepSeekChat.Name,
+            SystemPrompt = "你是默认测试 Agent，请用简洁、可靠的方式回答用户问题。",
+            Enable = true,
+            IsPublic = true,
+            TenantId = deepSeekChat.TenantId,
+        });
+
         await db.SaveChangesAsync(cancellationToken);
     }
 }

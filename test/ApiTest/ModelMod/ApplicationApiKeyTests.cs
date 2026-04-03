@@ -251,14 +251,14 @@ public class ApplicationApiKeyTests
 
             await CreateApplicationModelPermissionAsync(adminClient, application.Id, model.Id);
             var apiKeyResult = await CreateApplicationApiKeyAsync(adminClient, application.Id, "Agent Key");
-            var templateAgent = await CreateAgentAsync(adminClient, model.Name, isTemplate: true);
+            var templateAgent = await CreateAgentAsync(adminClient, model.Name, isPublic: true);
             templateAgentId = templateAgent.Id;
 
             using var apiClient = await CreateApiServiceClientAsync(apiKeyResult.ApiKey);
             var cloneResponse = await apiClient.PostAsync($"/api/v1/agents/templates/{templateAgent.Id}/clone", content: null);
             await AssertStatusCodeAsync(cloneResponse, HttpStatusCode.Created);
 
-            var clonedAgent = await ReadRequiredJsonAsync<AIAgent>(cloneResponse);
+            var clonedAgent = await ReadRequiredJsonAsync<ApplicationAgent>(cloneResponse);
             clonedAgentId = clonedAgent.Id;
 
             var executeResponse = await apiClient.PostAsJsonAsync($"/api/v1/agents/{clonedAgent.Id}/execute", new AgentExecuteRequestDto
@@ -288,7 +288,7 @@ public class ApplicationApiKeyTests
         {
             if (clonedAgentId != Guid.Empty)
             {
-                await adminClient.DeleteAsync($"/api/AIAgent/{clonedAgentId}");
+                await adminClient.DeleteAsync($"/api/ApplicationAgent/{clonedAgentId}");
             }
 
             if (templateAgentId != Guid.Empty)
@@ -541,7 +541,7 @@ public class ApplicationApiKeyTests
         return await ReadRequiredJsonAsync<ApplicationModelPermission>(response);
     }
 
-    private static async Task<AIAgent> CreateAgentAsync(HttpClient adminClient, string modelName, Guid? applicationId = null, bool isTemplate = false)
+    private static async Task<AIAgent> CreateAgentAsync(HttpClient adminClient, string modelName, Guid? applicationId = null, bool isPublic = false)
     {
         var response = await adminClient.PostAsJsonAsync("/api/aiagent", new AIAgentAddDto
         {
@@ -550,7 +550,7 @@ public class ApplicationApiKeyTests
             ModelId = modelName,
             SystemPrompt = "你是集成测试助手，请简洁回答。",
             Enable = true,
-            IsTemplate = isTemplate,
+            IsPublic = isPublic,
             ApplicationId = applicationId,
         });
 

@@ -3,8 +3,10 @@
   "hello": "Hello",
   "common": {
     "search": "Search",
+    "select": "Select",
     "noData": "No Data!",
     "actions": "Actions",
+    "more": "More",
     "view": "View",
     "edit": "Edit",
     "delete": "Delete",
@@ -328,7 +330,7 @@
     "isEnabled": "Enabled",
     "tags": "Tags",
     "enable": "Enabled",
-    "isTemplate": "Template",
+    "isPublic": "Public",
     "tools": "Tools"
   },
   "agentExecution": {

@@ -9,7 +9,7 @@ public class ToolCallRecord : EntityBase
     public Guid ToolId { get; set; }
 
     [ForeignKey(nameof(ToolId))]
-    public McpTool? Tool { get; set; }
+    public McpTool Tool { get; set; } = null!;
 
     public Guid? ApplicationId { get; set; }
 

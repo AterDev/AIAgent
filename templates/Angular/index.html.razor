@@ -8,6 +8,7 @@
   {
       var camelFieldName = f.Name.ToCamelCase();
       var label = f.CommentSummary ?? f.Name;
+    var firstItemColumn = ItemPropertyInfos.FirstOrDefault()?.Name;
       
       if (f.Type != null && f.Type.ToLower().Contains("string"))
       {
@@ -89,7 +90,16 @@
           {{ i18nKeys.@name.@(c.Name.ToCamelCase()) | translate }}
         </th>
         <td mat-cell *matCellDef="let item;table:table">
+          @if (c.Name == firstItemColumn)
+          {
+            <button mat-button type="button" class="table-primary-link" (click)="openDetail(item.id)">
+              {{ item.@(c.Name.ToCamelCase()) }}
+            </button>
+          }
+          else
+          {
           {{ item.@(c.Name.ToCamelCase()) }}
+          }
         </td>
       </ng-container>
     }
@@ -99,9 +109,10 @@
         {{ 'common.actions' | translate }}
       </th>
       <td mat-cell *matCellDef="let item">
-        <button mat-icon-button class="secondary" (click)="openDetail(item.id)"><mat-icon>visibility</mat-icon></button>
-        <button mat-icon-button class="primary" (click)="openEdit(item.id)"><mat-icon>edit</mat-icon></button>
-        <button mat-icon-button class="accent" (click)="deleteItem(item.id)"><mat-icon>delete</mat-icon></button>
+        <div class="table-actions">
+          <button mat-icon-button class="primary" (click)="openEdit(item.id)"><mat-icon>edit</mat-icon></button>
+          <button mat-icon-button class="accent" (click)="deleteItem(item.id)"><mat-icon>delete</mat-icon></button>
+        </div>
       </td>
     </ng-container>
 

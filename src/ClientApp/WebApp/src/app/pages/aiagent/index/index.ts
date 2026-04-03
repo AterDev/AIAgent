@@ -25,7 +25,7 @@ export class AIAgentIndex implements OnInit {
 
   filterDto: AIAgentFilterDto = { pageIndex: 1, pageSize: 10 };
   dataSource = new MatTableDataSource<AIAgentItemDto>();
-  displayedColumns = ["name", "enable", "isTemplate", "actions"];
+  displayedColumns = ["name", "enable", "isPublic", "actions"];
   applicationId?: string;
   applicationName?: string;
 
@@ -44,6 +44,7 @@ export class AIAgentIndex implements OnInit {
     this.applicationName = this.dialogData?.applicationName;
     if (this.applicationId) {
       this.filterDto.applicationId = this.applicationId;
+      this.displayedColumns = ["name", "enable", "actions"];
     }
   }
 
@@ -53,7 +54,7 @@ export class AIAgentIndex implements OnInit {
 
   loadData(): void {
     this.isLoading.set(true);
-    this.adminClient.aIAgent.list(this.filterDto as AIAgentFilterDto).subscribe({
+    this.getAgentService().list(this.filterDto as AIAgentFilterDto).subscribe({
       next: (res) => {
         this.dataSource.data = (res.data || []);
         this.total = (res.count ?? res.data?.length ?? this.dataSource.data.length);
@@ -80,12 +81,12 @@ export class AIAgentIndex implements OnInit {
   }
 
   openEdit(id: string) {
-    const ref = this.dialog.open(AIAgentEdit, { width: '800px', data: { id } });
+    const ref = this.dialog.open(AIAgentEdit, { width: '800px', data: { id, applicationId: this.applicationId } });
     ref.afterClosed().subscribe((r: boolean) => { if (r) this.loadData(); });
   }
 
   openDetail(id: string) {
-    this.dialog.open(AIAgentDetail, { minWidth: '600px', data: { id } });
+    this.dialog.open(AIAgentDetail, { minWidth: '600px', data: { id, applicationId: this.applicationId } });
   }
 
   deleteItem(id: string) {
@@ -96,7 +97,13 @@ export class AIAgentIndex implements OnInit {
       }
     });
     ref.afterClosed().subscribe((ok: boolean) => {
-      if (ok) { this.adminClient.aIAgent.delete(id).subscribe(() => this.loadData()); }
+      if (ok) { this.getAgentService().delete(id).subscribe(() => this.loadData()); }
     });
+  }
+
+  private getAgentService() {
+    return this.applicationId
+      ? this.adminClient.applicationAgent
+      : this.adminClient.aIAgent;
   }
 }

@@ -73,8 +73,7 @@ export class AIAgentAdd implements OnInit {
       systemPrompt: [null, []],
       tools: [[], []],
       enable: [true, []],
-      isTemplate: [false, []],
-      userId: [null, []],
+      isPublic: [false, []],
       applicationId: [this.applicationId ?? null, []]
     });
   }
@@ -85,8 +84,7 @@ export class AIAgentAdd implements OnInit {
   get systemPrompt() { return this.form.get('systemPrompt') as FormControl; }
   get tools() { return this.form.get('tools') as FormControl; }
   get enable() { return this.form.get('enable') as FormControl; }
-  get isTemplate() { return this.form.get('isTemplate') as FormControl; }
-  get userId() { return this.form.get('userId') as FormControl; }
+  get isPublic() { return this.form.get('isPublic') as FormControl; }
   get applicationIdControl() { return this.form.get('applicationId') as FormControl; }
 
   getValidatorMessage(control: AbstractControl | null): string {
@@ -99,7 +97,14 @@ export class AIAgentAdd implements OnInit {
 
   submit() {
     if (this.form.invalid) return;
-    this.adminClient.aIAgent.add(this.form.value as AIAgentAddDto).subscribe(() => this.dialogRef.close(true));
+    const payload = this.form.getRawValue() as AIAgentAddDto;
+    if (this.applicationId) {
+      payload.isPublic = false;
+      this.adminClient.applicationAgent.add(payload).subscribe(() => this.dialogRef.close(true));
+      return;
+    }
+
+    this.adminClient.aIAgent.add(payload).subscribe(() => this.dialogRef.close(true));
   }
 
   close(result: boolean) { this.dialogRef.close(result); }

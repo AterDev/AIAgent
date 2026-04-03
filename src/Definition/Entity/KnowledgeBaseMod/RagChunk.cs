@@ -9,7 +9,7 @@ public class RagChunk : EntityBase
     public Guid DocumentId { get; set; }
 
     [ForeignKey(nameof(DocumentId))]
-    public RagDocument? Document { get; set; }
+    public RagDocument Document { get; set; } = null!;
 
     public int ChunkIndex { get; set; }
 

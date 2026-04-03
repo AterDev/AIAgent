@@ -14,10 +14,8 @@ export interface AIAgentAddDto {
   tools: string[];
   /** is enabled */
   enable: boolean;
-  /** isTemplate */
-  isTemplate: boolean;
-  /** userId */
-  userId?: string | null;
+  /** isPublic */
+  isPublic: boolean;
   /** applicationId */
   applicationId?: string | null;
 }

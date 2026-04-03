@@ -13,16 +13,18 @@ namespace ApiService.Controllers.OpenPlatform;
 [ApiController]
 [Route("api/v1/agents")]
 public class AgentsController(
-    AIAgentManager agentManager,
+    ApplicationAgentManager applicationAgentManager,
+    AIAgentManager publicAgentManager,
     AgentExecutionManager executionManager,
     IUserContext user,
     ILogger<AgentsController> logger
-) : OpenApiControllerBase<AIAgentManager>(agentManager, user, logger)
+) : OpenApiControllerBase<ApplicationAgentManager>(applicationAgentManager, user, logger)
 {
+    private readonly AIAgentManager _publicAgentManager = publicAgentManager;
     private readonly AgentExecutionManager _executionManager = executionManager;
 
     [HttpPost]
-    public async Task<ActionResult<AIAgent>> AddAsync(AIAgentAddDto dto)
+    public async Task<ActionResult<ApplicationAgent>> AddAsync(AIAgentAddDto dto)
     {
         var entity = await _manager.AddAsync(dto);
         return CreatedAtRoute(null, new { id = entity.Id }, entity);
@@ -37,7 +39,7 @@ public class AgentsController(
     [HttpPost("templates/filter")]
     public async Task<ActionResult<PageList<AIAgentItemDto>>> ListTemplatesAsync(AIAgentFilterDto filter)
     {
-        return await _manager.FilterPublicTemplatesAsync(filter);
+        return await _publicAgentManager.FilterPublicTemplatesAsync(filter);
     }
 
     [HttpGet("{id}")]
@@ -59,14 +61,14 @@ public class AgentsController(
     }
 
     [HttpPost("templates/{id}/clone")]
-    public async Task<ActionResult<AIAgent>> CloneTemplateAsync([FromRoute] Guid id)
+    public async Task<ActionResult<ApplicationAgent>> CloneTemplateAsync([FromRoute] Guid id)
     {
         if (!_user.IsRole(WebConst.Application))
         {
             throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
         }
 
-        var entity = await _manager.CloneTemplateAsync(id, _user.UserId);
+        var entity = await _manager.ClonePublicAsync(id, _user.UserId);
         return CreatedAtRoute(null, new { id = entity.Id }, entity);
     }
 
@@ -97,6 +99,7 @@ public class AgentsController(
         var execution = await _executionManager.AddAsync(new AgentExecutionAddDto
         {
             AgentId = id,
+            IsApplicationAgent = true,
             InputJson = dto.InputJson,
             Status = Entity.AIAgentMod.AgentExecutionStatus.Running,
         });
