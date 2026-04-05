@@ -5,17 +5,17 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- Aspire Packages -->
-    <PackageVersion Include="Aspire.Hosting.Nats" Version="13.2.0" />
-    <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.2.0" />
-    <PackageVersion Include="Aspire.Hosting.Qdrant" Version="13.2.0" />
-    <PackageVersion Include="Aspire.Hosting.Redis" Version="13.2.0" />
-    <PackageVersion Include="Aspire.Hosting.SqlServer" Version="13.2.0" />
-    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.2.0" />
-    <PackageVersion Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="13.2.0" />
-    <PackageVersion Include="Aspire.NATS.Net" Version="13.2.0" />
-    <PackageVersion Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.2.0" />
-    <PackageVersion Include="Aspire.Qdrant.Client" Version="13.2.0" />
-    <PackageVersion Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.2.0" />
+    <PackageVersion Include="Aspire.Hosting.Nats" Version="13.2.1" />
+    <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.2.1" />
+    <PackageVersion Include="Aspire.Hosting.Qdrant" Version="13.2.1" />
+    <PackageVersion Include="Aspire.Hosting.Redis" Version="13.2.1" />
+    <PackageVersion Include="Aspire.Hosting.SqlServer" Version="13.2.1" />
+    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.2.1" />
+    <PackageVersion Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="13.2.1" />
+    <PackageVersion Include="Aspire.NATS.Net" Version="13.2.1" />
+    <PackageVersion Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.2.1" />
+    <PackageVersion Include="Aspire.Qdrant.Client" Version="13.2.1" />
+    <PackageVersion Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.2.1" />
     <!--Test -->
     <PackageVersion Include="Aspire.Hosting.Testing" Version="13.2.0" />
     <PackageVersion Include="Microsoft.Agents.AI" Version="1.0.0-preview.260127.1" />
