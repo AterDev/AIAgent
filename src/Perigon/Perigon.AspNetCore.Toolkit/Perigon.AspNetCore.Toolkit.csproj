@@ -20,7 +20,6 @@
 		<PackageReference Include="Aspire.NATS.Net" />
 		<PackageReference Include="Aspire.Qdrant.Client" />
 		<PackageReference Include="AWSSDK.S3" />
-		<PackageReference Include="EPPlus" />
 		<PackageReference Include="MailKit" />
 		<PackageReference Include="MiniExcel" />
 		<PackageReference Include="SkiaSharp" />

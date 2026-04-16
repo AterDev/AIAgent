@@ -1,5 +1,5 @@
-using OfficeOpenXml;
-using OfficeOpenXml.Export.ToCollection;
+using System.Reflection;
+using MiniExcelLibs;
 
 namespace Perigon.AspNetCore.Toolkit.Services;
 
@@ -28,20 +28,7 @@ public class ExcelService
     )
     {
         var stream = new MemoryStream();
-        using (var package = new ExcelPackage(stream))
-        {
-            ExcelWorksheet sheet = package.Workbook.Worksheets.Add(sheetName);
-            var list = data.ToList();
-            var excelRange = sheet.Cells[1, 1].LoadFromCollection(list, hasTitle);
-
-            if (hasTitle)
-            {
-                sheet.Cells[1, 1, 1, excelRange.Columns].Style.Font.Bold = true;
-            }
-
-            sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
-            await package.SaveAsync();
-        }
+        await stream.SaveAsAsync(data, printHeader: hasTitle, sheetName: sheetName);
         stream.Position = 0;
         return stream;
     }
@@ -56,27 +43,80 @@ public class ExcelService
     /// <returns></returns>
     public static List<T> Import<T>(Stream stream, string? sheetName = null, bool hasTitle = true)
     {
-        var data = new List<T>();
-        using var package = new ExcelPackage(stream);
-        ExcelWorksheet sheet =
-            sheetName == null
-                ? package.Workbook.Worksheets[0]
-                : package.Workbook.Worksheets[sheetName];
+        stream.Position = 0;
+        var rows = MiniExcel.Query(stream, useHeaderRow: hasTitle, sheetName: sheetName)
+            .Cast<IDictionary<string, object>>();
+        return MapRows<T>(rows, hasTitle);
+    }
 
-        var rows = sheet.Dimension.Rows;
-        var columns = sheet.Dimension.Columns;
+    private static List<T> MapRows<T>(IEnumerable<IDictionary<string, object>> rows, bool hasTitle)
+    {
+        var result = new List<T>();
+        var targetType = typeof(T);
+        var properties = targetType
+            .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            .Where(property => property.CanWrite)
+            .ToArray();
 
-        var range = sheet.Dimension.Address;
+        var propertyMap = properties.ToDictionary(
+            property => property.Name,
+            property => property,
+            StringComparer.OrdinalIgnoreCase
+        );
 
-        data = sheet
-            .Cells[range]
-            .ToCollection<T>(options =>
+        foreach (var row in rows)
+        {
+            var instance = Activator.CreateInstance<T>();
+
+            if (hasTitle)
             {
-                options.HeaderRow = hasTitle ? 0 : 1;
-                options.DataStartRow = hasTitle ? 1 : 0;
-                options.ConversionFailureStrategy =
-                    ToCollectionConversionFailureStrategy.SetDefaultValue;
-            });
-        return data;
+                foreach (var (columnName, columnValue) in row)
+                {
+                    if (!propertyMap.TryGetValue(columnName, out var property))
+                    {
+                        continue;
+                    }
+
+                    SetPropertyValue(instance, property, columnValue);
+                }
+            }
+            else
+            {
+                var values = row.Values.ToArray();
+                var maxIndex = Math.Min(values.Length, properties.Length);
+                for (var index = 0; index < maxIndex; index++)
+                {
+                    SetPropertyValue(instance, properties[index], values[index]);
+                }
+            }
+
+            result.Add(instance);
+        }
+
+        return result;
+    }
+
+    private static void SetPropertyValue<T>(T instance, PropertyInfo property, object? rawValue)
+    {
+        if (rawValue is null or DBNull)
+        {
+            return;
+        }
+
+        var targetType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+        var value = rawValue;
+
+        if (targetType.IsEnum)
+        {
+            value = rawValue is string enumText
+                ? Enum.Parse(targetType, enumText, ignoreCase: true)
+                : Enum.ToObject(targetType, rawValue);
+        }
+        else if (targetType != rawValue.GetType())
+        {
+            value = Convert.ChangeType(rawValue, targetType);
+        }
+
+        property.SetValue(instance, value);
     }
 }

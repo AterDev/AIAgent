@@ -1,7 +1,7 @@
 using DocumentFormat.OpenXml.Packaging;
 using DText = DocumentFormat.OpenXml.Drawing.Text;
+using MiniExcelLibs;
 using WText = DocumentFormat.OpenXml.Wordprocessing.Text;
-using OfficeOpenXml;
 using System.Text;
 using Tesseract;
 using UglyToad.PdfPig;
@@ -164,9 +164,10 @@ public class KreuzbergDocumentParser(
         var builder = new StringBuilder();
         foreach (var page in document.GetPages())
         {
-            if (!string.IsNullOrWhiteSpace(page.Text))
+            var text = page.Text;
+            if (!string.IsNullOrWhiteSpace(text))
             {
-                builder.AppendLine(page.Text.Trim());
+                builder.AppendLine(text.Trim());
             }
         }
 
@@ -177,7 +178,8 @@ public class KreuzbergDocumentParser(
     {
         using var stream = new MemoryStream(fileBytes);
         using var document = WordprocessingDocument.Open(stream, false);
-        var body = document.MainDocumentPart?.Document.Body;
+        var mainDocumentPart = document.MainDocumentPart;
+        var body = mainDocumentPart?.Document?.Body;
         if (body == null)
         {
             return string.Empty;
@@ -186,9 +188,10 @@ public class KreuzbergDocumentParser(
         var builder = new StringBuilder();
         foreach (var text in body.Descendants<WText>())
         {
-            if (!string.IsNullOrWhiteSpace(text.Text))
+            var value = text.Text;
+            if (!string.IsNullOrWhiteSpace(value))
             {
-                builder.AppendLine(text.Text.Trim());
+                builder.AppendLine(value.Trim());
             }
         }
 
@@ -208,7 +211,13 @@ public class KreuzbergDocumentParser(
         var builder = new StringBuilder();
         foreach (var slidePart in slideParts)
         {
-            foreach (var text in slidePart.Slide.Descendants<DText>())
+            var slide = slidePart.Slide;
+            if (slide == null)
+            {
+                continue;
+            }
+
+            foreach (var text in slide.Descendants<DText>())
             {
                 if (!string.IsNullOrWhiteSpace(text.Text))
                 {
@@ -233,35 +242,24 @@ public class KreuzbergDocumentParser(
 
     private static string ParseExcel(byte[] fileBytes)
     {
-        ExcelPackage.License.SetNonCommercialOrganization("AIAgent");
         using var stream = new MemoryStream(fileBytes);
-        using var package = new ExcelPackage(stream);
         var builder = new StringBuilder();
+        var sheetNames = MiniExcel.GetSheetNames(stream);
 
-        foreach (var worksheet in package.Workbook.Worksheets)
+        foreach (var sheetName in sheetNames)
         {
-            if (worksheet.Dimension == null)
-            {
-                continue;
-            }
+            stream.Position = 0;
+            var rows = MiniExcel.Query(stream, useHeaderRow: false, sheetName: sheetName)
+                .Cast<IDictionary<string, object>>();
 
-            builder.AppendLine($"## {worksheet.Name}");
+            builder.AppendLine($"## {sheetName}");
             builder.AppendLine();
 
-            var startRow = worksheet.Dimension.Start.Row;
-            var endRow = worksheet.Dimension.End.Row;
-            var startCol = worksheet.Dimension.Start.Column;
-            var endCol = worksheet.Dimension.End.Column;
-
-            for (var row = startRow; row <= endRow; row++)
+            foreach (var row in rows)
             {
-                var cells = new List<string>();
-                for (var col = startCol; col <= endCol; col++)
-                {
-                    var value = worksheet.Cells[row, col].Text ?? string.Empty;
-                    cells.Add(value);
-                }
-
+                var cells = row.Values
+                    .Select(value => value?.ToString()?.Trim() ?? string.Empty)
+                    .ToList();
                 var line = string.Join(" | ", cells);
                 if (!string.IsNullOrWhiteSpace(line.Replace("|", "").Trim()))
                 {
