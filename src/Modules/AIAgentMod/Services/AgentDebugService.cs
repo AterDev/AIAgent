@@ -90,7 +90,7 @@ public class AgentDebugService(
         // Load tool definitions for structured function calling
         var toolDefinitions = await ToolCallParser.LoadToolDefinitionsAsync(dbContext, enabledTools, cancellationToken);
 
-        var (initialMessages, promptText) = await BuildMessagesAsync(agent, request.SystemPrompt, request.UserMessage, cancellationToken);
+        var (initialMessages, promptText) = await BuildMessagesAsync(agent, request.SystemPrompt, request.UserMessage, request.Images, cancellationToken);
         messages.AddRange(initialMessages);
 
         foreach (var message in initialMessages)
@@ -337,7 +337,18 @@ public class AgentDebugService(
                 Model = modelInfo.Name,  // 使用模型名称而不是 ID
                 Provider = modelInfo.Provider.Name,  // 设置 Provider
                 Scene = invokeRequest.Scene,
-                Messages = invokeRequest.Messages.Select(m => new ModelMessage { Role = m.Role, Content = m.Content, ToolCallId = m.ToolCallId }).ToList(),
+                Messages = invokeRequest.Messages.Select(m => new ModelMessage
+                {
+                    Role = m.Role,
+                    Content = m.Content,
+                    ToolCallId = m.ToolCallId,
+                    Attachments = m.Attachments.Select(a => new ModelAttachment
+                    {
+                        Kind = a.Kind,
+                        DataUri = a.DataUri,
+                        MediaType = a.MediaType,
+                    }).ToList(),
+                }).ToList(),
                 ToolDefinitions = toolDefinitions,
                 Metadata = invokeRequest.Metadata,
             };
@@ -365,6 +376,7 @@ public class AgentDebugService(
         AIAgent agent,
         string? systemPromptOverride,
         string? userMessage,
+        IReadOnlyList<string>? images,
         CancellationToken cancellationToken)
     {
         var prompt = userMessage ?? string.Empty;
@@ -385,9 +397,16 @@ public class AgentDebugService(
             messages.Add(new ModelInvokeMessage { Role = "system", Content = systemPrompt });
         }
 
-        if (!string.IsNullOrWhiteSpace(prompt))
+        var attachments = ModelImageInputValidator.BuildValidatedImageAttachments(images);
+
+        if (!string.IsNullOrWhiteSpace(prompt) || attachments.Count > 0)
         {
-            messages.Add(new ModelInvokeMessage { Role = "user", Content = prompt });
+            messages.Add(new ModelInvokeMessage
+            {
+                Role = "user",
+                Content = prompt,
+                Attachments = attachments,
+            });
         }
 
         return (messages, prompt);

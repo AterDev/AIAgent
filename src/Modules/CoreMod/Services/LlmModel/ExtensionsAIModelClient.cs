@@ -16,7 +16,7 @@ public class ExtensionsAIModelClient(
     public async Task<ModelResponse> ChatAsync(ModelRequest request, CancellationToken cancellationToken = default)
     {
         var route = await modelRouter.ResolveAsync(request, cancellationToken);
-        if (string.IsNullOrWhiteSpace(route.BaseUrl) || string.IsNullOrWhiteSpace(route.ApiKey))
+        if (string.IsNullOrWhiteSpace(route.BaseUrl) || !IsProviderConfigured(route))
         {
             return Failed("Model provider configuration missing");
         }
@@ -57,7 +57,7 @@ public class ExtensionsAIModelClient(
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var route = await modelRouter.ResolveAsync(request, cancellationToken);
-        if (string.IsNullOrWhiteSpace(route.BaseUrl) || string.IsNullOrWhiteSpace(route.ApiKey))
+        if (string.IsNullOrWhiteSpace(route.BaseUrl) || !IsProviderConfigured(route))
         {
             yield return new ModelStreamChunk { ErrorMessage = "Model provider configuration missing", IsFinal = true };
             yield break;
@@ -98,7 +98,7 @@ public class ExtensionsAIModelClient(
     public async Task<ModelResponse> EmbeddingAsync(ModelRequest request, CancellationToken cancellationToken = default)
     {
         var route = await modelRouter.ResolveAsync(request, cancellationToken);
-        if (string.IsNullOrWhiteSpace(route.BaseUrl) || string.IsNullOrWhiteSpace(route.ApiKey))
+        if (string.IsNullOrWhiteSpace(route.BaseUrl) || !IsProviderConfigured(route))
         {
             return Failed("Model provider configuration missing");
         }
@@ -152,14 +152,56 @@ public class ExtensionsAIModelClient(
             if (role == ChatRole.Tool && !string.IsNullOrWhiteSpace(m.ToolCallId))
             {
                 chatMessages.Add(new ChatMessage(ChatRole.Tool, [new FunctionResultContent(m.ToolCallId, m.Content)]));
+                continue;
             }
-            else
+
+            // 用户消息带附件时，构造多模态 ChatMessage（TextContent + DataContent）。
+            if (m.Attachments is { Count: > 0 })
             {
-                chatMessages.Add(new ChatMessage(role, m.Content));
+                var contents = new List<AIContent>();
+                if (!string.IsNullOrEmpty(m.Content))
+                {
+                    contents.Add(new TextContent(m.Content));
+                }
+                foreach (var attachment in m.Attachments)
+                {
+                    var content = TryBuildAttachmentContent(attachment);
+                    if (content is not null)
+                    {
+                        contents.Add(content);
+                    }
+                }
+                chatMessages.Add(new ChatMessage(role, contents));
+                continue;
             }
+
+            chatMessages.Add(new ChatMessage(role, m.Content));
         }
 
         return chatMessages;
+    }
+
+    private static AIContent? TryBuildAttachmentContent(ModelAttachment attachment)
+    {
+        if (string.IsNullOrWhiteSpace(attachment.DataUri))
+        {
+            return null;
+        }
+
+        // data URI → DataContent（会自动解析 MIME）
+        if (attachment.DataUri.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
+        {
+            return new DataContent(attachment.DataUri);
+        }
+
+        // http(s) URL → UriContent（注明媒体类型）
+        if (Uri.TryCreate(attachment.DataUri, UriKind.Absolute, out var uri))
+        {
+            var mediaType = string.IsNullOrWhiteSpace(attachment.MediaType) ? "image/*" : attachment.MediaType!;
+            return new UriContent(uri, mediaType);
+        }
+
+        return null;
     }
 
     private static ChatOptions BuildChatOptions(ModelRequest request)
@@ -254,6 +296,24 @@ public class ExtensionsAIModelClient(
     private IEmbeddingGenerator<string, Embedding<float>> CreateEmbeddingGenerator(ModelRoute route, string model) =>
         CreateOpenAIClient(route).GetEmbeddingClient(model).AsIEmbeddingGenerator();
 
+    /// <summary>
+    /// 解析模型路由并构造对应的 <see cref="IChatClient"/>。供 MAF 层复用本仓库的 provider 路由。
+    /// </summary>
+    public async Task<(IChatClient ChatClient, ModelRoute Route)> GetChatClientAsync(string model, string? provider = null, CancellationToken cancellationToken = default)
+    {
+        var request = new ModelRequest { Model = model };
+        if (!string.IsNullOrWhiteSpace(provider))
+        {
+            request.Provider = provider;
+        }
+        var route = await modelRouter.ResolveAsync(request, cancellationToken);
+        if (string.IsNullOrWhiteSpace(route.BaseUrl) || !IsProviderConfigured(route))
+        {
+            throw new InvalidOperationException($"Model provider configuration missing for model '{model}'");
+        }
+        return (CreateChatClient(route, model), route);
+    }
+
     private static ChatRole MapRole(string? role) => role?.ToLowerInvariant() switch
     {
         "system" => ChatRole.System,
@@ -264,10 +324,19 @@ public class ExtensionsAIModelClient(
 
     private OpenAIClient CreateOpenAIClient(ModelRoute route)
     {
-        var credential = new ApiKeyCredential(route.ApiKey!);
+        // Foundry Local 允许空 ApiKey，OpenAI SDK 要求非空，使用占位符
+        var apiKey = string.IsNullOrWhiteSpace(route.ApiKey) ? "not-required" : route.ApiKey!;
+        var credential = new ApiKeyCredential(apiKey);
         var options = new OpenAIClientOptions { Endpoint = new Uri(route.BaseUrl!) };
         return new OpenAIClient(credential, options);
     }
 
     private static ModelResponse Failed(string message) => new() { Success = false, ErrorMessage = message };
+
+    /// <summary>
+    /// Foundry Local 允许空 ApiKey；其他类型要求 ApiKey 非空。
+    /// </summary>
+    private static bool IsProviderConfigured(ModelRoute route)
+        => route.ProviderType == Entity.ModelMod.ModelProviderType.FoundryLocal
+            || !string.IsNullOrWhiteSpace(route.ApiKey);
 }

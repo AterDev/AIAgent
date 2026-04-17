@@ -1,4 +1,5 @@
 using AIAgentMod.Services;
+using AIAgentMod.Services.Maf;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 namespace AIAgentMod;
@@ -25,6 +26,10 @@ public static class ModuleExtensions
         // 保留旧实现作为备选
         builder.Services.AddScoped<AgentExecutionService>();
         builder.Services.AddHostedService<AgentExecutionWorker>();
+
+        // MAF 1.1 原生运行时 - 新业务层优先使用
+        builder.Services.AddScoped<MafAgentRuntime>();
+        builder.Services.AddScoped<AgentToolFactory>();
 
         return builder;
     }

@@ -2,9 +2,11 @@ using Microsoft.EntityFrameworkCore;
 using Share.Implement;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using Entity.AIAgentMod;
 using Entity.KnowledgeBaseMod;
 using Entity.ModelMod;
+using Entity.WorkflowMod;
 
 namespace MigrationService;
 
@@ -69,6 +71,7 @@ public class Worker(
             await SeedDefaultPublicAgentAsync(defaultDb, cancellationToken);
             await SeedStorageProviderAsync(defaultDb, cancellationToken);
             await SeedDefaultKnowledgeBaseAsync(defaultDb, cancellationToken);
+            await SeedTranslationWorkflowAsync(defaultDb, cancellationToken);
         });
     }
 
@@ -112,6 +115,8 @@ public class Worker(
             Website = "https://www.deepseek.com",
             BaseUrl = "https://api.deepseek.com/v1",
             LogoUrl = "https://www.deepseek.com/favicon.ico",
+            ApiKey = Environment.GetEnvironmentVariable("AIAgent__Seed__DeepSeekApiKey"),
+            ProviderType = ModelProviderType.OpenAiCompatible,
             Models =
             [
                 new AIModelInfo { Name = "deepseek-chat", DisplayName = "DeepSeek Chat (V3.2)", Description = "DeepSeek 当前主力通用模型，适合对话、工具调用和日常开发任务", ContextLength = 131072, MaxContextTokens = 131072, SupportsChat = true, SupportsTools = true, InputPrice = 0.28m, OutputPrice = 0.42m, IsEnabled = true },
@@ -197,8 +202,77 @@ public class Worker(
             ]
         };
 
-        db.AIModelProviders.AddRange([deepSeek, openAI, anthropic, qwen, google, azure]);
+        db.AIModelProviders.AddRange([deepSeek, openAI, anthropic, qwen, google, azure, BuildFoundryLocalProvider(), BuildOllamaProvider()]);
         await db.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// 本地 Foundry Local provider 种子。默认 BaseUrl <c>http://127.0.0.1:55655/v1</c>（Foundry Local CLI 默认 OpenAI 兼容端口）。
+    /// 若用户自定义端口可手动更新 BaseUrl。ApiKey 留空（Foundry Local 不需要认证）。
+    /// 当前 Foundry Local 目录仅提供 CPU 聊天/工具模型，暂无内置 embedding 模型，仅种子 qwen3-0.6b。
+    /// </summary>
+    private static AIModelProvider BuildFoundryLocalProvider()
+    {
+        return new AIModelProvider
+        {
+            Name = "FoundryLocal",
+            Description = "Microsoft Foundry Local - 本地 OpenAI 兼容模型服务",
+            Website = "https://github.com/microsoft/Foundry-Local",
+            BaseUrl = "http://127.0.0.1:55655/v1",
+            LogoUrl = "https://raw.githubusercontent.com/microsoft/Foundry-Local/main/docs/logo.png",
+            ApiKey = string.Empty,
+            ProviderType = ModelProviderType.FoundryLocal,
+            Models =
+            [
+                new AIModelInfo
+                {
+                    Name = "qwen3-0.6b-generic-cpu:4",
+                    DisplayName = "Qwen3 0.6B (Local CPU)",
+                    Description = "本地轻量对话/推理模型（Foundry Local catalog 别名 qwen3-0.6b），适合开发调试与离线演示",
+                    ContextLength = 32768,
+                    MaxContextTokens = 32768,
+                    SupportsChat = true,
+                    SupportsTools = true,
+                    InputPrice = 0m,
+                    OutputPrice = 0m,
+                    IsEnabled = true,
+                },
+            ],
+        };
+    }
+
+    /// <summary>
+    /// 本地 Ollama provider 种子。默认 BaseUrl <c>http://localhost:11434/v1</c>（Aspire Ollama 集成默认宿主端口）。
+    /// Ollama 暴露 OpenAI 兼容 API，因此复用 <see cref="ModelProviderType.OpenAiCompatible"/>；ApiKey 留空。
+    /// 主要用于补位 Foundry Local 缺失的本地 embedding 能力（bge-m3，1024 维，中英文皆可）。
+    /// </summary>
+    private static AIModelProvider BuildOllamaProvider()
+    {
+        return new AIModelProvider
+        {
+            Name = "Ollama",
+            Description = "Ollama - 本地开源模型运行时（OpenAI 兼容）",
+            Website = "https://ollama.com",
+            BaseUrl = "http://localhost:11434/v1",
+            LogoUrl = "https://ollama.com/public/ollama.png",
+            ApiKey = string.Empty,
+            ProviderType = ModelProviderType.OpenAiCompatible,
+            Models =
+            [
+                new AIModelInfo
+                {
+                    Name = "bge-m3:latest",
+                    DisplayName = "BGE-M3 (Local Embedding)",
+                    Description = "本地通用 embedding 模型（1024 维），多语言支持，适合知识库检索与 RAG 场景",
+                    ContextLength = 8192,
+                    MaxContextTokens = 8192,
+                    SupportsEmbedding = true,
+                    InputPrice = 0m,
+                    OutputPrice = 0m,
+                    IsEnabled = true,
+                },
+            ],
+        };
     }
 
     private async Task SeedDemoApplicationAsync(DefaultDbContext db, CancellationToken cancellationToken)
@@ -389,5 +463,155 @@ public class Worker(
         });
 
         await db.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// 种子 translator → rewriter → reviewer 工作流，用于验证 MAF Handoff/Sequential 语义。
+    /// </summary>
+    private async Task SeedTranslationWorkflowAsync(DefaultDbContext db, CancellationToken cancellationToken)
+    {
+        const string workflowName = "TranslationPipelineDemo";
+        const string translatorAgentName = "DemoTranslatorAgent";
+        const string rewriterAgentName = "DemoRewriterAgent";
+        const string reviewerAgentName = "DemoReviewerAgent";
+
+        var deepSeekChat = await db.AIModelInfos
+            .AsNoTracking()
+            .FirstOrDefaultAsync(q => q.Name == "deepseek-chat", cancellationToken);
+
+        if (deepSeekChat is null)
+        {
+            _logger.LogWarning("Skip seeding translation workflow because deepseek-chat model was not found.");
+            return;
+        }
+
+        if (await db.Workflows.AnyAsync(q => q.Name == workflowName, cancellationToken))
+        {
+            return;
+        }
+
+        var translator = await UpsertAgentAsync(db, new AIAgent
+        {
+            Name = translatorAgentName,
+            Description = "Demo 翻译 Agent：将输入翻译成目标语言",
+            ModelId = deepSeekChat.Name,
+            SystemPrompt = "你是一位专业翻译。请将用户输入忠实、地道地翻译成目标语言。仅输出翻译结果。",
+            Enable = true,
+            IsPublic = true,
+            Capabilities = AgentCapabilities.Streaming | AgentCapabilities.Handoff,
+            MemoryMode = AgentMemoryMode.Window,
+            HandoffTargets = [rewriterAgentName],
+            Tags = ["demo", "translation"],
+            TenantId = deepSeekChat.TenantId,
+        }, cancellationToken);
+
+        var rewriter = await UpsertAgentAsync(db, new AIAgent
+        {
+            Name = rewriterAgentName,
+            Description = "Demo 润色 Agent：将翻译结果改写得更地道、更清晰",
+            ModelId = deepSeekChat.Name,
+            SystemPrompt = "你是一位资深译后润色编辑。请在保持原意的前提下，将给定译文改写得更流畅、更符合目标语言习惯。仅输出改写后的文本。",
+            Enable = true,
+            IsPublic = true,
+            Capabilities = AgentCapabilities.Streaming | AgentCapabilities.Handoff,
+            MemoryMode = AgentMemoryMode.Window,
+            HandoffTargets = [reviewerAgentName],
+            Tags = ["demo", "translation"],
+            TenantId = deepSeekChat.TenantId,
+        }, cancellationToken);
+
+        var reviewer = await UpsertAgentAsync(db, new AIAgent
+        {
+            Name = reviewerAgentName,
+            Description = "Demo 审核 Agent：对润色后的译文给出质量评估",
+            ModelId = deepSeekChat.Name,
+            SystemPrompt = "你是一位翻译质量审核员。请用严格但建设性的语气对给定译文进行审核，指出问题并给出最终版本。输出格式：\n1) 评分（1-5）\n2) 问题列表\n3) 最终定稿",
+            Enable = true,
+            IsPublic = true,
+            Capabilities = AgentCapabilities.Streaming | AgentCapabilities.StructuredOutput,
+            MemoryMode = AgentMemoryMode.Window,
+            Tags = ["demo", "translation"],
+            TenantId = deepSeekChat.TenantId,
+        }, cancellationToken);
+
+        var definition = new
+        {
+            name = workflowName,
+            description = "translator → rewriter → reviewer 三段式 Demo 工作流",
+            steps = new object[]
+            {
+                new
+                {
+                    id = "translate",
+                    type = "agent_call",
+                    agentName = translatorAgentName,
+                    agentId = translator.Id,
+                    input = "{{workflow.input}}",
+                    next = "rewrite",
+                },
+                new
+                {
+                    id = "rewrite",
+                    type = "agent_call",
+                    agentName = rewriterAgentName,
+                    agentId = rewriter.Id,
+                    input = "{{steps.translate.output}}",
+                    next = "review",
+                },
+                new
+                {
+                    id = "review",
+                    type = "agent_call",
+                    agentName = reviewerAgentName,
+                    agentId = reviewer.Id,
+                    input = "{{steps.rewrite.output}}",
+                    next = null as string,
+                },
+            },
+        };
+
+        var workflow = new Workflow
+        {
+            Name = workflowName,
+            Description = "Demo 翻译工作流（translator → rewriter → reviewer）",
+            DefinitionJson = JsonSerializer.Serialize(definition),
+            Version = 1,
+            IsPublished = true,
+            TenantId = deepSeekChat.TenantId,
+        };
+
+        db.Workflows.Add(workflow);
+        await db.SaveChangesAsync(cancellationToken);
+
+        _logger.LogInformation("Seeded translation workflow {WorkflowName}", workflowName);
+    }
+
+    private static async Task<AIAgent> UpsertAgentAsync(DefaultDbContext db, AIAgent agent, CancellationToken cancellationToken)
+    {
+        var existing = await db.AIAgents
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(q => q.Name == agent.Name, cancellationToken);
+
+        if (existing is null)
+        {
+            db.AIAgents.Add(agent);
+            await db.SaveChangesAsync(cancellationToken);
+            return agent;
+        }
+
+        existing.Description = agent.Description;
+        existing.ModelId = agent.ModelId;
+        existing.SystemPrompt = agent.SystemPrompt;
+        existing.Enable = agent.Enable;
+        existing.IsPublic = agent.IsPublic;
+        existing.IsDeleted = false;
+        existing.Capabilities = agent.Capabilities;
+        existing.MemoryMode = agent.MemoryMode;
+        existing.HandoffTargets = agent.HandoffTargets;
+        existing.Tags = agent.Tags;
+        existing.TenantId = agent.TenantId;
+        existing.UpdatedTime = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync(cancellationToken);
+        return existing;
     }
 }

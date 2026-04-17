@@ -18,5 +18,10 @@ public sealed class AgentDebugRequest
 
     public bool EnableToolCallLogging { get; set; } = true;
 
+    /// <summary>
+    /// 多模态图片输入（data URI 或 http(s) URL）。
+    /// </summary>
+    public List<string> Images { get; set; } = new();
+
     public string? RequestId { get; set; }
 }

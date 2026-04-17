@@ -38,6 +38,16 @@ public class AIModelProvider : EntityBase
     public required string BaseUrl { get; set; }
 
     /// <summary>
+    /// 提供商类型（决定适配器路径：OpenAI 兼容 / Foundry Local / Azure / Anthropic / Google）
+    /// </summary>
+    public ModelProviderType ProviderType { get; set; } = ModelProviderType.OpenAiCompatible;
+
+    /// <summary>
+    /// 是否启用
+    /// </summary>
+    public bool IsEnabled { get; set; } = true;
+
+    /// <summary>
     /// 关联的模型列表
     /// </summary>
     public ICollection<AIModelInfo> Models { get; set; } = [];

@@ -7,6 +7,9 @@ import { AdminClient } from 'src/app/services/admin/admin-client';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
 import { BaseMatModules } from 'src/app/share/shared-modules';
 import { AIAgentDetailDto } from 'src/app/services/admin/models/aiagent-mod/aiagent-detail-dto.model';
+import { AGENT_CAPABILITY_OPTIONS, AGENT_MEMORY_OPTIONS } from '../maf-form-helpers';
+import { AgentCapabilities } from 'src/app/services/admin/models/entity/agent-capabilities.model';
+import { AgentMemoryMode } from 'src/app/services/admin/models/entity/agent-memory-mode.model';
 
 @Component({
   selector: 'app-aiagent-detail',
@@ -43,6 +46,18 @@ export class AIAgentDetail implements OnInit {
         error: () => this.isLoading.set(false)
       });
     }
+  }
+
+  /** 将按位组合的 capabilities 渲染为可读标签列表（i18n key 数组）。 */
+  capabilityLabels(value: AgentCapabilities | number | null | undefined): string[] {
+    const v = value ?? 0;
+    return AGENT_CAPABILITY_OPTIONS.filter(o => (v & o.value) === o.value).map(o => o.labelKey);
+  }
+
+  /** 将 memoryMode 枚举渲染为可读 i18n key。 */
+  memoryModeLabel(value: AgentMemoryMode | number | null | undefined): string {
+    const opt = AGENT_MEMORY_OPTIONS.find(o => o.value === (value ?? AgentMemoryMode.None));
+    return opt?.labelKey ?? I18N_KEYS.aiagent.memoryNone;
   }
 
   close() { this.dialogRef.close(); }

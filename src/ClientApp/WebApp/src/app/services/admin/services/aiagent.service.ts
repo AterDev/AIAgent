@@ -9,7 +9,7 @@ import { AIAgent } from '../models/entity/aiagent.model';
 import { AIAgentUpdateDto } from '../models/aiagent-mod/aiagent-update-dto.model';
 import { AIAgentDetailDto } from '../models/aiagent-mod/aiagent-detail-dto.model';
 /**
- * agent
+ * 系统/公共 Agent
  */
 @Injectable({ providedIn: 'root' })
 export class AIAgentService extends BaseService {

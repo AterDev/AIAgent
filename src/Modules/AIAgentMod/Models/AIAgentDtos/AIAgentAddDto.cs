@@ -37,6 +37,39 @@ public class AIAgentAddDto
     public List<string> Tools { get; set; } = [];
 
     /// <summary>
+    /// 可 handoff 的目标 Agent 名称列表
+    /// </summary>
+    public List<string> HandoffTargets { get; set; } = [];
+
+    /// <summary>
+    /// Skill 名称列表
+    /// </summary>
+    public List<string> Skills { get; set; } = [];
+
+    /// <summary>
+    /// 标签
+    /// </summary>
+    public List<string> Tags { get; set; } = [];
+
+    public AgentCapabilities? Capabilities { get; set; }
+
+    public AgentMemoryMode? MemoryMode { get; set; }
+
+    public int? ContextWindow { get; set; }
+
+    public float? Temperature { get; set; }
+    public float? TopP { get; set; }
+    public int? MaxOutputTokens { get; set; }
+
+    /// <summary>
+    /// 结构化输出 JSON Schema（可选）
+    /// </summary>
+    [MaxLength(4000)]
+    public string? ResponseSchemaJson { get; set; }
+
+    public Guid? ProviderId { get; set; }
+
+    /// <summary>
     /// is enabled
     /// </summary>
     public bool Enable { get; set; }

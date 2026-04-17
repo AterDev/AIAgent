@@ -9,12 +9,36 @@ export class EnumTextPipe implements PipeTransform {
   transform(value: unknown, type: string): string {
     let result = '';
     switch (type) {
+      case 'AgentCapabilities':
+        switch (value) {
+          case 0: result = 'None'; break;
+          case 1: result = 'Tools'; break;
+          case 2: result = 'Streaming'; break;
+          case 4: result = 'StructuredOutput'; break;
+          case 8: result = 'Multimodal'; break;
+          case 16: result = 'Handoff'; break;
+          case 32: result = 'HumanInTheLoop'; break;
+          case 64: result = 'Rag'; break;
+          case 128: result = 'Mcp'; break;
+          default: result = '默认'; break;
+        }
+        break;
+
       case 'AgentExecutionStatus':
         switch (value) {
           case 0: result = 'Running'; break;
           case 1: result = 'Completed'; break;
           case 2: result = 'Failed'; break;
           case 3: result = 'Canceled'; break;
+          default: result = '默认'; break;
+        }
+        break;
+
+      case 'AgentMemoryMode':
+        switch (value) {
+          case 0: result = 'None'; break;
+          case 1: result = 'Window'; break;
+          case 2: result = 'Summary'; break;
           default: result = '默认'; break;
         }
         break;
@@ -95,6 +119,18 @@ export class EnumTextPipe implements PipeTransform {
           case 1: result = 'Failed'; break;
           case 2: result = 'Timeout'; break;
           case 3: result = 'Canceled'; break;
+          default: result = '默认'; break;
+        }
+        break;
+
+      case 'ModelProviderType':
+        switch (value) {
+          case 0: result = 'OpenAI compatible'; break;
+          case 1: result = 'Custom provider'; break;
+          case 2: result = 'Foundry Local'; break;
+          case 3: result = 'Azure OpenAI'; break;
+          case 4: result = 'Anthropic'; break;
+          case 5: result = 'Google'; break;
           default: result = '默认'; break;
         }
         break;

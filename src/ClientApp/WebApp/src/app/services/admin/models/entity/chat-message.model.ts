@@ -32,4 +32,10 @@ export interface ChatMessage {
   tokenCount?: number | null;
   /** 模型名称 */
   modelName?: string | null;
+  /** 附件 URL（持久化层仅保存远程/对象存储 URL） */
+  attachmentUrl?: string | null;
+  /** 附件 MIME 类型（如 image/png, application/pdf） */
+  attachmentMime?: string | null;
+  /** 附件原始文件名 */
+  attachmentName?: string | null;
 }

@@ -30,6 +30,50 @@
         <span>{{ model.tools?.join(', ') }}</span>
       </mat-list-item>
       <mat-list-item>
+        <strong class="detail-label">{{ i18nKeys.aiagent.handoffTargets | translate }}:</strong>
+        <span>{{ model.handoffTargets?.join(', ') }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ i18nKeys.aiagent.skills | translate }}:</strong>
+        <span>{{ model.skills?.join(', ') }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ i18nKeys.aiagent.tags | translate }}:</strong>
+        <span>{{ model.tags?.join(', ') }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ i18nKeys.aiagent.capabilities | translate }}:</strong>
+        <span>
+          @for (key of capabilityLabels(model.capabilities); track key; let last = $last) {
+            {{ key | translate }}@if (!last) {, }
+          }
+        </span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ i18nKeys.aiagent.memoryMode | translate }}:</strong>
+        <span>{{ memoryModeLabel(model.memoryMode) | translate }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ i18nKeys.aiagent.contextWindow | translate }}:</strong>
+        <span>{{ model.contextWindow }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ i18nKeys.aiagent.temperature | translate }}:</strong>
+        <span>{{ model.temperature }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ i18nKeys.aiagent.topP | translate }}:</strong>
+        <span>{{ model.topP }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ i18nKeys.aiagent.maxOutputTokens | translate }}:</strong>
+        <span>{{ model.maxOutputTokens }}</span>
+      </mat-list-item>
+      <mat-list-item>
+        <strong class="detail-label">{{ i18nKeys.aiagent.responseSchemaJson | translate }}:</strong>
+        <span class="pre-wrap">{{ model.responseSchemaJson }}</span>
+      </mat-list-item>
+      <mat-list-item>
         <strong class="detail-label">{{ i18nKeys.aiagent.enable | translate }}:</strong>
         <span>{{ model.enable }}</span>
       </mat-list-item>

@@ -6,6 +6,8 @@ import { AgentExecutionStatus } from '../entity/agent-execution-status.model';
 export interface AgentExecutionAddDto {
   /** agentId */
   agentId: string;
+  /** isApplicationAgent */
+  isApplicationAgent: boolean;
   /** inputJson */
   inputJson?: string | null;
   /** status */

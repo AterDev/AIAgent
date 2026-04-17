@@ -26,4 +26,9 @@ public sealed class ModelRoute
     public string? BaseUrl { get; set; }
 
     public string? ApiKey { get; set; }
+
+    /// <summary>
+    /// 提供商类型。用于决定是否允许空 ApiKey（Foundry Local）等分支。
+    /// </summary>
+    public Entity.ModelMod.ModelProviderType ProviderType { get; set; } = Entity.ModelMod.ModelProviderType.OpenAiCompatible;
 }

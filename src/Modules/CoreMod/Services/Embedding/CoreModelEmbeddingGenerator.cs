@@ -1,51 +1,65 @@
+using CoreMod.Options;
+using Microsoft.Extensions.Options;
+
 namespace CoreMod.Services.Embedding;
 
 /// <summary>
-/// 基于 CoreMod 模型调用的真实向量生成器
+/// 基于 CoreMod 模型调用的真实向量生成器。支持通过 QdrantOptions.EmbeddingModel 或
+/// 方法参数 overrideModel 指定具体 embedding 模型（OpenAI / Foundry Local / 通义千问 等）。
 /// </summary>
 public class CoreModelEmbeddingGenerator(
     ExtensionsAIModelClient modelClient,
+    IOptions<QdrantOptions> qdrantOptions,
     ILogger<CoreModelEmbeddingGenerator> logger
 )
 {
-    private const string DefaultEmbeddingModel = "text-embedding-3-small";
-    private const int DefaultVectorSize = 1536;
+    private readonly QdrantOptions _options = qdrantOptions.Value;
 
-    public async Task<float[]> GenerateAsync(string text, int size, CancellationToken cancellationToken = default)
+    public Task<float[]> GenerateAsync(string text, int size, CancellationToken cancellationToken = default)
+        => GenerateAsync(text, modelName: null, size, cancellationToken);
+
+    public async Task<float[]> GenerateAsync(string text, string? modelName, int size, CancellationToken cancellationToken = default)
     {
+        var effectiveSize = size > 0 ? size : _options.VectorSize;
         if (string.IsNullOrWhiteSpace(text))
         {
-            return Enumerable.Repeat(0f, size > 0 ? size : DefaultVectorSize).ToArray();
+            return new float[effectiveSize];
         }
+
+        var model = string.IsNullOrWhiteSpace(modelName) ? _options.EmbeddingModel : modelName;
 
         var request = new ModelRequest
         {
-            Model = DefaultEmbeddingModel,
+            Model = model,
             Metadata = new Dictionary<string, string>
             {
-                ["input"] = text
-            }
+                ["input"] = text,
+            },
         };
 
         var response = await modelClient.EmbeddingAsync(request, cancellationToken);
 
         if (!response.Success || string.IsNullOrWhiteSpace(response.Content))
         {
-            logger.LogWarning("Embedding generation failed: {Error}", response.ErrorMessage);
-            return Enumerable.Repeat(0f, size > 0 ? size : DefaultVectorSize).ToArray();
+            logger.LogWarning("Embedding generation failed: {Error} (model={Model})", response.ErrorMessage, model);
+            return new float[effectiveSize];
         }
 
         var embedding = System.Text.Json.JsonSerializer.Deserialize<float[]>(response.Content);
 
-        if (embedding == null || embedding.Length == 0)
+        if (embedding is null || embedding.Length == 0)
         {
-            logger.LogWarning("Embedding deserialization returned null or empty array");
-            return Enumerable.Repeat(0f, size > 0 ? size : DefaultVectorSize).ToArray();
+            logger.LogWarning("Embedding deserialization returned null or empty array (model={Model})", model);
+            return new float[effectiveSize];
         }
 
         if (size > 0 && embedding.Length != size)
         {
-            logger.LogWarning("Embedding size mismatch: expected {Expected}, got {Actual}", size, embedding.Length);
+            logger.LogWarning(
+                "Embedding size mismatch: expected {Expected}, got {Actual} (model={Model})",
+                size,
+                embedding.Length,
+                model);
         }
 
         return embedding;

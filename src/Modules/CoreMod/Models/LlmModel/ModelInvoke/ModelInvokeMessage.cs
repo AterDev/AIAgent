@@ -10,4 +10,9 @@ public sealed class ModelInvokeMessage
     /// Tool call ID (for tool result messages)
     /// </summary>
     public string? ToolCallId { get; set; }
+
+    /// <summary>
+    /// 多模态附件（图片等），可为空。
+    /// </summary>
+    public List<ModelAttachment> Attachments { get; set; } = new();
 }

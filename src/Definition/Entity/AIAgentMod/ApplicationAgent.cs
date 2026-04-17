@@ -42,6 +42,52 @@ public class ApplicationAgent : EntityBase
     public List<string> Tools { get; set; } = [];
 
     /// <summary>
+    /// Agent 关联的 Skill 名称列表
+    /// </summary>
+    public List<string> Skills { get; set; } = [];
+
+    /// <summary>
+    /// 可 Handoff 的目标 Agent 名称列表
+    /// </summary>
+    public List<string> HandoffTargets { get; set; } = [];
+
+    /// <summary>
+    /// 能力标志
+    /// </summary>
+    public AgentCapabilities Capabilities { get; set; } = AgentCapabilities.Tools | AgentCapabilities.Streaming;
+
+    /// <summary>
+    /// 记忆模式
+    /// </summary>
+    public AgentMemoryMode MemoryMode { get; set; } = AgentMemoryMode.Window;
+
+    /// <summary>
+    /// 上下文窗口
+    /// </summary>
+    public int ContextWindow { get; set; } = 20;
+
+    /// <summary>
+    /// 采样温度
+    /// </summary>
+    public float? Temperature { get; set; }
+
+    /// <summary>
+    /// TopP
+    /// </summary>
+    public float? TopP { get; set; }
+
+    /// <summary>
+    /// 最大输出 token 数
+    /// </summary>
+    public int? MaxOutputTokens { get; set; }
+
+    /// <summary>
+    /// 结构化输出的 JSON Schema（可选）
+    /// </summary>
+    [MaxLength(4000)]
+    public string? ResponseSchemaJson { get; set; }
+
+    /// <summary>
     /// is enabled
     /// </summary>
     public bool Enable { get; set; }

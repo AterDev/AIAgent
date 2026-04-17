@@ -20,7 +20,18 @@ public class ModelInvoker(
                 Provider = request.Provider,
                 Scene = request.Scene,
                 Messages = request.Messages
-                    .Select(m => new ModelMessage { Role = m.Role, Content = m.Content, ToolCallId = m.ToolCallId })
+                    .Select(m => new ModelMessage
+                    {
+                        Role = m.Role,
+                        Content = m.Content,
+                        ToolCallId = m.ToolCallId,
+                        Attachments = m.Attachments.Select(a => new ModelAttachment
+                        {
+                            Kind = a.Kind,
+                            DataUri = a.DataUri,
+                            MediaType = a.MediaType,
+                        }).ToList(),
+                    })
                     .ToList(),
                 ToolDefinitions = request.ToolDefinitions,
                 Metadata = request.Metadata,

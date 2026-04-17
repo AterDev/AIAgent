@@ -66,7 +66,12 @@ public class ModelDebugService(
             messages.Add(new ModelMessage { Role = "system", Content = request.SystemPrompt });
         }
 
-        messages.Add(new ModelMessage { Role = "user", Content = request.Prompt });
+        messages.Add(new ModelMessage
+        {
+            Role = "user",
+            Content = request.Prompt,
+            Attachments = ModelImageInputValidator.BuildValidatedImageAttachments(request.Images),
+        });
 
         var metadata = new Dictionary<string, string>();
         if (request.Temperature.HasValue)

@@ -63,6 +63,15 @@ if (aspireSetting.VectorStoreType?.ToLowerInvariant() == "qdrant")
         .WithDataVolume();
 }
 
+// Ollama: 提供本地 embedding（Foundry Local catalog 无 embedding 模型时的补位方案）
+// GPU 加速：本机 NVIDIA + Docker Desktop 启用 GPU 后，把 WithContainerRuntimeArgs 那行取消注释即可
+var ollama = builder.AddOllama("ollama", port: 11434)
+    .WithDataVolume()
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithParentRelationship(infrastructureGroup);
+// .WithContainerRuntimeArgs("--gpus=all");
+var embeddingModel = ollama.AddModel("embedding", "bge-m3:latest");
+
 devPassword.WithParentRelationship(infrastructureGroup);
 database?.WithParentRelationship(infrastructureGroup);
 cache?.WithParentRelationship(infrastructureGroup);
@@ -114,6 +123,11 @@ if (qdrant != null)
 apiService.WithReference(nats);
 adminService.WithReference(nats);
 fileProcessor.WithReference(nats).WaitFor(nats);
+
+// 让后端服务能通过 Aspire 服务发现拿到 Ollama 端点（ConnectionStrings__ollama-embedding）
+apiService.WithReference(embeddingModel);
+adminService.WithReference(embeddingModel);
+fileProcessor.WithReference(embeddingModel);
 # endregion
 
 builder.Build().Run();

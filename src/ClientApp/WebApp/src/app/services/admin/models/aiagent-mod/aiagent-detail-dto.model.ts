@@ -1,3 +1,6 @@
+import { AgentCapabilities } from '../entity/agent-capabilities.model';
+import { AgentMemoryMode } from '../entity/agent-memory-mode.model';
+
 /**
  * agentDetailDto
  */
@@ -24,6 +27,28 @@ export interface AIAgentDetailDto {
   tenantId: string;
   /** Agent 可用的工具列表 */
   tools?: string[] | null;
+  /** handoffTargets */
+  handoffTargets?: string[] | null;
+  /** skills */
+  skills?: string[] | null;
+  /** tags */
+  tags?: string[] | null;
+  /** Agent 能力标志（按位组合） */
+  capabilities: AgentCapabilities;
+  /** Agent 记忆模式 */
+  memoryMode: AgentMemoryMode;
+  /** contextWindow */
+  contextWindow?: number | null;
+  /** temperature */
+  temperature?: number | null;
+  /** topP */
+  topP?: number | null;
+  /** maxOutputTokens */
+  maxOutputTokens?: number | null;
+  /** responseSchemaJson */
+  responseSchemaJson?: string | null;
+  /** providerId */
+  providerId?: string | null;
   /** updatedTime */
   updatedTime: Date;
 }

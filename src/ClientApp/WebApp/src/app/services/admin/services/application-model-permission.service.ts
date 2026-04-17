@@ -48,19 +48,19 @@ export class ApplicationModelPermissionService extends BaseService {
     return this.request<ApplicationModelPermissionDetailDto>('get', _url);
   }
   /**
-   * sync
-   * @param data ApplicationModelPermissionSyncDto
-   */
-  sync(data: ApplicationModelPermissionSyncDto): Observable<boolean> {
-    const _url = `/api/ApplicationModelPermission/sync`;
-    return this.request<boolean>('post', _url, data);
-  }
-  /**
    * delete
    * @param id string
    */
   delete(id: string): Observable<boolean> {
     const _url = `/api/ApplicationModelPermission/${id}`;
     return this.request<boolean>('delete', _url);
+  }
+  /**
+   * sync
+   * @param data ApplicationModelPermissionSyncDto
+   */
+  sync(data: ApplicationModelPermissionSyncDto): Observable<boolean> {
+    const _url = `/api/ApplicationModelPermission/sync`;
+    return this.request<boolean>('post', _url, data);
   }
 }

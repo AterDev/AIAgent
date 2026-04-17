@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Modules\CoreMod\CoreMod.csproj" />
     <ProjectReference Include="..\..\src\Definition\Entity\Entity.csproj" />
     <ProjectReference Include="..\..\src\Modules\KnowledgeBaseMod\KnowledgeBaseMod.csproj" />
   </ItemGroup>

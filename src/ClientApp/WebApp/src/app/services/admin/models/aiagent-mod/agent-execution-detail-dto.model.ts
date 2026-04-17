@@ -8,6 +8,8 @@ export interface AgentExecutionDetailDto {
   id: string;
   /** agentId */
   agentId: string;
+  /** isApplicationAgent */
+  isApplicationAgent: boolean;
   /** createdTime */
   createdTime: Date;
   /** updatedTime */

@@ -4,8 +4,8 @@ import { AgentExecutionService } from './services/agent-execution.service';
 import { AIAgentService } from './services/aiagent.service';
 import { AIModelInfoService } from './services/aimodel-info.service';
 import { AIModelProviderService } from './services/aimodel-provider.service';
-import { ApplicationAgentService } from './services/application-agent.service';
 import { ApplicationService } from './services/application.service';
+import { ApplicationAgentService } from './services/application-agent.service';
 import { ApplicationModelPermissionService } from './services/application-model-permission.service';
 import { ApplicationQuotaService } from './services/application-quota.service';
 import { ApplicationRagCollectionPermissionService } from './services/application-rag-collection-permission.service';
@@ -34,7 +34,7 @@ export class AdminClient {
   public agentDebug = inject(AgentDebugService);
   /** Agent 执行管理 */
   public agentExecution = inject(AgentExecutionService);
-  /** agent */
+  /** 系统/公共 Agent */
   public aIAgent = inject(AIAgentService);
   /** 模型信息 */
   public aIModelInfo = inject(AIModelInfoService);
@@ -42,7 +42,7 @@ export class AdminClient {
   public aIModelProvider = inject(AIModelProviderService);
   /** 应用定义 */
   public application = inject(ApplicationService);
-  /** 应用侧 agent */
+  /** 应用侧 Agent */
   public applicationAgent = inject(ApplicationAgentService);
   /** 应用模型权限管理 */
   public applicationModelPermission = inject(ApplicationModelPermissionService);

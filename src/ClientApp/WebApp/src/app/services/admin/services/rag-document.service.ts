@@ -8,6 +8,7 @@ import { RagDocumentAddDto } from '../models/knowledge-base-mod/rag-document-add
 import { RagDocument } from '../models/entity/rag-document.model';
 import { RagDocumentUpdateDto } from '../models/knowledge-base-mod/rag-document-update-dto.model';
 import { RagDocumentDetailDto } from '../models/knowledge-base-mod/rag-document-detail-dto.model';
+import { RagDocumentIngestDto } from '../models/knowledge-base-mod/rag-document-ingest-dto.model';
 /**
  * 文档管理（仅管理，不包含处理逻辑）
  */
@@ -53,6 +54,15 @@ export class RagDocumentService extends BaseService {
   delete(id: string): Observable<boolean> {
     const _url = `/api/RagDocument/${id}`;
     return this.request<boolean>('delete', _url);
+  }
+  /**
+   * 手动触发文档入队解析/向量化
+   * @param id string
+   * @param data RagDocumentIngestDto
+   */
+  ingest(id: string, data: RagDocumentIngestDto): Observable<boolean> {
+    const _url = `/api/RagDocument/${id}/ingest`;
+    return this.request<boolean>('post', _url, data);
   }
   /**
    * 手动触发文档解析

@@ -1,4 +1,3 @@
-import { AIAgent } from '../entity/aiagent.model';
 import { AgentExecutionStatus } from '../entity/agent-execution-status.model';
 
 /**
@@ -17,8 +16,8 @@ export interface AgentExecution {
   tenantId: string;
   /** agentId */
   agentId: string;
-  /** agent */
-  agent: AIAgent;
+  /** isApplicationAgent */
+  isApplicationAgent: boolean;
   /** status */
   status: AgentExecutionStatus;
   /** inputJson */

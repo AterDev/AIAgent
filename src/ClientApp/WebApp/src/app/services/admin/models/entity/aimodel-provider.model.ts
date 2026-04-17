@@ -1,3 +1,4 @@
+import { ModelProviderType } from '../entity/model-provider-type.model';
 import { AIModelInfo } from '../entity/aimodel-info.model';
 
 /**
@@ -26,6 +27,10 @@ export interface AIModelProvider {
   apiKey?: string | null;
   /** baseUrl */
   baseUrl: string;
+  /** providerType */
+  providerType: ModelProviderType;
+  /** 是否启用 */
+  isEnabled: boolean;
   /** 关联的模型列表 */
   models: AIModelInfo[];
 }

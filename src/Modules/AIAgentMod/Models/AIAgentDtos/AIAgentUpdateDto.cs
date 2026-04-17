@@ -34,6 +34,22 @@ public class AIAgentUpdateDto
     /// </summary>
     public List<string>? Tools { get; set; }
 
+    public List<string>? HandoffTargets { get; set; }
+    public List<string>? Skills { get; set; }
+    public List<string>? Tags { get; set; }
+
+    public AgentCapabilities? Capabilities { get; set; }
+    public AgentMemoryMode? MemoryMode { get; set; }
+    public int? ContextWindow { get; set; }
+    public float? Temperature { get; set; }
+    public float? TopP { get; set; }
+    public int? MaxOutputTokens { get; set; }
+
+    [MaxLength(4000)]
+    public string? ResponseSchemaJson { get; set; }
+
+    public Guid? ProviderId { get; set; }
+
     /// <summary>
     /// is enabled
     /// </summary>

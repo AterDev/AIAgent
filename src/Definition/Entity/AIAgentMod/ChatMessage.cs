@@ -50,6 +50,24 @@ public class ChatMessage : EntityBase
     /// </summary>
     [MaxLength(128)]
     public string? ModelName { get; set; }
+
+    /// <summary>
+    /// 附件 URL（持久化层仅保存远程/对象存储 URL，不保存 data URI）
+    /// </summary>
+    [MaxLength(2000)]
+    public string? AttachmentUrl { get; set; }
+
+    /// <summary>
+    /// 附件 MIME 类型（如 image/png, application/pdf）
+    /// </summary>
+    [MaxLength(100)]
+    public string? AttachmentMime { get; set; }
+
+    /// <summary>
+    /// 附件原始文件名
+    /// </summary>
+    [MaxLength(255)]
+    public string? AttachmentName { get; set; }
 }
 
 public enum ChatMessageRole

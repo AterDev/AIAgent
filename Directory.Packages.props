@@ -11,6 +11,7 @@
     <PackageVersion Include="Aspire.Hosting.Redis" Version="13.2.2" />
     <PackageVersion Include="Aspire.Hosting.SqlServer" Version="13.2.2" />
     <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.2.2" />
+    <PackageVersion Include="CommunityToolkit.Aspire.Hosting.Ollama" Version="13.2.1-beta.532" />
     <PackageVersion Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="13.2.2" />
     <PackageVersion Include="Aspire.NATS.Net" Version="13.2.2" />
     <PackageVersion Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.2.2" />
@@ -18,8 +19,6 @@
     <PackageVersion Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.2.2" />
     <!--Test -->
     <PackageVersion Include="Aspire.Hosting.Testing" Version="13.2.2" />
-    <PackageVersion Include="Microsoft.Agents.AI" Version="1.0.0-preview.260127.1" />
-    <PackageVersion Include="Microsoft.Agents.AI.OpenAI" Version="1.1.0" />
     <PackageVersion Include="TUnit" Version="1.34.5" />
     <!-- Microsoft ASP.NET Core Packages -->
     <PackageVersion Include="EFCore.BulkExtensions.PostgreSql" Version="10.0.1" />
@@ -67,6 +66,8 @@
     <PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.2" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
     <!-- Microsoft Agent Framework -->
+    <PackageVersion Include="Microsoft.Agents.AI" Version="1.1.0" />
+    <PackageVersion Include="Microsoft.Agents.AI.OpenAI" Version="1.1.0" />
     <PackageVersion Include="Microsoft.Agents.AI.Workflows" Version="1.1.0" />
     <PackageVersion Include="Microsoft.Extensions.AI.Abstractions" Version="10.5.0" />
     <PackageVersion Include="Microsoft.Extensions.AI.OpenAI" Version="10.5.0" />

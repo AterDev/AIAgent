@@ -51,6 +51,8 @@ public static class Extensions
                 tracing
                     .AddSource(builder.Environment.ApplicationName)
                     .AddSource("Microsoft.Extensions.AI")
+                    .AddSource("Microsoft.Agents.AI")
+                    .AddSource("AIAgent")
                     .AddAspNetCoreInstrumentation(tracing =>
                     {
                         tracing.Filter = context =>

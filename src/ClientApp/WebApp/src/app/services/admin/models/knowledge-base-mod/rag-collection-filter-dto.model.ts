@@ -10,10 +10,10 @@ export interface RagCollectionFilterDto {
   orderBy?: Record<string, boolean> | null;
   /** name */
   name?: string | null;
-  /** applicationId */
-  applicationId?: string | null;
   /** isPublic */
   isPublic?: boolean | null;
   /** isEnabled */
   isEnabled?: boolean | null;
+  /** applicationId */
+  applicationId?: string | null;
 }

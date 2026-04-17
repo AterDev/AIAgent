@@ -18,7 +18,7 @@ namespace EntityFramework.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.5")
+                .HasAnnotation("ProductVersion", "10.0.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -84,6 +84,12 @@ namespace EntityFramework.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<int>("Capabilities")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ContextWindow")
+                        .HasColumnType("integer");
+
                     b.Property<DateTimeOffset>("CreatedTime")
                         .HasColumnType("timestamp with time zone");
 
@@ -95,25 +101,68 @@ namespace EntityFramework.Migrations
                     b.Property<bool>("Enable")
                         .HasColumnType("boolean");
 
+                    b.Property<float?>("FrequencyPenalty")
+                        .HasColumnType("real");
+
+                    b.PrimitiveCollection<List<string>>("HandoffTargets")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.Property<string>("IconUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsPublic")
                         .HasColumnType("boolean");
 
+                    b.Property<int?>("MaxOutputTokens")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MemoryMode")
+                        .HasColumnType("integer");
+
                     b.Property<string>("ModelId")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("OutputLanguage")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<float?>("PresencePenalty")
+                        .HasColumnType("real");
+
+                    b.Property<Guid?>("ProviderId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ResponseSchemaJson")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.PrimitiveCollection<List<string>>("Skills")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
                     b.Property<string>("SystemPrompt")
                         .IsRequired()
-                        .HasMaxLength(5000)
-                        .HasColumnType("character varying(5000)");
+                        .HasMaxLength(8000)
+                        .HasColumnType("character varying(8000)");
+
+                    b.PrimitiveCollection<List<string>>("Tags")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.Property<float?>("Temperature")
+                        .HasColumnType("real");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
@@ -121,6 +170,9 @@ namespace EntityFramework.Migrations
                     b.PrimitiveCollection<List<string>>("Tools")
                         .IsRequired()
                         .HasColumnType("text[]");
+
+                    b.Property<float?>("TopP")
+                        .HasColumnType("real");
 
                     b.Property<DateTimeOffset>("UpdatedTime")
                         .HasColumnType("timestamp with time zone");
@@ -196,6 +248,12 @@ namespace EntityFramework.Migrations
                     b.Property<Guid>("ApplicationId")
                         .HasColumnType("uuid");
 
+                    b.Property<int>("Capabilities")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ContextWindow")
+                        .HasColumnType("integer");
+
                     b.Property<DateTimeOffset>("CreatedTime")
                         .HasColumnType("timestamp with time zone");
 
@@ -207,8 +265,18 @@ namespace EntityFramework.Migrations
                     b.Property<bool>("Enable")
                         .HasColumnType("boolean");
 
+                    b.PrimitiveCollection<List<string>>("HandoffTargets")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<int?>("MaxOutputTokens")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MemoryMode")
+                        .HasColumnType("integer");
 
                     b.Property<string>("ModelId")
                         .IsRequired()
@@ -219,10 +287,21 @@ namespace EntityFramework.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("ResponseSchemaJson")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.PrimitiveCollection<List<string>>("Skills")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
                     b.Property<string>("SystemPrompt")
                         .IsRequired()
                         .HasMaxLength(5000)
                         .HasColumnType("character varying(5000)");
+
+                    b.Property<float?>("Temperature")
+                        .HasColumnType("real");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
@@ -230,6 +309,9 @@ namespace EntityFramework.Migrations
                     b.PrimitiveCollection<List<string>>("Tools")
                         .IsRequired()
                         .HasColumnType("text[]");
+
+                    b.Property<float?>("TopP")
+                        .HasColumnType("real");
 
                     b.Property<DateTimeOffset>("UpdatedTime")
                         .HasColumnType("timestamp with time zone");
@@ -254,6 +336,18 @@ namespace EntityFramework.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("AttachmentMime")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("AttachmentName")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("AttachmentUrl")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -1023,6 +1117,9 @@ namespace EntityFramework.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("LogoUrl")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
@@ -1031,6 +1128,9 @@ namespace EntityFramework.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<int>("ProviderType")
+                        .HasColumnType("integer");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, computed, signal } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { CommonFormModules } from 'src/app/share/shared-modules';
 import { MatCardModule } from '@angular/material/card';
@@ -46,9 +46,18 @@ export class ModelDebugIndex implements OnInit, OnDestroy {
   error = signal<string | null>(null);
   history = signal<Array<{ request: ModelDebugRequest; response: ModelDebugResponse; timestamp: Date }>>([]);
 
-  availableModels = signal<Array<{ id: string; name: string; providerId: string }>>([]);
+  availableModels = signal<Array<{ id: string; name: string; providerId: string; supportsVision: boolean }>>([]);
   availableApplications = signal<Array<{ id: string; name: string }>>([]);
   isAdmin = signal(false);
+
+  /** 已上传的图片 data URI 列表 */
+  selectedImages = signal<string[]>([]);
+
+  /** 当前选择的模型是否支持视觉 */
+  currentModelSupportsVision = computed(() => {
+    const id = this.modelId?.value;
+    return !!id && !!this.availableModels().find(m => m.id === id)?.supportsVision;
+  });
 
   constructor(
     private fb: FormBuilder,
@@ -125,7 +134,8 @@ export class ModelDebugIndex implements OnInit, OnDestroy {
           const models = (res.data || []).map(m => ({
             id: m.id || '',
             name: m.name || '',
-            providerId: m.providerId || ''
+            providerId: m.providerId || '',
+            supportsVision: !!m.supportsVision
           }));
           this.availableModels.set(models);
           this.isLoading.set(false);
@@ -173,6 +183,7 @@ export class ModelDebugIndex implements OnInit, OnDestroy {
       prompt: this.prompt.value,
       temperature: this.temperature.value,
       maxTokens: this.maxTokens.value,
+      images: this.currentModelSupportsVision() ? this.selectedImages() : [],
       requestId
     };
 
@@ -310,6 +321,40 @@ export class ModelDebugIndex implements OnInit, OnDestroy {
 
   clearHistory(): void {
     this.history.set([]);
+  }
+
+  /**
+   * 图片选择回调：读取文件为 data URL（限制 5MB、最多 4 张）。
+   */
+  onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    const maxSize = 5 * 1024 * 1024;
+    const maxCount = 4;
+
+    const current = [...this.selectedImages()];
+    for (let i = 0; i < input.files.length && current.length < maxCount; i++) {
+      const file = input.files[i];
+      if (!file.type.startsWith('image/') || file.size > maxSize) {
+        continue;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUri = reader.result as string;
+        this.selectedImages.update(list => list.length < maxCount ? [...list, dataUri] : list);
+      };
+      reader.readAsDataURL(file);
+      current.push('');
+    }
+    input.value = '';
+  }
+
+  removeImage(index: number): void {
+    this.selectedImages.update(list => list.filter((_, i) => i !== index));
+  }
+
+  clearImages(): void {
+    this.selectedImages.set([]);
   }
 
   loadFromHistory(item: { request: ModelDebugRequest }): void {

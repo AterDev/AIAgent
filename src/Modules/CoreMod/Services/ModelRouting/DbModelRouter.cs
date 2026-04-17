@@ -41,6 +41,7 @@ public class DbModelRouter(
             Provider = modelInfo.Provider.Name,
             BaseUrl = modelInfo.Provider.BaseUrl,
             ApiKey = modelInfo.Provider.ApiKey,
+            ProviderType = modelInfo.Provider.ProviderType,
         };
     }
 }

@@ -78,6 +78,15 @@ export class AgentDebugIndex implements OnInit, OnDestroy {
     return this.availableAgents().find(a => a.id === agentId);
   });
 
+  /** 当前 Agent 的 capabilities 位标志（由详情加载填充） */
+  currentAgentCapabilities = signal<number>(0);
+
+  /** Multimodal = 8 */
+  supportsMultimodal = computed(() => (this.currentAgentCapabilities() & 8) === 8);
+
+  /** 已上传的图片 data URI 列表 */
+  selectedImages = signal<string[]>([]);
+
   constructor(
     private fb: FormBuilder,
     private adminClient: AdminClient,
@@ -220,6 +229,8 @@ export class AgentDebugIndex implements OnInit, OnDestroy {
 
   onAgentSelected(): void {
     const agent = this.selectedAgent();
+    this.selectedImages.set([]);
+    this.currentAgentCapabilities.set(0);
     if (agent) {
       // Load agent details and populate form
       this.adminClient.aIAgent.detail(agent.id)
@@ -229,9 +240,41 @@ export class AgentDebugIndex implements OnInit, OnDestroy {
             this.configForm.patchValue({
               systemPrompt: details.systemPrompt || '',
             });
+            this.currentAgentCapabilities.set((details.capabilities as unknown as number) ?? 0);
           }
         });
     }
+  }
+
+  /**
+   * 图片选择回调：读取文件为 data URL（限制 5MB、最多 4 张）。
+   */
+  onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    const maxSize = 5 * 1024 * 1024;
+    const maxCount = 4;
+    for (let i = 0; i < input.files.length; i++) {
+      const file = input.files[i];
+      if (!file.type.startsWith('image/') || file.size > maxSize) {
+        continue;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUri = reader.result as string;
+        this.selectedImages.update(list => list.length < maxCount ? [...list, dataUri] : list);
+      };
+      reader.readAsDataURL(file);
+    }
+    input.value = '';
+  }
+
+  removeImage(index: number): void {
+    this.selectedImages.update(list => list.filter((_, i) => i !== index));
+  }
+
+  clearImages(): void {
+    this.selectedImages.set([]);
   }
 
   onTest(): void {
@@ -271,6 +314,7 @@ export class AgentDebugIndex implements OnInit, OnDestroy {
       maxTokens: this.maxTokens.value,
       enabledTools: this.enabledTools.value || [],
       enableToolCallLogging: this.configForm.get('enableToolCallLogging')?.value ?? true,
+      images: this.supportsMultimodal() ? this.selectedImages() : [],
       requestId
     };
 

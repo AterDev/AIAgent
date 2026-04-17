@@ -35,19 +35,55 @@ namespace EntityFramework.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AgentExecutions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    AgentId = table.Column<Guid>(type: "uuid", nullable: false),
+                    IsApplicationAgent = table.Column<bool>(type: "boolean", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    InputJson = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: false),
+                    OutputJson = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: false),
+                    CompletedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    DurationMs = table.Column<int>(type: "integer", nullable: false),
+                    ErrorMessage = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AgentExecutions", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AIAgents",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
-                    ModelId = table.Column<string>(type: "text", nullable: false),
-                    SystemPrompt = table.Column<string>(type: "character varying(5000)", maxLength: 5000, nullable: false),
+                    ModelId = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    ProviderId = table.Column<Guid>(type: "uuid", nullable: true),
+                    SystemPrompt = table.Column<string>(type: "character varying(8000)", maxLength: 8000, nullable: false),
                     Tools = table.Column<List<string>>(type: "text[]", nullable: false),
+                    Skills = table.Column<List<string>>(type: "text[]", nullable: false),
+                    HandoffTargets = table.Column<List<string>>(type: "text[]", nullable: false),
+                    Tags = table.Column<List<string>>(type: "text[]", nullable: false),
+                    Capabilities = table.Column<int>(type: "integer", nullable: false),
+                    MemoryMode = table.Column<int>(type: "integer", nullable: false),
+                    ContextWindow = table.Column<int>(type: "integer", nullable: false),
+                    ResponseSchemaJson = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: true),
+                    Temperature = table.Column<float>(type: "real", nullable: true),
+                    TopP = table.Column<float>(type: "real", nullable: true),
+                    MaxOutputTokens = table.Column<int>(type: "integer", nullable: true),
+                    FrequencyPenalty = table.Column<float>(type: "real", nullable: true),
+                    PresencePenalty = table.Column<float>(type: "real", nullable: true),
+                    IconUrl = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    OutputLanguage = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
                     Enable = table.Column<bool>(type: "boolean", nullable: false),
-                    IsTemplate = table.Column<bool>(type: "boolean", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: true),
-                    ApplicationId = table.Column<Guid>(type: "uuid", nullable: true),
+                    IsPublic = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
@@ -69,6 +105,8 @@ namespace EntityFramework.Migrations
                     Website = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     ApiKey = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
                     BaseUrl = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    ProviderType = table.Column<int>(type: "integer", nullable: false),
+                    IsEnabled = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
@@ -379,34 +417,6 @@ namespace EntityFramework.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AgentExecutions",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    AgentId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Status = table.Column<int>(type: "integer", nullable: false),
-                    InputJson = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: false),
-                    OutputJson = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: false),
-                    CompletedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    DurationMs = table.Column<int>(type: "integer", nullable: false),
-                    ErrorMessage = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
-                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AgentExecutions", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AgentExecutions_AIAgents_AgentId",
-                        column: x => x.AgentId,
-                        principalTable: "AIAgents",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AIModelInfos",
                 columns: table => new
                 {
@@ -437,6 +447,44 @@ namespace EntityFramework.Migrations
                         name: "FK_AIModelInfos_AIModelProviders_ProviderId",
                         column: x => x.ProviderId,
                         principalTable: "AIModelProviders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ApplicationAgents",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    ModelId = table.Column<string>(type: "text", nullable: false),
+                    SystemPrompt = table.Column<string>(type: "character varying(5000)", maxLength: 5000, nullable: false),
+                    Tools = table.Column<List<string>>(type: "text[]", nullable: false),
+                    Skills = table.Column<List<string>>(type: "text[]", nullable: false),
+                    HandoffTargets = table.Column<List<string>>(type: "text[]", nullable: false),
+                    Capabilities = table.Column<int>(type: "integer", nullable: false),
+                    MemoryMode = table.Column<int>(type: "integer", nullable: false),
+                    ContextWindow = table.Column<int>(type: "integer", nullable: false),
+                    Temperature = table.Column<float>(type: "real", nullable: true),
+                    TopP = table.Column<float>(type: "real", nullable: true),
+                    MaxOutputTokens = table.Column<int>(type: "integer", nullable: true),
+                    ResponseSchemaJson = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: true),
+                    Enable = table.Column<bool>(type: "boolean", nullable: false),
+                    ApplicationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApplicationAgents", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ApplicationAgents_Applications_ApplicationId",
+                        column: x => x.ApplicationId,
+                        principalTable: "Applications",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -533,6 +581,9 @@ namespace EntityFramework.Migrations
                     ContentType = table.Column<int>(type: "integer", maxLength: 32, nullable: false),
                     TokenCount = table.Column<int>(type: "integer", nullable: true),
                     ModelName = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    AttachmentUrl = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
+                    AttachmentMime = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    AttachmentName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
                     CreatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
@@ -846,24 +897,15 @@ namespace EntityFramework.Migrations
                 column: "Name");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AgentExecutions_AgentId_Status",
+                name: "IX_AgentExecutions_AgentId_IsApplicationAgent_Status",
                 table: "AgentExecutions",
-                columns: new[] { "AgentId", "Status" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AIAgents_ApplicationId",
-                table: "AIAgents",
-                column: "ApplicationId");
+                columns: new[] { "AgentId", "IsApplicationAgent", "Status" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AIAgents_Name",
                 table: "AIAgents",
-                column: "Name");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AIAgents_UserId",
-                table: "AIAgents",
-                column: "UserId");
+                column: "Name",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_AIModelInfos_ProviderId_Name",
@@ -897,6 +939,22 @@ namespace EntityFramework.Migrations
                 table: "ApiKeyAuthIndexes",
                 column: "KeyFingerprint",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationAgents_ApplicationId",
+                table: "ApplicationAgents",
+                column: "ApplicationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationAgents_ApplicationId_Name",
+                table: "ApplicationAgents",
+                columns: new[] { "ApplicationId", "Name" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationAgents_UserId",
+                table: "ApplicationAgents",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ApplicationModelPermissions_AIModelInfoId",
@@ -1094,7 +1152,13 @@ namespace EntityFramework.Migrations
                 name: "AgentExecutions");
 
             migrationBuilder.DropTable(
+                name: "AIAgents");
+
+            migrationBuilder.DropTable(
                 name: "ApiKeyAuthIndexes");
+
+            migrationBuilder.DropTable(
+                name: "ApplicationAgents");
 
             migrationBuilder.DropTable(
                 name: "ApplicationModelPermissions");
@@ -1152,9 +1216,6 @@ namespace EntityFramework.Migrations
 
             migrationBuilder.DropTable(
                 name: "WorkflowExecutions");
-
-            migrationBuilder.DropTable(
-                name: "AIAgents");
 
             migrationBuilder.DropTable(
                 name: "Conversations");

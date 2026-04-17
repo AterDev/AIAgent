@@ -51,6 +51,38 @@
               <mat-hint>{{ i18nKeys.modelDebug.promptHint | translate }}</mat-hint>
             </mat-form-field>
 
+            @if (currentModelSupportsVision()) {
+              <div class="image-uploader">
+                <div class="d-flex align-items-center gap-2">
+                  <button mat-stroked-button type="button" (click)="imageInput.click()">
+                    <mat-icon>image</mat-icon>
+                    {{ i18nKeys.debugImages.addImages | translate }}
+                  </button>
+                  @if (selectedImages().length > 0) {
+                    <button mat-button type="button" color="warn" (click)="clearImages()">
+                      <mat-icon>clear_all</mat-icon>
+                      {{ i18nKeys.debugImages.clearAll | translate }}
+                    </button>
+                  }
+                  <span class="text-muted small">{{ i18nKeys.debugImages.hint | translate }}</span>
+                </div>
+                <input #imageInput type="file" accept="image/*" multiple hidden (change)="onImageSelected($event)" />
+                @if (selectedImages().length > 0) {
+                  <div class="image-preview-grid">
+                    @for (uri of selectedImages(); let i = $index; track i) {
+                      <div class="image-preview-item">
+                        <img [src]="uri" alt="preview" />
+                        <button mat-mini-fab color="warn" type="button" (click)="removeImage(i)"
+                                [matTooltip]="i18nKeys.debugImages.remove | translate">
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+
             <div class="row g-3">
               <div class="col-6">
                 <mat-form-field appearance="outline" class="w-100">

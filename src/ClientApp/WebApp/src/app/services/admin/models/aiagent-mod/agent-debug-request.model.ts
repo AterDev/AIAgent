@@ -15,6 +15,8 @@ export interface AgentDebugRequest {
   enabledTools: string[];
   /** enableToolCallLogging */
   enableToolCallLogging: boolean;
+  /** 多模态图片输入（data URI 或 http(s) URL） */
+  images: string[];
   /** requestId */
   requestId?: string | null;
 }
