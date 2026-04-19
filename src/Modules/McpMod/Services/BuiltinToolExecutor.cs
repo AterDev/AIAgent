@@ -41,8 +41,17 @@ public class BuiltinToolExecutor(
             return Failed(error);
         }
 
-        var root = document!.RootElement;
-        var query = root.TryGetProperty("query", out var q) ? q.GetString() : null;
+        var root = GetArgumentRoot(document!.RootElement);
+        if (root.ValueKind != JsonValueKind.Object)
+        {
+            return Failed("Arguments must be a JSON object");
+        }
+
+        var query = root.TryGetProperty("query", out var q)
+            ? q.GetString()
+            : root.TryGetProperty("input", out var input)
+                ? input.GetString()
+                : null;
         if (string.IsNullOrWhiteSpace(query))
         {
             return Failed("Missing 'query' argument");
@@ -71,7 +80,12 @@ public class BuiltinToolExecutor(
             return Failed(error);
         }
 
-        var root = document!.RootElement;
+        var root = GetArgumentRoot(document!.RootElement);
+        if (root.ValueKind != JsonValueKind.Object)
+        {
+            return Failed("Arguments must be a JSON object");
+        }
+
         var sql = root.TryGetProperty("sql", out var sqlElem) ? sqlElem.GetString() : null;
         if (string.IsNullOrWhiteSpace(sql))
         {
@@ -133,7 +147,12 @@ public class BuiltinToolExecutor(
             return Failed(error);
         }
 
-        var root = document!.RootElement;
+        var root = GetArgumentRoot(document!.RootElement);
+        if (root.ValueKind != JsonValueKind.Object)
+        {
+            return Failed("Arguments must be a JSON object");
+        }
+
         var url = root.TryGetProperty("url", out var urlElem) ? urlElem.GetString() : null;
         var method = root.TryGetProperty("method", out var methodElem) ? methodElem.GetString() : "GET";
         if (string.IsNullOrWhiteSpace(url))
@@ -229,6 +248,17 @@ public class BuiltinToolExecutor(
         try
         {
             document = JsonDocument.Parse(argumentsJson);
+
+            if (document.RootElement.ValueKind == JsonValueKind.String)
+            {
+                var innerJson = document.RootElement.GetString();
+                if (!string.IsNullOrWhiteSpace(innerJson))
+                {
+                    document.Dispose();
+                    document = JsonDocument.Parse(innerJson);
+                }
+            }
+
             return true;
         }
         catch (JsonException ex)
@@ -236,6 +266,36 @@ public class BuiltinToolExecutor(
             error = $"Invalid arguments json: {ex.Message}";
             return false;
         }
+    }
+
+    private static JsonElement GetArgumentRoot(JsonElement root)
+    {
+        if (root.ValueKind != JsonValueKind.Object)
+        {
+            return root;
+        }
+
+        if (!root.TryGetProperty("arguments", out var argumentsElement))
+        {
+            return root;
+        }
+
+        if (argumentsElement.ValueKind == JsonValueKind.Object)
+        {
+            return argumentsElement;
+        }
+
+        if (argumentsElement.ValueKind == JsonValueKind.String)
+        {
+            var innerJson = argumentsElement.GetString();
+            if (!string.IsNullOrWhiteSpace(innerJson))
+            {
+                using var innerDoc = JsonDocument.Parse(innerJson);
+                return innerDoc.RootElement.Clone();
+            }
+        }
+
+        return root;
     }
 
     private static bool IsSafeReadOnlySql(string sql)

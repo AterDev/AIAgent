@@ -5,12 +5,18 @@ using CoreMod.Models;
 using CoreMod.Models.RagQuery;
 using Entity.AIAgentMod;
 using Entity.KnowledgeBaseMod;
+using Entity.McpMod;
 using Entity.ModelMod;
+using KnowledgeBaseMod.Models.RagCollectionDtos;
+using KnowledgeBaseMod.Models.RagDocumentDtos;
+using McpMod.Models.McpToolDtos;
 using ModelMod.Models.AIModelInfoDtos;
 using ModelMod.Models.ApplicationApiKeyDtos;
 using ModelMod.Models.ApplicationModelPermissionDtos;
+using ModelMod.Models.ApplicationToolPermissionDtos;
 using ModelMod.Models.AIModelProviderDtos;
 using ModelMod.Models.ApplicationDtos;
+using Perigon.AspNetCore.Models;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -450,6 +456,168 @@ public class ApplicationApiKeyTests
         }
     }
 
+    [ClassDataSource<HttpClientDataClass>(Shared = SharedType.PerTestSession)]
+    [Test]
+    public async Task ApplicationApiKey_ShouldUploadParseAndSearchRagDocument_UsingOpenPlatformPipeline(HttpClientDataClass httpClientData)
+    {
+        var adminClient = httpClientData.HttpClient;
+        Guid applicationId = Guid.Empty;
+
+        try
+        {
+            var scenario = OpenPlatformRagTestData.CreateScenario();
+            var application = await CreateApplicationAsync(adminClient, "用于验证应用 ApiKey 的知识库上传、解析与检索链路");
+            applicationId = application.Id;
+
+            var apiKeyResult = await CreateApplicationApiKeyAsync(adminClient, application.Id, "Rag Pipeline Key");
+
+            using var apiClient = await CreateApiServiceClientAsync(apiKeyResult.ApiKey);
+
+            var createCollectionResponse = await apiClient.PostAsJsonAsync("/api/v1/rag/collections", new RagCollectionAddDto
+            {
+                Name = scenario.CollectionName,
+                Description = "通过开放平台上传文档并验证解析与检索的测试集合",
+                IsEnabled = true,
+                Tags = ["integration", "rag", "pipeline"],
+            });
+            await AssertStatusCodeAsync(createCollectionResponse, HttpStatusCode.Created);
+
+            var collection = await ReadRequiredJsonAsync<RagCollection>(createCollectionResponse);
+
+            using var uploadContent = OpenPlatformRagTestData.CreateUploadContent(collection.Id, scenario);
+            var uploadResponse = await apiClient.PostAsync("/api/v1/rag/documents/upload", uploadContent);
+            await AssertStatusCodeAsync(uploadResponse, HttpStatusCode.Created);
+
+            var document = await ReadRequiredJsonAsync<RagDocument>(uploadResponse);
+            var documentDetail = await WaitForRagDocumentCompletedAsync(apiClient, document.Id, TimeSpan.FromMinutes(2));
+
+            await Assert.That(documentDetail.Status).IsEqualTo(RagDocumentStatus.Completed);
+            await Assert.That(documentDetail.ErrorMessage).IsNull();
+            await Assert.That(documentDetail.ChunkCount).IsGreaterThan(0);
+            await Assert.That(documentDetail.TokenCount).IsGreaterThan(0);
+
+            var searchResponse = await apiClient.PostAsJsonAsync("/api/v1/rag/search", new RagQueryRequest
+            {
+                CollectionId = collection.Id,
+                Query = scenario.SearchQuery,
+                TopK = 3,
+            });
+            await AssertStatusCodeAsync(searchResponse, HttpStatusCode.OK);
+
+            var searchResult = await searchResponse.Content.ReadFromJsonAsync<RagQueryResult>();
+            await Assert.That(searchResult).IsNotNull();
+            await Assert.That(searchResult!.Items.Count).IsGreaterThan(0);
+            await Assert.That(searchResult.Items.Any(item => item.Content.Contains(scenario.UniqueCode, StringComparison.OrdinalIgnoreCase))).IsTrue();
+        }
+        finally
+        {
+            if (applicationId != Guid.Empty)
+            {
+                await adminClient.DeleteAsync($"/api/Application/{applicationId}");
+            }
+        }
+    }
+
+    [ClassDataSource<HttpClientDataClass>(Shared = SharedType.PerTestSession)]
+    [Test]
+    public async Task ApplicationApiKey_ShouldExecuteAgentWithKnowledgeBaseTool_UsingDeepSeekAndOllama(HttpClientDataClass httpClientData)
+    {
+        var adminClient = httpClientData.HttpClient;
+        Guid applicationId = Guid.Empty;
+        Guid templateAgentId = Guid.Empty;
+        Guid clonedAgentId = Guid.Empty;
+
+        try
+        {
+            var scenario = OpenPlatformRagTestData.CreateScenario();
+            var deepSeekChat = await GetModelByNameAsync(adminClient, "deepseek-chat");
+
+            var application = await CreateApplicationAsync(adminClient, "用于验证应用 ApiKey 的 Agent + 知识库工具链路");
+            applicationId = application.Id;
+
+            await CreateApplicationModelPermissionAsync(adminClient, application.Id, deepSeekChat.Id);
+            await EnsureBuiltinToolAsync(adminClient, "query_knowledge_base", "查询知识库并返回最相关的文档片段。", QueryKnowledgeBaseSchemaJson);
+            await CreateApplicationToolPermissionAsync(adminClient, application.Id, "query_knowledge_base");
+
+            var apiKeyResult = await CreateApplicationApiKeyAsync(adminClient, application.Id, "Agent Rag Key");
+
+            using var apiClient = await CreateApiServiceClientAsync(apiKeyResult.ApiKey);
+
+            var createCollectionResponse = await apiClient.PostAsJsonAsync("/api/v1/rag/collections", new RagCollectionAddDto
+            {
+                Name = scenario.CollectionName,
+                Description = "用于开放平台 Agent 调用知识库的测试集合",
+                IsEnabled = true,
+                Tags = ["integration", "agent", "rag"],
+            });
+            await AssertStatusCodeAsync(createCollectionResponse, HttpStatusCode.Created);
+
+            var collection = await ReadRequiredJsonAsync<RagCollection>(createCollectionResponse);
+
+            using var uploadContent = OpenPlatformRagTestData.CreateUploadContent(collection.Id, scenario);
+            var uploadResponse = await apiClient.PostAsync("/api/v1/rag/documents/upload", uploadContent);
+            await AssertStatusCodeAsync(uploadResponse, HttpStatusCode.Created);
+
+            var document = await ReadRequiredJsonAsync<RagDocument>(uploadResponse);
+            var documentDetail = await WaitForRagDocumentCompletedAsync(apiClient, document.Id, TimeSpan.FromMinutes(2));
+            await Assert.That(documentDetail.Status).IsEqualTo(RagDocumentStatus.Completed);
+
+            var templateAgent = await CreateAgentAsync(
+                adminClient,
+                deepSeekChat.Name ?? "deepseek-chat",
+                isPublic: true,
+                tools: ["query_knowledge_base"],
+                systemPrompt: "你是知识库测试助手。回答前必须先调用 query_knowledge_base 工具查询知识库；如果拿到结果，只返回知识库中的精确答案，不要编造。",
+                description: "用于验证开放平台 Agent 能否经由知识库工具返回精确答案。");
+            templateAgentId = templateAgent.Id;
+
+            var cloneResponse = await apiClient.PostAsync($"/api/v1/agents/templates/{templateAgent.Id}/clone", content: null);
+            await AssertStatusCodeAsync(cloneResponse, HttpStatusCode.Created);
+
+            var clonedAgent = await ReadRequiredJsonAsync<ApplicationAgent>(cloneResponse);
+            clonedAgentId = clonedAgent.Id;
+
+            var executeResponse = await apiClient.PostAsJsonAsync($"/api/v1/agents/{clonedAgent.Id}/execute", new AgentExecuteRequestDto
+            {
+                InputJson = JsonSerializer.Serialize(new { prompt = scenario.AgentQuestion })
+            });
+            await AssertStatusCodeAsync(executeResponse, HttpStatusCode.Accepted);
+
+            using var executePayload = JsonDocument.Parse(await executeResponse.Content.ReadAsStringAsync());
+            var executionId = executePayload.RootElement.GetProperty("executionId").GetGuid();
+
+            var execution = await WaitForAgentExecutionCompletedAsync(adminClient, executionId, TimeSpan.FromMinutes(2));
+            await Assert.That(execution.Status).IsEqualTo(AgentExecutionStatus.Completed);
+            await Assert.That(execution.ErrorMessage).IsNull();
+
+            using var outputPayload = JsonDocument.Parse(execution.OutputJson ?? "{}");
+            var finalResponse = outputPayload.RootElement.GetProperty("final_response").GetString();
+            await Assert.That(finalResponse).IsNotNullOrEmpty();
+            await Assert.That(finalResponse!).Contains(scenario.UniqueCode);
+
+            var toolResults = outputPayload.RootElement.GetProperty("tool_results");
+            await Assert.That(toolResults.GetArrayLength()).IsGreaterThan(0);
+            await Assert.That(HasSuccessfulToolCall(toolResults, "query_knowledge_base")).IsTrue();
+        }
+        finally
+        {
+            if (clonedAgentId != Guid.Empty)
+            {
+                await adminClient.DeleteAsync($"/api/ApplicationAgent/{clonedAgentId}");
+            }
+
+            if (templateAgentId != Guid.Empty)
+            {
+                await adminClient.DeleteAsync($"/api/AIAgent/{templateAgentId}");
+            }
+
+            if (applicationId != Guid.Empty)
+            {
+                await adminClient.DeleteAsync($"/api/Application/{applicationId}");
+            }
+        }
+    }
+
     private static async Task<HttpClient> CreateApiServiceClientAsync(string apiKey)
     {
         var client = (GlobalHooks.App ?? throw new NullReferenceException()).CreateHttpClient("ApiService");
@@ -541,14 +709,115 @@ public class ApplicationApiKeyTests
         return await ReadRequiredJsonAsync<ApplicationModelPermission>(response);
     }
 
-    private static async Task<AIAgent> CreateAgentAsync(HttpClient adminClient, string modelName, Guid? applicationId = null, bool isPublic = false)
+    private static async Task<ApplicationToolPermission> CreateApplicationToolPermissionAsync(HttpClient adminClient, Guid applicationId, string toolName)
+    {
+        var response = await adminClient.PostAsJsonAsync("/api/ApplicationToolPermission", new ApplicationToolPermissionAddDto
+        {
+            ApplicationId = applicationId,
+            ToolName = toolName,
+            IsEnabled = true,
+        });
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.Created);
+        return await ReadRequiredJsonAsync<ApplicationToolPermission>(response);
+    }
+
+    private static async Task<AIModelInfoItemDto> GetModelByNameAsync(HttpClient adminClient, string modelName)
+    {
+        var response = await adminClient.PostAsJsonAsync("/api/AIModelInfo/filter", new AIModelInfoFilterDto
+        {
+            PageIndex = 1,
+            PageSize = 200,
+        });
+
+        await AssertStatusCodeAsync(response, HttpStatusCode.OK);
+        var pagedResult = await response.Content.ReadFromJsonAsync<PageList<AIModelInfoItemDto>>();
+        await Assert.That(pagedResult).IsNotNull();
+
+        var model = pagedResult!.Data.FirstOrDefault(item => string.Equals(item.Name, modelName, StringComparison.OrdinalIgnoreCase));
+        await Assert.That(model).IsNotNull();
+        return model!;
+    }
+
+    private static async Task<McpToolItemDto> EnsureBuiltinToolAsync(HttpClient adminClient, string toolName, string description, string schemaJson)
+    {
+        var listResponse = await adminClient.PostAsJsonAsync("/api/McpTool/filter", new McpToolFilterDto
+        {
+            PageIndex = 1,
+            PageSize = 50,
+            Name = toolName,
+        });
+        await AssertStatusCodeAsync(listResponse, HttpStatusCode.OK);
+
+        var existingPage = await listResponse.Content.ReadFromJsonAsync<PageList<McpToolItemDto>>();
+        await Assert.That(existingPage).IsNotNull();
+
+        var existing = existingPage!.Data.FirstOrDefault(item => string.Equals(item.Name, toolName, StringComparison.OrdinalIgnoreCase));
+        if (existing != null)
+        {
+            var detailResponse = await adminClient.GetAsync($"/api/McpTool/{existing.Id}");
+            await AssertStatusCodeAsync(detailResponse, HttpStatusCode.OK);
+
+            var detail = await ReadRequiredJsonAsync<McpToolDetailDto>(detailResponse);
+            if (!detail.IsEnabled
+                || detail.ToolType != McpToolType.Builtin
+                || !string.Equals(detail.SchemaJson, schemaJson, StringComparison.Ordinal)
+                || !string.Equals(detail.Description, description, StringComparison.Ordinal)
+                || !string.Equals(detail.Version, "1.0.0", StringComparison.Ordinal))
+            {
+                var updateResponse = await adminClient.PatchAsJsonAsync($"/api/McpTool/{existing.Id}", new McpToolUpdateDto
+                {
+                    Name = toolName,
+                    Description = description,
+                    ToolType = McpToolType.Builtin,
+                    IsEnabled = true,
+                    Version = "1.0.0",
+                    SchemaJson = schemaJson,
+                    ServerId = null,
+                });
+                await AssertStatusCodeAsync(updateResponse, HttpStatusCode.OK);
+            }
+
+            return existing;
+        }
+
+        var createResponse = await adminClient.PostAsJsonAsync("/api/McpTool", new McpToolAddDto
+        {
+            Name = toolName,
+            Description = description,
+            ToolType = McpToolType.Builtin,
+            IsEnabled = true,
+            Version = "1.0.0",
+            SchemaJson = schemaJson,
+        });
+        await AssertStatusCodeAsync(createResponse, HttpStatusCode.Created);
+
+        var created = await ReadRequiredJsonAsync<Entity.McpMod.McpTool>(createResponse);
+        return new McpToolItemDto
+        {
+            Id = created.Id,
+            Name = created.Name,
+            ToolType = created.ToolType,
+            IsEnabled = created.IsEnabled,
+        };
+    }
+
+    private static async Task<AIAgent> CreateAgentAsync(
+        HttpClient adminClient,
+        string modelName,
+        Guid? applicationId = null,
+        bool isPublic = false,
+        List<string>? tools = null,
+        string? systemPrompt = null,
+        string? description = null)
     {
         var response = await adminClient.PostAsJsonAsync("/api/aiagent", new AIAgentAddDto
         {
             Name = $"OpenApi Agent {Guid.NewGuid().ToString()[..8]}",
-            Description = "用于验证应用 ApiKey 调用 Agent",
+            Description = description ?? "用于验证应用 ApiKey 调用 Agent",
             ModelId = modelName,
-            SystemPrompt = "你是集成测试助手，请简洁回答。",
+            SystemPrompt = systemPrompt ?? "你是集成测试助手，请简洁回答。",
+            Tools = tools ?? [],
             Enable = true,
             IsPublic = isPublic,
             ApplicationId = applicationId,
@@ -556,6 +825,27 @@ public class ApplicationApiKeyTests
 
         await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.Created);
         return await ReadRequiredJsonAsync<AIAgent>(response);
+    }
+
+    private static async Task<RagDocumentDetailDto> WaitForRagDocumentCompletedAsync(HttpClient apiClient, Guid documentId, TimeSpan timeout)
+    {
+        var startTime = DateTimeOffset.UtcNow;
+
+        while (DateTimeOffset.UtcNow - startTime < timeout)
+        {
+            var response = await apiClient.GetAsync($"/api/v1/rag/documents/{documentId}");
+            await AssertStatusCodeAsync(response, HttpStatusCode.OK);
+
+            var document = await ReadRequiredJsonAsync<RagDocumentDetailDto>(response);
+            if (document.Status is RagDocumentStatus.Completed or RagDocumentStatus.Failed)
+            {
+                return document;
+            }
+
+            await Task.Delay(500);
+        }
+
+        throw new TimeoutException($"RAG document {documentId} did not finish parsing within {timeout.TotalSeconds} seconds.");
     }
 
     private static async Task<AgentExecutionDetailDto> WaitForAgentExecutionCompletedAsync(HttpClient adminClient, Guid executionId, TimeSpan timeout)
@@ -586,6 +876,45 @@ public class ApplicationApiKeyTests
         await Assert.That(result).IsNotNull();
         return result!;
     }
+
+    private static bool HasSuccessfulToolCall(JsonElement toolResults, string toolName)
+    {
+        foreach (var item in toolResults.EnumerateArray())
+        {
+            if (!item.TryGetProperty("tool", out var toolProperty)
+                || !string.Equals(toolProperty.GetString(), toolName, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (item.TryGetProperty("result", out var resultProperty))
+            {
+                if (resultProperty.TryGetProperty("Success", out var successProperty) && successProperty.ValueKind == JsonValueKind.True)
+                {
+                    return true;
+                }
+
+                if (resultProperty.TryGetProperty("success", out successProperty) && successProperty.ValueKind == JsonValueKind.True)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private const string QueryKnowledgeBaseSchemaJson = """
+        {
+                    "type": "object",
+                    "properties": {
+                        "query": { "type": "string" },
+                        "topK": { "type": "integer", "minimum": 1, "maximum": 10 },
+                        "collectionId": { "type": "string", "format": "uuid" }
+          },
+                    "required": ["query"]
+        }
+        """;
 
     private static async Task AssertStatusCodeAsync(HttpResponseMessage response, HttpStatusCode expectedStatusCode)
     {

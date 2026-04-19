@@ -24,6 +24,14 @@ public class ModelInvoker(
                     {
                         Role = m.Role,
                         Content = m.Content,
+                        ToolCalls = m.ToolCalls
+                            .Select(toolCall => new ToolCall
+                            {
+                                Id = toolCall.Id,
+                                Name = toolCall.Name,
+                                ArgumentsJson = toolCall.ArgumentsJson,
+                            })
+                            .ToList(),
                         ToolCallId = m.ToolCallId,
                         Attachments = m.Attachments.Select(a => new ModelAttachment
                         {

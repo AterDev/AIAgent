@@ -137,6 +137,15 @@ public class McpToolExecutor(
             };
         }
 
+        if (!result.Success)
+        {
+            logger.LogWarning(
+                "Tool execution returned failure for {ToolName}. Arguments: {Arguments}. Error: {Error}",
+                tool.Name,
+                request.ArgumentsJson,
+                result.ErrorMessage);
+        }
+
         return await SaveRecordAsync(dbContext, request, tool.Id, result, stopwatch, cancellationToken);
     }
 
