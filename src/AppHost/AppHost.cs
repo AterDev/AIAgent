@@ -2,6 +2,7 @@ using AppHost;
 using Perigon.AspNetCore.Constants;
 
 var builder = DistributedApplication.CreateBuilder(args);
+builder.AddDockerComposeEnvironment("compose");
 var aspireSetting = AppSettingsHelper.LoadAspireSettings(builder.Configuration);
 
 var isTesting = builder.Configuration["ASPIRE_ENVIRONMENT"]?.ToLowerInvariant() == "testing";

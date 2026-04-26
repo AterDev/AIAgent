@@ -1,0 +1,238 @@
+services:
+  compose-dashboard:
+    image: "mcr.microsoft.com/dotnet/nightly/aspire-dashboard:latest"
+    ports:
+      - "18888"
+    expose:
+      - "18889"
+      - "18890"
+    networks:
+      - "aspire"
+    restart: "always"
+  nats:
+    image: "docker.io/library/nats:2.12-alpine"
+    command:
+      - "--user"
+      - "nats"
+      - "--pass"
+      - "${NATS_PASSWORD}"
+      - "-js"
+    expose:
+      - "4222"
+    networks:
+      - "aspire"
+  database:
+    image: "docker.io/library/postgres:18.1-alpine"
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: "scram-sha-256"
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "${DEV_PASSWORD}"
+    expose:
+      - "5432"
+    volumes:
+      - type: "volume"
+        target: "/var/lib/postgresql"
+        source: "apphost-feed4158f1-Database-data"
+        read_only: false
+    networks:
+      - "aspire"
+  qdrant:
+    image: "docker.io/qdrant/qdrant:v1.17"
+    environment:
+      QDRANT__SERVICE__API_KEY: "${DEV_PASSWORD}"
+      QDRANT__SERVICE__ENABLE_STATIC_CONTENT: "0"
+    expose:
+      - "6334"
+      - "6333"
+    volumes:
+      - type: "volume"
+        target: "/qdrant/storage"
+        source: "apphost-feed4158f1-qdrant-data"
+        read_only: false
+    networks:
+      - "aspire"
+  ollama:
+    image: "docker.io/ollama/ollama:0.13.0"
+    environment:
+      HTTP_PROXY: ""
+      HTTPS_PROXY: ""
+      ALL_PROXY: ""
+      http_proxy: ""
+      https_proxy: ""
+      all_proxy: ""
+    expose:
+      - "11434"
+    volumes:
+      - type: "volume"
+        target: "/root/.ollama"
+        source: "apphost-feed4158f1-ollama-ollama"
+        read_only: false
+    networks:
+      - "aspire"
+  migrationservice:
+    image: "${MIGRATIONSERVICE_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ConnectionStrings__Default: "Host=Database;Port=5432;Username=postgres;Password=${DEV_PASSWORD};Database=AIAgent_dev"
+      DEFAULT_HOST: "Database"
+      DEFAULT_PORT: "5432"
+      DEFAULT_USERNAME: "postgres"
+      DEFAULT_PASSWORD: "${DEV_PASSWORD}"
+      DEFAULT_URI: "postgresql://postgres:${DEV_PASSWORD}@Database:5432/AIAgent_dev"
+      DEFAULT_JDBCCONNECTIONSTRING: "jdbc:postgresql://Database:5432/AIAgent_dev"
+      DEFAULT_DATABASENAME: "AIAgent_dev"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://compose-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "MigrationService"
+    depends_on:
+      database:
+        condition: "service_started"
+    networks:
+      - "aspire"
+  apiservice:
+    image: "${APISERVICE_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${APISERVICE_PORT}"
+      OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT: "true"
+      ConnectionStrings__Default: "Host=Database;Port=5432;Username=postgres;Password=${DEV_PASSWORD};Database=AIAgent_dev"
+      DEFAULT_HOST: "Database"
+      DEFAULT_PORT: "5432"
+      DEFAULT_USERNAME: "postgres"
+      DEFAULT_PASSWORD: "${DEV_PASSWORD}"
+      DEFAULT_URI: "postgresql://postgres:${DEV_PASSWORD}@Database:5432/AIAgent_dev"
+      DEFAULT_JDBCCONNECTIONSTRING: "jdbc:postgresql://Database:5432/AIAgent_dev"
+      DEFAULT_DATABASENAME: "AIAgent_dev"
+      ConnectionStrings__qdrant: "Endpoint=http://qdrant:6334;Key=${DEV_PASSWORD}"
+      QDRANT_GRPCHOST: "qdrant"
+      QDRANT_GRPCPORT: "6334"
+      QDRANT_HTTPHOST: "qdrant"
+      QDRANT_HTTPPORT: "6333"
+      QDRANT_APIKEY: "${DEV_PASSWORD}"
+      QDRANT_URI: "http://qdrant:6334"
+      QDRANT_HTTPURI: "http://qdrant:6333"
+      ConnectionStrings__qdrant_http: "Endpoint=http://qdrant:6333;Key=${DEV_PASSWORD}"
+      ConnectionStrings__nats: "nats://nats:${NATS_PASSWORD}@nats:4222"
+      NATS_HOST: "nats"
+      NATS_PORT: "4222"
+      NATS_USERNAME: "nats"
+      NATS_PASSWORD: "${NATS_PASSWORD}"
+      NATS_URI: "nats://nats:${NATS_PASSWORD}@nats:4222"
+      ConnectionStrings__embedding: "Endpoint=http://ollama:11434;Model=bge-m3:latest"
+      EMBEDDING_HOST: "ollama"
+      EMBEDDING_PORT: "11434"
+      EMBEDDING_URI: "http://ollama:11434"
+      EMBEDDING_MODEL: "bge-m3:latest"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://compose-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "ApiService"
+    expose:
+      - "${APISERVICE_PORT}"
+    depends_on:
+      migrationservice:
+        condition: "service_completed_successfully"
+    networks:
+      - "aspire"
+  adminservice:
+    image: "${ADMINSERVICE_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${ADMINSERVICE_PORT}"
+      OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT: "true"
+      ConnectionStrings__Default: "Host=Database;Port=5432;Username=postgres;Password=${DEV_PASSWORD};Database=AIAgent_dev"
+      DEFAULT_HOST: "Database"
+      DEFAULT_PORT: "5432"
+      DEFAULT_USERNAME: "postgres"
+      DEFAULT_PASSWORD: "${DEV_PASSWORD}"
+      DEFAULT_URI: "postgresql://postgres:${DEV_PASSWORD}@Database:5432/AIAgent_dev"
+      DEFAULT_JDBCCONNECTIONSTRING: "jdbc:postgresql://Database:5432/AIAgent_dev"
+      DEFAULT_DATABASENAME: "AIAgent_dev"
+      ConnectionStrings__qdrant: "Endpoint=http://qdrant:6334;Key=${DEV_PASSWORD}"
+      QDRANT_GRPCHOST: "qdrant"
+      QDRANT_GRPCPORT: "6334"
+      QDRANT_HTTPHOST: "qdrant"
+      QDRANT_HTTPPORT: "6333"
+      QDRANT_APIKEY: "${DEV_PASSWORD}"
+      QDRANT_URI: "http://qdrant:6334"
+      QDRANT_HTTPURI: "http://qdrant:6333"
+      ConnectionStrings__qdrant_http: "Endpoint=http://qdrant:6333;Key=${DEV_PASSWORD}"
+      ConnectionStrings__nats: "nats://nats:${NATS_PASSWORD}@nats:4222"
+      NATS_HOST: "nats"
+      NATS_PORT: "4222"
+      NATS_USERNAME: "nats"
+      NATS_PASSWORD: "${NATS_PASSWORD}"
+      NATS_URI: "nats://nats:${NATS_PASSWORD}@nats:4222"
+      ConnectionStrings__embedding: "Endpoint=http://ollama:11434;Model=bge-m3:latest"
+      EMBEDDING_HOST: "ollama"
+      EMBEDDING_PORT: "11434"
+      EMBEDDING_URI: "http://ollama:11434"
+      EMBEDDING_MODEL: "bge-m3:latest"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://compose-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "AdminService"
+    expose:
+      - "${ADMINSERVICE_PORT}"
+    depends_on:
+      migrationservice:
+        condition: "service_completed_successfully"
+    networks:
+      - "aspire"
+  fileprocessorservice:
+    image: "${FILEPROCESSORSERVICE_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${FILEPROCESSORSERVICE_PORT}"
+      ConnectionStrings__Default: "Host=Database;Port=5432;Username=postgres;Password=${DEV_PASSWORD};Database=AIAgent_dev"
+      DEFAULT_HOST: "Database"
+      DEFAULT_PORT: "5432"
+      DEFAULT_USERNAME: "postgres"
+      DEFAULT_PASSWORD: "${DEV_PASSWORD}"
+      DEFAULT_URI: "postgresql://postgres:${DEV_PASSWORD}@Database:5432/AIAgent_dev"
+      DEFAULT_JDBCCONNECTIONSTRING: "jdbc:postgresql://Database:5432/AIAgent_dev"
+      DEFAULT_DATABASENAME: "AIAgent_dev"
+      ConnectionStrings__qdrant: "Endpoint=http://qdrant:6334;Key=${DEV_PASSWORD}"
+      QDRANT_GRPCHOST: "qdrant"
+      QDRANT_GRPCPORT: "6334"
+      QDRANT_HTTPHOST: "qdrant"
+      QDRANT_HTTPPORT: "6333"
+      QDRANT_APIKEY: "${DEV_PASSWORD}"
+      QDRANT_URI: "http://qdrant:6334"
+      QDRANT_HTTPURI: "http://qdrant:6333"
+      ConnectionStrings__qdrant_http: "Endpoint=http://qdrant:6333;Key=${DEV_PASSWORD}"
+      ConnectionStrings__nats: "nats://nats:${NATS_PASSWORD}@nats:4222"
+      NATS_HOST: "nats"
+      NATS_PORT: "4222"
+      NATS_USERNAME: "nats"
+      NATS_PASSWORD: "${NATS_PASSWORD}"
+      NATS_URI: "nats://nats:${NATS_PASSWORD}@nats:4222"
+      ConnectionStrings__embedding: "Endpoint=http://ollama:11434;Model=bge-m3:latest"
+      EMBEDDING_HOST: "ollama"
+      EMBEDDING_PORT: "11434"
+      EMBEDDING_URI: "http://ollama:11434"
+      EMBEDDING_MODEL: "bge-m3:latest"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://compose-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "FileProcessorService"
+    expose:
+      - "${FILEPROCESSORSERVICE_PORT}"
+    depends_on:
+      migrationservice:
+        condition: "service_completed_successfully"
+      nats:
+        condition: "service_started"
+    networks:
+      - "aspire"
+networks:
+  aspire:
+    driver: "bridge"
+volumes:
+  apphost-feed4158f1-Database-data:
+    driver: "local"
+  apphost-feed4158f1-qdrant-data:
+    driver: "local"
+  apphost-feed4158f1-ollama-ollama:
+    driver: "local"

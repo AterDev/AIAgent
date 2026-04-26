@@ -46,6 +46,48 @@
 
 项目基于`Aspire`，直接运行`AppHost`项目即可启动所有服务。
 
+## Compose 发布与运行
+
+项目已经提供基于 Aspire 的 compose 发布脚本：[scripts/Compose.ps1](scripts/Compose.ps1)。
+
+默认情况下，脚本不会在仓库根目录生成 `docker-compose.yml`。它会先调用 `aspire publish`，然后把 compose 产物写入 `artifacts/compose/` 目录：
+
+- `artifacts/compose/docker-compose.yaml`：Aspire 生成的基础 compose 文件
+- `artifacts/compose/docker-compose.override.yaml`：脚本补充的端口映射和本地运行覆盖项
+- `artifacts/compose/.env`：脚本生成的镜像名、密码和端口变量
+
+脚本不会再生成自定义 `Dockerfile.*`。`Build` 阶段改为直接调用 `.NET SDK` 的 `PublishContainer`，由 SDK 生成本地镜像。
+
+常用命令：
+
+```powershell
+# 仅生成 Aspire compose 产物和本地覆盖文件
+.\scripts\Compose.ps1 -Action Generate
+
+# 生成产物并构建本地镜像
+.\scripts\Compose.ps1 -Action Build
+
+# 生成产物并启动 compose 环境
+.\scripts\Compose.ps1 -Action Up
+
+# 完整执行：生成、构建、启动
+.\scripts\Compose.ps1 -Action All
+
+# 查看状态、日志和停止环境
+.\scripts\Compose.ps1 -Action Ps
+.\scripts\Compose.ps1 -Action Logs
+.\scripts\Compose.ps1 -Action Down
+```
+
+说明：
+
+- 默认运行时为 `podman`，可通过 `-Runtime docker` 切换为 Docker。
+- 默认输出目录为 `artifacts/compose`，可通过 `-OutputPath` 自定义。
+- `Generate`、`Build`、`Up`、`All` 都会刷新 `artifacts/compose/docker-compose.yaml`，因为脚本每次都会重新执行一次 `aspire publish`，确保 compose 产物与当前 AppHost 配置一致。
+- `Build` 阶段使用 `dotnet publish /t:PublishContainer` 构建本地镜像，因此 NuGet 包优先复用主机缓存，而不是依赖容器内的 restore 缓存层。
+- 为避免本机 `C:` 盘缓存和临时目录不足，脚本会把容器发布相关的 NuGet/Temp 目录重定向到仓库下的 `D:\codes\AIAgent\.cache\nuget`。
+- 当前验证通过的对外端口包括：`15001`（AdminService）、`15002`（ApiService）、`15003`（FileProcessorService）。
+
 ## 文档
 
 - [快速入门](https://dusi.dev/docs/Perigon/zh-CN/10.0/%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8.html)
