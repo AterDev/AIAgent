@@ -16,6 +16,10 @@ public class Worker(
     ILogger<Worker> logger
 ) : BackgroundService
 {
+    private const string FoundryLocalBaseUrlEnvVar = "AIAgent__Seed__FoundryLocalBaseUrl";
+    private const string OllamaBaseUrlEnvVar = "AIAgent__Seed__OllamaBaseUrl";
+    private const string DefaultFoundryLocalBaseUrl = "http://127.0.0.1:55655/v1";
+    private const string DefaultOllamaBaseUrl = "http://localhost:11434/v1";
     private readonly ILogger<Worker> _logger = logger;
     public const string ActivitySourceName = "Migrations";
     private static readonly ActivitySource _activitySource = new(ActivitySourceName);
@@ -102,8 +106,13 @@ public class Worker(
 
     private static async Task SeedModelProvidersAsync(DefaultDbContext db, CancellationToken cancellationToken)
     {
+        var foundryLocalBaseUrl = GetSeedBaseUrl(FoundryLocalBaseUrlEnvVar, DefaultFoundryLocalBaseUrl);
+        var ollamaBaseUrl = GetSeedBaseUrl(OllamaBaseUrlEnvVar, DefaultOllamaBaseUrl);
+
         if (await db.AIModelProviders.AnyAsync(cancellationToken))
         {
+            await UpdateProviderBaseUrlAsync(db, "FoundryLocal", foundryLocalBaseUrl, cancellationToken);
+            await UpdateProviderBaseUrlAsync(db, "Ollama", ollamaBaseUrl, cancellationToken);
             return;
         }
 
@@ -203,7 +212,16 @@ public class Worker(
             ]
         };
 
-        db.AIModelProviders.AddRange([deepSeek, openAI, anthropic, qwen, google, azure, BuildFoundryLocalProvider(), BuildOllamaProvider()]);
+        db.AIModelProviders.AddRange([
+            deepSeek,
+            openAI,
+            anthropic,
+            qwen,
+            google,
+            azure,
+            BuildFoundryLocalProvider(foundryLocalBaseUrl),
+            BuildOllamaProvider(ollamaBaseUrl)
+        ]);
         await db.SaveChangesAsync(cancellationToken);
     }
 
@@ -212,14 +230,14 @@ public class Worker(
     /// 若用户自定义端口可手动更新 BaseUrl。ApiKey 留空（Foundry Local 不需要认证）。
     /// 当前 Foundry Local 目录仅提供 CPU 聊天/工具模型，暂无内置 embedding 模型，仅种子 qwen3-0.6b。
     /// </summary>
-    private static AIModelProvider BuildFoundryLocalProvider()
+    private static AIModelProvider BuildFoundryLocalProvider(string baseUrl)
     {
         return new AIModelProvider
         {
             Name = "FoundryLocal",
             Description = "Microsoft Foundry Local - 本地 OpenAI 兼容模型服务",
             Website = "https://github.com/microsoft/Foundry-Local",
-            BaseUrl = "http://127.0.0.1:55655/v1",
+            BaseUrl = baseUrl,
             LogoUrl = "https://raw.githubusercontent.com/microsoft/Foundry-Local/main/docs/logo.png",
             ApiKey = string.Empty,
             ProviderType = ModelProviderType.FoundryLocal,
@@ -247,14 +265,14 @@ public class Worker(
     /// Ollama 暴露 OpenAI 兼容 API，因此复用 <see cref="ModelProviderType.OpenAiCompatible"/>；ApiKey 留空。
     /// 主要用于补位 Foundry Local 缺失的本地 embedding 能力（bge-m3，1024 维，中英文皆可）。
     /// </summary>
-    private static AIModelProvider BuildOllamaProvider()
+    private static AIModelProvider BuildOllamaProvider(string baseUrl)
     {
         return new AIModelProvider
         {
             Name = "Ollama",
             Description = "Ollama - 本地开源模型运行时（OpenAI 兼容）",
             Website = "https://ollama.com",
-            BaseUrl = "http://localhost:11434/v1",
+            BaseUrl = baseUrl,
             LogoUrl = "https://ollama.com/public/ollama.png",
             ApiKey = string.Empty,
             ProviderType = ModelProviderType.OpenAiCompatible,
@@ -274,6 +292,31 @@ public class Worker(
                 },
             ],
         };
+    }
+
+    private static string GetSeedBaseUrl(string envVarName, string defaultValue)
+    {
+        var value = Environment.GetEnvironmentVariable(envVarName);
+        return string.IsNullOrWhiteSpace(value) ? defaultValue : value.Trim();
+    }
+
+    private static async Task UpdateProviderBaseUrlAsync(
+        DefaultDbContext db,
+        string providerName,
+        string baseUrl,
+        CancellationToken cancellationToken)
+    {
+        var provider = await db.AIModelProviders.FirstOrDefaultAsync(
+            q => q.Name == providerName,
+            cancellationToken);
+
+        if (provider is null || string.Equals(provider.BaseUrl, baseUrl, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        provider.BaseUrl = baseUrl;
+        await db.SaveChangesAsync(cancellationToken);
     }
 
     private async Task SeedDemoApplicationAsync(DefaultDbContext db, CancellationToken cancellationToken)

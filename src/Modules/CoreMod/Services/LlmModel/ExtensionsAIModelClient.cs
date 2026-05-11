@@ -1,6 +1,7 @@
 using Microsoft.Extensions.AI;
 using OpenAI;
 using System.ClientModel;
+using System.Text.Json;
 
 namespace CoreMod.Services;
 
@@ -155,6 +156,26 @@ public class ExtensionsAIModelClient(
                 continue;
             }
 
+            if (role == ChatRole.Assistant && m.ToolCalls.Count > 0)
+            {
+                var contents = new List<AIContent>();
+                if (!string.IsNullOrWhiteSpace(m.Content))
+                {
+                    contents.Add(new TextContent(m.Content));
+                }
+
+                foreach (var toolCall in m.ToolCalls)
+                {
+                    contents.Add(new FunctionCallContent(
+                        callId: toolCall.Id ?? $"call_{Guid.NewGuid():N}",
+                        name: toolCall.Name,
+                        arguments: ParseToolArguments(toolCall.ArgumentsJson)));
+                }
+
+                chatMessages.Add(new ChatMessage(ChatRole.Assistant, contents));
+                continue;
+            }
+
             // 用户消息带附件时，构造多模态 ChatMessage（TextContent + DataContent）。
             if (m.Attachments is { Count: > 0 })
             {
@@ -179,6 +200,23 @@ public class ExtensionsAIModelClient(
         }
 
         return chatMessages;
+    }
+
+    private static IDictionary<string, object?>? ParseToolArguments(string? argumentsJson)
+    {
+        if (string.IsNullOrWhiteSpace(argumentsJson))
+        {
+            return null;
+        }
+
+        try
+        {
+            return JsonSerializer.Deserialize<Dictionary<string, object?>>(argumentsJson);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
     }
 
     private static AIContent? TryBuildAttachmentContent(ModelAttachment attachment)

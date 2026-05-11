@@ -2,6 +2,7 @@ using AppHost;
 using Perigon.AspNetCore.Constants;
 
 var builder = DistributedApplication.CreateBuilder(args);
+builder.AddDockerComposeEnvironment("compose");
 var aspireSetting = AppSettingsHelper.LoadAspireSettings(builder.Configuration);
 
 var isTesting = builder.Configuration["ASPIRE_ENVIRONMENT"]?.ToLowerInvariant() == "testing";
@@ -68,6 +69,13 @@ if (aspireSetting.VectorStoreType?.ToLowerInvariant() == "qdrant")
 var ollama = builder.AddOllama("ollama", port: 11434)
     .WithDataVolume()
     .WithLifetime(ContainerLifetime.Persistent)
+    // Ollama 容器无法直连宿主机代理时，清空继承的代理变量避免拉模型失败
+    .WithEnvironment("HTTP_PROXY", "")
+    .WithEnvironment("HTTPS_PROXY", "")
+    .WithEnvironment("ALL_PROXY", "")
+    .WithEnvironment("http_proxy", "")
+    .WithEnvironment("https_proxy", "")
+    .WithEnvironment("all_proxy", "")
     .WithParentRelationship(infrastructureGroup);
 // .WithContainerRuntimeArgs("--gpus=all");
 var embeddingModel = ollama.AddModel("embedding", "bge-m3:latest");

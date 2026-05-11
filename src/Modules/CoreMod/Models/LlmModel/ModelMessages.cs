@@ -10,6 +10,11 @@ public sealed class ModelMessage
     public string Content { get; set; } = string.Empty;
 
     /// <summary>
+    /// Assistant tool calls that must be replayed before tool results.
+    /// </summary>
+    public List<ToolCall> ToolCalls { get; set; } = [];
+
+    /// <summary>
     /// Tool call ID (for tool result messages)
     /// </summary>
     public string? ToolCallId { get; set; }
