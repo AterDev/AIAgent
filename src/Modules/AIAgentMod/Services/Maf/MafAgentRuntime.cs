@@ -43,7 +43,7 @@ public class MafAgentRuntime(
     }
 
     /// <summary>
-    /// 将会话历史裁剪成 MAF 可直接消费的 <see cref="ChatMessage"/> 列表，
+    /// 将会话历史裁剪成 MAF 可直接消费的 <see cref="Microsoft.Extensions.AI.ChatMessage"/> 列表，
     /// 按照 <see cref="AgentEntity.MemoryMode"/> 执行窗口/摘要策略。
     /// </summary>
     public IReadOnlyList<Microsoft.Extensions.AI.ChatMessage> PrepareHistory(AgentEntity agent, IReadOnlyList<ChatMessageEntity> history)
