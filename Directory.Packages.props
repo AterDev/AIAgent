@@ -5,18 +5,19 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- Aspire Packages -->
-    <PackageVersion Include="Aspire.Hosting.Nats" Version="13.3.0" />
-    <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.3.0" />
-    <PackageVersion Include="Aspire.Hosting.Qdrant" Version="13.3.0" />
-    <PackageVersion Include="Aspire.Hosting.Redis" Version="13.3.0" />
-    <PackageVersion Include="Aspire.Hosting.SqlServer" Version="13.3.0" />
-    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.3.0" />
+    <PackageVersion Include="Aspire.Hosting.Nats" Version="13.4.4" />
+    <PackageVersion Include="Aspire.Hosting.Docker" Version="13.4.4" />
+    <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.4.4" />
+    <PackageVersion Include="Aspire.Hosting.Qdrant" Version="13.4.4" />
+    <PackageVersion Include="Aspire.Hosting.Redis" Version="13.4.4" />
+    <PackageVersion Include="Aspire.Hosting.SqlServer" Version="13.4.4" />
+    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.4.4" />
     <PackageVersion Include="CommunityToolkit.Aspire.Hosting.Ollama" Version="13.2.1-beta.532" />
-    <PackageVersion Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="13.3.0" />
-    <PackageVersion Include="Aspire.NATS.Net" Version="13.3.0" />
-    <PackageVersion Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.3.0" />
-    <PackageVersion Include="Aspire.Qdrant.Client" Version="13.3.0" />
-    <PackageVersion Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.3.0" />
+    <PackageVersion Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="13.4.4" />
+    <PackageVersion Include="Aspire.NATS.Net" Version="13.4.4" />
+    <PackageVersion Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.4.4" />
+    <PackageVersion Include="Aspire.Qdrant.Client" Version="13.4.4" />
+    <PackageVersion Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.4.4" />
     <!--Test -->
     <PackageVersion Include="Aspire.Hosting.Testing" Version="13.2.2" />
     <PackageVersion Include="TUnit" Version="1.34.5" />
@@ -36,7 +37,7 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.6" />
     <!-- Microsoft Extensions Packages -->
     <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="10.5.0" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.7" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.8" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.6" />
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.5.0" />
     <PackageVersion Include="Microsoft.Extensions.Localization.Abstractions" Version="10.0.6" />
