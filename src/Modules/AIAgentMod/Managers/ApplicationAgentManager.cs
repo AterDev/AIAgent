@@ -93,9 +93,9 @@ public class ApplicationAgentManager(
         return await FindAsync<AIAgentDetailDto>(q => q.Id == id);
     }
 
-    public async Task<bool?> DeleteAsync(List<Guid> ids, bool softDelete = true)
+    public async Task<bool> DeleteAsync(List<Guid> ids, bool softDelete = true)
     {
-        if (!ids.Any())
+        if (ids.Count == 0)
         {
             return false;
         }
@@ -112,7 +112,7 @@ public class ApplicationAgentManager(
         }
 
         var ownedIds = await GetOwnedIdsAsync(ids);
-        if (!ownedIds.Any())
+        if (ownedIds.Count == 0)
         {
             throw new BusinessException(Localizer.NoPermission, StatusCodes.Status403Forbidden);
         }
@@ -130,7 +130,7 @@ public class ApplicationAgentManager(
     public async Task<List<Guid>> GetOwnedIdsAsync(IEnumerable<Guid> ids)
     {
         var idList = ids.ToList();
-        if (!idList.Any())
+        if (idList.Count == 0)
         {
             return [];
         }

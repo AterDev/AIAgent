@@ -100,15 +100,15 @@ public class AIAgentManager(
     /// <param name="ids"></param>
     /// <param name="softDelete"></param>
     /// <returns></returns>
-    public async Task<bool?> DeleteAsync(List<Guid> ids, bool softDelete = true)
+    public async Task<bool> DeleteAsync(List<Guid> ids, bool softDelete = true)
     {
         EnsureAdminAccess();
 
-        if (!ids.Any())
+        if (ids.Count == 0)
         {
             return false;
         }
-        if (ids.Count() == 1)
+        if (ids.Count == 1)
         {
             Guid id = ids.First();
             if (await HasPermissionAsync(id))
@@ -121,7 +121,7 @@ public class AIAgentManager(
         else
         {
             var ownedIds = await GetOwnedIdsAsync(ids);
-            if (ownedIds.Any())
+            if (ownedIds.Count != 0)
             {
                 var result = await DeleteOrUpdateAsync(ownedIds, !softDelete) > 0;
                 return result;

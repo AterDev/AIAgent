@@ -98,7 +98,7 @@ public class RagDocumentManager(
             .FirstOrDefaultAsync();
     }
 
-    public async Task<bool?> DeleteAsync(List<Guid> ids, bool softDelete = true)
+    public async Task<bool> DeleteAsync(List<Guid> ids, bool softDelete = true)
     {
         if (!ids.Any())
         {

@@ -57,7 +57,7 @@ public class AIModelInfoManager(
     /// <summary>
     /// Delete 模型信息
     /// </summary>
-    public async Task<bool?> DeleteAsync(List<Guid> ids, bool softDelete = true)
+    public async Task<bool> DeleteAsync(List<Guid> ids, bool softDelete = true)
     {
         if (!ids.Any())
         {
