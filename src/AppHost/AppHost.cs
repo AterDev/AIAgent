@@ -67,6 +67,7 @@ if (aspireSetting.VectorStoreType?.ToLowerInvariant() == "qdrant")
 // Ollama: 提供本地 embedding（Foundry Local catalog 无 embedding 模型时的补位方案）
 // GPU 加速：本机 NVIDIA + Docker Desktop 启用 GPU 后，把 WithContainerRuntimeArgs 那行取消注释即可
 var ollama = builder.AddOllama("ollama", port: 11434)
+    .WithImageTag("0.31.0")
     .WithDataVolume()
     .WithLifetime(ContainerLifetime.Persistent)
     // Ollama 容器无法直连宿主机代理时，清空继承的代理变量避免拉模型失败
