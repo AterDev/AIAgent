@@ -113,7 +113,8 @@ public class ExtensionsAIModelClient(
         try
         {
             var embeddingGenerator = CreateEmbeddingGenerator(route, request.Model);
-            var embeddings = await embeddingGenerator.GenerateAsync([input], cancellationToken: cancellationToken);
+            var options = BuildEmbeddingOptions(request);
+            var embeddings = await embeddingGenerator.GenerateAsync([input], options, cancellationToken);
             var embedding = embeddings.FirstOrDefault();
 
             if (embedding == null)
@@ -264,6 +265,21 @@ public class ExtensionsAIModelClient(
         }
 
         return options;
+    }
+
+    private static EmbeddingGenerationOptions? BuildEmbeddingOptions(ModelRequest request)
+    {
+        if (!request.Metadata.TryGetValue("dimensions", out var dimensionsStr)
+            || !int.TryParse(dimensionsStr, out var dimensions)
+            || dimensions <= 0)
+        {
+            return null;
+        }
+
+        return new EmbeddingGenerationOptions
+        {
+            Dimensions = dimensions,
+        };
     }
 
     private static List<ToolCall> ExtractToolCalls(ChatResponse response)

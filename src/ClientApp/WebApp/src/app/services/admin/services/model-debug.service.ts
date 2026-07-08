@@ -17,6 +17,14 @@ export class ModelDebugService extends BaseService {
     return this.request<ModelDebugResponse>('post', _url, data);
   }
   /**
+   * invoke
+   * @param data ModelDebugRequest
+   */
+  invoke(data: ModelDebugRequest): Observable<ModelDebugResponse> {
+    const _url = `/api/ModelDebug/invoke`;
+    return this.request<ModelDebugResponse>('post', _url, data);
+  }
+  /**
    * stream
    * @param data ModelDebugRequest
    */

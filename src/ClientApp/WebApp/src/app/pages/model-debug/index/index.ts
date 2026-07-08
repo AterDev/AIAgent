@@ -1,10 +1,11 @@
 import { Component, OnInit, OnDestroy, computed, signal } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { CommonFormModules } from 'src/app/share/shared-modules';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { AdminClient } from 'src/app/services/admin/admin-client';
 import { TranslateService } from '@ngx-translate/core';
 import { I18N_KEYS } from 'src/app/share/i18n-keys';
@@ -14,6 +15,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { SecurityContext } from '@angular/core';
 import { ModelDebugRequest } from 'src/app/services/admin/models/model-mod/model-debug-request.model';
 import { ModelDebugResponse } from 'src/app/services/admin/models/model-mod/model-debug-response.model';
+import { AIModelInfoItemDto } from 'src/app/services/admin/models/model-mod/aimodel-info-item-dto.model';
 import { environment } from 'src/environments/environment';
 import { Subject, takeUntil } from 'rxjs';
 
@@ -24,7 +26,8 @@ import { Subject, takeUntil } from 'rxjs';
     MatCardModule,
     MatProgressSpinnerModule,
     MatDividerModule,
-    MatChipsModule
+    MatChipsModule,
+    MatAutocompleteModule
   ],
   templateUrl: './index.html',
   styleUrls: ['./index.scss'],
@@ -32,6 +35,7 @@ import { Subject, takeUntil } from 'rxjs';
 })
 export class ModelDebugIndex implements OnInit, OnDestroy {
   i18nKeys = I18N_KEYS;
+  private readonly defaultEmbeddingDimensions = 768;
 
   private destroy$ = new Subject<void>();
   private abortController: AbortController | null = null;
@@ -46,7 +50,9 @@ export class ModelDebugIndex implements OnInit, OnDestroy {
   error = signal<string | null>(null);
   history = signal<Array<{ request: ModelDebugRequest; response: ModelDebugResponse; timestamp: Date }>>([]);
 
-  availableModels = signal<Array<{ id: string; name: string; providerId: string; supportsVision: boolean }>>([]);
+  availableModels = signal<AIModelInfoItemDto[]>([]);
+  filteredModels = signal<AIModelInfoItemDto[]>([]);
+  selectedModelId = signal<string | null>(null);
   availableApplications = signal<Array<{ id: string; name: string }>>([]);
   isAdmin = signal(false);
 
@@ -55,8 +61,12 @@ export class ModelDebugIndex implements OnInit, OnDestroy {
 
   /** 当前选择的模型是否支持视觉 */
   currentModelSupportsVision = computed(() => {
-    const id = this.modelId?.value;
-    return !!id && !!this.availableModels().find(m => m.id === id)?.supportsVision;
+    return !!this.currentModel()?.supportsVision;
+  });
+
+  currentModelUsesNonStream = computed(() => {
+    const model = this.currentModel();
+    return !!model?.supportsEmbedding && !model.supportsChat;
   });
 
   constructor(
@@ -84,12 +94,19 @@ export class ModelDebugIndex implements OnInit, OnDestroy {
   private initForm(): void {
     this.debugForm = this.fb.group({
       applicationId: [''],
-      modelId: ['', Validators.required],
+      modelId: ['', [Validators.required, this.modelExistsValidator.bind(this)]],
       systemPrompt: ['You are a helpful AI assistant.'],
       prompt: ['', Validators.required],
       temperature: [0.7, [Validators.min(0), Validators.max(2)]],
       maxTokens: [1000, [Validators.min(1), Validators.max(32000)]]
     });
+
+    this.modelId.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(value => {
+        this.selectedModelId.set(value);
+        this.applyModelFilter(value);
+      });
   }
 
   private updateApplicationValidators(): void {
@@ -131,13 +148,10 @@ export class ModelDebugIndex implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
-          const models = (res.data || []).map(m => ({
-            id: m.id || '',
-            name: m.name || '',
-            providerId: m.providerId || '',
-            supportsVision: !!m.supportsVision
-          }));
+          const models = (res.data || []).filter(m => !!m.id);
           this.availableModels.set(models);
+          this.applyModelFilter(this.modelId.value);
+          this.modelId.updateValueAndValidity();
           this.isLoading.set(false);
         },
         error: (err) => {
@@ -183,12 +197,17 @@ export class ModelDebugIndex implements OnInit, OnDestroy {
       prompt: this.prompt.value,
       temperature: this.temperature.value,
       maxTokens: this.maxTokens.value,
+      dimensions: this.currentModelUsesNonStream() ? this.defaultEmbeddingDimensions : null,
       images: this.currentModelSupportsVision() ? this.selectedImages() : [],
       requestId
     };
 
     this.currentRequestId = requestId;
-    this.startStream(request);
+    if (this.currentModelUsesNonStream()) {
+      this.startInvoke(request);
+    } else {
+      this.startStream(request);
+    }
   }
 
   stopRequest(): void {
@@ -243,6 +262,45 @@ export class ModelDebugIndex implements OnInit, OnDestroy {
         buffer += decoder.decode(value, { stream: true });
         buffer = this.processSseBuffer(buffer, request);
       }
+    } catch (err: any) {
+      if (err.name !== 'AbortError') {
+        this.error.set(this.translate.instant(this.i18nKeys.modelDebug.errors.testFailed) + ': ' + err.message);
+      }
+      this.isStreaming.set(false);
+    }
+  }
+
+  private async startInvoke(request: ModelDebugRequest): Promise<void> {
+    this.abortController = new AbortController();
+    const token = this.authService.getAccessToken();
+    const url = `${environment.admin_daemon}/api/ModelDebug/invoke`;
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify(request),
+        signal: this.abortController.signal
+      });
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+
+      const finalResponse = await response.json() as ModelDebugResponse;
+      this.response.set(finalResponse);
+      this.streamingResponse.set(finalResponse.content);
+      this.renderMarkdown(finalResponse.content);
+      this.isStreaming.set(false);
+
+      const currentHistory = this.history();
+      this.history.set([
+        { request, response: finalResponse, timestamp: new Date() },
+        ...currentHistory.slice(0, 9)
+      ]);
     } catch (err: any) {
       if (err.name !== 'AbortError') {
         this.error.set(this.translate.instant(this.i18nKeys.modelDebug.errors.testFailed) + ': ' + err.message);
@@ -311,6 +369,56 @@ export class ModelDebugIndex implements OnInit, OnDestroy {
 
   private generateRequestId(): string {
     return `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+  }
+
+  displayModelName = (modelId: string | null): string => {
+    if (!modelId) {
+      return '';
+    }
+
+    const model = this.availableModels().find(m => m.id === modelId);
+    return model ? this.getModelTitle(model) : modelId;
+  };
+
+  getModelTitle(model?: AIModelInfoItemDto | null): string {
+    return model?.displayName || model?.name || '';
+  }
+
+  getModelDescription(model: AIModelInfoItemDto): string {
+    return model.description || model.name || '';
+  }
+
+  private currentModel(): AIModelInfoItemDto | undefined {
+    if (!this.debugForm) {
+      return undefined;
+    }
+
+    const id = this.selectedModelId();
+    return this.availableModels().find(m => m.id === id);
+  }
+
+  private applyModelFilter(value: string | null): void {
+    const selected = this.availableModels().find(m => m.id === value);
+    const search = (selected ? '' : value || '').toLowerCase().trim();
+    if (!search) {
+      this.filteredModels.set(this.availableModels());
+      return;
+    }
+
+    this.filteredModels.set(this.availableModels().filter(model => {
+      const title = this.getModelTitle(model).toLowerCase();
+      const name = (model.name || '').toLowerCase();
+      const description = (model.description || '').toLowerCase();
+      return title.includes(search) || name.includes(search) || description.includes(search);
+    }));
+  }
+
+  private modelExistsValidator(control: AbstractControl): { modelNotFound: true } | null {
+    if (!control.value || this.availableModels().length === 0) {
+      return null;
+    }
+
+    return this.availableModels().some(model => model.id === control.value) ? null : { modelNotFound: true };
   }
 
   private renderMarkdown(content: string): void {

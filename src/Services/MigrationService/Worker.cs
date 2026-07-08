@@ -173,7 +173,7 @@ public class Worker(
             Description = "阿里云通义千问 - 国产大语言模型",
             Website = "https://dashscope.aliyun.com",
             BaseUrl = "https://dashscope.aliyuncs.com/compatible-mode/v1",
-            LogoUrl = "https://img.alicdn.com/imgextra/i4/O1CN01c4CIoB1Ztqqe5wDfz_!!6000000003254-73-tps-16-16.ico",
+            LogoUrl = "https://img.alicdn.com/imgextra/i3/O1CN01Kmx9dR1wcHOaMMXAk_!!6000000006328-55-tps-28-28.svg",
             Models =
             [
                 new AIModelInfo { Name = "qwen3-max", DisplayName = "Qwen3 Max", Description = "通义千问当前旗舰模型，适合复杂推理、长链路任务与高质量生成", ContextLength = 262144, MaxContextTokens = 262144, SupportsChat = true, SupportsTools = true, InputPrice = 2.50m, OutputPrice = 10.00m, IsEnabled = true },
@@ -238,7 +238,7 @@ public class Worker(
             Description = "Microsoft Foundry Local - 本地 OpenAI 兼容模型服务",
             Website = "https://github.com/microsoft/Foundry-Local",
             BaseUrl = baseUrl,
-            LogoUrl = "https://raw.githubusercontent.com/microsoft/Foundry-Local/main/docs/logo.png",
+            LogoUrl = "https://raw.githubusercontent.com/microsoft/Foundry-Local/refs/heads/main/media/icons/foundry_local_black.svg",
             ApiKey = string.Empty,
             ProviderType = ModelProviderType.FoundryLocal,
             Models =

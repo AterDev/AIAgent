@@ -18,7 +18,14 @@ public class ModelDebugController(
     [HttpPost]
     public async Task<ActionResult<ModelDebugResponse>> ChatAsync(ModelDebugRequest request, CancellationToken cancellationToken)
     {
-        var response = await debugService.ChatAsync(request, cancellationToken);
+        var response = await debugService.InvokeAsync(request, cancellationToken);
+        return Ok(response);
+    }
+
+    [HttpPost("invoke")]
+    public async Task<ActionResult<ModelDebugResponse>> InvokeAsync(ModelDebugRequest request, CancellationToken cancellationToken)
+    {
+        var response = await debugService.InvokeAsync(request, cancellationToken);
         return Ok(response);
     }
 
@@ -107,6 +114,16 @@ public class ModelDebugController(
         catch (OperationCanceledException)
         {
             logger.LogInformation("Model debug stream canceled: {RequestId}", session.RequestId);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Model debug stream failed: {RequestId}", session.RequestId);
+            await WriteEventAsync(new ModelDebugStreamEvent
+            {
+                Type = "error",
+                RequestId = session.RequestId,
+                Error = ex.Message,
+            }, HttpContext.RequestAborted);
         }
         finally
         {

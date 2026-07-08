@@ -8,7 +8,7 @@ public class QdrantOptions
 
     public string CollectionName { get; set; } = "rag_chunks";
 
-    public int VectorSize { get; set; } = 256;
+    public int VectorSize { get; set; } = 768;
 
     public string Distance { get; set; } = "Cosine";
 

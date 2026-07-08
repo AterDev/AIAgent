@@ -6,7 +6,6 @@
   }
 
   .error-card {
-    background-color: #ffebee;
     border-left: 4px solid #f44336;
 
     mat-card-content {
@@ -45,7 +44,12 @@
         color: #333;
 
         // 标题样式
-        h1, h2, h3, h4, h5, h6 {
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
           margin-top: 16px;
           margin-bottom: 12px;
           font-weight: 600;
@@ -76,7 +80,8 @@
           font-size: 16px;
         }
 
-        h5, h6 {
+        h5,
+        h6 {
           font-size: 14px;
         }
 
@@ -116,7 +121,8 @@
         }
 
         // 列表样式
-        ul, ol {
+        ul,
+        ol {
           margin: 12px 0;
           padding-left: 24px;
 
@@ -191,12 +197,14 @@
         }
 
         // 强调样式
-        strong, b {
+        strong,
+        b {
           font-weight: 600;
           color: #212121;
         }
 
-        em, i {
+        em,
+        i {
           font-style: italic;
           color: #666;
         }
@@ -280,18 +288,49 @@
   gap: 8px;
   margin-top: -8px;
 }
+
 .image-preview-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
   gap: 8px;
   margin-top: 8px;
 }
+
 .image-preview-item {
   position: relative;
   border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 6px;
   overflow: hidden;
   aspect-ratio: 1 / 1;
-  img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .mat-mdc-mini-fab { position: absolute; top: 2px; right: 2px; transform: scale(0.7); }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .mat-mdc-mini-fab {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    transform: scale(0.7);
+  }
+}
+
+.model-option {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.25;
+  padding: 6px 0;
+
+  .model-option-title {
+    font-weight: 600;
+  }
+
+  .model-option-description {
+    font-size: 12px;
+    white-space: normal;
+  }
 }
