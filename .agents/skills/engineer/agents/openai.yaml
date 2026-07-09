@@ -1,4 +1,0 @@
-interface:
-  display_name: "Engineer"
-  short_description: "End-to-end senior engineering workflow for this repo."
-  default_prompt: "Use the engineer workflow to implement, validate, and deliver this change."

@@ -1,24 +1,17 @@
-# AIAgent Codex Instructions
-
-本仓库是基于 `Perigon.templates` 的 .NET Web API 解决方案，使用 `Perigon.CLI` 做项目脚手架、代码生成和 OpenAPI 客户端生成。
+# AGENTS
 
 ## 总体原则
 
-- 准确性和有效性优先，保持高效与严谨。
-- 修改代码前先理解现有实现和项目模式，避免猜测。
-- 命名要清晰简洁，并保持与项目风格一致。
-- 对生成或修改的代码做自查，重点检查符号、语法、命名空间、依赖、类型和运行路径。
-- 没有明确要求时，不新增总结、更新说明、测试报告等文档。
-- 优先使用 `pwsh`、`dotnet`、`pnpm` 和项目已有工具链；少用临时脚本，确需使用时任务结束后清理。
+- 从不猜测，确定性与准确是第一原则，保持高效与严谨。
+- 代码和文档的可读性和可维护性优先，通过适当注释、清晰命名和局部变量降低复杂度。
+- 没有明确要求时，不要在项目内生成内容总结、更新记录或测试报告类文档。
+- 优先使用操作系统、IDE 和项目内已有工具与能力，例如 `pwsh`、`dotnet`、`pnpm`、代码搜索和重构工具。
 
 ## 技术栈
 
-- C# 14
-- Aspire 13+
-- ASP.NET Core 10
-- EF Core 10
-- Angular 21+
-- Windows 11 开发环境，优先使用 PowerShell 和 .NET 工具链。
+1. 基于最新的 C# 14 语言特性。
+2. 后端强依赖于 Aspire 13+、ASP.NET Core 10、EF Core 10。
+3. 前端默认使用 Angular，具体以仓库现有代码为准。
 
 ## 项目结构
 
@@ -36,13 +29,28 @@
 
 ## 工具与技能
 
-- **Perigon** 和 **Aspire** 是本仓库最重要的工具。
-- 涉及脚手架、模块/服务添加、代码生成、OpenAPI 客户端生成、MCP 配置时，优先使用 Perigon 相关能力或项目已有模式。
-- 涉及分布式应用启动、资源状态、日志、链路、集成配置、运行态验证时，优先使用 Aspire CLI 和 `.agents/skills/aspire*`。
-- 后端相关任务优先使用 `.agents/skills/backend/SKILL.md`。
-- 前端相关任务优先使用 `.agents/skills/angular/SKILL.md`。
-- 完整工程实现闭环任务可使用 `.agents/skills/engineer/SKILL.md`。
-- 需要官方事实或新 API 时，优先查官方文档或一手来源；不要凭记忆猜测。
+- 涉及项目脚手架、模块或服务添加、代码生成、OpenAPI 客户端生成、MCP 配置时，优先使用 `Perigon` 相关能力。
+- 涉及分布式应用启动、资源状态检查、日志链路排查、集成配置时，优先使用 `Aspire` 相关能力；普通构建和测试优先使用 `dotnet build` 或 `dotnet test`。
+- 需要前端功能验证时，优先结合 Playwright 或前端构建校验。
+
+### 必读 skill
+
+任何实现、规划、审查任务开始前，必须先读取以下两个skill：
+
+- `.agents/skills/perigon/SKILL.md`
+- `.agents/skills/aspire/SKILL.md`
+
+### 主要技术 skill
+
+- `perigon`：Perigon CLI、MCP、脚手架、代码生成与模板约定
+- `aspire`：Aspire AppHost、资源编排、运行、观察与相关子工作流
+- `dotnet-guidelines`：.NET 开发规范
+- `angular-guidelines`：Angular 开发规范
+- `commit-message`：提交信息生成规范
+- `development-plan`：开发计划制定规范
+- `playwright-cli`：前端自动化验证与页面交互
+- `docs`：开发文档编写规范
+- `code-review`：代码审查规范
 
 ## 验证
 
@@ -51,15 +59,10 @@
 - 避免在 Aspire 正持有输出文件锁时反复直接 `dotnet build`；如果需要普通构建，先确认运行态和文件锁情况。
 - 前端运行在 Aspire/开发服务器中时，优先查看 Aspire 的 frontend 日志和热更新结果。
 
-## 清理
+## 思维模型
 
-- 任务产生的临时脚本、日志、诊断文件、一次性文档等要在完成后清理。
-- 不要修改或回滚与当前任务无关的用户改动。
+作为以目标为导向的架构师编写代码：
 
-## 问题解决
-
-像工程师一样解决问题：
-
-1. 先从代码和项目约定中定位事实。
-2. 必要时查官方文档、GitHub 或项目 MCP/技能参考。
-3. 每一行代码都要有明确目的，避免为了“可能有用”而扩大改动。
+1. 命名清晰、简洁、易理解，充分利用C#语言的表达能力和类型系统，写出结构清晰、可维护的代码。
+1. 代码结构清晰，模块划分合理， 以面向对象思维定义和组织类和方法。
+1. 方法和类符合单一职责原则，并补充必要说明。
