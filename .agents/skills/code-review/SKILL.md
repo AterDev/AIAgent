@@ -1,142 +1,54 @@
 ---
 name: code-review
-description: 全栈代码审查规范（质量/性能/安全/架构/风格）。用于 Code Review、PR 审查、质量门禁、安全与性能检查等任务。
+description: 对 ApiStandard 代码或变更执行基于证据的只读审查，检查需求符合性、正确性、安全、性能、架构、测试与完成情况。用于 PR/差异审查、质量门、计划完成审计或风险识别；不在审查任务中直接修复问题。
 ---
 
-## 何时使用
+# 代码审查
 
-- 审查功能实现逻辑
-- 全栈代码质量检查
-- 性能瓶颈分析
-- 安全风险识别
+审查以本次变更及直接影响面为主，以需求、设计、`AGENTS.md`、已有代码和实际验证为证据。不把个人风格偏好伪装成缺陷。
 
-## 核心职责
+## 准备
 
-### 1. 代码正确性审查
+1. 确认审查基线和变更范围，检查工作树中的用户改动。
+2. 读取 `perigon` 及变更相关 reference。只在涉及 AppHost/运行时时读 `aspire`，涉及 UI 时读 `ux`，涉及测试或完成证据时读 `test`。
+3. 定位当前迭代的 PD/PT，建立 `PD/REQ/SC → PT/TASK → diff → test` 映射；不存在时对 AI coding 视为跟踪缺口。
+4. 按风险运行最小必要的构建、测试或静态检查；记录未运行原因。
 
-#### 后端审查要点
-  
-- **Share层**
-  - 只包含通用的逻辑算法等，不涉及任何业务数据的操作
-  - 封装通用的第三方库的调用，如缓存/邮件/消息队列等
+## 审查顺序
 
-- **Manager 层**:
-  - 业务逻辑是否在 Manager 中而非 Controller？
-  - 是否继承 `ManagerBase<T>` 或 `ManagerBase`？
-  - 是否避免了 Manager 之间的直接调用？
-  - 异常处理是否抛出 `BusinessException`？
-  - 查询是否使用 `Select` 投影而非 `Include` 加载整个导航属性？
-  - 批量操作是否使用 `EFCore.BulkExtensions`？
-  - 事务操作是否使用 `ExecuteInTransactionAsync`？
-  
-- **Controller 层**:
-  - 是否继承 `RestControllerBase`？
-  - 是否避免直接访问 `DbContext`？
-  - 错误处理是否使用 `Problem()` / `NotFound()`？
-  - 是否避免使用 `ApiResponse` 包装器？
-  
-#### 前端审查要点
+1. **Completeness**：强制需求、验收场景和任务是否都有实现证据；PT 的 checkbox、进度、实现记录与 `ProjectTracking.md` 是否同步；是否存在未记录范围漂移。
+2. **Correctness**：正常、边界、失败、并发、幂等、兼容和回滚行为是否正确。
+3. **Security and data**：输入验证、鉴权/授权、租户隔离、敏感信息、审计、迁移与数据破坏风险。
+4. **Architecture and contracts**：Controller 不越界访问 DbContext，业务逻辑在 Manager/业务层，DTO、OpenAPI、客户端和数据所有权一致。
+5. **Performance and operations**：无 N+1、无分页全量查询、过度 `Include`、缺失索引、资源泄漏、无界重试；日志、trace、健康检查可支持诊断。
+6. **Tests and maintainability**：测试映射验收场景且实际通过，命名、复杂度、重复、注释可维护；行为/设计变化已同步 PD，每次 coding 的结果已同步 PT。
 
-- **组件设计**:
-  - 是否使用 Angular Material 组件库？
-  - 状态管理是否优先使用 signals？
-  - 订阅是否正确清理（使用 `takeUntilDestroyed` 或 async pipe）？
-  
-- **国际化**:
-  - 字符串是否使用 i18n 而非硬编码？
-  - 键名是否与 `app/share/i18n-keys.ts` 对齐？
+## 严重度
 
-### 2. 性能审查
+- `CRITICAL`：数据丢失、安全/租户边界破坏、强制需求缺失、不可发布或会造成重大故障。
+- `WARNING`：功能错误、边界遗漏、关键测试缺失、明显性能/兼容/运维风险。
+- `SUGGESTION`：不影响正确性与交付的可维护性改进。
 
-- **数据库查询**:
-  - 是否存在 N+1 查询问题？
-  - 是否滥用 `Include` 导致过量数据加载？
-  - 分页查询是否正确实现？
-  - 是否缺少必要的索引？
-  
-- **API 设计**:
-  - 列表接口是否返回分页数据而非全量数据？
-  - DTO 是否只包含必要字段（避免过度传输）？
-  - 是否存在冗余的 HTTP 请求？ 
-  
-- **前端性能**:
-  - 组件是否存在不必要的重绘？
-  - 是否滥用 `ChangeDetectorRef.detectChanges()`？
-  - 列表渲染是否使用 `trackBy`？
+每个 finding 包含精确文件和行、触发条件、用户/系统影响、证据和可执行建议。合并同一根因，避免冗长的样式列表。
 
-### 3. 安全审查
+## 结论
 
-- **输入验证**:
-  - API 边界是否进行输入验证？
-  - 是否使用 `[Required]`, `[MaxLength]`, `[Range]` 等注解？
-  - 客户端验证是否与服务端一致？
-  
-- **权限控制**:
-  - Controller 是否有适当的授权检查（`[Authorize]`）？
-  - 是否存在越权访问风险？
-  
-- **敏感信息**:
-  - 是否泄露敏感数据（如密码、token）？
-  - 错误信息是否包含内部实现细节？
-  
-### 4. 架构和设计审查
-  
-- **依赖关系**:
-  - 模块之间是否存在依赖?(CoreMod 除外)
-  - 是否存在循环依赖？
-  - Manager 之间是否存在不必要的直接调用？
-  
-- **代码复用**:
-  - 是否有重复代码应提取为共享方法？
+```text
+REVIEW_STATUS: PASS | FAIL | INCOMPLETE
+NEXT_ACTION: NONE | ENGINEER_FIX_REQUIRED | EVIDENCE_REQUIRED
 
-### 5. 代码风格和可维护性
-  
-- **注释和文档**:
-  - 复杂逻辑是否有必要的注释？
-  - 类，属性，公共 API 是否有 XML 文档注释？
-  
-- **错误处理**:
-  - 异常是否正确捕获和处理？
-  - 日志记录是否充分？
+Coverage:
+- requirements: covered/total or not-available
+- tasks: done/total or not-available
 
-## 审查输出格式
+Findings:
+- CRITICAL / WARNING / SUGGESTION with file:line
 
-### 问题报告模板
-```markdown
-# 代码审查报告
+Verification:
+- <exact command>: passed | failed | not-run
 
-**审查范围**: [文件路径或模块名称]  
-**审查日期**: [日期]  
-**审查结果**: ✅ 通过 / ⚠️ 需改进 / ❌ 阻断
+Residual risks:
+- ...
+```
 
-## 🔴 阻断性问题（必须修复）
-
-### [问题标题]
-- **文件**: `path/to/file.cs#L10-L15`
-- **问题描述**: 明确说明问题
-- **风险等级**: Critical / High
-- **建议修复**:
-  ```csharp
-  // 修复后的代码示例
-  ```
-
-## ⚠️ 改进建议
-
-### [建议标题]
-- **文件**: `path/to/file.ts#L42`
-- **当前问题**: 描述不够理想的实现
-- **改进方案**: 提供优化建议
-- **收益**: 说明改进后的好处（性能/可维护性等）
-
-## 📚 参考资料
-
-- [Perigon Best Practices](https://dusi.dev/docs/Perigon/en-US/10.0/Best-Practices/Overview.html)
-
-## 审查原则
-
-1. **准确性优先**: 基于项目实际规范而非个人偏好
-2. **问题分级**: 区分阻断性问题、改进建议和良好实践
-3. **提供方案**: 不仅指出问题，还要给出具体修复建议
-4. **引用规范**: 每个问题都应引用相关 Skill 文档或官方文档
-5. **保持客观**: 避免主观臆断，基于事实和规范进行评审
-6. **建设性反馈**: 肯定好的实践，鼓励持续改进
+只有无 `CRITICAL`/`WARNING`、必需验证通过且范围证据充足时返回 `PASS`。缺少环境或规格导致无法判断时返回 `INCOMPLETE`，不要用 PASS 代替“没发现”。

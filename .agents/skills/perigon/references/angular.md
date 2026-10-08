@@ -4,11 +4,10 @@ This reference belongs to the Perigon skill and covers Angular 21+ frontend work
 
 ## When to use
 
-Use this reference when the task involves:
-
-- building CRUD pages, forms, routes, shared components, and Material-based layouts;
-- generating typed request clients from backend OpenAPI through Perigon;
-- implementing or reviewing frontend changes in a Perigon-based project.
+- Build CRUD pages, forms, routes, shared components, and Material-based layouts.
+- Generate typed request clients from backend OpenAPI through Perigon.
+- Implement or review frontend changes in a Perigon-based project.
+- When editing Angular files: component, template, route, form, Material UI, signals, i18n, generated request client
 
 ## Project structure
 
@@ -20,12 +19,14 @@ src/
   │   ├── app.routes.ts
   │   ├── layout/
   │   ├── pages/
-  │   ├── share/
-  │   │   ├── components/
-  │   │   ├── pipe/
-  │   │   ├── auth.guard.ts
-  │   │   ├── custom-paginator-intl.ts
-  │   │   └── i18n-keys.ts
+  │   ├── modules/
+  │   │   ├── share/          # 打包的基础依赖，供所有业务模块复用
+  │   │   │   ├── components/
+  │   │   │   ├── pipe/
+  │   │   │   ├── auth.guard.ts
+  │   │   │   ├── custom-paginator-intl.ts
+  │   │   │   └── i18n-keys.ts
+  │   │   └── {module}/       # 业务前端模块
   │   └── services/
   ├── assets/i18n/
   ├── environments/
@@ -35,47 +36,42 @@ src/
 
 ## Core rules
 
-- Prefer standalone components and Angular Material.
-- Prefer signals and typed forms.
-- Use i18n keys instead of hard-coded user-facing strings.
+- 组件默认standalone模式，默认拆分成html/scss/ts文件.
+- UI 优先使用 Angular Material；样式优先复用现有样式`styles.scss`及`theme.scss`，布局使用Bootstrap flex，避免使用row&col，避免内联样式。
+- 状态优先使用 signals、async pipe 或框架推荐响应式写法；模板中避免调用复杂函数。
+- 表单使用 Typed Reactive Forms；在 FormGroup 内优先用 `[formControl]` + getter，不优先使用 `formControlName`。
+- Import `I18N_KEYS` from `src/app/modules/share/i18n-keys` and expose it on each translated component. In templates use `i18nKeys.common.save | translate`; for `TranslateService` use `translate.instant(this.i18nKeys.common.save)`. Do not use literal or constructed translation keys.
 - Keep generated request contracts untouched and regenerate them when the backend changes.
 - Avoid inline styles and prefer shared styles / Material tokens.
-- Prefer `async pipe` or signals over imperative subscriptions where possible.
-- Avoid calling functions in templates and keep the UI logic structured and typed.
+- Put reusable frontend infrastructure in `src/app/modules/share` and import it through `src/app/modules/share/...`; do not create `src/app/share`.
+
+## 页面组件和UX指南
+
+根据数据结构选择合适的Material组件进行展示和交互，如：
+
+- 在筛选组件中对 类别、枚举、目录等数据不多的，使用`mat-select`，以进行选择。
+- 在筛选组件中对 用户或其他列表选择时，使用`Autocomplete`，以支持搜索和选择。
+- 在列表的筛选页面，筛选控件通常与添加按钮放到同一行，并垂直对齐(align-items-center)，此时`<mat-form-field>`要添加`subscriptSizing="dynamic"`。
+- 不要使用浏览器的弹窗提示，而是使用material dialog实现，弹窗要有适合的宽度和长度，通常长度不超过`96vh`，宽度不超过`900px`，最小宽度一般在`400px`.
+
+在UX设计中，要遵循：
+
+- 视觉体验交互良好。如使用不同颜色和风格标记组件或按钮。如删除要添加`error`class。
+- 遵循整体的主题设计，不要自己添加自定义字体颜色。
 
 ## Recommended workflow
 
 1. Generate or refresh request clients from backend OpenAPI through Perigon.
 2. Create the page or component structure.
-3. Configure route/menu and shared UI pieces.
-4. Implement the TypeScript / HTML / SCSS logic and validate the interaction states.
+3. Configure route/menu(`menus.json`) and shared UI pieces.
+4. Implement the TS / HTML / SCSS logic and validate the interaction states.
 5. Run `pnpm build` (and optionally `pnpm start`) to verify the result.
-
-## UI / UX and component guidance
-
-- Prefer standalone components and Angular Material, and follow the existing theme and spacing system instead of introducing new visual styles.
-- Use signals and typed forms whenever possible. Prefer `async pipe` or signals over subscription-heavy imperative patterns.
-- Keep user-visible strings in i18n rather than hard-coding text. Use the shared i18n keys structure and `translate` pipe.
-- For page structure, follow a consistent enterprise-admin pattern: title / toolbar, filter or content area, main result area, and clear primary actions.
-- For list pages, keep the main actions prominent and place secondary actions in menus when appropriate.
-- For form pages, use a compact single-column layout on small screens and a two-column layout on wider screens when the form is complex.
-- For tables, provide clear empty, loading, error, and disabled states. Avoid designing pages without state handling.
-- Prefer Material components such as `mat-table`, `mat-paginator`, `mat-dialog`, `mat-snackbar`, `mat-select`, `mat-slide-toggle`, and form fields rather than custom controls.
-- Use the existing style hierarchy from the theme, vars, and component styles; do not add inline styles or override Material internals with `::ng-deep` unless no public API is available.
-
-## Form and layout conventions
-
-- Use reactive forms and typed form controls. Prefer `formControl` + getters over repeated string-based form access.
-- Ensure validation feedback is shown near the relevant control and keep submit states explicit.
-- Avoid horizontal overflow in general page layouts. Internal tables and long code/text blocks are the main exceptions.
-- Use bootstrap-style flex utilities and spacing helpers for layout rather than relying on ad-hoc container/row/column structures.
 
 ## UX and validation checklist
 
 - Check layout density, empty / loading / error states, and responsive behavior.
 - Prefer Material components and existing theme styles over custom visual overrides.
 - Keep user-visible strings in i18n and avoid hard-coded text.
-- Review the page structure for clarity, spacing, and tool-like enterprise-backend aesthetics.
 
 ## Verification
 

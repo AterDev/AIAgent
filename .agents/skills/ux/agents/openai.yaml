@@ -1,0 +1,4 @@
+interface:
+  display_name: "UX Design"
+  short_description: "跨 Web、桌面与 Android 的 UI 和交互设计规范"
+  default_prompt: "Use $ux to design and review this interface for its target platform."
