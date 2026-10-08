@@ -17,6 +17,9 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { SecurityContext } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { Subject, takeUntil } from 'rxjs';
+import { HttpAgent } from '@ag-ui/client';
+import { EventType, BaseEvent, TextMessageContentEvent, TextMessageStartEvent, CustomEvent, RunErrorEvent, ToolCallStartEvent, ToolCallArgsEvent, ToolCallResultEvent } from '@ag-ui/core';
+import { AgentDebugRequest } from 'src/app/services/admin/models/aiagent-mod/agent-debug-request.model';
 
 interface AgentDebugSession {
   id: string;
@@ -54,8 +57,10 @@ export class AgentDebugIndex implements OnInit, OnDestroy {
   i18nKeys = I18N_KEYS;
 
   private destroy$ = new Subject<void>();
-  private abortController: AbortController | null = null;
-  private currentRequestId: string | null = null;
+  private streamAgent: HttpAgent | null = null;
+  private streamMessages = new Map<string, { role: string; content: string; index: number }>();
+  private streamTools = new Map<string, { name: string; input: string }>();
+  private streamMetrics: Record<string, number> = {};
 
   configForm!: FormGroup;
   testForm!: FormGroup;
@@ -107,7 +112,7 @@ export class AgentDebugIndex implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    this.abortController?.abort();
+    this.streamAgent?.abortRun();
   }
 
   private initForms(): void {
@@ -284,7 +289,6 @@ export class AgentDebugIndex implements OnInit, OnDestroy {
 
     this.isTesting.set(true);
     const requestId = this.generateRequestId();
-    this.currentRequestId = requestId;
 
     const session: AgentDebugSession = {
       id: requestId,
@@ -322,102 +326,104 @@ export class AgentDebugIndex implements OnInit, OnDestroy {
   }
 
   stopRequest(): void {
-    if (!this.currentRequestId) {
-      return;
+    this.streamAgent?.abortRun();
+    this.streamAgent = null;
+    const session = this.currentSession();
+    if (session?.status === 'running') {
+      this.currentSession.set({ ...session, status: 'error', error: this.translate.instant('workflowMonitor.status.canceled') });
     }
+    this.isTesting.set(false);
+  }
 
-    this.abortController?.abort();
-    this.abortController = null;
-
+  private async startStream(request: AgentDebugRequest): Promise<void> {
     const token = this.authService.getAccessToken();
-    const url = `${environment.admin_daemon}/api/AgentDebug/stop/${this.currentRequestId}`;
-    fetch(url,
-      {
-        method: 'POST',
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
-      })
-      .finally(() => {
+    const runId = request.requestId!;
+    const agent = new HttpAgent({
+      url: `${environment.admin_daemon}/api/AgentDebug/stream`,
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      threadId: runId,
+      initialMessages: [{ id: this.generateRequestId(), role: 'user', content: request.userMessage || '' }]
+    });
+    this.streamAgent = agent;
+    this.streamMessages.clear();
+    this.streamTools.clear();
+    this.streamMetrics = {};
+    try {
+      await agent.runAgent({ runId, forwardedProps: request }, {
+        onEvent: ({ event }) => {
+          if (this.streamAgent === agent && this.currentSession()?.id === runId) this.handleAguiEvent(event);
+        }
+      });
+    } catch (error: unknown) {
+      if (this.streamAgent === agent) {
+        this.failSession(error instanceof Error ? error.message : String(error));
+      }
+    } finally {
+      if (this.streamAgent === agent) {
+        this.streamAgent = null;
         this.isTesting.set(false);
-      });
-  }
-
-  private async startStream(request: any): Promise<void> {
-    this.abortController = new AbortController();
-    const token = this.authService.getAccessToken();
-    const url = `${environment.admin_daemon}/api/AgentDebug/stream`;
-
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        },
-        body: JSON.stringify(request),
-        signal: this.abortController.signal
-      });
-
-      if (!response.ok || !response.body) {
-        throw new Error(await response.text());
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) {
-          break;
-        }
-        buffer += decoder.decode(value, { stream: true });
-        buffer = this.processSseBuffer(buffer);
-      }
-    } catch (err: any) {
-      if (err.name !== 'AbortError') {
-        this.errorMessage(this.translate.instant('agentDebug.errors.testFailed') + ': ' + err.message);
-      }
-      this.isTesting.set(false);
-    }
-  }
-
-  private processSseBuffer(buffer: string): string {
-    const chunks = buffer.split('\n\n');
-    for (let i = 0; i < chunks.length - 1; i++) {
-      const chunk = chunks[i];
-      const lines = chunk.split('\n');
-      for (const line of lines) {
-        if (!line.startsWith('data:')) {
-          continue;
-        }
-        const payload = line.replace('data:', '').trim();
-        if (!payload) {
-          continue;
-        }
-        this.handleStreamEvent(payload);
       }
     }
-    return chunks[chunks.length - 1];
   }
 
-  private handleStreamEvent(payload: string): void {
-    try {
-      const evt = JSON.parse(payload);
-      if (evt.type === 'message' && evt.message) {
-        this.appendMessage(evt.message.role, evt.message.content, evt.message.timestamp);
+  private handleAguiEvent(event: BaseEvent): void {
+    switch (event.type) {
+      case EventType.TEXT_MESSAGE_START: {
+        const text = event as TextMessageStartEvent;
+        const index = this.currentSession()?.messages.length ?? 0;
+        this.streamMessages.set(text.messageId, { role: text.role ?? 'assistant', content: '', index });
+        this.appendMessage(text.role ?? 'assistant', '');
+        break;
       }
-      if (evt.type === 'tool' && evt.toolCall) {
-        this.appendToolCall(evt.toolCall);
+      case EventType.TEXT_MESSAGE_CONTENT: {
+        const text = event as TextMessageContentEvent;
+        const message = this.streamMessages.get(text.messageId);
+        const session = this.currentSession();
+        if (!message || !session) break;
+        message.content += text.delta;
+        const html = marked.parse(message.content, { async: false }) as string;
+        const messages = [...session.messages];
+        messages[message.index] = { ...messages[message.index], content: message.content,
+          html: this.sanitizer.sanitize(SecurityContext.HTML, html) ?? '' };
+        this.currentSession.set({ ...session, messages });
+        break;
       }
-      if (evt.type === 'done' && evt.metrics) {
-        this.completeSession(evt.metrics);
+      case EventType.TOOL_CALL_START: {
+        const tool = event as ToolCallStartEvent;
+        this.streamTools.set(tool.toolCallId, { name: tool.toolCallName, input: '' });
+        break;
       }
-      if (evt.type === 'error') {
-        const errorMsg = evt.error || evt.message || this.translate.instant('agentDebug.errors.testFailed');
-        this.failSession(errorMsg);
+      case EventType.TOOL_CALL_ARGS: {
+        const tool = event as ToolCallArgsEvent;
+        const call = this.streamTools.get(tool.toolCallId);
+        if (call) call.input += tool.delta;
+        break;
       }
-    } catch (err: any) {
-      this.failSession(this.translate.instant('agentDebug.errors.testFailed') + ': ' + err.message);
+      case EventType.TOOL_CALL_RESULT: {
+        const tool = event as ToolCallResultEvent;
+        const call = this.streamTools.get(tool.toolCallId);
+        if (call) {
+          let output: unknown = tool.content;
+          try { output = JSON.parse(typeof tool.content === 'string' ? tool.content : JSON.stringify(tool.content)); } catch { /* Plain text tool results are valid. */ }
+          this.appendToolCall({ name: call.name, input: call.input, output });
+        }
+        break;
+      }
+      case EventType.CUSTOM: {
+        const custom = event as CustomEvent;
+        if (custom.name === 'debug.message') {
+          this.appendMessage(custom.value.role, custom.value.content, custom.value.timestamp);
+        } else if (custom.name === 'debug.metrics') {
+          this.streamMetrics = custom.value;
+        }
+        break;
+      }
+      case EventType.RUN_FINISHED:
+        if (this.currentSession()?.status === 'running') this.completeSession(this.streamMetrics);
+        break;
+      case EventType.RUN_ERROR:
+        this.failSession((event as RunErrorEvent).message);
+        break;
     }
   }
 

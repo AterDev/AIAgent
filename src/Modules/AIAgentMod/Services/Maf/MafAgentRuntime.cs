@@ -7,7 +7,7 @@ using ChatMessageEntity = Entity.AIAgentMod.ChatMessage;
 namespace AIAgentMod.Services.Maf;
 
 /// <summary>
-/// 基于 Microsoft Agent Framework 1.1 的 Agent 运行时封装。
+/// 基于 Microsoft Agent Framework 的 Agent 运行时封装。
 /// 输入 <see cref="AgentEntity"/> 配置 + 可选 tool 列表，产出可直接运行的 <see cref="ChatClientAgent"/>。
 /// 返回的 <see cref="MafAgentBundle"/> 包含 ChatClientAgent 以及每次 RunAsync 应传入的 ChatOptions
 /// （Temperature/TopP/ResponseFormat 等），调用方可直接透传到 <c>agent.RunAsync(..., options: bundle.ChatOptions)</c>。
@@ -43,7 +43,7 @@ public class MafAgentRuntime(
     }
 
     /// <summary>
-    /// 将会话历史裁剪成 MAF 可直接消费的 <see cref="ChatMessage"/> 列表，
+    /// 将会话历史裁剪成 MAF 可直接消费的 <see cref="Microsoft.Extensions.AI.ChatMessage"/> 列表，
     /// 按照 <see cref="AgentEntity.MemoryMode"/> 执行窗口/摘要策略。
     /// </summary>
     public IReadOnlyList<Microsoft.Extensions.AI.ChatMessage> PrepareHistory(AgentEntity agent, IReadOnlyList<ChatMessageEntity> history)

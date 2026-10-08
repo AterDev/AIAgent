@@ -1,3 +1,6 @@
+using Microsoft.Agents.AI;
+using Microsoft.Agents.AI.Hosting.AGUI.AspNetCore;
+using AdminService.Services;
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // 共享基础服务:health check, service discovery, opentelemetry, http retry etc.
@@ -29,7 +32,10 @@ builder
 // 业务Managers
 builder.Services.AddManagers();
 
-builder.Services.AddSingleton<AdminService.Services.DebugSessionRegistry>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddAGUIServer();
+builder.Services.ConfigureHttpJsonOptions(options =>
+    options.SerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull);
 
 // 模块服务
 builder.AddModules();
@@ -44,5 +50,15 @@ app.MapDefaultEndpoints();
 // 使用中间件
 app.UseMiddlewareServices();
 
+
+app.MapAGUIServer("/api/AgentDebug/stream", new ChatClientAgent(
+    new AgentDebugChatClient(app.Services.GetRequiredService<IHttpContextAccessor>()),
+    name: "AgentDebug"))
+    .RequireAuthorization();
+
+app.MapAGUIServer("/api/ModelDebug/stream", new ChatClientAgent(
+    new ModelDebugChatClient(app.Services.GetRequiredService<IHttpContextAccessor>()),
+    name: "ModelDebug"))
+    .RequireAuthorization();
 
 app.Run();

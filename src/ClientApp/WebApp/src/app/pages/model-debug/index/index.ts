@@ -16,6 +16,8 @@ import { ModelDebugRequest } from 'src/app/services/admin/models/model-mod/model
 import { ModelDebugResponse } from 'src/app/services/admin/models/model-mod/model-debug-response.model';
 import { environment } from 'src/environments/environment';
 import { Subject, takeUntil } from 'rxjs';
+import { HttpAgent } from '@ag-ui/client';
+import { EventType, CustomEvent, TextMessageContentEvent, RunErrorEvent } from '@ag-ui/core';
 
 @Component({
   selector: 'app-model-debug-index',
@@ -34,8 +36,7 @@ export class ModelDebugIndex implements OnInit, OnDestroy {
   i18nKeys = I18N_KEYS;
 
   private destroy$ = new Subject<void>();
-  private abortController: AbortController | null = null;
-  private currentRequestId: string | null = null;
+  private streamAgent: HttpAgent | null = null;
 
   debugForm!: FormGroup;
   isLoading = signal(true); // 仅用于初始页面加载
@@ -78,7 +79,7 @@ export class ModelDebugIndex implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    this.abortController?.abort();
+    this.streamAgent?.abortRun();
   }
 
   private initForm(): void {
@@ -186,126 +187,58 @@ export class ModelDebugIndex implements OnInit, OnDestroy {
       images: this.currentModelSupportsVision() ? this.selectedImages() : [],
       requestId
     };
-
-    this.currentRequestId = requestId;
     this.startStream(request);
   }
 
   stopRequest(): void {
-    if (!this.currentRequestId) {
-      return;
-    }
-
-    this.abortController?.abort();
-    this.abortController = null;
-
-    const token = this.authService.getAccessToken();
-    const url = `${environment.admin_daemon}/api/ModelDebug/stop/${this.currentRequestId}`;
-    fetch(url,
-      {
-        method: 'POST',
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
-      })
-      .finally(() => {
-        this.isStreaming.set(false);
-      });
+    this.streamAgent?.abortRun();
+    this.streamAgent = null;
+    this.isStreaming.set(false);
   }
 
   private async startStream(request: ModelDebugRequest): Promise<void> {
-    this.abortController = new AbortController();
     const token = this.authService.getAccessToken();
-    const url = `${environment.admin_daemon}/api/ModelDebug/stream`;
-
+    const runId = request.requestId!;
+    const agent = new HttpAgent({
+      url: `${environment.admin_daemon}/api/ModelDebug/stream`,
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      threadId: runId,
+      initialMessages: [{ id: this.generateRequestId(), role: 'user', content: request.prompt || '' }]
+    });
+    this.streamAgent = agent;
+    let finalResponse: ModelDebugResponse | null = null;
     try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        },
-        body: JSON.stringify(request),
-        signal: this.abortController.signal
+      await agent.runAgent({ runId, forwardedProps: request }, {
+        onEvent: ({ event }) => {
+          if (this.streamAgent !== agent) return;
+          if (event.type === EventType.TEXT_MESSAGE_CONTENT) {
+            const content = this.streamingResponse() + (event as TextMessageContentEvent).delta;
+            this.streamingResponse.set(content);
+            this.renderMarkdown(content);
+          } else if (event.type === EventType.CUSTOM && (event as CustomEvent).name === 'model.metrics') {
+            finalResponse = (event as CustomEvent).value as ModelDebugResponse;
+          } else if (event.type === EventType.RUN_ERROR) {
+            this.error.set((event as RunErrorEvent).message);
+            this.isStreaming.set(false);
+          } else if (event.type === EventType.RUN_FINISHED && finalResponse && !this.error()) {
+            this.response.set(finalResponse);
+            this.streamingResponse.set(finalResponse.content);
+            this.renderMarkdown(finalResponse.content);
+            this.isStreaming.set(false);
+            this.history.set([{ request, response: finalResponse, timestamp: new Date() }, ...this.history().slice(0, 9)]);
+          }
+        }
       });
-
-      if (!response.ok || !response.body) {
-        throw new Error(await response.text());
+    } catch (error: unknown) {
+      if (this.streamAgent === agent) {
+        this.error.set(this.translate.instant(this.i18nKeys.modelDebug.errors.testFailed) + ': ' +
+          (error instanceof Error ? error.message : String(error)));
       }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) {
-          break;
-        }
-        buffer += decoder.decode(value, { stream: true });
-        buffer = this.processSseBuffer(buffer, request);
-      }
-    } catch (err: any) {
-      if (err.name !== 'AbortError') {
-        this.error.set(this.translate.instant(this.i18nKeys.modelDebug.errors.testFailed) + ': ' + err.message);
-      }
-      this.isStreaming.set(false);
-    }
-  }
-
-  private processSseBuffer(buffer: string, request: ModelDebugRequest): string {
-    const chunks = buffer.split('\n\n');
-    for (let i = 0; i < chunks.length - 1; i++) {
-      const chunk = chunks[i];
-      const lines = chunk.split('\n');
-      for (const line of lines) {
-        if (!line.startsWith('data:')) {
-          continue;
-        }
-        const payload = line.replace('data:', '').trim();
-        if (!payload) {
-          continue;
-        }
-        this.handleStreamEvent(payload, request);
-      }
-    }
-    return chunks[chunks.length - 1];
-  }
-
-  private handleStreamEvent(payload: string, request: ModelDebugRequest): void {
-    try {
-      const evt = JSON.parse(payload);
-      if (evt.type === 'delta' && evt.delta) {
-        const content = this.streamingResponse() + evt.delta;
-        this.streamingResponse.set(content);
-        this.renderMarkdown(content);
-      }
-      if (evt.type === 'error') {
-        this.error.set(evt.error || this.translate.instant(this.i18nKeys.modelDebug.errors.testFailed));
+    } finally {
+      if (this.streamAgent === agent) {
+        this.streamAgent = null;
         this.isStreaming.set(false);
       }
-      if (evt.type === 'final' && evt.final) {
-        const finalResponse: ModelDebugResponse = {
-          content: evt.final.content,
-          model: evt.final.model,
-          promptTokens: evt.final.promptTokens,
-          completionTokens: evt.final.completionTokens,
-          totalTokens: evt.final.totalTokens,
-          finishReason: evt.final.finishReason,
-          durationMs: evt.final.durationMs
-        };
-        this.response.set(finalResponse);
-        this.streamingResponse.set(finalResponse.content);
-        this.renderMarkdown(finalResponse.content);
-        this.isStreaming.set(false);
-
-        const currentHistory = this.history();
-        this.history.set([
-          { request, response: finalResponse, timestamp: new Date() },
-          ...currentHistory.slice(0, 9)
-        ]);
-      }
-    } catch (err: any) {
-      this.error.set(this.translate.instant(this.i18nKeys.modelDebug.errors.testFailed) + ': ' + err.message);
-      this.isStreaming.set(false);
     }
   }
 

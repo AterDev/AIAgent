@@ -19,4 +19,7 @@
     <ProjectReference Include="..\..\src\Definition\Entity\Entity.csproj" />
     <ProjectReference Include="..\..\src\Modules\KnowledgeBaseMod\KnowledgeBaseMod.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Services\AdminService\AdminService.csproj" />
+  </ItemGroup>
 </Project>

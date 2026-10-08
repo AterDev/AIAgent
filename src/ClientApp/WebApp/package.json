@@ -10,6 +10,8 @@
   },
   "private": true,
   "dependencies": {
+    "@ag-ui/client": "1.0.1",
+    "@ag-ui/core": "1.0.1",
     "@angular/animations": "^21.0.1",
     "@angular/cdk": "21.0.1",
     "@angular/common": "^21.0.1",
