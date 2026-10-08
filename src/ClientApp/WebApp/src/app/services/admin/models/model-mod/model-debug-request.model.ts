@@ -13,6 +13,8 @@ export interface ModelDebugRequest {
   temperature?: number | null;
   /** maxTokens */
   maxTokens?: number | null;
+  /** dimensions */
+  dimensions?: number | null;
   /** 多模态图片输入（data URI 或 http(s) URL） */
   images: string[];
   /** requestId */

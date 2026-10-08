@@ -31,13 +31,22 @@
 
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>{{ i18nKeys.modelDebug.selectModel | translate }}</mat-label>
-              <mat-select [formControl]="modelId" required>
-                @for (model of availableModels(); track model.id) {
+              <input
+                type="text"
+                matInput
+                required
+                [formControl]="modelId"
+                [matAutocomplete]="modelAuto">
+              <mat-autocomplete #modelAuto="matAutocomplete" [displayWith]="displayModelName">
+                @for (model of filteredModels(); track model.id) {
                 <mat-option [value]="model.id">
-                  {{ model.name }} ({{ model.providerId }})
+                  <div class="model-option">
+                    <div class="model-option-title">{{ getModelTitle(model) }}</div>
+                    <div class="model-option-description">{{ getModelDescription(model) }}</div>
+                  </div>
                 </mat-option>
                 }
-              </mat-select>
+              </mat-autocomplete>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">

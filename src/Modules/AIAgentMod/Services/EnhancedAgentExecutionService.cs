@@ -136,11 +136,21 @@ public class EnhancedAgentExecutionService(
                 ? response.ToolCalls
                 : ToolCallParser.ParseFromContent(response.Content);
 
+            EnsureToolCallIds(toolCalls);
+
             // Add assistant response to message history
             messages.Add(new ModelInvokeMessage
             {
                 Role = "assistant",
                 Content = response.Content ?? string.Empty,
+                ToolCalls = toolCalls
+                    .Select(toolCall => new ToolCall
+                    {
+                        Id = toolCall.Id,
+                        Name = toolCall.Name,
+                        ArgumentsJson = toolCall.ArgumentsJson,
+                    })
+                    .ToList(),
             });
 
             if (toolCalls.Count == 0)
@@ -183,22 +193,29 @@ public class EnhancedAgentExecutionService(
                         result = toolResult
                     });
 
-                    // Add tool result to message history with call ID for proper API format
+                    // Feed the model the raw tool payload instead of the audit envelope so it can
+                    // reason over the actual result structure.
                     messages.Add(new ModelInvokeMessage
                     {
                         Role = "tool",
-                        Content = JsonSerializer.Serialize(toolResult),
+                        Content = BuildToolMessageContent(toolResult),
                         ToolCallId = toolCall.Id,
                     });
                 }
                 catch (Exception ex)
                 {
                     logger.LogError(ex, "Tool execution failed: {ToolName}", toolCall.Name);
-                    
+
+                    var failedResult = new ToolExecutionResult
+                    {
+                        Success = false,
+                        ErrorMessage = ex.Message,
+                    };
+
                     messages.Add(new ModelInvokeMessage
                     {
                         Role = "tool",
-                        Content = JsonSerializer.Serialize(new { error = ex.Message, tool = toolCall.Name }),
+                        Content = BuildToolMessageContent(failedResult),
                         ToolCallId = toolCall.Id,
                     });
                 }
@@ -280,6 +297,33 @@ public class EnhancedAgentExecutionService(
         }
 
         return inputJson;
+    }
+
+    private static void EnsureToolCallIds(List<ToolCall> toolCalls)
+    {
+        foreach (var toolCall in toolCalls.Where(toolCall => string.IsNullOrWhiteSpace(toolCall.Id)))
+        {
+            toolCall.Id = $"call_{Guid.NewGuid():N}";
+        }
+    }
+
+    private static string BuildToolMessageContent(ToolExecutionResult result)
+    {
+        if (result.Success)
+        {
+            if (string.IsNullOrWhiteSpace(result.OutputJson))
+            {
+                return "{}";
+            }
+
+            return result.OutputJson;
+        }
+
+        return JsonSerializer.Serialize(new
+        {
+            success = false,
+            error = result.ErrorMessage ?? "Tool execution failed",
+        });
     }
 
     private sealed record ExecutionResult

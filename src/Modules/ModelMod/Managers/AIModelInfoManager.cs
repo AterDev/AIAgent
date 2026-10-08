@@ -16,7 +16,8 @@ public class AIModelInfoManager(
     /// </summary>
     public async Task<PageList<AIModelInfoItemDto>> FilterAsync(AIModelInfoFilterDto filter)
     {
-        Queryable = Queryable.WhereNotNull(filter.ProviderId, q => q.ProviderId == filter.ProviderId);
+        Queryable = Queryable.WhereNotNull(filter.ProviderId, q => q.ProviderId == filter.ProviderId)
+            .OrderBy(q => q.ProviderId);
         return await PageListAsync<AIModelInfoFilterDto, AIModelInfoItemDto>(filter);
     }
 
@@ -57,7 +58,7 @@ public class AIModelInfoManager(
     /// <summary>
     /// Delete 模型信息
     /// </summary>
-    public async Task<bool?> DeleteAsync(List<Guid> ids, bool softDelete = true)
+    public async Task<bool> DeleteAsync(List<Guid> ids, bool softDelete = true)
     {
         if (!ids.Any())
         {

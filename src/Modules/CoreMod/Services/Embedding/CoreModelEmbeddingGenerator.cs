@@ -34,6 +34,7 @@ public class CoreModelEmbeddingGenerator(
             Metadata = new Dictionary<string, string>
             {
                 ["input"] = text,
+                ["dimensions"] = effectiveSize.ToString(System.Globalization.CultureInfo.InvariantCulture),
             },
         };
 

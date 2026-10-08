@@ -16,6 +16,10 @@ public class Worker(
     ILogger<Worker> logger
 ) : BackgroundService
 {
+    private const string FoundryLocalBaseUrlEnvVar = "AIAgent__Seed__FoundryLocalBaseUrl";
+    private const string OllamaBaseUrlEnvVar = "AIAgent__Seed__OllamaBaseUrl";
+    private const string DefaultFoundryLocalBaseUrl = "http://127.0.0.1:55655/v1";
+    private const string DefaultOllamaBaseUrl = "http://localhost:11434/v1";
     private readonly ILogger<Worker> _logger = logger;
     public const string ActivitySourceName = "Migrations";
     private static readonly ActivitySource _activitySource = new(ActivitySourceName);
@@ -102,8 +106,13 @@ public class Worker(
 
     private static async Task SeedModelProvidersAsync(DefaultDbContext db, CancellationToken cancellationToken)
     {
+        var foundryLocalBaseUrl = GetSeedBaseUrl(FoundryLocalBaseUrlEnvVar, DefaultFoundryLocalBaseUrl);
+        var ollamaBaseUrl = GetSeedBaseUrl(OllamaBaseUrlEnvVar, DefaultOllamaBaseUrl);
+
         if (await db.AIModelProviders.AnyAsync(cancellationToken))
         {
+            await UpdateProviderBaseUrlAsync(db, "FoundryLocal", foundryLocalBaseUrl, cancellationToken);
+            await UpdateProviderBaseUrlAsync(db, "Ollama", ollamaBaseUrl, cancellationToken);
             return;
         }
 
@@ -113,14 +122,14 @@ public class Worker(
             Name = "DeepSeek",
             Description = "DeepSeek AI - 高性能开源大语言模型提供商",
             Website = "https://www.deepseek.com",
-            BaseUrl = "https://api.deepseek.com/v1",
+            BaseUrl = "https://api.deepseek.com",
             LogoUrl = "https://www.deepseek.com/favicon.ico",
             ApiKey = Environment.GetEnvironmentVariable("AIAgent__Seed__DeepSeekApiKey"),
             ProviderType = ModelProviderType.OpenAiCompatible,
             Models =
             [
-                new AIModelInfo { Name = "deepseek-chat", DisplayName = "DeepSeek Chat (V3.2)", Description = "DeepSeek 当前主力通用模型，适合对话、工具调用和日常开发任务", ContextLength = 131072, MaxContextTokens = 131072, SupportsChat = true, SupportsTools = true, InputPrice = 0.28m, OutputPrice = 0.42m, IsEnabled = true },
-                new AIModelInfo { Name = "deepseek-reasoner", DisplayName = "DeepSeek Reasoner (V3.2 Thinking)", Description = "DeepSeek 当前主力深度推理模型，适合复杂分析、编程与长链路推理", ContextLength = 131072, MaxContextTokens = 131072, SupportsChat = true, SupportsTools = true, InputPrice = 0.55m, OutputPrice = 2.19m, IsEnabled = true },
+                new AIModelInfo { Name = "deepseek-v4-flash", DisplayName = "DeepSeek V4 Flash", Description = "DeepSeek V4 高速通用模型（1M 上下文），支持思考/非思考双模式，适合对话、工具调用和高频业务场景", ContextLength = 1048576, MaxContextTokens = 1048576, SupportsChat = true, SupportsTools = true, InputPrice = 0.14m, OutputPrice = 0.28m, IsEnabled = true },
+                new AIModelInfo { Name = "deepseek-v4-pro", DisplayName = "DeepSeek V4 Pro", Description = "DeepSeek V4 旗舰深度推理模型（1M 上下文），适合复杂分析、编程与长链路推理", ContextLength = 1048576, MaxContextTokens = 1048576, SupportsChat = true, SupportsTools = true, InputPrice = 0.435m, OutputPrice = 0.87m, IsEnabled = true },
             ]
         };
 
@@ -134,7 +143,8 @@ public class Worker(
             LogoUrl = "https://openai.com/favicon.ico",
             Models =
             [
-                new AIModelInfo { Name = "gpt-5.4", DisplayName = "GPT-5.4", Description = "OpenAI 当前旗舰模型，适合高复杂度推理、编码与智能体任务", ContextLength = 400000, MaxContextTokens = 400000, SupportsChat = true, SupportsTools = true, SupportsVision = true, SupportsResponsesApi = true, InputPrice = 2.50m, OutputPrice = 15.00m, IsEnabled = true },
+                new AIModelInfo { Name = "gpt-5.5", DisplayName = "GPT-5.5", Description = "OpenAI 最新旗舰推理模型（1M 上下文），具备高级推理、编码、多工具调用和 Computer Use 能力", ContextLength = 1050000, MaxContextTokens = 1050000, SupportsChat = true, SupportsTools = true, SupportsVision = true, SupportsResponsesApi = true, InputPrice = 5.00m, OutputPrice = 30.00m, IsEnabled = true },
+                new AIModelInfo { Name = "gpt-5.4", DisplayName = "GPT-5.4", Description = "OpenAI 主流旗舰模型，适合高复杂度推理、编码与智能体任务", ContextLength = 400000, MaxContextTokens = 400000, SupportsChat = true, SupportsTools = true, SupportsVision = true, SupportsResponsesApi = true, InputPrice = 2.50m, OutputPrice = 15.00m, IsEnabled = true },
                 new AIModelInfo { Name = "gpt-5.4-mini", DisplayName = "GPT-5.4 Mini", Description = "OpenAI 当前主力小型模型，适合高频编码、工具调用与日常业务场景", ContextLength = 400000, MaxContextTokens = 400000, SupportsChat = true, SupportsTools = true, SupportsVision = true, SupportsResponsesApi = true, InputPrice = 0.75m, OutputPrice = 4.50m, IsEnabled = true },
                 new AIModelInfo { Name = "text-embedding-3-large", DisplayName = "Embedding 3 Large", Description = "OpenAI 主力文本向量模型，适合检索增强、聚类与语义搜索", ContextLength = 8191, MaxContextTokens = 8191, SupportsEmbedding = true, InputPrice = 0.13m, OutputPrice = 0m, IsEnabled = true },
             ]
@@ -163,7 +173,7 @@ public class Worker(
             Description = "阿里云通义千问 - 国产大语言模型",
             Website = "https://dashscope.aliyun.com",
             BaseUrl = "https://dashscope.aliyuncs.com/compatible-mode/v1",
-            LogoUrl = "https://img.alicdn.com/imgextra/i4/O1CN01c4CIoB1Ztqqe5wDfz_!!6000000003254-73-tps-16-16.ico",
+            LogoUrl = "https://img.alicdn.com/imgextra/i3/O1CN01Kmx9dR1wcHOaMMXAk_!!6000000006328-55-tps-28-28.svg",
             Models =
             [
                 new AIModelInfo { Name = "qwen3-max", DisplayName = "Qwen3 Max", Description = "通义千问当前旗舰模型，适合复杂推理、长链路任务与高质量生成", ContextLength = 262144, MaxContextTokens = 262144, SupportsChat = true, SupportsTools = true, InputPrice = 2.50m, OutputPrice = 10.00m, IsEnabled = true },
@@ -202,7 +212,16 @@ public class Worker(
             ]
         };
 
-        db.AIModelProviders.AddRange([deepSeek, openAI, anthropic, qwen, google, azure, BuildFoundryLocalProvider(), BuildOllamaProvider()]);
+        db.AIModelProviders.AddRange([
+            deepSeek,
+            openAI,
+            anthropic,
+            qwen,
+            google,
+            azure,
+            BuildFoundryLocalProvider(foundryLocalBaseUrl),
+            BuildOllamaProvider(ollamaBaseUrl)
+        ]);
         await db.SaveChangesAsync(cancellationToken);
     }
 
@@ -211,15 +230,15 @@ public class Worker(
     /// 若用户自定义端口可手动更新 BaseUrl。ApiKey 留空（Foundry Local 不需要认证）。
     /// 当前 Foundry Local 目录仅提供 CPU 聊天/工具模型，暂无内置 embedding 模型，仅种子 qwen3-0.6b。
     /// </summary>
-    private static AIModelProvider BuildFoundryLocalProvider()
+    private static AIModelProvider BuildFoundryLocalProvider(string baseUrl)
     {
         return new AIModelProvider
         {
             Name = "FoundryLocal",
             Description = "Microsoft Foundry Local - 本地 OpenAI 兼容模型服务",
             Website = "https://github.com/microsoft/Foundry-Local",
-            BaseUrl = "http://127.0.0.1:55655/v1",
-            LogoUrl = "https://raw.githubusercontent.com/microsoft/Foundry-Local/main/docs/logo.png",
+            BaseUrl = baseUrl,
+            LogoUrl = "https://raw.githubusercontent.com/microsoft/Foundry-Local/refs/heads/main/media/icons/foundry_local_black.svg",
             ApiKey = string.Empty,
             ProviderType = ModelProviderType.FoundryLocal,
             Models =
@@ -246,14 +265,14 @@ public class Worker(
     /// Ollama 暴露 OpenAI 兼容 API，因此复用 <see cref="ModelProviderType.OpenAiCompatible"/>；ApiKey 留空。
     /// 主要用于补位 Foundry Local 缺失的本地 embedding 能力（bge-m3，1024 维，中英文皆可）。
     /// </summary>
-    private static AIModelProvider BuildOllamaProvider()
+    private static AIModelProvider BuildOllamaProvider(string baseUrl)
     {
         return new AIModelProvider
         {
             Name = "Ollama",
             Description = "Ollama - 本地开源模型运行时（OpenAI 兼容）",
             Website = "https://ollama.com",
-            BaseUrl = "http://localhost:11434/v1",
+            BaseUrl = baseUrl,
             LogoUrl = "https://ollama.com/public/ollama.png",
             ApiKey = string.Empty,
             ProviderType = ModelProviderType.OpenAiCompatible,
@@ -275,17 +294,42 @@ public class Worker(
         };
     }
 
+    private static string GetSeedBaseUrl(string envVarName, string defaultValue)
+    {
+        var value = Environment.GetEnvironmentVariable(envVarName);
+        return string.IsNullOrWhiteSpace(value) ? defaultValue : value.Trim();
+    }
+
+    private static async Task UpdateProviderBaseUrlAsync(
+        DefaultDbContext db,
+        string providerName,
+        string baseUrl,
+        CancellationToken cancellationToken)
+    {
+        var provider = await db.AIModelProviders.FirstOrDefaultAsync(
+            q => q.Name == providerName,
+            cancellationToken);
+
+        if (provider is null || string.Equals(provider.BaseUrl, baseUrl, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        provider.BaseUrl = baseUrl;
+        await db.SaveChangesAsync(cancellationToken);
+    }
+
     private async Task SeedDemoApplicationAsync(DefaultDbContext db, CancellationToken cancellationToken)
     {
         const string demoAppName = "Demo Open Platform App";
 
-        var deepSeekChat = await db.AIModelInfos
+        var deepSeekFlash = await db.AIModelInfos
             .Include(q => q.Provider)
-            .FirstOrDefaultAsync(q => q.Name == "deepseek-chat", cancellationToken);
+            .FirstOrDefaultAsync(q => q.Name == "deepseek-v4-flash", cancellationToken);
 
-        if (deepSeekChat is null)
+        if (deepSeekFlash is null)
         {
-            _logger.LogWarning("Skip seeding demo application because deepseek-chat model was not found.");
+            _logger.LogWarning("Skip seeding demo application because deepseek-v4-flash model was not found.");
             return;
         }
 
@@ -299,7 +343,7 @@ public class Worker(
                 Name = demoAppName,
                 Description = "用于第三方开放平台接入与模型调用验证的示例应用",
                 IsEnabled = true,
-                TenantId = deepSeekChat.TenantId,
+                TenantId = deepSeekFlash.TenantId,
             };
 
             db.Applications.Add(application);
@@ -325,7 +369,7 @@ public class Worker(
         }
 
         var hasPermission = await db.ApplicationModelPermissions.AnyAsync(
-            q => q.ApplicationId == application.Id && q.AIModelInfoId == deepSeekChat.Id,
+            q => q.ApplicationId == application.Id && q.AIModelInfoId == deepSeekFlash.Id,
             cancellationToken
         );
 
@@ -334,7 +378,7 @@ public class Worker(
             db.ApplicationModelPermissions.Add(new ApplicationModelPermission
             {
                 ApplicationId = application.Id,
-                AIModelInfoId = deepSeekChat.Id,
+                AIModelInfoId = deepSeekFlash.Id,
                 IsEnabled = true,
                 TenantId = application.TenantId,
             });
@@ -423,13 +467,13 @@ public class Worker(
     {
         const string publicAgentName = "DefaultDeepSeekAgent";
 
-        var deepSeekChat = await db.AIModelInfos
+        var deepSeekFlash = await db.AIModelInfos
             .AsNoTracking()
-            .FirstOrDefaultAsync(q => q.Name == "deepseek-chat", cancellationToken);
+            .FirstOrDefaultAsync(q => q.Name == "deepseek-v4-flash", cancellationToken);
 
-        if (deepSeekChat is null)
+        if (deepSeekFlash is null)
         {
-            _logger.LogWarning("Skip seeding default public agent because deepseek-chat model was not found.");
+            _logger.LogWarning("Skip seeding default public agent because deepseek-v4-flash model was not found.");
             return;
         }
 
@@ -440,12 +484,12 @@ public class Worker(
         if (existingAgent is not null)
         {
             existingAgent.Description = "默认公共 Agent，用于开放平台与系统侧联调测试。";
-            existingAgent.ModelId = deepSeekChat.Name;
+            existingAgent.ModelId = deepSeekFlash.Name;
             existingAgent.SystemPrompt = "你是默认测试 Agent，请用简洁、可靠的方式回答用户问题。";
             existingAgent.Enable = true;
             existingAgent.IsPublic = true;
             existingAgent.IsDeleted = false;
-            existingAgent.TenantId = deepSeekChat.TenantId;
+            existingAgent.TenantId = deepSeekFlash.TenantId;
             existingAgent.UpdatedTime = DateTimeOffset.UtcNow;
             await db.SaveChangesAsync(cancellationToken);
             return;
@@ -455,11 +499,11 @@ public class Worker(
         {
             Name = publicAgentName,
             Description = "默认公共 Agent，用于开放平台与系统侧联调测试。",
-            ModelId = deepSeekChat.Name,
+            ModelId = deepSeekFlash.Name,
             SystemPrompt = "你是默认测试 Agent，请用简洁、可靠的方式回答用户问题。",
             Enable = true,
             IsPublic = true,
-            TenantId = deepSeekChat.TenantId,
+            TenantId = deepSeekFlash.TenantId,
         });
 
         await db.SaveChangesAsync(cancellationToken);
@@ -475,13 +519,13 @@ public class Worker(
         const string rewriterAgentName = "DemoRewriterAgent";
         const string reviewerAgentName = "DemoReviewerAgent";
 
-        var deepSeekChat = await db.AIModelInfos
+        var deepSeekFlash = await db.AIModelInfos
             .AsNoTracking()
-            .FirstOrDefaultAsync(q => q.Name == "deepseek-chat", cancellationToken);
+            .FirstOrDefaultAsync(q => q.Name == "deepseek-v4-flash", cancellationToken);
 
-        if (deepSeekChat is null)
+        if (deepSeekFlash is null)
         {
-            _logger.LogWarning("Skip seeding translation workflow because deepseek-chat model was not found.");
+            _logger.LogWarning("Skip seeding translation workflow because deepseek-v4-flash model was not found.");
             return;
         }
 
@@ -494,7 +538,7 @@ public class Worker(
         {
             Name = translatorAgentName,
             Description = "Demo 翻译 Agent：将输入翻译成目标语言",
-            ModelId = deepSeekChat.Name,
+            ModelId = deepSeekFlash.Name,
             SystemPrompt = "你是一位专业翻译。请将用户输入忠实、地道地翻译成目标语言。仅输出翻译结果。",
             Enable = true,
             IsPublic = true,
@@ -502,14 +546,14 @@ public class Worker(
             MemoryMode = AgentMemoryMode.Window,
             HandoffTargets = [rewriterAgentName],
             Tags = ["demo", "translation"],
-            TenantId = deepSeekChat.TenantId,
+            TenantId = deepSeekFlash.TenantId,
         }, cancellationToken);
 
         var rewriter = await UpsertAgentAsync(db, new AIAgent
         {
             Name = rewriterAgentName,
             Description = "Demo 润色 Agent：将翻译结果改写得更地道、更清晰",
-            ModelId = deepSeekChat.Name,
+            ModelId = deepSeekFlash.Name,
             SystemPrompt = "你是一位资深译后润色编辑。请在保持原意的前提下，将给定译文改写得更流畅、更符合目标语言习惯。仅输出改写后的文本。",
             Enable = true,
             IsPublic = true,
@@ -517,21 +561,21 @@ public class Worker(
             MemoryMode = AgentMemoryMode.Window,
             HandoffTargets = [reviewerAgentName],
             Tags = ["demo", "translation"],
-            TenantId = deepSeekChat.TenantId,
+            TenantId = deepSeekFlash.TenantId,
         }, cancellationToken);
 
         var reviewer = await UpsertAgentAsync(db, new AIAgent
         {
             Name = reviewerAgentName,
             Description = "Demo 审核 Agent：对润色后的译文给出质量评估",
-            ModelId = deepSeekChat.Name,
+            ModelId = deepSeekFlash.Name,
             SystemPrompt = "你是一位翻译质量审核员。请用严格但建设性的语气对给定译文进行审核，指出问题并给出最终版本。输出格式：\n1) 评分（1-5）\n2) 问题列表\n3) 最终定稿",
             Enable = true,
             IsPublic = true,
             Capabilities = AgentCapabilities.Streaming | AgentCapabilities.StructuredOutput,
             MemoryMode = AgentMemoryMode.Window,
             Tags = ["demo", "translation"],
-            TenantId = deepSeekChat.TenantId,
+            TenantId = deepSeekFlash.TenantId,
         }, cancellationToken);
 
         var definition = new
@@ -577,7 +621,7 @@ public class Worker(
             DefinitionJson = JsonSerializer.Serialize(definition),
             Version = 1,
             IsPublished = true,
-            TenantId = deepSeekChat.TenantId,
+            TenantId = deepSeekFlash.TenantId,
         };
 
         db.Workflows.Add(workflow);

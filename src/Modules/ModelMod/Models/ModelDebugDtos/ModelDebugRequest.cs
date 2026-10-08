@@ -16,6 +16,8 @@ public sealed class ModelDebugRequest
 
     public int? MaxTokens { get; set; }
 
+    public int? Dimensions { get; set; }
+
     /// <summary>
     /// 多模态图片输入（data URI 或 http(s) URL）。
     /// </summary>

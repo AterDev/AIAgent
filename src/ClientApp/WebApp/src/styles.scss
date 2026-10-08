@@ -63,9 +63,15 @@ mat-panel-title .mat-icon {
 // Fix Angular Material 20.1+ icon alignment issue in buttons
 // See: https://github.com/angular/components/issues/31576
 
+.mat-mdc-button-base {
+  line-height: var(--mat-icon-button-icon-size, 24px);
+}
+
 .mat-mdc-button-base .mat-icon {
   vertical-align: middle;
+
 }
+
 
 // .mat-mdc-button-base {
 //   .mat-icon {
@@ -130,22 +136,18 @@ mat-chip {
   --mica-glow-alpha: 0.20;
 }
 
-:where(
-  button.mat-mdc-button-base:not(:disabled),
-  a.mat-mdc-button-base
-) {
+:where(button.mat-mdc-button-base:not(:disabled),
+  a.mat-mdc-button-base) {
   --mica-x: 50%;
   --mica-y: 50%;
   position: relative;
   border-radius: var(--mica-radius, inherit);
 }
 
-:where(
-  .mat-mdc-menu-item,
+:where(.mat-mdc-menu-item,
   .mat-mdc-list-item,
   .mat-mdc-tab-link,
-  .mat-mdc-tab
-) {
+  .mat-mdc-tab) {
   --mica-x: 50%;
   --mica-y: 50%;
   position: relative;
@@ -172,18 +174,14 @@ mat-chip {
   --mica-radius: 50%;
 }
 
-:where(
-  button.mat-mdc-button-base:not(:disabled),
-  a.mat-mdc-button-base
-) .mat-mdc-button-persistent-ripple {
+:where(button.mat-mdc-button-base:not(:disabled),
+  a.mat-mdc-button-base) .mat-mdc-button-persistent-ripple {
   border-radius: inherit;
   overflow: hidden;
 }
 
-:where(
-  button.mat-mdc-button-base:not(:disabled),
-  a.mat-mdc-button-base
-) .mat-mdc-button-persistent-ripple::after {
+:where(button.mat-mdc-button-base:not(:disabled),
+  a.mat-mdc-button-base) .mat-mdc-button-persistent-ripple::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -191,26 +189,20 @@ mat-chip {
   pointer-events: none;
   opacity: 0;
   transition: opacity 160ms ease;
-  background: radial-gradient(
-    circle var(--mica-glow-size) at var(--mica-x) var(--mica-y),
-    rgba(255, 255, 255, var(--mica-glow-alpha)),
-    transparent 75%
-  );
+  background: radial-gradient(circle var(--mica-glow-size) at var(--mica-x) var(--mica-y),
+      rgba(255, 255, 255, var(--mica-glow-alpha)),
+      transparent 75%);
 }
 
-:where(
-  button.mat-mdc-button-base:not(:disabled),
-  a.mat-mdc-button-base
-):is(:hover, :focus-visible, .mica-glow-active) .mat-mdc-button-persistent-ripple::after {
+:where(button.mat-mdc-button-base:not(:disabled),
+  a.mat-mdc-button-base):is(:hover, :focus-visible, .mica-glow-active) .mat-mdc-button-persistent-ripple::after {
   opacity: 1;
 }
 
-:where(
-  .mat-mdc-menu-item,
+:where(.mat-mdc-menu-item,
   .mat-mdc-list-item,
   .mat-mdc-tab-link,
-  .mat-mdc-tab
-)::after {
+  .mat-mdc-tab)::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -218,36 +210,29 @@ mat-chip {
   pointer-events: none;
   opacity: 0;
   transition: opacity 160ms ease;
-  background: radial-gradient(
-    circle var(--mica-glow-size) at var(--mica-x) var(--mica-y),
-    rgba(255, 255, 255, var(--mica-glow-alpha)),
-    transparent 75%
-  );
+  background: radial-gradient(circle var(--mica-glow-size) at var(--mica-x) var(--mica-y),
+      rgba(255, 255, 255, var(--mica-glow-alpha)),
+      transparent 75%);
 }
 
-:where(
-  .mat-mdc-menu-item,
+:where(.mat-mdc-menu-item,
   .mat-mdc-list-item,
   .mat-mdc-tab-link,
-  .mat-mdc-tab
-):is(:hover, :focus-visible, .mica-glow-active)::after {
+  .mat-mdc-tab):is(:hover, :focus-visible, .mica-glow-active)::after {
   opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :where(
-    button.mat-mdc-button-base:not(:disabled),
-    a.mat-mdc-button-base
-  ) .mat-mdc-button-persistent-ripple::after {
+
+  :where(button.mat-mdc-button-base:not(:disabled),
+    a.mat-mdc-button-base) .mat-mdc-button-persistent-ripple::after {
     transition: none;
   }
 
-  :where(
-    .mat-mdc-menu-item,
+  :where(.mat-mdc-menu-item,
     .mat-mdc-list-item,
     .mat-mdc-tab-link,
-    .mat-mdc-tab
-  )::after {
+    .mat-mdc-tab)::after {
     transition: none;
   }
 }

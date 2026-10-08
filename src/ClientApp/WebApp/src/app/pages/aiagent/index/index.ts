@@ -76,17 +76,24 @@ export class AIAgentIndex implements OnInit {
   }
 
   openAdd() {
-    const ref = this.dialog.open(AIAgentAdd, { width: '800px', data: { applicationId: this.applicationId } });
+    const ref = this.dialog.open(AIAgentAdd, {
+      maxHeight: '90vh',
+      width: '800px', data: { applicationId: this.applicationId }
+    });
     ref.afterClosed().subscribe((r: boolean) => { if (r) this.loadData(); });
   }
 
   openEdit(id: string) {
-    const ref = this.dialog.open(AIAgentEdit, { width: '800px', data: { id, applicationId: this.applicationId } });
+    const ref = this.dialog.open(AIAgentEdit, {
+      width: '800px', data: { id, applicationId: this.applicationId }
+    });
     ref.afterClosed().subscribe((r: boolean) => { if (r) this.loadData(); });
   }
 
   openDetail(id: string) {
-    this.dialog.open(AIAgentDetail, { minWidth: '600px', data: { id, applicationId: this.applicationId } });
+    this.dialog.open(AIAgentDetail, {
+      minWidth: '600px', data: { id, applicationId: this.applicationId }
+    });
   }
 
   deleteItem(id: string) {

@@ -76,7 +76,7 @@ public class RagCollectionManager(
         return await FindAsync<RagCollectionDetailDto>(q => q.Id == id && q.TenantId == _userContext.TenantId);
     }
 
-    public async Task<bool?> DeleteAsync(List<Guid> ids, bool softDelete = true)
+    public async Task<bool> DeleteAsync(List<Guid> ids, bool softDelete = true)
     {
         if (!ids.Any())
         {

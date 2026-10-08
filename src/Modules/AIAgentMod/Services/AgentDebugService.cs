@@ -146,6 +146,16 @@ public class AgentDebugService(
             var toolCalls = response.ToolCalls.Count > 0
                 ? response.ToolCalls
                 : ToolCallParser.ParseFromContent(assistantContent);
+            EnsureToolCallIds(toolCalls);
+            messages[^1].ToolCalls = toolCalls
+                .Select(toolCall => new ToolCall
+                {
+                    Id = toolCall.Id,
+                    Name = toolCall.Name,
+                    ArgumentsJson = toolCall.ArgumentsJson,
+                })
+                .ToList();
+
             if (toolCalls.Count == 0)
             {
                 stopwatch.Stop();
@@ -194,7 +204,7 @@ public class AgentDebugService(
                     messages.Add(new ModelInvokeMessage
                     {
                         Role = "tool",
-                        Content = JsonSerializer.Serialize(denied),
+                        Content = BuildToolMessageContent(denied),
                         ToolCallId = toolCall.Id,
                     });
 
@@ -248,7 +258,7 @@ public class AgentDebugService(
                 messages.Add(new ModelInvokeMessage
                 {
                     Role = "tool",
-                    Content = JsonSerializer.Serialize(toolResult),
+                    Content = BuildToolMessageContent(toolResult),
                     ToolCallId = toolCall.Id,
                 });
             }
@@ -341,6 +351,14 @@ public class AgentDebugService(
                 {
                     Role = m.Role,
                     Content = m.Content,
+                    ToolCalls = m.ToolCalls
+                        .Select(toolCall => new ToolCall
+                        {
+                            Id = toolCall.Id,
+                            Name = toolCall.Name,
+                            ArgumentsJson = toolCall.ArgumentsJson,
+                        })
+                        .ToList(),
                     ToolCallId = m.ToolCallId,
                     Attachments = m.Attachments.Select(a => new ModelAttachment
                     {
@@ -410,6 +428,33 @@ public class AgentDebugService(
         }
 
         return (messages, prompt);
+    }
+
+    private static void EnsureToolCallIds(List<ToolCall> toolCalls)
+    {
+        foreach (var toolCall in toolCalls.Where(toolCall => string.IsNullOrWhiteSpace(toolCall.Id)))
+        {
+            toolCall.Id = $"call_{Guid.NewGuid():N}";
+        }
+    }
+
+    private static string BuildToolMessageContent(ToolExecutionResult result)
+    {
+        if (result.Success)
+        {
+            if (string.IsNullOrWhiteSpace(result.OutputJson))
+            {
+                return "{}";
+            }
+
+            return result.OutputJson;
+        }
+
+        return JsonSerializer.Serialize(new
+        {
+            success = false,
+            error = result.ErrorMessage ?? "Tool execution failed",
+        });
     }
 
 }

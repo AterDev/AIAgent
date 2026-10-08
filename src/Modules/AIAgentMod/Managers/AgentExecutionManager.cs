@@ -38,9 +38,9 @@ public class AgentExecutionManager(
         return await FindAsync<AgentExecutionDetailDto>(q => q.Id == id && q.TenantId == _userContext.TenantId);
     }
 
-    public async Task<bool?> DeleteAsync(List<Guid> ids, bool softDelete = true)
+    public async Task<bool> DeleteAsync(List<Guid> ids, bool softDelete = true)
     {
-        if (!ids.Any())
+        if (ids.Count == 0)
         {
             return false;
         }

@@ -8,6 +8,12 @@ public class ModelDebugController(Localizer localizer, ModelDebugService debugSe
     [HttpPost]
     public async Task<ActionResult<ModelDebugResponse>> ChatAsync(ModelDebugRequest request, CancellationToken cancellationToken)
     {
-        return Ok(await debugService.ChatAsync(request, cancellationToken));
+        return Ok(await debugService.InvokeAsync(request, cancellationToken));
+    }
+
+    [HttpPost("invoke")]
+    public async Task<ActionResult<ModelDebugResponse>> InvokeAsync(ModelDebugRequest request, CancellationToken cancellationToken)
+    {
+        return Ok(await debugService.InvokeAsync(request, cancellationToken));
     }
 }

@@ -72,7 +72,8 @@ public class FileStorageService(
         }
         else
         {
-            return DeleteFromLocal(filePath);
+            var provider = await GetActiveProviderAsync();
+            return DeleteFromLocal(provider, filePath);
         }
     }
 
@@ -175,17 +176,16 @@ public class FileStorageService(
             throw new BusinessException(Localizer.LocalStoragePathNotConfigured);
         }
 
-        var uploadPath = Path.Combine(provider.Path, category, datePath);
+        var relativePath = Path.Combine("uploads", category, datePath, safeFileName).Replace("\\", "/");
+        var fullPath = GetCanonicalLocalPath(provider.Path, relativePath);
+        var uploadPath = Path.GetDirectoryName(fullPath) ?? provider.Path;
         Directory.CreateDirectory(uploadPath);
 
-        var fullPath = Path.Combine(uploadPath, safeFileName);
         using (var fileStream = new FileStream(fullPath, FileMode.Create))
         {
             await stream.CopyToAsync(fileStream, cancellationToken);
         }
 
-        // 存储相对路径
-        var relativePath = Path.Combine("uploads", category, datePath, safeFileName).Replace("\\", "/");
         _logger.LogInformation("文件上传到本地存储: {FilePath}", relativePath);
 
         return new FileUploadResult
@@ -222,10 +222,15 @@ public class FileStorageService(
         }
     }
 
-    private bool DeleteFromLocal(string filePath)
+    private bool DeleteFromLocal(StorageProvider? provider, string filePath)
     {
-        var uploadsBasePath = Path.GetFullPath(Path.Combine(_environment.ContentRootPath, "uploads"));
-        var fullPath = Path.GetFullPath(Path.Combine(_environment.ContentRootPath, filePath));
+        var fullPath = GetExistingLocalPath(provider?.Path, filePath);
+        if (fullPath == null)
+        {
+            return false;
+        }
+
+        var uploadsBasePath = GetUploadsBasePath(provider?.Path);
 
         // 安全检查：确保文件路径在uploads目录下
         if (!fullPath.StartsWith(uploadsBasePath + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) &&
@@ -266,13 +271,14 @@ public class FileStorageService(
                 _logger.LogWarning("Local storage path not configured: {StorageProviderId}", storageProviderId);
                 return null;
             }
-            var fullPath = Path.GetFullPath(Path.Combine(provider.Path, objectKey));
 
-            if (File.Exists(fullPath))
+            var fullPath = GetExistingLocalPath(provider.Path, objectKey);
+
+            if (fullPath != null)
             {
                 return fullPath;
             }
-            _logger.LogWarning("File not exist: {FilePath}", fullPath);
+            _logger.LogWarning("File not exist: {FilePath}", GetCanonicalLocalPath(provider.Path, objectKey));
             return null;
         }
 
@@ -342,6 +348,49 @@ public class FileStorageService(
         {
             _logger.LogError(ex, "删除临时文件失败: {TempPath}", tempFilePath);
         }
+    }
+
+    private string GetUploadsBasePath(string? providerPath)
+    {
+        var rootPath = !string.IsNullOrWhiteSpace(providerPath)
+            ? providerPath
+            : _environment.ContentRootPath;
+
+        return Path.GetFullPath(Path.Combine(rootPath, "uploads"));
+    }
+
+    private static string GetCanonicalLocalPath(string providerPath, string objectKey)
+    {
+        return Path.GetFullPath(Path.Combine(providerPath, objectKey.Replace('/', Path.DirectorySeparatorChar)));
+    }
+
+    private string? GetExistingLocalPath(string? providerPath, string objectKey)
+    {
+        var candidates = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(providerPath))
+        {
+            candidates.Add(GetCanonicalLocalPath(providerPath, objectKey));
+
+            if (objectKey.StartsWith("uploads/", StringComparison.OrdinalIgnoreCase) ||
+                objectKey.StartsWith("uploads\\", StringComparison.OrdinalIgnoreCase))
+            {
+                var legacyRelativePath = objectKey["uploads/".Length..].TrimStart('/', '\\');
+                candidates.Add(GetCanonicalLocalPath(providerPath, legacyRelativePath));
+            }
+        }
+
+        candidates.Add(Path.GetFullPath(Path.Combine(_environment.ContentRootPath, objectKey.Replace('/', Path.DirectorySeparatorChar))));
+
+        foreach (var candidate in candidates.Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            if (File.Exists(candidate))
+            {
+                return candidate;
+            }
+        }
+
+        return null;
     }
 }
 

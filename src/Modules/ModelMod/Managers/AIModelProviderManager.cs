@@ -56,7 +56,7 @@ public class AIModelProviderManager(
     /// <summary>
     /// Delete AI模型提供商
     /// </summary>
-    public async Task<bool?> DeleteAsync(List<Guid> ids, bool softDelete = true)
+    public async Task<bool> DeleteAsync(List<Guid> ids, bool softDelete = true)
     {
         if (!ids.Any())
         {

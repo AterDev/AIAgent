@@ -30,7 +30,7 @@ export class ApplicationIndex implements OnInit {
 
   filterDto: ApplicationFilterDto = { pageIndex: 1, pageSize: 10 };
   dataSource = new MatTableDataSource<ApplicationItemDto>();
-  displayedColumns = [ 'name', 'isEnabled', 'createdTime', 'actions' ];
+  displayedColumns = ['name', 'isEnabled', 'createdTime', 'actions'];
 
   isLoading = signal(true);
 
@@ -108,8 +108,9 @@ export class ApplicationIndex implements OnInit {
 
   openModels(item: ApplicationItemDto) {
     this.dialog.open(ApplicationModelPermissionDialog, {
-      width: '1100px',
+      width: '960px',
       maxWidth: '96vw',
+      height: '90vh',
       data: {
         applicationId: item.id,
         applicationName: item.name,
@@ -119,8 +120,9 @@ export class ApplicationIndex implements OnInit {
 
   openAgents(item: ApplicationItemDto) {
     this.dialog.open(AIAgentIndex, {
-      width: '1100px',
+      width: '960px',
       maxWidth: '96vw',
+      height: '90vh',
       data: {
         applicationId: item.id,
         applicationName: item.name,
@@ -130,7 +132,7 @@ export class ApplicationIndex implements OnInit {
 
   openKnowledge(item: ApplicationItemDto) {
     this.dialog.open(RagCollectionIndex, {
-      width: '1100px',
+      width: '960px',
       maxWidth: '96vw',
       data: {
         applicationId: item.id,

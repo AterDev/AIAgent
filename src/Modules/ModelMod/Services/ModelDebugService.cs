@@ -10,15 +10,22 @@ public class ModelDebugService(
     ILogger<ModelDebugService> logger
 )
 {
-    public async Task<ModelDebugResponse> ChatAsync(ModelDebugRequest request, CancellationToken cancellationToken = default)
+    private const int DefaultEmbeddingDimensions = 768;
+
+    public async Task<ModelDebugResponse> InvokeAsync(ModelDebugRequest request, CancellationToken cancellationToken = default)
     {
         await using var dbContext = await dbContextFactory.CreateDbContextAsync();
         var modelInfo = await ResolveModelAsync(dbContext, request, cancellationToken);
         await EnsureApplicationAccessAsync(dbContext, request.ApplicationId, modelInfo.Id, cancellationToken);
 
-        var modelRequest = BuildModelRequest(modelInfo, request);
+        var isEmbeddingOnly = modelInfo.SupportsEmbedding && !modelInfo.SupportsChat;
+        var modelRequest = isEmbeddingOnly
+            ? BuildEmbeddingModelRequest(modelInfo, request)
+            : BuildChatModelRequest(modelInfo, request);
         var stopwatch = Stopwatch.StartNew();
-        var response = await modelClient.ChatAsync(modelRequest, cancellationToken);
+        var response = isEmbeddingOnly
+            ? await modelClient.EmbeddingAsync(modelRequest, cancellationToken)
+            : await modelClient.ChatAsync(modelRequest, cancellationToken);
         stopwatch.Stop();
 
         if (!response.Success)
@@ -39,13 +46,21 @@ public class ModelDebugService(
         };
     }
 
+    public Task<ModelDebugResponse> ChatAsync(ModelDebugRequest request, CancellationToken cancellationToken = default)
+        => InvokeAsync(request, cancellationToken);
+
     public async Task<ModelDebugStreamSession> CreateStreamSessionAsync(ModelDebugRequest request, CancellationToken cancellationToken = default)
     {
         await using var dbContext = await dbContextFactory.CreateDbContextAsync();
         var modelInfo = await ResolveModelAsync(dbContext, request, cancellationToken);
         await EnsureApplicationAccessAsync(dbContext, request.ApplicationId, modelInfo.Id, cancellationToken);
 
-        var modelRequest = BuildModelRequest(modelInfo, request);
+        if (!modelInfo.SupportsChat)
+        {
+            throw new BusinessException("Selected model does not support streaming chat");
+        }
+
+        var modelRequest = BuildChatModelRequest(modelInfo, request);
         var requestId = string.IsNullOrWhiteSpace(request.RequestId)
             ? Guid.NewGuid().ToString("N")
             : request.RequestId;
@@ -58,7 +73,7 @@ public class ModelDebugService(
         };
     }
 
-    private ModelRequest BuildModelRequest(AIModelInfo modelInfo, ModelDebugRequest request)
+    private ModelRequest BuildChatModelRequest(AIModelInfo modelInfo, ModelDebugRequest request)
     {
         var messages = new List<ModelMessage>();
         if (!string.IsNullOrWhiteSpace(request.SystemPrompt))
@@ -90,6 +105,28 @@ public class ModelDebugService(
             Provider = modelInfo.Provider?.Name,
             Messages = messages,
             Metadata = metadata,
+        };
+    }
+
+    private ModelRequest BuildEmbeddingModelRequest(AIModelInfo modelInfo, ModelDebugRequest request)
+    {
+        return new ModelRequest
+        {
+            Model = modelInfo.Name,
+            Provider = modelInfo.Provider?.Name,
+            Messages =
+            [
+                new ModelMessage
+                {
+                    Role = "user",
+                    Content = request.Prompt,
+                }
+            ],
+            Metadata = new Dictionary<string, string>
+            {
+                ["input"] = request.Prompt,
+                ["dimensions"] = (request.Dimensions ?? DefaultEmbeddingDimensions).ToString(System.Globalization.CultureInfo.InvariantCulture),
+            },
         };
     }
 

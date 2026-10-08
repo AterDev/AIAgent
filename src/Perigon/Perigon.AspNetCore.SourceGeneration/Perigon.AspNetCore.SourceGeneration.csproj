@@ -31,7 +31,8 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
+        <!-- Keep the generator loadable by the .NET 10 SDK compiler (Roslyn 5.0). -->
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" VersionOverride="5.0.0" PrivateAssets="all" />
     </ItemGroup>
     <ItemGroup>
         <None Include="..\logo.jpg">
