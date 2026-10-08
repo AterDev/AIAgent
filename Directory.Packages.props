@@ -73,6 +73,7 @@
     <PackageVersion Include="Microsoft.Extensions.AI.Abstractions" Version="10.10.1" />
     <PackageVersion Include="Microsoft.Extensions.AI.OpenAI" Version="10.10.1" />
     <PackageVersion Include="ModelContextProtocol" Version="2.2.0" />
+    <PackageVersion Include="Microsoft.Agents.AI.Hosting.AGUI.AspNetCore" Version="1.23.0-preview.260928.1" />
     <PackageVersion Include="OpenAI" Version="2.14.0" />
     <PackageVersion Include="SharpA2A.Core" Version="0.2.2-preview.1" />
     <!-- only for test  -->
