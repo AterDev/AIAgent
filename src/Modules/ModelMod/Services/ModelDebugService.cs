@@ -3,7 +3,7 @@ using ModelMod.Models.ModelDebugDtos;
 namespace ModelMod.Services;
 
 public class ModelDebugService(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     IUserContext userContext,
     ExtensionsAIModelClient modelClient,
     DefaultUsageMeter usageMeter,
@@ -14,7 +14,7 @@ public class ModelDebugService(
 
     public async Task<ModelDebugResponse> InvokeAsync(ModelDebugRequest request, CancellationToken cancellationToken = default)
     {
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
         var modelInfo = await ResolveModelAsync(dbContext, request, cancellationToken);
         await EnsureApplicationAccessAsync(dbContext, request.ApplicationId, modelInfo.Id, cancellationToken);
 
@@ -51,7 +51,7 @@ public class ModelDebugService(
 
     public async Task<ModelDebugStreamSession> CreateStreamSessionAsync(ModelDebugRequest request, CancellationToken cancellationToken = default)
     {
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
         var modelInfo = await ResolveModelAsync(dbContext, request, cancellationToken);
         await EnsureApplicationAccessAsync(dbContext, request.ApplicationId, modelInfo.Id, cancellationToken);
 

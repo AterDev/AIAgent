@@ -6,7 +6,7 @@ namespace AIAgentMod.Managers;
 /// Agent 执行管理
 /// </summary>
 public class AgentExecutionManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<AgentExecutionManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, AgentExecution>(dbContextFactory, userContext, logger)

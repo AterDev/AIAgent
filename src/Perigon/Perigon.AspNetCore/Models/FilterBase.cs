@@ -7,36 +7,18 @@ public class FilterBase
 {
     public int PageIndex
     {
-        get;
-        set
-        {
-            field = value;
-            if (value < 1)
-            {
-                field = 1;
-            }
-        }
-    }
+        get { return field; }
+        set { field = value < 1 ? 1 : value; }
+    } = 1;
 
     /// <summary>
     /// max 10000
     /// </summary>
     public int PageSize
     {
-        get;
-        set
-        {
-            field = value;
-            if (value > 10000)
-            {
-                field = 10000;
-            }
-            if (value < 0)
-            {
-                field = 0;
-            }
-        }
-    }
+        get { return field; }
+        set { field = value > 10000 ? 10000 : value < 0 ? 0 : value; }
+    } = 20;
 
     /// <summary>
     /// 排序,field=>是否正序

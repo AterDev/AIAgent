@@ -6,7 +6,7 @@ namespace ModelMod.Managers;
 /// AI模型提供商
 /// </summary>
 public class AIModelProviderManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<AIModelProviderManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, AIModelProvider>(dbContextFactory, userContext, logger)

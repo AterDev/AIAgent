@@ -6,7 +6,7 @@ namespace KnowledgeBaseMod.Services;
 /// 知识库检索服务（基础实现）
 /// </summary>
 public class RagQueryService(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<RagQueryService> logger,
     IUserContext userContext,
     IVectorStore vectorStore
@@ -14,7 +14,7 @@ public class RagQueryService(
 {
     public async Task<RagQueryResult> QueryAsync(RagQueryRequest request, CancellationToken cancellationToken = default)
     {
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
 
         if (string.IsNullOrWhiteSpace(request.Query))
         {

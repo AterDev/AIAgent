@@ -6,7 +6,7 @@ namespace KnowledgeBaseMod.Managers;
 /// 分块管理
 /// </summary>
 public class RagChunkManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<RagChunkManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, RagChunk>(dbContextFactory, userContext, logger)

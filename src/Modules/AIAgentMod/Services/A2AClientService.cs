@@ -9,7 +9,7 @@ namespace AIAgentMod.Services;
 /// Enables sending tasks to remote agents via the Google A2A protocol.
 /// </summary>
 public class A2AClientService(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     IUserContext userContext,
     IHttpClientFactory httpClientFactory,
     ILogger<A2AClientService> logger
@@ -28,7 +28,7 @@ public class A2AClientService(
         string? contextId = null,
         CancellationToken cancellationToken = default)
     {
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
         var remoteAgent = await dbContext.A2ARemoteAgents
             .AsNoTracking()
             .FirstOrDefaultAsync(
@@ -115,7 +115,7 @@ public class A2AClientService(
         string taskId,
         CancellationToken cancellationToken = default)
     {
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
         var remoteAgent = await dbContext.A2ARemoteAgents
             .AsNoTracking()
             .FirstOrDefaultAsync(

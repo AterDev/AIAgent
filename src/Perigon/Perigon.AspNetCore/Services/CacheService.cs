@@ -26,6 +26,14 @@ public class CacheService(
         return memory.TryGetValue<T>(key, out var value) ? value : default;
     }
 
+    /// <summary>
+    /// Removes an entry from the local memory cache.
+    /// </summary>
+    public void RemoveMemory(string key)
+    {
+        memory.Remove(key);
+    }
+
 
     /// <summary>
     /// 缓存存储

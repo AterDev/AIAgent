@@ -6,14 +6,14 @@ namespace SystemMod.Services;
 /// 系统配置服务实现 - 由 ISystemConfigService 接口定义
 /// </summary>
 public class SystemConfigService(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     IUserContext userContext,
     ILogger<SystemConfigService> logger
 ) : ISystemConfigService
 {
     public async Task<string?> GetValueAsync(string category, string key, CancellationToken cancellationToken = default)
     {
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
         var value = await dbContext.SystemConfigs
             .AsNoTracking()
             .Where(q => q.TenantId == userContext.TenantId

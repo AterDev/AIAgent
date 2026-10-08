@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace Share.Implement;
@@ -9,7 +10,7 @@ public class UserContext : IUserContext
 
     public Guid? GroupId { get; init; }
 
-    public Guid TenantId { get; init; }
+    public Guid TenantId { get; set; }
     public string? TenantType { get; set; }
 
     public string? UserName { get; init; }
@@ -18,6 +19,7 @@ public class UserContext : IUserContext
     public bool IsAdmin { get; init; }
     public string? CurrentRole { get; set; }
     public List<string>? Roles { get; set; }
+    public IReadOnlyList<Guid> RoleIds { get; private set; } = [];
     IReadOnlyList<string>? IUserContext.Roles => Roles;
 
     public HttpContext? HttpContext { get; set; }
@@ -25,42 +27,56 @@ public class UserContext : IUserContext
     public UserContext(IHttpContextAccessor httpContextAccessor)
     {
         HttpContext = httpContextAccessor!.HttpContext;
-        if (Guid.TryParse(FindClaim(ClaimTypes.NameIdentifier)?.Value, out Guid userId)
+        if (Guid.TryParse(FindClaimValue(ClaimTypes.NameIdentifier, JwtRegisteredClaimNames.Sub), out Guid userId)
             && userId != Guid.Empty
         )
         {
             UserId = userId;
         }
-        if (Guid.TryParse(FindClaim(ClaimTypes.GroupSid)?.Value, out Guid groupSid)
+        if (Guid.TryParse(FindClaimValue(ClaimTypes.GroupSid), out Guid groupSid)
             && groupSid != Guid.Empty
         )
         {
             GroupId = groupSid;
         }
 
-        if (Guid.TryParse(FindClaim(CustomClaimTypes.TenantId)?.Value, out Guid tenantId)
+        if (Guid.TryParse(FindClaimValue(CustomClaimTypes.TenantId), out Guid tenantId)
             && tenantId != Guid.Empty
         )
         {
             TenantId = tenantId;
-            TenantType = FindClaim(CustomClaimTypes.TenantType)?.Value
+            TenantType = FindClaimValue(CustomClaimTypes.TenantType)
                 ?? nameof(Entity.TenantType.Normal);
         }
 
-        UserName = FindClaim(ClaimTypes.Name)?.Value;
-        Email = FindClaim(ClaimTypes.Email)?.Value;
-        CurrentRole = FindClaim(ClaimTypes.Role)?.Value;
+        UserName = FindClaimValue(ClaimTypes.Name, JwtRegisteredClaimNames.Name);
+        Email = FindClaimValue(ClaimTypes.Email, JwtRegisteredClaimNames.Email);
+
+        CurrentRole = FindClaimValue(ClaimTypes.Role);
 
         Roles = HttpContext?.User?.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+        RoleIds = HttpContext?.User?.FindAll(CustomClaimTypes.RoleId)
+            .Select(claim => Guid.TryParse(claim.Value, out Guid roleId) ? roleId : Guid.Empty)
+            .Where(roleId => roleId != Guid.Empty)
+            .Distinct()
+            .ToList() ?? [];
         if (Roles != null)
         {
             IsAdmin = Roles.Any(r => r.Equals(WebConst.AdminUser) || r.Equals(WebConst.SuperAdmin));
         }
     }
 
-    protected Claim? FindClaim(string claimType)
+    protected string? FindClaimValue(params string[] claimTypes)
     {
-        return HttpContext?.User?.FindFirst(claimType);
+        foreach (var claimType in claimTypes)
+        {
+            var value = HttpContext?.User?.FindFirstValue(claimType);
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                return value;
+            }
+        }
+        return null;
     }
 
     /// <summary>

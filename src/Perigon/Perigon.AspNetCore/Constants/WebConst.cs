@@ -39,6 +39,11 @@ public static class WebConst
     public const string BearerOrApiKey = "BearerOrApiKey";
 
     /// <summary>
+    /// 租户缓存前缀
+    /// </summary>
+    public const string TenantCachePrefix = "Tenant_";
+
+    /// <summary>
     /// ApiKey 认证方案
     /// </summary>
     public const string ApiKeyScheme = "ApiKey";

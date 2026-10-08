@@ -1,6 +1,7 @@
-using Mapster;
 using System.Collections;
 using System.Data;
+using System.Reflection;
+using Mapster;
 
 namespace Perigon.AspNetCore.Utils;
 
@@ -130,7 +131,7 @@ public static class Extensions
 
             ConstantExpression minExpr = Expression.Constant(minValObj, propertyType);
             ConstantExpression maxExpr = Expression.Constant(maxValObj, propertyType);
-            MemberExpression propertyAccess = Expression.MakeMemberAccess(parameter, memberExpression.Member);
+            MemberExpression propertyAccess = memberExpression;
             BinaryExpression leftExpr = Expression.GreaterThanOrEqual(propertyAccess, minExpr);
             BinaryExpression rightExpr = Expression.LessThanOrEqual(propertyAccess, maxExpr);
             BinaryExpression andExpr = Expression.AndAlso(leftExpr, rightExpr);
@@ -151,13 +152,18 @@ public static class Extensions
         /// <returns></returns>
         public IOrderedQueryable<T> OrderBy(Dictionary<string, bool> dic)
         {
-            IOrderedQueryable<T> orderQuery = (IOrderedQueryable<T>)query;
+            if (dic.Count == 0)
+            {
+                return query as IOrderedQueryable<T>
+                    ?? throw new ArgumentException("At least one order field is required.", nameof(dic));
+            }
+
+            IOrderedQueryable<T>? orderQuery = null;
             ParameterExpression parameter = Expression.Parameter(typeof(T), "e");
             var count = 0;
             foreach (KeyValuePair<string, bool> item in dic)
             {
-                MemberExpression prop = Expression.PropertyOrField(parameter, item.Key);
-                MemberExpression body = Expression.MakeMemberAccess(parameter, prop.Member);
+                MemberExpression body = CreateMemberAccess<T>(parameter, item.Key);
                 LambdaExpression selector = Expression.Lambda(body, parameter);
                 MethodCallExpression expression =
                     count > 0
@@ -195,17 +201,20 @@ public static class Extensions
                 query = orderQuery;
                 count++;
             }
-            return orderQuery;
+            return orderQuery!;
         }
 
         public IOrderedQueryable<T> ThenBy(Dictionary<string, bool> dic)
         {
-            IOrderedQueryable<T> orderQuery = (IOrderedQueryable<T>)query;
+            if (query is not IOrderedQueryable<T> orderQuery)
+            {
+                throw new ArgumentException("ThenBy requires an ordered query.", nameof(query));
+            }
+
             ParameterExpression parameter = Expression.Parameter(typeof(T), "e");
             foreach (KeyValuePair<string, bool> item in dic)
             {
-                MemberExpression prop = Expression.PropertyOrField(parameter, item.Key);
-                MemberExpression body = Expression.MakeMemberAccess(parameter, prop.Member);
+                MemberExpression body = CreateMemberAccess<T>(parameter, item.Key);
                 LambdaExpression selector = Expression.Lambda(body, parameter);
                 MethodCallExpression expression = item.Value
                     ? Expression.Call(
@@ -228,6 +237,20 @@ public static class Extensions
             }
             return orderQuery;
         }
+
+    }
+
+    private static MemberExpression CreateMemberAccess<T>(ParameterExpression parameter, string memberName)
+    {
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase;
+        var type = typeof(T);
+        MemberInfo? member = type.GetProperty(memberName, flags) ?? (MemberInfo?)type.GetField(memberName, flags);
+        if (member is null)
+        {
+            throw new ArgumentException($"Order field '{memberName}' does not exist on {type.Name}.", nameof(memberName));
+        }
+
+        return Expression.MakeMemberAccess(parameter, member);
     }
 
     extension<T>(IQueryable<T> source)

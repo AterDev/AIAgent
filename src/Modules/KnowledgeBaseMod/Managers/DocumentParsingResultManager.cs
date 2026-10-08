@@ -1,7 +1,7 @@
 namespace KnowledgeBaseMod.Managers;
 
 public class DocumentParsingResultManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<DocumentParsingResultManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, DocumentParsingResult>(dbContextFactory, userContext, logger)

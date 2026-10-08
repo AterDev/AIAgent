@@ -5,7 +5,7 @@ namespace KnowledgeBaseMod.Managers;
 /// RAG 模型配置
 /// </summary>
 public class RagAgentConfigManager(
-    TenantDbFactory dbContextFactory, 
+    AppDbFactory dbContextFactory,
     ILogger<RagAgentConfigManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, RagAgentConfig>(dbContextFactory, userContext, logger)

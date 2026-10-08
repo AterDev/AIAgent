@@ -14,7 +14,7 @@ internal sealed record AgentExecutionDefinition(
 /// Agent 执行引擎（简化）
 /// </summary>
 public class AgentExecutionService(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     IUserContext userContext,
     IModelInvoker modelInvoker,
     IMcpToolExecutor mcpToolExecutor,
@@ -24,7 +24,7 @@ public class AgentExecutionService(
 {
     public async Task<bool> ExecuteAsync(Guid executionId, Guid applicationId, string? inputJson, CancellationToken cancellationToken = default)
     {
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
         var execution = await dbContext.AgentExecutions
             .FirstOrDefaultAsync(q => q.Id == executionId && q.TenantId == userContext.TenantId, cancellationToken);
 

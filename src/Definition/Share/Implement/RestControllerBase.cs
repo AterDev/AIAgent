@@ -1,6 +1,6 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 
 namespace Share.Implement;
 
@@ -101,7 +101,7 @@ public abstract class RestControllerBase(Localizer localizer) : ControllerBase
     /// <param name="arguments"></param>
     /// <returns></returns>
     [NonAction]
-    public BadRequestObjectResult BadRequest(string? error, params object[] arguments)
+    public BadRequestObjectResult BadRequest(string? error,  params object[] arguments)
     {
         var res = CreateResult(
             _localizer.Get(Localizer.BadRequest),

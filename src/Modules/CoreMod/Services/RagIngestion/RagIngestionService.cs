@@ -7,7 +7,7 @@ namespace CoreMod.Services.RagIngestion;
 /// 负责文档的解析、分块、向量化和存储
 /// </summary>
 public class RagIngestionService(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     IUserContext userContext,
     IDocumentParser parser,
     DefaultTextChunker chunker,
@@ -22,7 +22,7 @@ public class RagIngestionService(
 
     public async Task<bool> IngestAsync(Guid documentId, Guid tenantId, string? contentText = null, CancellationToken cancellationToken = default)
     {
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(tenantId);
         var document = await dbContext.RagDocuments
             .FirstOrDefaultAsync(q => q.Id == documentId && q.TenantId == tenantId, cancellationToken);
 

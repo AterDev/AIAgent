@@ -5,7 +5,7 @@ namespace SystemMod.Managers;
 /// 存储服务商
 /// </summary>
 public class StorageProviderManager(
-    TenantDbFactory dbContextFactory, 
+    AppDbFactory dbContextFactory,
     ILogger<StorageProviderManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, StorageProvider>(dbContextFactory, userContext, logger)

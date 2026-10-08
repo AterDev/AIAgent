@@ -6,7 +6,7 @@ namespace ModelMod.Managers;
 /// 应用知识库关联管理
 /// </summary>
 public class ApplicationRagCollectionPermissionManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<ApplicationRagCollectionPermissionManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, ApplicationRagCollectionPermission>(dbContextFactory, userContext, logger)

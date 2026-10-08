@@ -7,7 +7,6 @@ param(
     [string]$DocumentName = "v1"
 )
 
-$location = Get-Location
 $configuration = "Debug"
 
 function Update-SwaggerTitle {
@@ -56,25 +55,51 @@ function Get-TargetFramework {
 
 try {
     $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+    $toolManifestPath = Join-Path $repoRoot ".config/dotnet-tools.json"
 
     $projectDir = Join-Path $repoRoot "src/Services/$ServiceName"
     $csprojPath = Join-Path $projectDir "$ServiceName.csproj"
     if (-not (Test-Path $csprojPath -PathType Leaf)) {
         throw "未找到项目文件: $csprojPath"
     }
+    if (-not (Test-Path $toolManifestPath -PathType Leaf)) {
+        throw "未找到 dotnet tool 清单: $toolManifestPath"
+    }
 
     $targetFramework = Get-TargetFramework -CsprojPath $csprojPath
     $assemblyPath = Join-Path $projectDir "bin/$configuration/$targetFramework/$ServiceName.dll"
     $swaggerOutputPath = Join-Path $projectDir "swagger.json"
 
-    Set-Location $repoRoot
+    Push-Location $repoRoot
+    try {
+        dotnet tool restore --tool-manifest $toolManifestPath
+        if ($null -ne $LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+            throw "dotnet tool restore 执行失败"
+        }
+    }
+    finally {
+        Pop-Location
+    }
 
-    dotnet build
+    dotnet build $csprojPath --configuration $configuration
+    if ($null -ne $LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+        throw "dotnet build 执行失败: $csprojPath"
+    }
+
     if (-not (Test-Path $assemblyPath -PathType Leaf)) {
         throw "未找到程序集: $assemblyPath"
     }
-    Set-Location $projectDir
-    swagger tofile --output $swaggerOutputPath $assemblyPath $DocumentName
+
+    Push-Location $repoRoot
+    try {
+        dotnet tool run swagger -- tofile --output $swaggerOutputPath $assemblyPath $DocumentName
+        if ($null -ne $LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+            throw "swagger 文档生成失败: $assemblyPath"
+        }
+    }
+    finally {
+        Pop-Location
+    }
 
     $swaggerTitle = $ServiceName -replace 'Service$', ''
     Update-SwaggerTitle -SwaggerPath $swaggerOutputPath -Title $swaggerTitle
@@ -82,7 +107,4 @@ try {
 catch {
     Write-Error $_
     exit 1
-}
-finally {
-    Set-Location $location
 }

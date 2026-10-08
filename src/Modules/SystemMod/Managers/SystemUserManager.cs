@@ -8,7 +8,7 @@ namespace SystemMod.Managers;
 /// 系统用户
 /// </summary>
 public class SystemUserManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<SystemUserManager> logger,
     IUserContext userContext,
     JwtService jwtService

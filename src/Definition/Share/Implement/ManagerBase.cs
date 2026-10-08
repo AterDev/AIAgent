@@ -1,5 +1,7 @@
 using EFCore.BulkExtensions;
+using Entity;
 using EntityFramework;
+using EntityFramework.AppDbContext;
 using EntityFramework.AppDbFactory;
 using Mapster;
 using System.Linq.Expressions;
@@ -37,30 +39,29 @@ public abstract class ManagerBase<TDbContext, TEntity>
     protected readonly TDbContext _dbContext;
     protected readonly DbSet<TEntity> _dbSet;
     protected readonly IUserContext _userContext;
-    protected readonly bool _isMultiTenant;
-
-    protected bool IsTenantScoped => typeof(ITenantEntityBase).IsAssignableFrom(typeof(TEntity));
+    protected bool IsTenantScoped =>
+        typeof(TEntity) != typeof(Tenant)
+        && typeof(ITenantEntityBase).IsAssignableFrom(typeof(TEntity));
 
     public ManagerBase(
-        TenantDbFactory dbContextFactory,
+        AppDbFactory dbContextFactory,
         IUserContext userContext,
         ILogger logger
     )
     {
         _logger = logger;
         _userContext = userContext;
-        _isMultiTenant = dbContextFactory.IsMultiTenant;
-        Guid? tenantId = _isMultiTenant && _userContext.TenantId != Guid.Empty
-            ? _userContext.TenantId
-            : null;
+        if (IsTenantScoped && _userContext.TenantId == Guid.Empty)
+        {
+            throw new InvalidOperationException(
+                $"A TenantId is required to create a manager for {typeof(TEntity).Name}."
+            );
+        }
+
+        Guid? tenantId = IsTenantScoped ? _userContext.TenantId : null;
         _dbContext = (dbContextFactory.CreateDbContext(tenantId) as TDbContext)!;
         _dbSet = _dbContext.Set<TEntity>();
         Queryable = _dbSet.AsNoTracking().AsQueryable();
-
-        if (_isMultiTenant && _userContext.TenantId == Guid.Empty)
-        {
-            _logger.LogWarning("TenantId is empty in UserContext");
-        }
     }
 
     /// <summary>
@@ -71,7 +72,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>The entity if found; otherwise, null.</returns>
     public async Task<TEntity?> FindAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.FindAsync(new object?[] { id }, cancellationToken: cancellationToken);
+        return await _dbSet.FirstOrDefaultAsync(entity => entity.Id == id, cancellationToken);
     }
 
     /// <summary>
@@ -87,7 +88,6 @@ public abstract class ManagerBase<TDbContext, TEntity>
         where TDto : class
     {
         var query = _dbSet.AsNoTracking();
-        query = ApplyTenantFilter(query);
         var model = await query
             .Where(whereExp ?? (e => true))
             .ProjectToType<TDto>()
@@ -103,7 +103,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <returns>True if exists; otherwise, false.</returns>
     public async Task<bool> ExistAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.AnyAsync(q => q.Id == id, cancellationToken);
+        return await _dbSet.AnyAsync(entity => entity.Id == id, cancellationToken);
     }
 
     /// <summary>
@@ -122,9 +122,8 @@ public abstract class ManagerBase<TDbContext, TEntity>
         var query = _dbSet.AsNoTracking();
         if (IgnoreQueryFilter)
         {
-            query = query.IgnoreQueryFilters();
+            query = query.IgnoreQueryFilters([ContextBase.SoftDeletionFilterName]);
         }
-        query = ApplyTenantFilter(query);
         return await query
             .Where(whereExp ?? (e => true))
             .ProjectToType<TDto>()
@@ -148,10 +147,8 @@ public abstract class ManagerBase<TDbContext, TEntity>
     {
         if (IgnoreQueryFilter)
         {
-            Queryable = Queryable.IgnoreQueryFilters();
+            Queryable = Queryable.IgnoreQueryFilters([ContextBase.SoftDeletionFilterName]);
         }
-
-        Queryable = ApplyTenantFilter(Queryable);
 
         Queryable = filter.OrderBy != null && filter.OrderBy.Count > 0
                 ? Queryable.OrderBy(filter.OrderBy)
@@ -159,7 +156,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
                     ? Queryable
                     : Queryable.OrderByDescending(t => t.CreatedTime);
 
-        var count = Queryable.Count();
+        var count = await Queryable.CountAsync(cancellationToken);
         List<TItem> data = await Queryable
             .AsNoTracking()
             .Skip((filter.PageIndex - 1) * filter.PageSize)
@@ -184,9 +181,9 @@ public abstract class ManagerBase<TDbContext, TEntity>
     /// <param name="cancellationToken">Cancellation token</param>
     protected async Task InsertAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
-        if (_isMultiTenant && IsTenantScoped)
+        if (IsTenantScoped)
         {
-            ((ITenantEntityBase)entity).TenantId = _userContext.TenantId;
+            ((ITenantEntityBase)entity).TenantId = RequireTenantId();
         }
         await _dbContext.BulkInsertAsync([entity], cancellationToken: cancellationToken);
     }
@@ -207,7 +204,13 @@ public abstract class ManagerBase<TDbContext, TEntity>
         CancellationToken cancellationToken = default
     ) where TUpdateDto : class
     {
-        return await _dbContext.PartialUpdateAsync<TEntity, TUpdateDto>(id, dto, updateTime, cancellationToken);
+        return await _dbContext.PartialUpdateAsync<TEntity, TUpdateDto>(
+            id,
+            dto,
+            updateTime,
+            cancellationToken,
+            IsTenantScoped ? RequireTenantId() : null
+        );
     }
 
     protected async Task BulkInsertAsync(
@@ -215,16 +218,17 @@ public abstract class ManagerBase<TDbContext, TEntity>
         CancellationToken cancellationToken = default
     )
     {
-        foreach (TEntity entity in entities)
+        var entityList = entities.ToList();
+        foreach (TEntity entity in entityList)
         {
-            if (_isMultiTenant && IsTenantScoped)
+            if (IsTenantScoped)
             {
-                ((ITenantEntityBase)entity).TenantId = _userContext.TenantId;
+                ((ITenantEntityBase)entity).TenantId = RequireTenantId();
             }
 
             entity.UpdatedTime = DateTime.UtcNow;
         }
-        await _dbContext.BulkInsertAsync(entities, cancellationToken: cancellationToken);
+        await _dbContext.BulkInsertAsync(entityList, cancellationToken: cancellationToken);
     }
 
     /// <summary>
@@ -328,7 +332,7 @@ public abstract class ManagerBase<TDbContext, TEntity>
     )
     {
         var strategy = _dbContext.Database.CreateExecutionStrategy();
-        return await strategy.ExecuteAsync(async (cancellationToken) =>
+        return await strategy.ExecuteAsync<T>(async (cancellationToken) =>
         {
             await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
             try
@@ -401,10 +405,15 @@ public abstract class ManagerBase<TDbContext, TEntity>
 
     protected IQueryable<TEntity> ApplyTenantFilter(IQueryable<TEntity> query)
     {
-        if (_isMultiTenant && IsTenantScoped)
-        {
-            return query.Where(e => ((ITenantEntityBase)e).TenantId == _userContext.TenantId);
-        }
+        // Tenant isolation is applied by ContextBase's global query filter. Keep this
+        // method for source compatibility with existing managers that call it.
         return query;
+    }
+
+    private Guid RequireTenantId()
+    {
+        return _userContext.TenantId != Guid.Empty
+            ? _userContext.TenantId
+            : throw new InvalidOperationException("A TenantId is required for tenant-scoped data.");
     }
 }

@@ -21,14 +21,19 @@ param (
 )
 $PSDefaultParameterValues['*:Encoding'] = 'utf8'
 
-$location = Get-Location
-cd ./src
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$menusPath = Join-Path $repoRoot "src\ClientApp\WebApp\src\assets\menus.json"
+
+if (-not (Test-Path $menusPath -PathType Leaf)) {
+  throw "Menu configuration not found: $menusPath"
+}
+
 # 定义前端menus.json路径
-$content = Get-Content .\json\menus.json  -Encoding UTF8
+$content = Get-Content $menusPath -Raw -Encoding UTF8
 $url = 'http://localhost:5002'
 
 try {
-  if ($Environment.ToLower() -eq 'production') {
+  if ($Environment -eq 'production') {
     # 定义生产环境地址
     $url = 'https://production.com'
     Write-Host "production"
@@ -41,6 +46,5 @@ try {
 }
 catch [System.Exception] { 
   Write-Error $_
+  exit 1
 }
-
-cd $location

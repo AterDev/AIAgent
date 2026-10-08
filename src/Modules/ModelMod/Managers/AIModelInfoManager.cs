@@ -6,7 +6,7 @@ namespace ModelMod.Managers;
 /// 模型信息
 /// </summary>
 public class AIModelInfoManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<AIModelInfoManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, AIModelInfo>(dbContextFactory, userContext, logger)

@@ -6,7 +6,8 @@ namespace ModelMod.Services;
 /// 配额限流服务
 /// </summary>
 public class QuotaLimitingService(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
+    IUserContext userContext,
     IDistributedCache cache,
     ILogger<QuotaLimitingService> logger
 )
@@ -15,7 +16,7 @@ public class QuotaLimitingService(
 
     public async Task<bool> CheckQuotaAsync(Guid applicationId, int estimatedTokens, CancellationToken cancellationToken = default)
     {
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
 
         // 获取所有启用的配额规则
         var quotas = await dbContext.Set<ApplicationQuota>()
@@ -59,7 +60,7 @@ public class QuotaLimitingService(
 
     public async Task<QuotaConsumeResultDto> ConsumeAsync(Guid applicationId, int actualTokens, CancellationToken cancellationToken = default)
     {
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
 
         var quota = await dbContext.Set<ApplicationQuota>()
             .FirstOrDefaultAsync(q => q.ApplicationId == applicationId && q.PeriodType == QuotaPeriodType.Day, cancellationToken);
@@ -107,7 +108,7 @@ public class QuotaLimitingService(
 
     public async Task<QuotaUsageDto> GetUsageAsync(Guid applicationId, QuotaPeriodType periodType, CancellationToken cancellationToken = default)
     {
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
 
         var quota = await dbContext.Set<ApplicationQuota>()
             .FirstOrDefaultAsync(q => q.ApplicationId == applicationId && q.PeriodType == periodType, cancellationToken);
@@ -182,7 +183,7 @@ public class QuotaLimitingService(
     {
         try
         {
-            await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+            await using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
 
             var windowStart = GetWindowStart(DateTime.UtcNow, periodType);
             var windowEnd = GetWindowEnd(windowStart, periodType);

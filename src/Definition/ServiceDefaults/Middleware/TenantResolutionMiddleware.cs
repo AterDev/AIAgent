@@ -1,10 +1,8 @@
-using Entity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Perigon.AspNetCore.Abstraction;
-using Perigon.AspNetCore.Services;
+using Share.Services;
 
-namespace Services.Middleware;
+namespace ServiceDefaults.Middleware;
 
 /// <summary>
 /// Middleware to resolve tenant metadata and cache it in memory.
@@ -26,57 +24,46 @@ public class TenantResolutionMiddleware
     public async Task InvokeAsync(
         HttpContext context,
         IUserContext userContext,
-        DefaultDbContext dbContext,
-        CacheService cache
+        TenantService tenantService
     )
     {
         try
         {
             if (userContext.TenantId == Guid.Empty)
             {
-                _logger.LogDebug("Skip tenant resolve because TenantId is empty");
-                await _next(context);
+                if (context.User.Identity?.IsAuthenticated != true)
+                {
+                    await _next(context);
+                    return;
+                }
+
+                _logger.LogWarning("Authenticated user has no TenantId claim");
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
                 return;
             }
 
-            var cacheKey = $"{WebConst.TenantId}__{userContext.TenantId}";
-            var tenant = cache.GetMemory<Tenant>(cacheKey);
+            var tenant = await tenantService.GetByIdAsync(
+                userContext.TenantId,
+                context.RequestAborted
+            );
 
-            if (tenant is null)
-            {
-                tenant = await dbContext.Tenants
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(t => t.TenantId == userContext.TenantId);
-
-                if (tenant is not null)
-                {
-                    cache.SetMemory(cacheKey, tenant, TimeSpan.FromDays(1));
-                    _logger.LogInformation(
-                        "Tenant {TenantId} loaded from database and cached",
-                        userContext.TenantId
-                    );
-                }
-            }
-            else
-            {
-                _logger.LogDebug("Tenant {TenantId} loaded from memory cache", userContext.TenantId);
-            }
-
-            if (tenant is not null)
+            if (tenant is not null && (!tenant.Disabled && !tenant.IsDeleted))
             {
                 userContext.TenantType = tenant.Type.ToString();
             }
             else
             {
                 _logger.LogWarning(
-                    "Tenant {TenantId} not found; fallback to default connection strings",
+                    "Tenant {TenantId} not found; rejecting the authenticated request",
                     userContext.TenantId
                 );
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                return;
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error resolving tenant connection strings");
+            _logger.LogError(ex, "Error resolving tenant");
             throw;
         }
 

@@ -8,7 +8,7 @@ namespace AIAgentMod.Managers;
 /// 应用侧 Agent 管理
 /// </summary>
 public class ApplicationAgentManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<ApplicationAgentManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, ApplicationAgent>(dbContextFactory, userContext, logger)

@@ -26,7 +26,12 @@ public class RagIngestionWorker(
             {
                 using var scope = serviceProvider.CreateScope();
                 var service = scope.ServiceProvider.GetRequiredService<RagIngestionService>();
-                await service.IngestAsync(task.DocumentId, task.ContentText, stoppingToken);
+                await service.IngestAsync(
+                    task.DocumentId,
+                    task.TenantId,
+                    task.ContentText,
+                    stoppingToken
+                );
             }
             catch (Exception ex)
             {

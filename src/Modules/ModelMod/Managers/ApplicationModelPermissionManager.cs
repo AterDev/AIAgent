@@ -6,7 +6,7 @@ namespace ModelMod.Managers;
 /// 应用模型权限管理
 /// </summary>
 public class ApplicationModelPermissionManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<ApplicationModelPermissionManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, ApplicationModelPermission>(dbContextFactory, userContext, logger)

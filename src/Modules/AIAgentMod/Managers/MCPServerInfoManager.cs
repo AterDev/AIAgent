@@ -6,7 +6,7 @@ namespace AIAgentMod.Managers;
 /// MCP server 管理
 /// </summary>
 public class MCPServerInfoManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<MCPServerInfoManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, MCPServerInfo>(dbContextFactory, userContext, logger)

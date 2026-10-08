@@ -5,7 +5,7 @@ namespace ModelMod.Managers;
 /// 应用定义
 /// </summary>
 public class ApplicationManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<ApplicationManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, Application>(dbContextFactory, userContext, logger)

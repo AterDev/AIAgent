@@ -7,7 +7,7 @@ namespace McpMod.Managers;
 /// MCP 工具管理
 /// </summary>
 public class McpToolManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<McpToolManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, McpTool>(dbContextFactory, userContext, logger)

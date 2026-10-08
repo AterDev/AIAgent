@@ -6,7 +6,7 @@ namespace McpMod.Managers;
 /// MCP 调用记录管理
 /// </summary>
 public class ToolCallRecordManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<ToolCallRecordManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, ToolCallRecord>(dbContextFactory, userContext, logger)

@@ -6,7 +6,7 @@ namespace AIAgentMod.Managers;
 /// agent
 /// </summary>
 public class AIAgentManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<AIAgentManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, AIAgent>(dbContextFactory, userContext, logger)

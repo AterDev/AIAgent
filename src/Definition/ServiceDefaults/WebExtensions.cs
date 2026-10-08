@@ -1,23 +1,15 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using Perigon.AspNetCore.Convention;
 using Perigon.AspNetCore.Converters;
 using ServiceDefaults;
-using ServiceDefaults.Authentication;
 using ServiceDefaults.Middleware;
-using Share.Implement;
-using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.IO;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using System.Threading.RateLimiting;
@@ -36,6 +28,13 @@ public static class WebExtensions
         builder.Services.ConfigureWebMiddleware(builder.Configuration);
         builder
             .Services.AddControllers()
+            .ConfigureApiBehaviorOptions(o =>
+            {
+                o.InvalidModelStateResponseFactory = context =>
+                {
+                    return new CustomBadRequest(context, null);
+                };
+            })
             .AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
@@ -56,13 +55,18 @@ public static class WebExtensions
         IConfiguration configuration
     )
     {
-        services.AddScoped<ApiKeyService>();
-        services.AddJwtAuthentication(configuration);
+        services.AddAuthentication(configuration);
         services.AddThirdAuthentication(configuration);
 
         services.AddAuthorize();
         services.AddCors(configuration);
         services.AddRateLimiter();
+        services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor
+                | ForwardedHeaders.XForwardedProto
+                | ForwardedHeaders.XForwardedHost;
+        });
 
         services.AddOutputCache(options =>
         {
@@ -76,29 +80,36 @@ public static class WebExtensions
 
     public static WebApplication UseMiddlewareServices(this WebApplication app)
     {
+        app.UseForwardedHeaders();
+
         if (app.Environment.IsProduction())
         {
-            app.UseCors(AppConst.Default);
             app.UseHsts();
             app.UseHttpsRedirection();
         }
-        else
-        {
-            app.UseCors(AppConst.Default);
-        }
 
-        app.UseRateLimiter();
         app.UseStaticFiles();
         app.UseRequestLocalization();
         app.UseRouting();
+        app.UseCors(app.Environment.IsProduction() ? WebConst.Limited : WebConst.Default);
+        app.UseRateLimiter();
         app.UseOutputCache();
-        app.MapSwagger().CacheOutput("openapi");
 
+        if (!app.Environment.IsProduction())
+        {
+            app.MapSwagger().CacheOutput("openapi");
+            app.UseSwaggerUI(options => options.SwaggerEndpoint("./v1/swagger.json", "v1"));
+        }
+
+        //app.UseMiddleware<JwtMiddleware>();
         app.UseMiddleware<GlobalExceptionMiddleware>();
         app.UseAuthentication();
+
+        // Tenant resolution is always enabled. Authenticated requests must carry a valid
+        // TenantId; the seeded default tenant only guarantees catalog initialization.
+        app.UseMiddleware<TenantResolutionMiddleware>();
         app.UseAuthorization();
         app.MapControllers();
-
         return app;
     }
 
@@ -227,7 +238,7 @@ public static class WebExtensions
         services.AddLocalization();
         services.AddRequestLocalization(options =>
         {
-            // 添加更多语言支持
+            //  add more cultures if needed
             var supportedCultures = new[] { "zh-CN", "en-US" };
             options
                 .SetDefaultCulture(supportedCultures[0])
@@ -249,7 +260,7 @@ public static class WebExtensions
     /// <param name="configuration"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public static IServiceCollection AddJwtAuthentication(
+    public static IServiceCollection AddAuthentication(
         this IServiceCollection services,
         IConfiguration configuration
     )
@@ -257,51 +268,61 @@ public static class WebExtensions
         services
             .AddAuthentication(options =>
             {
-                options.DefaultAuthenticateScheme = WebConst.BearerOrApiKey;
-                options.DefaultChallengeScheme = WebConst.BearerOrApiKey;
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             })
-            .AddPolicyScheme(WebConst.BearerOrApiKey, WebConst.BearerOrApiKey, options =>
+            .AddJwtBearer(options =>
             {
-                options.ForwardDefaultSelector = context =>
-                {
-                    var authorization = context.Request.Headers.Authorization.ToString();
-                    if (authorization.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var token = authorization["Bearer ".Length..].Trim();
-                        if (ApiKeyService.IsWellFormedApiKey(token))
-                        {
-                            return WebConst.ApiKeyScheme;
-                        }
-
-                        var handler = new JwtSecurityTokenHandler();
-                        if (handler.CanReadToken(token))
-                        {
-                            return JwtBearerDefaults.AuthenticationScheme;
-                        }
-                    }
-
-                    return JwtBearerDefaults.AuthenticationScheme;
-                };
-            })
-            .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(WebConst.ApiKeyScheme, _ => { })
-            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, cfg =>
-            {
-                cfg.SaveToken = true;
+                options.SaveToken = true;
+                var componentOption = configuration.GetSection(ComponentOption.ConfigPath).Get<ComponentOption>();
                 var jwtOption = configuration.GetSection(JwtOption.ConfigPath).Get<JwtOption>();
-                var sign = jwtOption?.Sign;
-                if (string.IsNullOrEmpty(sign))
+                var oauthOption = configuration.GetSection(OAuthOption.ConfigPath).Get<OAuthOption>();
+
+                if (componentOption?.AuthType == AuthType.Jwt)
                 {
-                    throw new Exception("未找到有效的Jwt配置");
+                    var sign = jwtOption?.Sign;
+                    if (string.IsNullOrEmpty(sign))
+                    {
+                        throw new Exception("未找到有效的Jwt配置");
+                    }
+                    options.TokenValidationParameters = new TokenValidationParameters()
+                    {
+
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(sign)),
+                        ValidIssuer = jwtOption?.ValidIssuer,
+                        ValidAudience = jwtOption?.ValidAudiences,
+                        ValidateIssuer = true,
+                        ValidateLifetime = true,
+                        RequireExpirationTime = true,
+                        ValidateIssuerSigningKey = true,
+                    };
                 }
-                cfg.TokenValidationParameters = new TokenValidationParameters()
+                else if (componentOption?.AuthType == AuthType.OAuth)
                 {
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(sign)),
-                    ValidIssuer = jwtOption?.ValidIssuer,
-                    ValidAudience = jwtOption?.ValidAudiences,
-                    ValidateIssuer = true,
-                    ValidateLifetime = true,
-                    RequireExpirationTime = true,
-                    ValidateIssuerSigningKey = true,
+                    options.Authority = oauthOption?.Authority;
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidAudiences = oauthOption?.Audiences,
+                        ClockSkew = TimeSpan.FromMinutes(5),
+                    };
+                    options.RequireHttpsMetadata = oauthOption?.RequireHttpsMetadata ?? true;
+                }
+                options.Events = new JwtBearerEvents
+                {
+                    OnAuthenticationFailed = context =>
+                    {
+                        Console.WriteLine("Authentication failed: {0}", context.Exception);
+                        return Task.CompletedTask;
+                    },
+                    OnTokenValidated = context =>
+                    {
+                        Console.WriteLine("Token validated for user: {0}", context.Principal?.Identity?.Name);
+                        return Task.CompletedTask;
+                    },
                 };
             })
             .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -370,14 +391,14 @@ public static class WebExtensions
     {
         var section = configuration.GetSection("Cors");
         //get origins array
-        var origins = section?.GetValue<string[]>("AllowedOrigins") ?? [];
+        var origins = section?.GetSection("AllowedOrigins").Get<string[]>() ?? [];
 
         var allowedSubdomains = section?.GetValue<bool>("AllowedSubdomains") ?? false;
 
         services.AddCors(options =>
         {
             options.AddPolicy(
-                AppConst.Default,
+                WebConst.Default,
                 builder =>
                 {
                     builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
@@ -402,14 +423,15 @@ public static class WebExtensions
     {
         services
             .AddAuthorizationBuilder()
-            .AddPolicy(WebConst.Default, policy => policy.RequireAuthenticatedUser())
             .AddPolicy(
-                WebConst.User,
-                policy => policy.RequireRole(WebConst.User, WebConst.AdminUser, WebConst.SuperAdmin)
+                WebConst.Default,
+                policy => policy.RequireAuthenticatedUser().RequireClaim(CustomClaimTypes.TenantId)
             )
             .AddPolicy(
-                WebConst.OpenPlatform,
-                policy => policy.RequireRole(WebConst.User, WebConst.AdminUser, WebConst.SuperAdmin, WebConst.Application)
+                WebConst.User,
+                policy => policy
+                    .RequireClaim(CustomClaimTypes.TenantId)
+                    .RequireRole(WebConst.User, WebConst.AdminUser, WebConst.SuperAdmin)
             );
 
         return services;

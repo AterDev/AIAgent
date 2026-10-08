@@ -9,7 +9,7 @@ namespace WorkflowMod.Services;
 /// 工作流执行器（简化：逐步执行）
 /// </summary>
 public class WorkflowExecutor(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     IUserContext userContext,
     IModelInvoker modelInvoker,
     IRagQueryService ragQueryService,
@@ -26,7 +26,7 @@ public class WorkflowExecutor(
 
     public async Task<bool> ResumeAsync(Guid executionId, int fromStepIndex, CancellationToken cancellationToken = default)
     {
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
         var execution = await dbContext.WorkflowExecutions
             .FirstOrDefaultAsync(q => q.Id == executionId && q.TenantId == userContext.TenantId, cancellationToken);
 
@@ -53,7 +53,7 @@ public class WorkflowExecutor(
 
     public async Task<bool> CancelAsync(Guid executionId, CancellationToken cancellationToken = default)
     {
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
         var execution = await dbContext.WorkflowExecutions
             .FirstOrDefaultAsync(q => q.Id == executionId && q.TenantId == userContext.TenantId, cancellationToken);
 
@@ -72,7 +72,7 @@ public class WorkflowExecutor(
 
     public async Task<WorkflowExecutionProgress?> GetProgressAsync(Guid executionId, CancellationToken cancellationToken = default)
     {
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
         var execution = await dbContext.WorkflowExecutions
             .FirstOrDefaultAsync(q => q.Id == executionId && q.TenantId == userContext.TenantId, cancellationToken);
 
@@ -112,7 +112,7 @@ public class WorkflowExecutor(
 
     public async Task<bool> RetryAsync(Guid executionId, CancellationToken cancellationToken = default)
     {
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
         var execution = await dbContext.WorkflowExecutions
             .FirstOrDefaultAsync(q => q.Id == executionId && q.TenantId == userContext.TenantId, cancellationToken);
 
@@ -161,7 +161,7 @@ public class WorkflowExecutor(
 
     private async Task<bool> ExecuteInternalAsync(Guid executionId, int startStepIndex, CancellationToken cancellationToken)
     {
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
         var execution = await dbContext.WorkflowExecutions
             .FirstOrDefaultAsync(q => q.Id == executionId && q.TenantId == userContext.TenantId, cancellationToken);
 
@@ -347,7 +347,7 @@ public class WorkflowExecutor(
             throw new BusinessException("Agent step missing agent ID");
         }
 
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
         var agent = await dbContext.AIAgents
             .AsNoTracking()
             .FirstOrDefaultAsync(q => q.Id == step.AgentId.Value && q.TenantId == userContext.TenantId, cancellationToken);

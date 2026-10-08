@@ -1,20 +1,22 @@
 using EntityFramework.AppDbContext;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Perigon.AspNetCore.Constants;
-using Perigon.AspNetCore.Services;
 
 namespace EntityFramework.AppDbFactory;
 
 /// <summary>
 /// factory for create TenantDbContext
 /// </summary>
-/// <param name="cache"></param>
 /// <param name="configuration"></param>
-public class TenantDbFactory(IOptions<ComponentOption> options, CacheService cache, IConfiguration configuration)
+/// <param name="tenantScopeFactory"></param>
+public class AppDbFactory(
+    IOptions<ComponentOption> options,
+    IConfiguration configuration,
+    IServiceScopeFactory tenantScopeFactory
+)
 {
-    public bool IsMultiTenant => options.Value.IsMultiTenant;
-
     public DefaultDbContext CreateDbContext(Guid? tenantId)
     {
         var (connectionString, _) = GetConnectionStrings(tenantId);
@@ -29,10 +31,12 @@ public class TenantDbFactory(IOptions<ComponentOption> options, CacheService cac
                 builder.UseSqlServer(connectionString);
                 break;
         }
-        return new DefaultDbContext(builder.Options);
+        var context = new DefaultDbContext(builder.Options);
+        context.SetTenantId(tenantId);
+        return context;
     }
 
-    public Task<DefaultDbContext> CreateDbContextAsync(Guid? tenantId = null)
+    public Task<DefaultDbContext> CreateDbContextAsync(Guid? tenantId)
     {
         return Task.FromResult(CreateDbContext(tenantId));
     }
@@ -50,10 +54,12 @@ public class TenantDbFactory(IOptions<ComponentOption> options, CacheService cac
                 builder.UseSqlServer(analysisConnectionString);
                 break;
         }
-        return new AnalysisDbContext(builder.Options);
+        var context = new AnalysisDbContext(builder.Options);
+        context.SetTenantId(tenantId);
+        return context;
     }
 
-    public Task<AnalysisDbContext> CreateAnalysisDbContextAsync(Guid? tenantId = null)
+    public Task<AnalysisDbContext> CreateAnalysisDbContextAsync(Guid? tenantId)
     {
         return Task.FromResult(CreateAnalysisDbContext(tenantId));
     }
@@ -65,16 +71,28 @@ public class TenantDbFactory(IOptions<ComponentOption> options, CacheService cac
         var defaultAnalysisConnectionString = configuration.GetConnectionString(AppConst.Analysis)
             ?? defaultConnectionString;
 
-        if (!IsMultiTenant || !tenantId.HasValue || tenantId.Value == Guid.Empty)
+        // A null tenant id is reserved for the system tenant catalog context.
+        if (!tenantId.HasValue)
         {
             return (defaultConnectionString, defaultAnalysisConnectionString);
         }
 
-        var cacheKey = $"{WebConst.TenantId}__{tenantId.Value}";
-        var tenant = cache.GetMemory<Tenant>(cacheKey);
+        if (tenantId.Value == Guid.Empty)
+        {
+            throw new InvalidOperationException(
+                "A non-empty TenantId is required for tenant-scoped database access."
+            );
+        }
+
+        using IServiceScope scope = tenantScopeFactory.CreateScope();
+        var tenant = scope.ServiceProvider
+            .GetRequiredService<ITenantResolver>()
+            .GetById(tenantId.Value);
         if (tenant is null)
         {
-            return (defaultConnectionString, defaultAnalysisConnectionString);
+            throw new InvalidOperationException(
+                $"Tenant '{tenantId.Value}' was not found in the tenant catalog."
+            );
         }
 
         var tenantDbConnectionString = tenant.DbConnectionString ?? defaultConnectionString;

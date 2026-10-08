@@ -1,16 +1,12 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Npgsql;
 using Perigon.AspNetCore.Models;
 using Share.Exceptions;
 
 namespace ServiceDefaults.Middleware;
 
-public class GlobalExceptionMiddleware(
-    RequestDelegate next,
-    Localizer localizer,
-    ILogger<GlobalExceptionMiddleware> logger)
+public class GlobalExceptionMiddleware(RequestDelegate next, Localizer localizer)
 {
     public async Task InvokeAsync(HttpContext ctx)
     {
@@ -18,10 +14,9 @@ public class GlobalExceptionMiddleware(
         {
             await next(ctx);
         }
-        catch (DbUpdateConcurrencyException ex)
+        catch (DbUpdateConcurrencyException)
         {
             // 并发冲突提示
-            logger.LogWarning(ex, "Database concurrency conflict: {TraceId}", ctx.TraceIdentifier);
             ctx.Response.StatusCode = StatusCodes.Status409Conflict;
             await ctx.Response.WriteAsJsonAsync(
                 new ErrorResult(localizer.Get(Localizer.AlreadyUpdated), ctx.TraceIdentifier)
@@ -30,7 +25,6 @@ public class GlobalExceptionMiddleware(
         catch (DbUpdateException ex) when (EfCoreErrorHelper.IsUniqueConstraintViolation(ex))
         {
             // 唯一约束冲突提示
-            logger.LogWarning(ex, "Database unique constraint violation: {TraceId}", ctx.TraceIdentifier);
             ctx.Response.StatusCode = StatusCodes.Status409Conflict;
 
             await ctx.Response.WriteAsJsonAsync(
@@ -40,7 +34,6 @@ public class GlobalExceptionMiddleware(
         catch (DbUpdateException ex)
         {
             // 其他数据库错误
-            logger.LogError(ex, "Database update error: {TraceId}", ctx.TraceIdentifier);
             ctx.Response.StatusCode = StatusCodes.Status500InternalServerError;
             await ctx.Response.WriteAsJsonAsync(
                 new ErrorResult(ex.Message, ctx.TraceIdentifier, "database error!")
@@ -48,68 +41,14 @@ public class GlobalExceptionMiddleware(
         }
         catch (BusinessException ex)
         {
-            // 业务异常，记录为警告级别
-            logger.LogWarning(
-                ex,
-                "Business exception: {Message}, StatusCode: {StatusCode}, TraceId: {TraceId}",
-                ex.Message,
-                ex.StatusCodes,
-                ctx.TraceIdentifier
-            );
-            ctx.Response.StatusCode = ex.StatusCodes;
-            var message = ex.Arguments.Length > 0
-                ? localizer.Get(ex.LanguageKey, ex.Arguments)
-                : localizer.Get(ex.LanguageKey);
+            ctx.Response.StatusCode = StatusCodes.Status500InternalServerError;
             await ctx.Response.WriteAsJsonAsync(
-                new ErrorResult(message, ctx.TraceIdentifier)
-            );
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            // 未授权访问
-            logger.LogWarning(ex, "Unauthorized access: {TraceId}", ctx.TraceIdentifier);
-            ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            await ctx.Response.WriteAsJsonAsync(
-                new ErrorResult(localizer.Get("Unauthorized"), ctx.TraceIdentifier)
-            );
-        }
-        catch (ArgumentException ex)
-        {
-            // 参数验证错误
-            logger.LogWarning(ex, "Invalid argument: {Message}, TraceId: {TraceId}", ex.Message, ctx.TraceIdentifier);
-            ctx.Response.StatusCode = StatusCodes.Status400BadRequest;
-            await ctx.Response.WriteAsJsonAsync(
-                new ErrorResult(ex.Message, ctx.TraceIdentifier, "validation error")
-            );
-        }
-        catch (TaskCanceledException)
-        {
-            // 请求取消（通常由客户端断开连接引起）
-            logger.LogInformation("Request cancelled: {TraceId}", ctx.TraceIdentifier);
-            ctx.Response.StatusCode = StatusCodes.Status499ClientClosedRequest;
-            await ctx.Response.WriteAsJsonAsync(
-                new ErrorResult("Request cancelled", ctx.TraceIdentifier)
-            );
-        }
-        catch (OperationCanceledException)
-        {
-            // 操作取消
-            logger.LogInformation("Operation cancelled: {TraceId}", ctx.TraceIdentifier);
-            ctx.Response.StatusCode = StatusCodes.Status499ClientClosedRequest;
-            await ctx.Response.WriteAsJsonAsync(
-                new ErrorResult("Operation cancelled", ctx.TraceIdentifier)
+                new ErrorResult(localizer.Get(ex.LanguageKey), ctx.TraceIdentifier, status: ex.StatusCodes)
             );
         }
         catch (Exception ex)
         {
-            // 非数据库类异常 - 记录完整的异常信息
-            logger.LogError(
-                ex,
-                "Unhandled exception: {ExceptionType}, Message: {Message}, TraceId: {TraceId}",
-                ex.GetType().Name,
-                ex.Message,
-                ctx.TraceIdentifier
-            );
+            // 非数据库类异常
             ctx.Response.StatusCode = StatusCodes.Status500InternalServerError;
             await ctx.Response.WriteAsJsonAsync(new ErrorResult(ex.Message, ctx.TraceIdentifier));
         }

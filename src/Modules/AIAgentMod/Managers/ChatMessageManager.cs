@@ -5,7 +5,7 @@ namespace AIAgentMod.Managers;
 /// 聊天消息
 /// </summary>
 public class ChatMessageManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<ChatMessageManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, ChatMessage>(dbContextFactory, userContext, logger)

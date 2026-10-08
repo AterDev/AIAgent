@@ -4,7 +4,7 @@ namespace ModelMod.Services;
 /// 模型调用与审计
 /// </summary>
 public class ModelInvokeService(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     IUserContext userContext,
     ExtensionsAIModelClient modelClient,
     DefaultUsageMeter usageMeter,
@@ -27,7 +27,7 @@ public class ModelInvokeService(
         Func<ModelRequest, CancellationToken, Task<ModelResponse>> action,
         CancellationToken cancellationToken)
     {
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
 
         var application = await dbContext.Applications
             .AsNoTracking()

@@ -5,7 +5,7 @@ namespace AIAgentMod.Managers;
 /// 对话实例
 /// </summary>
 public class ConversationManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<ConversationManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, Conversation>(dbContextFactory, userContext, logger)

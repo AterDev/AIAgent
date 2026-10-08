@@ -6,13 +6,13 @@ namespace ModelMod.Managers;
 /// 应用配额管理
 /// </summary>
 public class ApplicationQuotaManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<ApplicationQuotaManager> logger,
     IUserContext userContext,
     IDistributedCache cache
 ) : ManagerBase<DefaultDbContext, ApplicationQuota>(dbContextFactory, userContext, logger)
 {
-    private readonly TenantDbFactory _dbContextFactory = dbContextFactory;
+    private readonly AppDbFactory _dbContextFactory = dbContextFactory;
     private readonly IDistributedCache _cache = cache;
     private const string QuotaKeyFormat = "quota:{0}:{1}:{2}";
 
@@ -63,7 +63,7 @@ public class ApplicationQuotaManager(
     /// </summary>
     public async Task<bool> CheckQuotaAsync(Guid applicationId, int estimatedTokens, CancellationToken cancellationToken = default)
     {
-        await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(_userContext.TenantId);
 
         // 获取所有启用的配额规则
         var quotas = await dbContext.Set<ApplicationQuota>()
@@ -110,7 +110,7 @@ public class ApplicationQuotaManager(
     /// </summary>
     public async Task<QuotaConsumeResultDto> ConsumeAsync(Guid applicationId, int actualTokens, CancellationToken cancellationToken = default)
     {
-        await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(_userContext.TenantId);
 
         var quota = await dbContext.Set<ApplicationQuota>()
             .FirstOrDefaultAsync(q => q.ApplicationId == applicationId && q.PeriodType == QuotaPeriodType.Day, cancellationToken);
@@ -159,7 +159,7 @@ public class ApplicationQuotaManager(
     /// </summary>
     public async Task<QuotaUsageDto> GetUsageAsync(Guid applicationId, QuotaPeriodType periodType, CancellationToken cancellationToken = default)
     {
-        await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(_userContext.TenantId);
 
         var quota = await dbContext.Set<ApplicationQuota>()
             .FirstOrDefaultAsync(q => q.ApplicationId == applicationId && q.PeriodType == periodType, cancellationToken);
@@ -247,7 +247,7 @@ public class ApplicationQuotaManager(
     {
         try
         {
-            await using var dbContext = await _dbContextFactory.CreateDbContextAsync();
+            await using var dbContext = await _dbContextFactory.CreateDbContextAsync(_userContext.TenantId);
 
             var windowStart = GetWindowStart(DateTime.UtcNow, periodType);
             var windowEnd = GetWindowEnd(windowStart, periodType);

@@ -6,7 +6,7 @@ namespace ModelMod.Managers;
 /// 模型调用记录管理
 /// </summary>
 public class ModelInvocationManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<ModelInvocationManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, ModelInvocation>(dbContextFactory, userContext, logger)

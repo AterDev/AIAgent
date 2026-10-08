@@ -4,14 +4,14 @@ namespace CoreMod.Services.ModelRouting;
 /// 基于数据库的模型路由
 /// </summary>
 public class DbModelRouter(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     IUserContext userContext,
     ILogger<DbModelRouter> logger
 )
 {
     public async Task<ModelRoute> ResolveAsync(ModelRequest request, CancellationToken cancellationToken = default)
     {
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
 
         var isGuid = Guid.TryParse(request.Model, out var modelId);
 

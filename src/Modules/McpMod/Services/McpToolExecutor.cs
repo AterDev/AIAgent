@@ -9,7 +9,7 @@ namespace McpMod.Services;
 /// 通过官方 MCP SDK 支持 Http/SSE/stdio 传输
 /// </summary>
 public class McpToolExecutor(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<McpToolExecutor> logger,
     IUserContext userContext,
     BuiltinToolExecutor builtinToolExecutor,
@@ -20,7 +20,7 @@ public class McpToolExecutor(
 
     public async Task<ToolExecutionResult> ExecuteAsync(ToolExecutionRequest request, CancellationToken cancellationToken = default)
     {
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
         var stopwatch = Stopwatch.StartNew();
 
         var tool = await dbContext.McpTools

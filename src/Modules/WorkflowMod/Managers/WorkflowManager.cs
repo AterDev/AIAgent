@@ -7,7 +7,7 @@ namespace WorkflowMod.Managers;
 /// 工作流管理
 /// </summary>
 public class WorkflowManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<WorkflowManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, Workflow>(dbContextFactory, userContext, logger)

@@ -9,7 +9,7 @@ namespace KnowledgeBaseMod.Managers;
 /// 知识库管理
 /// </summary>
 public class RagCollectionManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<RagCollectionManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, RagCollection>(dbContextFactory, userContext, logger)
@@ -44,10 +44,7 @@ public class RagCollectionManager(
                     IsEnabled = true,
                 };
 
-                if (_isMultiTenant)
-                {
-                    link.TenantId = _userContext.TenantId;
-                }
+                link.TenantId = _userContext.TenantId;
 
                 await _dbContext.BulkInsertAsync([link]);
             }

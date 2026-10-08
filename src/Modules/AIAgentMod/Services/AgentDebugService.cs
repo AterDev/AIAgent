@@ -5,7 +5,7 @@ using System.Text.Json;
 namespace AIAgentMod.Services;
 
 public class AgentDebugService(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     IUserContext userContext,
     IModelInvoker modelInvoker,
     ExtensionsAIModelClient modelClient,
@@ -25,7 +25,7 @@ public class AgentDebugService(
             ? Guid.NewGuid().ToString("N")
             : request.RequestId;
 
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
         var agent = await dbContext.AIAgents
             .AsNoTracking()
             .FirstOrDefaultAsync(q => q.Id == request.AgentId && q.TenantId == userContext.TenantId, cancellationToken);
@@ -317,7 +317,7 @@ public class AgentDebugService(
         if (!applicationId.HasValue)
         {
             // 从数据库获取完整的模型信息（包括 Provider）
-            await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+            await using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
             
             // 支持通过 ID 或 Name 查询模型
             var isGuid = Guid.TryParse(agent.ModelId, out var modelId);

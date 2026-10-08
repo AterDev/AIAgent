@@ -7,7 +7,7 @@ namespace KnowledgeBaseMod.Managers;
 /// 文档管理
 /// </summary>
 public class RagDocumentManager(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     ILogger<RagDocumentManager> logger,
     IUserContext userContext,
     IStorageProviderQuery storageProviderQuery

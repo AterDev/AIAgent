@@ -6,12 +6,13 @@ using Share.Models;
 /// 存储提供商查询服务 - 为核心模块提供跨模块数据访问
 /// </summary>
 public class StorageProviderQueryService(
-    TenantDbFactory dbContextFactory
+    AppDbFactory dbContextFactory,
+    IUserContext userContext
 ) : IStorageProviderQuery
 {
     public async Task<StorageProviderInfo?> GetProviderAsync(Guid storageProviderId, CancellationToken cancellationToken = default)
     {
-        using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
         var provider = await dbContext.Set<StorageProvider>()
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Id == storageProviderId, cancellationToken);
@@ -32,7 +33,7 @@ public class StorageProviderQueryService(
 
     public async Task<StorageProviderInfo?> GetActiveProviderAsync(CancellationToken cancellationToken = default)
     {
-        using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
         var provider = await dbContext.Set<StorageProvider>()
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.IsActive, cancellationToken);

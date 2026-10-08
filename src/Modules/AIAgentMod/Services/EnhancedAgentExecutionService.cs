@@ -8,7 +8,7 @@ namespace AIAgentMod.Services;
 /// 使用结构化 tool calling API（OpenAI function calling）而非从文本解析
 /// </summary>
 public class EnhancedAgentExecutionService(
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     IUserContext userContext,
     IModelInvoker modelInvoker,
     IMcpToolExecutor mcpToolExecutor,
@@ -20,7 +20,7 @@ public class EnhancedAgentExecutionService(
 
     public async Task<bool> ExecuteAsync(Guid executionId, Guid applicationId, string? inputJson, CancellationToken cancellationToken = default)
     {
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
         var execution = await dbContext.AgentExecutions
             .FirstOrDefaultAsync(q => q.Id == executionId && q.TenantId == userContext.TenantId, cancellationToken);
 

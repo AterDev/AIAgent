@@ -8,6 +8,10 @@ namespace Perigon.AspNetCore.Utils;
 /// </summary>
 public class HashCrypto
 {
+    public const int DefaultPbkdf2Iterations = 210_000;
+    private const int Pbkdf2OutputLength = 32;
+    private const int AesIvSize = 16;
+    private const string AesPayloadPrefix = "v2:";
     private static readonly RandomNumberGenerator Rng = RandomNumberGenerator.Create();
     private static JsonSerializerOptions JsonSerializerOptions =>
         new()
@@ -22,14 +26,19 @@ public class HashCrypto
     /// <param name="value"></param>
     /// <param name="salt"></param>
     /// <returns></returns>
-    public static string GeneratePwd(string value, string salt)
+    public static string GeneratePwd(
+        string value,
+        string salt,
+        int iterations = DefaultPbkdf2Iterations
+    )
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(iterations, 1);
         var valueBytes = Rfc2898DeriveBytes.Pbkdf2(
             password: value,
             salt: Encoding.UTF8.GetBytes(salt),
-            iterations: 100,
+            iterations: iterations,
             hashAlgorithm: HashAlgorithmName.SHA512,
-            outputLength: 32
+            outputLength: Pbkdf2OutputLength
         );
         return Convert.ToBase64String(valueBytes);
     }
@@ -40,15 +49,19 @@ public class HashCrypto
     /// <param name="value"></param>
     /// <param name="salt"></param>
     /// <returns></returns>
-    public static string GeneratePAT(string value)
+    public static string GeneratePAT(
+        string value,
+        int iterations = DefaultPbkdf2Iterations
+    )
     {
+        ArgumentOutOfRangeException.ThrowIfLessThan(iterations, 1);
         var salt = BuildSalt();
         var valueBytes = Rfc2898DeriveBytes.Pbkdf2(
             password: value,
             salt: Encoding.UTF8.GetBytes(salt),
-            iterations: 100,
+            iterations: iterations,
             hashAlgorithm: HashAlgorithmName.SHA512,
-            outputLength: 32
+            outputLength: Pbkdf2OutputLength
         );
         return Convert.ToBase64String(valueBytes);
     }
@@ -63,10 +76,20 @@ public class HashCrypto
     public static bool Validate(
         string value,
         string salt,
-        string hash
+        string hash,
+        int iterations = DefaultPbkdf2Iterations
     )
     {
-        return GeneratePwd(value, salt) == hash;
+        try
+        {
+            var expected = Convert.FromBase64String(hash);
+            var actual = Convert.FromBase64String(GeneratePwd(value, salt, iterations));
+            return CryptographicOperations.FixedTimeEquals(actual, expected);
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
     }
 
     /// <summary>
@@ -201,22 +224,17 @@ public class HashCrypto
     /// <param name="text">源文</param>
     /// <param name="key"></param>
     /// <returns></returns>
-    public static string AesEncrypt(string text, string key)
+    public static string AesEncrypt(string text, string key, byte[]? iv = null)
     {
-        byte[] encrypted;
+        var actualIv = iv ?? RandomNumberGenerator.GetBytes(AesIvSize);
+        ValidateAesIv(actualIv);
+
         var bytes = Encoding.UTF8.GetBytes(text);
-        using (var aesAlg = Aes.Create())
-        {
-            aesAlg.Key = Encoding.UTF8.GetBytes(Md5Hash(key));
-            aesAlg.IV = aesAlg.Key[..16];
-            ICryptoTransform encryptor = aesAlg.CreateEncryptor();
-            using MemoryStream memoryStream = new();
-            using var csEncrypt = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write);
-            csEncrypt.Write(bytes, 0, bytes.Length);
-            csEncrypt.FlushFinalBlock();
-            encrypted = memoryStream.ToArray();
-        }
-        return Convert.ToBase64String(encrypted);
+        var encrypted = EncryptAes(bytes, GetAesKey(key), actualIv);
+        var payload = new byte[AesIvSize + encrypted.Length];
+        Buffer.BlockCopy(actualIv, 0, payload, 0, AesIvSize);
+        Buffer.BlockCopy(encrypted, 0, payload, AesIvSize, encrypted.Length);
+        return AesPayloadPrefix + Convert.ToBase64String(payload);
     }
 
     /// <summary>
@@ -225,24 +243,88 @@ public class HashCrypto
     /// <param name="cipherText"></param>
     /// <param name="key"></param>
     /// <returns></returns>
-    public static string AesDecrypt(string cipherText, string key)
+    public static string AesDecrypt(string cipherText, string key, byte[]? iv = null)
     {
         if (string.IsNullOrWhiteSpace(cipherText))
         {
             return string.Empty;
         }
-        string? plaintext = null;
-        using (var aesAlg = Aes.Create())
+
+        if (cipherText.StartsWith(AesPayloadPrefix, StringComparison.Ordinal))
         {
-            aesAlg.Key = Encoding.UTF8.GetBytes(Md5Hash(key));
-            aesAlg.IV = aesAlg.Key[..16];
-            ICryptoTransform decryptor = aesAlg.CreateDecryptor();
-            using MemoryStream msDecrypt = new(Convert.FromBase64String(cipherText));
-            using CryptoStream csDecrypt = new(msDecrypt, decryptor, CryptoStreamMode.Read);
-            using StreamReader srDecrypt = new(csDecrypt, Encoding.UTF8);
-            plaintext = srDecrypt.ReadToEnd();
+            var payload = Convert.FromBase64String(cipherText[AesPayloadPrefix.Length..]);
+            if (payload.Length <= AesIvSize)
+            {
+                throw new CryptographicException("Invalid AES payload.");
+            }
+
+            var actualIv = payload[..AesIvSize];
+            var encrypted = payload[AesIvSize..];
+            return DecryptAes(encrypted, GetAesKey(key), actualIv);
         }
-        return plaintext;
+
+        var legacyCipher = Convert.FromBase64String(cipherText);
+        if (iv is not null)
+        {
+            ValidateAesIv(iv);
+            return DecryptAes(legacyCipher, GetAesKey(key), iv);
+        }
+
+        return DecryptAes(legacyCipher, GetLegacyAesKey(key), GetLegacyAesIv(key));
+    }
+
+    private static byte[] EncryptAes(byte[] bytes, byte[] key, byte[] iv)
+    {
+        using var aesAlg = CreateAes(key, iv);
+        using ICryptoTransform encryptor = aesAlg.CreateEncryptor();
+        using MemoryStream memoryStream = new();
+        using var csEncrypt = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write);
+        csEncrypt.Write(bytes, 0, bytes.Length);
+        csEncrypt.FlushFinalBlock();
+        return memoryStream.ToArray();
+    }
+
+    private static string DecryptAes(byte[] encrypted, byte[] key, byte[] iv)
+    {
+        using var aesAlg = CreateAes(key, iv);
+        using ICryptoTransform decryptor = aesAlg.CreateDecryptor();
+        using MemoryStream msDecrypt = new(encrypted);
+        using CryptoStream csDecrypt = new(msDecrypt, decryptor, CryptoStreamMode.Read);
+        using StreamReader srDecrypt = new(csDecrypt, Encoding.UTF8);
+        return srDecrypt.ReadToEnd();
+    }
+
+    private static Aes CreateAes(byte[] key, byte[] iv)
+    {
+        var aes = Aes.Create();
+        aes.Key = key;
+        aes.IV = iv;
+        aes.Mode = CipherMode.CBC;
+        aes.Padding = PaddingMode.PKCS7;
+        return aes;
+    }
+
+    private static byte[] GetAesKey(string key)
+    {
+        return SHA256.HashData(Encoding.UTF8.GetBytes(key));
+    }
+
+    private static byte[] GetLegacyAesKey(string key)
+    {
+        return Encoding.UTF8.GetBytes(Md5Hash(key));
+    }
+
+    private static byte[] GetLegacyAesIv(string key)
+    {
+        return GetLegacyAesKey(key)[..AesIvSize];
+    }
+
+    private static void ValidateAesIv(byte[] iv)
+    {
+        if (iv.Length != AesIvSize)
+        {
+            throw new ArgumentException($"AES IV must be {AesIvSize} bytes.", nameof(iv));
+        }
     }
 
     /// <summary>

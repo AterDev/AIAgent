@@ -12,7 +12,8 @@ param (
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = [System.IO.Path]::GetFullPath((Join-Path $scriptRoot ".."))
 $appSettingsPath = Join-Path $repoRoot "src\AppHost\appsettings.Development.json"
-$migrationServicePath = Join-Path $repoRoot "src\Services\MigrationService"
+$adminServicePath = Join-Path $repoRoot "src\Services\AdminService"
+$adminServiceProjectPath = Join-Path $adminServicePath "AdminService.csproj"
 $entityFrameworkProjectPath = Join-Path $repoRoot "src\Definition\EntityFramework\EntityFramework.csproj"
 
 $toolManifestPath = @(
@@ -24,6 +25,9 @@ if ($toolManifestPath) {
     Push-Location $repoRoot
     try {
         dotnet tool restore
+        if ($LASTEXITCODE -ne 0) {
+            throw "dotnet tool restore failed."
+        }
     }
     finally {
         Pop-Location
@@ -59,26 +63,38 @@ Write-Host "✅ Set environment variable 'Components__Database' to '$DatabaseTyp
 $env:Components__IsMultiTenant = $IsMultiTenant
 Write-Host "✅ Set environment variable 'Components__IsMultiTenant' to '$IsMultiTenant' for this session."
 
-if (-not (Test-Path $migrationServicePath)) {
-    throw "MigrationService path not found: $migrationServicePath"
+if (-not (Test-Path $adminServicePath)) {
+    throw "AdminService path not found: $adminServicePath"
+}
+
+if (-not (Test-Path $adminServiceProjectPath)) {
+    throw "AdminService project path not found: $adminServiceProjectPath"
 }
 
 if (-not (Test-Path $entityFrameworkProjectPath)) {
     throw "EntityFramework project path not found: $entityFrameworkProjectPath"
 }
 
-Push-Location $migrationServicePath
+Push-Location $adminServicePath
 try {
     if ([string]::IsNullOrWhiteSpace($Name)) {
         $Name = [DateTime]::Now.ToString("yyyyMMdd-HHmmss")
     }
 
     dotnet build
+    if ($LASTEXITCODE -ne 0) {
+        throw "dotnet build failed for $adminServiceProjectPath."
+    }
+
     if ($Name -eq "Remove") {
-        dotnet ef migrations remove -c DefaultDbContext --no-build --project $entityFrameworkProjectPath
+        dotnet ef migrations remove -c DefaultDbContext --no-build --project $entityFrameworkProjectPath --startup-project $adminServiceProjectPath
     }
     else {
-        dotnet ef migrations add $Name -c DefaultDbContext --no-build --project $entityFrameworkProjectPath
+        dotnet ef migrations add $Name -c DefaultDbContext --no-build --project $entityFrameworkProjectPath --startup-project $adminServiceProjectPath
+    }
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "dotnet ef migration command failed."
     }
 }
 finally {

@@ -5,7 +5,7 @@ namespace CoreMod.Managers;
 /// 提示词
 /// </summary>
 public class AIPromptManager(
-    TenantDbFactory dbContextFactory, 
+    AppDbFactory dbContextFactory,
     ILogger<AIPromptManager> logger,
     IUserContext userContext
 ) : ManagerBase<DefaultDbContext, AIPrompt>(dbContextFactory, userContext, logger)

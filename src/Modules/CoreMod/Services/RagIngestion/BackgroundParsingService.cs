@@ -54,8 +54,8 @@ public class BackgroundParsingService(
         try
         {
             using var scope = serviceProvider.CreateScope();
-            var dbFactory = scope.ServiceProvider.GetRequiredService<TenantDbFactory>();
-            await using var dbContext = await dbFactory.CreateDbContextAsync();
+            var dbFactory = scope.ServiceProvider.GetRequiredService<AppDbFactory>();
+            await using var dbContext = await dbFactory.CreateDbContextAsync(tenantId);
 
             var document = await dbContext.RagDocuments
                 .FirstOrDefaultAsync(d => d.Id == documentId && d.TenantId == tenantId, cancellationToken);
@@ -107,53 +107,68 @@ public class BackgroundParsingService(
         try
         {
             using var scope = serviceProvider.CreateScope();
-            var dbFactory = scope.ServiceProvider.GetRequiredService<TenantDbFactory>();
+            var dbFactory = scope.ServiceProvider.GetRequiredService<AppDbFactory>();
             var ingestionService = scope.ServiceProvider.GetRequiredService<RagIngestionService>();
 
-            await using var dbContext = await dbFactory.CreateDbContextAsync();
-
-            var pendingDocuments = await dbContext.RagDocuments
-                .Where(d => d.Status == RagDocumentStatus.Pending ||
-                           (d.Status == RagDocumentStatus.Failed && d.RetryCount < 3))
-                .OrderBy(d => d.CreatedTime)
-                .Take(10)
+            await using var catalogDbContext = await dbFactory.CreateDbContextAsync(null);
+            var tenantIds = await catalogDbContext.Tenants
+                .Select(tenant => tenant.Id)
                 .ToListAsync(cancellationToken);
 
-            if (pendingDocuments.Count == 0)
+            foreach (var tenantId in tenantIds)
             {
-                return;
-            }
+                await using var dbContext = await dbFactory.CreateDbContextAsync(tenantId);
+                var pendingDocuments = await dbContext.RagDocuments
+                    .Where(document => document.Status == RagDocumentStatus.Pending
+                        || (document.Status == RagDocumentStatus.Failed && document.RetryCount < 3))
+                    .OrderBy(document => document.CreatedTime)
+                    .Take(10)
+                    .ToListAsync(cancellationToken);
 
-            logger.LogInformation("Processing {Count} pending documents", pendingDocuments.Count);
-
-            foreach (var document in pendingDocuments)
-            {
-                if (cancellationToken.IsCancellationRequested)
+                if (pendingDocuments.Count == 0)
                 {
-                    break;
+                    continue;
                 }
 
-                try
+                logger.LogInformation(
+                    "Processing {Count} pending documents for tenant {TenantId}",
+                    pendingDocuments.Count,
+                    tenantId
+                );
+
+                foreach (var document in pendingDocuments)
                 {
-                    if (document.Status == RagDocumentStatus.Failed)
+                    if (cancellationToken.IsCancellationRequested)
                     {
-                        document.RetryCount++;
-                        await dbContext.SaveChangesAsync(cancellationToken);
+                        return;
                     }
 
-                    await ingestionService.IngestAsync(document.Id, cancellationToken: cancellationToken);
-
-                    logger.LogInformation("Successfully processed document {DocumentId}", document.Id);
-                }
-                catch (Exception ex)
-                {
-                    logger.LogWarning(ex, "Failed to process document {DocumentId}", document.Id);
-
-                    if (document.Status != RagDocumentStatus.Failed)
+                    try
                     {
-                        document.Status = RagDocumentStatus.Failed;
-                        document.ErrorMessage = ex.Message;
-                        await dbContext.SaveChangesAsync(cancellationToken);
+                        if (document.Status == RagDocumentStatus.Failed)
+                        {
+                            document.RetryCount++;
+                            await dbContext.SaveChangesAsync(cancellationToken);
+                        }
+
+                        await ingestionService.IngestAsync(
+                            document.Id,
+                            tenantId,
+                            cancellationToken: cancellationToken
+                        );
+
+                        logger.LogInformation("Successfully processed document {DocumentId}", document.Id);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogWarning(ex, "Failed to process document {DocumentId}", document.Id);
+
+                        if (document.Status != RagDocumentStatus.Failed)
+                        {
+                            document.Status = RagDocumentStatus.Failed;
+                            document.ErrorMessage = ex.Message;
+                            await dbContext.SaveChangesAsync(cancellationToken);
+                        }
                     }
                 }
             }

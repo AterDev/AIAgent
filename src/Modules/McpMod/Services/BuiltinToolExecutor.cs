@@ -8,7 +8,7 @@ namespace McpMod.Services;
 /// </summary>
 public class BuiltinToolExecutor(
     IRagQueryService ragQueryService,
-    TenantDbFactory dbContextFactory,
+    AppDbFactory dbContextFactory,
     IUserContext userContext,
     IHttpClientFactory httpClientFactory,
     ILogger<BuiltinToolExecutor> logger
@@ -20,7 +20,6 @@ public class BuiltinToolExecutor(
 
     public async Task<ToolExecutionResult> ExecuteAsync(ToolExecutionRequest request, CancellationToken cancellationToken = default)
     {
-        _ = userContext;
         return request.ToolName switch
         {
             "query_knowledge_base" => await ExecuteRagQueryAsync(request, cancellationToken),
@@ -97,7 +96,7 @@ public class BuiltinToolExecutor(
             return Failed("Only read-only SELECT queries are allowed");
         }
 
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
         var connection = dbContext.Database.GetDbConnection();
         await using var _ = connection;
         if (connection.State != ConnectionState.Open)
@@ -202,7 +201,7 @@ public class BuiltinToolExecutor(
 
     private async Task<HashSet<string>> GetHttpAllowlistAsync(CancellationToken cancellationToken)
     {
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(userContext.TenantId);
         var config = await dbContext.SystemConfigs
             .AsNoTracking()
             .FirstOrDefaultAsync(
